@@ -1,0 +1,8 @@
+{
+  "id": "test-patch",
+  "target_file": "tmp_test_target.tsx",
+  "patch": {
+    "pattern": "<Text>.*?</Text>",
+    "replacement": "<Text>✅ PATCHED</Text>"
+  }
+} 
