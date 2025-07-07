@@ -1,5 +1,6 @@
 {
   "id": "test-patch",
+  "role": "ui_patch",
   "target_file": "tmp_test_target.tsx",
   "patch": {
     "pattern": "<Text>.*?</Text>",

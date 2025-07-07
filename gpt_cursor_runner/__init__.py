@@ -1,14 +1,27 @@
 """
-GPT-Cursor Runner
+GPT-Cursor Runner Package.
 
-A Flask-based webhook handler for processing GPT-generated hybrid blocks 
-and saving them as JSON patches.
+A production-ready CLI tool and webhook microservice for handling GPT-generated code patches.
 """
 
-__version__ = "0.1.0"
-__author__ = "Sawyer"
+__version__ = "0.2.0"
+__author__ = "GPT-Cursor Runner Team"
 
-from .main import app, run_server
-from .webhook_handler import process_hybrid_block
+# Import main components
+from .main import app, main
+from .patch_runner import apply_patch, load_latest_patch
+from .event_logger import EventLogger, event_logger
+from .patch_viewer import list_patches, view_patch
+from .event_viewer import main as event_viewer_main
 
-__all__ = ["app", "run_server", "process_hybrid_block"] 
+__all__ = [
+    "app",
+    "main", 
+    "apply_patch",
+    "load_latest_patch",
+    "EventLogger",
+    "event_logger",
+    "list_patches",
+    "view_patch",
+    "event_viewer_main"
+] 

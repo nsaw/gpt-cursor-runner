@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GPT-Cursor Runner Patch Schema",
+  "description": "Schema for GPT hybrid blocks and patches",
+  "type": "object",
+  "required": ["id", "role", "target_file", "patch"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the patch"
+    },
+    "role": {
+      "type": "string",
+      "description": "Type of patch (e.g., 'ui_patch', 'api_patch')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the patch"
+    },
+    "target_file": {
+      "type": "string",
+      "description": "Path to the target file relative to project root"
+    },
+    "patch": {
+      "type": "object",
+      "required": ["pattern", "replacement"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern to match in the target file"
+        },
+        "replacement": {
+          "type": "string",
+          "description": "Text to replace the matched pattern"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string",
+          "description": "Author of the patch"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source of the patch (e.g., 'gpt', 'slack_command')"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp or 'auto'"
+        }
+      }
+    }
+  }
+} 

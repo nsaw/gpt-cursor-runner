@@ -1,0 +1,89 @@
+{
+  "events": [
+    {
+      "id": "patch_1751846916097",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-06T17:08:36.097486",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "author": "test",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "patch_id": "test-safe-patch",
+        "timestamp": "2025-07-06T17:08:36.097452"
+      }
+    },
+    {
+      "id": "patch_1751846941824",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-06T17:09:01.824039",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "author": "test",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "patch_id": "test-safe-patch",
+        "timestamp": "2025-07-06T17:09:01.824023"
+      }
+    },
+    {
+      "id": "system_1751846952296",
+      "type": "system_event",
+      "event_type": "server_started",
+      "timestamp": "2025-07-06T17:09:12.296567",
+      "data": {
+        "port": 5050,
+        "timestamp": "2025-07-06T17:09:12.296544"
+      }
+    },
+    {
+      "id": "system_1751846952485",
+      "type": "system_event",
+      "event_type": "server_started",
+      "timestamp": "2025-07-06T17:09:12.485779",
+      "data": {
+        "port": 5050,
+        "timestamp": "2025-07-06T17:09:12.485765"
+      }
+    },
+    {
+      "id": "system_1751847722733",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-06T17:22:02.733657",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "feature-bundle_ui-dashboard_slash-preview_release",
+          "role": "ui_patch",
+          "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+          "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+          "patch": {
+            "pattern": ".*",
+            "replacement": "---\n## \ud83d\udee0\ufe0f Feature Bundle: UI Dashboard + Slack Previews + Release Prep\n\n### 1. \ud83d\udcca UI Status Dashboard\n- Add `dashboard.py` (or `ui_dashboard/` module) to launch a Flask route `/dashboard`\n- Visualizes:\n  - Latest patch applications\n  - Slack events summary\n  - Patch health status (success/failure rate)\n  - Logs filtered by type/date\n- Integrate with `event_log.json`\n- Optional: Use `plotly` or `dash` for richer graphs\n\n### 2. \u26a1 Slack Slash Command Auto-Response\n- Enhance `slack_proxy.py` or `/slack/command` to:\n  - Parse incoming `/patch` commands\n  - Look up patch preview by ID or description\n  - Return match preview or validation status inline to Slack\n- Requires: Slack OAuth Token, and `chat:write`, `commands` scopes\n- Optional: Format response with blocks/attachments for better UX\n\n### 3. \ud83d\ude80 GitHub Release & Version Bump\n- Add GitHub Action:\n  - On tag push: build + upload PyPI release (optional)\n  - Update changelog + bump version in `pyproject.toml`\n- Update `setup.py` and `pyproject.toml` to reflect new version (e.g. `0.2.0`)\n\n---\n"
+          },
+          "metadata": {
+            "author": "gpt-4",
+            "timestamp": "auto"
+          }
+        }
+      }
+    }
+  ],
+  "last_updated": "2025-07-06T17:22:02.734804",
+  "total_events": 5
+}

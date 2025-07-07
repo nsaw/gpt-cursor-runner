@@ -69,7 +69,7 @@ def test_load_latest_patch_no_patches(temp_patches_dir):
 def test_load_latest_patch_with_patches(temp_patches_dir):
     patch_file_path = os.path.join(temp_patches_dir, "test_patch.json")
     with open(patch_file_path, "w") as f:
-        f.write('{"id": "test", "target_file": "test.tsx", "patch": {"pattern": "test", "replacement": "replaced"}}')
+        f.write('{"id": "test", "role": "ui_patch", "target_file": "test.tsx", "patch": {"pattern": "test", "replacement": "replaced"}}')
     patch, patch_file = load_latest_patch(patches_dir=temp_patches_dir)
     assert patch is not None
     assert patch_file is not None
@@ -78,6 +78,7 @@ def test_load_latest_patch_with_patches(temp_patches_dir):
 def test_apply_patch_complex_pattern(dummy_target_path, mock_cursor_project_path):
     complex_patch = {
         "id": "complex-test",
+        "role": "ui_patch",
         "target_file": os.path.basename(dummy_target_path),
         "patch": {
             "pattern": r"<View>.*?</View>",
@@ -107,6 +108,7 @@ export default function MultiTextScreen() {
         f.write(multi_text_content)
     multi_patch = {
         "id": "multi-test",
+        "role": "ui_patch",
         "target_file": os.path.basename(dummy_target_path),
         "patch": {
             "pattern": r"<Text>.*?</Text>",
@@ -137,7 +139,7 @@ def test_run_tests_handles_failure(monkeypatch):
 
 def test_cli_entrypoint_help():
     result = subprocess.run(
-        ["gpt-cursor-runner", "--help"],
+        ["python3", "-m", "gpt_cursor_runner.patch_runner", "--help"],
         capture_output=True, text=True
     )
     assert result.returncode == 0 or "Usage" in result.stdout 

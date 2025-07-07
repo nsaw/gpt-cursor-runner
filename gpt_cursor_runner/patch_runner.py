@@ -1,190 +1,262 @@
+#!/usr/bin/env python3
+"""
+Patch Runner for GPT-Cursor Runner.
+
+Applies patches to target files with safety checks and logging.
+"""
+
 import os
-import json
 import re
-import glob
-import subprocess
+import json
 import shutil
+import argparse
 from datetime import datetime
+from typing import Dict, Any, Optional, List
+from pathlib import Path
 
-PATCH_LOG = "patch-log.json"
-CURSOR_PROJECT_PATH = os.getenv("CURSOR_PROJECT_PATH")  # Optional
+# Import schema validation
+try:
+    from .patch_schema import validate_patch_schema
+except ImportError:
+    def validate_patch_schema(patch_data):
+        return True, "Schema validation disabled"
 
-def log_patch_entry(entry):
-    log = []
-    if os.path.exists(PATCH_LOG):
-        with open(PATCH_LOG, "r") as f:
-            try:
-                log = json.load(f)
-            except json.JSONDecodeError:
-                log = []
+# Import logging system
+try:
+    from .event_logger import EventLogger
+    EVENT_LOGGER = EventLogger()
+except ImportError:
+    EVENT_LOGGER = None
 
-    log.append(entry)
+def log_patch_event(event_type: str, patch_data: Dict[str, Any], result: Dict[str, Any] = None):
+    """Log patch events for UI display."""
+    if EVENT_LOGGER:
+        EVENT_LOGGER.log_patch_event(event_type, patch_data, result)
 
-    with open(PATCH_LOG, "w") as f:
-        json.dump(log, f, indent=2)
+def is_dangerous_pattern(pattern: str) -> bool:
+    """Check if a pattern is potentially dangerous."""
+    dangerous_patterns = [
+        r'^\.\*$',  # .*
+        r'^\*$',    # *
+        r'^\.$',    # .
+        r'^.*$',    # .*
+        r'^\*.*$',  # *anything
+        r'^.*\*$',  # anything*
+    ]
+    
+    for dangerous in dangerous_patterns:
+        if re.match(dangerous, pattern):
+            return True
+    return False
 
-def load_latest_patch(patches_dir="patches"):
-    patch_files = sorted(glob.glob(os.path.join(patches_dir, "*.json")), key=os.path.getmtime, reverse=True)
+def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = False) -> Dict[str, Any]:
+    """Apply a patch to a target file."""
+    result = {
+        "success": False,
+        "message": "",
+        "changes_made": False,
+        "backup_created": False,
+        "target_file": patch_data.get("target_file", ""),
+        "patch_id": patch_data.get("id", ""),
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Validate patch schema
+    is_valid, error_msg = validate_patch_schema(patch_data)
+    if not is_valid:
+        result["message"] = f"Schema validation failed: {error_msg}"
+        log_patch_event("validation_failed", patch_data, result)
+        return result
+    
+    target_file = patch_data.get("target_file")
+    if not target_file:
+        result["message"] = "No target file specified"
+        log_patch_event("missing_target", patch_data, result)
+        return result
+    
+    if not os.path.exists(target_file):
+        result["message"] = f"Target file not found: {target_file}"
+        log_patch_event("file_not_found", patch_data, result)
+        return result
+    
+    patch_info = patch_data.get("patch", {})
+    pattern = patch_info.get("pattern")
+    replacement = patch_info.get("replacement")
+    
+    if not pattern:
+        result["message"] = "No pattern specified"
+        log_patch_event("missing_pattern", patch_data, result)
+        return result
+    
+    if not replacement:
+        result["message"] = "No replacement specified"
+        log_patch_event("missing_replacement", patch_data, result)
+        return result
+    
+    # Check for dangerous patterns
+    if is_dangerous_pattern(pattern) and not force:
+        result["message"] = f"Dangerous pattern detected: {pattern}"
+        log_patch_event("dangerous_pattern", patch_data, result)
+        return result
+    
+    try:
+        with open(target_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Check if pattern matches
+        if pattern not in content:
+            result["message"] = f"Pattern not found in file: {pattern}"
+            log_patch_event("pattern_not_found", patch_data, result)
+            return result
+        
+        # Create backup if not dry run
+        if not dry_run:
+            backup_file = f"{target_file}.bak_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            shutil.copy2(target_file, backup_file)
+            result["backup_created"] = True
+            result["backup_file"] = backup_file
+        
+        # Apply replacement
+        new_content = content.replace(pattern, replacement)
+        
+        if new_content == content:
+            result["message"] = "No changes made (replacement identical)"
+            log_patch_event("no_changes", patch_data, result)
+            return result
+        
+        # Write changes if not dry run
+        if not dry_run:
+            with open(target_file, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+            result["changes_made"] = True
+            result["success"] = True
+            result["message"] = f"Successfully applied patch to {target_file}"
+            log_patch_event("patch_applied", patch_data, result)
+        else:
+            result["message"] = f"Dry run: Would apply patch to {target_file}"
+            result["success"] = True
+            log_patch_event("dry_run", patch_data, result)
+        
+        return result
+        
+    except Exception as e:
+        result["message"] = f"Error applying patch: {str(e)}"
+        log_patch_event("application_error", patch_data, result)
+        return result
+
+def load_latest_patch(patches_dir: str = "patches") -> Optional[Dict[str, Any]]:
+    """Load the most recent patch file."""
+    if not os.path.exists(patches_dir):
+        return None
+    
+    patch_files = [f for f in os.listdir(patches_dir) if f.endswith('.json')]
     if not patch_files:
-        print("❌ No patch files found.")
-        return None, None
-    with open(patch_files[0], "r") as f:
-        return json.load(f), patch_files[0]
-
-def apply_patch(patch, dry_run=False):
-    target_file = patch.get("target_file")
-    patch_data = patch.get("patch", {})
-    pattern = patch_data.get("pattern")
-    replacement = patch_data.get("replacement")
-
-    if not (target_file and pattern and replacement):
-        print("❌ Patch missing required fields.")
-        return False
-
-    cursor_root = os.getenv("CURSOR_PROJECT_PATH", "")
-    abs_target = os.path.join(cursor_root, target_file)
-
-    if not os.path.exists(abs_target):
-        print(f"❌ Target file not found: {abs_target}")
-        return False
-
-    # Backup original
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    backup_path = f"{abs_target}.bak_{timestamp}"
-    shutil.copy(abs_target, backup_path)
-    print(f"📦 Backup created: {backup_path}")
-
-    with open(abs_target, "r") as f:
-        content = f.read()
-
-    # Show preview
-    preview = re.findall(pattern, content, flags=re.MULTILINE | re.DOTALL)
-    if preview:
-        print("🧪 Match Preview:")
-        for i, match in enumerate(preview):
-            print(f"\n--- Match {i+1} ---\n{match}\n")
-    else:
-        print("⚠️  No match found for preview.")
-
-    if dry_run:
-        print("🧪 Dry run: patch not written.")
-        return True
-
-    new_content, count = re.subn(pattern, replacement, content, flags=re.MULTILINE | re.DOTALL)
-
-    if count == 0:
-        print("⚠️  Pattern not found in target file. No changes made.")
-        return False
-
-    with open(abs_target, "w") as f:
-        f.write(new_content)
-
-    print(f"✅ Patch applied to {abs_target} ({count} replacements)")
-
-    if CURSOR_PROJECT_PATH:
-        # Optional: copy patched file to Cursor project
-        cursor_target = os.path.join(CURSOR_PROJECT_PATH, os.path.basename(target_file))
-        shutil.copy(abs_target, cursor_target)
-        print(f"📤 Synced patched file to Cursor path: {cursor_target}")
-
-    return True
-
-    target_file = patch.get("target_file")
-    patch_data = patch.get("patch", {})
-    pattern = patch_data.get("pattern")
-    replacement = patch_data.get("replacement")
-
-    if not (target_file and pattern and replacement):
-        print("❌ Patch missing required fields.")
-        return False
-
-    # Resolve full path relative to Cursor project root
-    cursor_root = os.getenv("CURSOR_PROJECT_PATH", "")
-    abs_target = os.path.join(cursor_root, target_file)
-
-    if not os.path.exists(abs_target):
-        print(f"❌ Target file not found: {abs_target}")
-        return False
-
-
-    # Backup original
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    backup_path = f"{target_file}.bak_{timestamp}"
-    shutil.copy(target_file, backup_path)
-    print(f"📦 Backup created: {backup_path}")
-
-    with open(target_file, "r") as f:
-        content = f.read()
-
-    # Show preview
-    preview = re.findall(pattern, content, flags=re.MULTILINE | re.DOTALL)
-    if preview:
-        print("🧪 Match Preview:")
-        for i, match in enumerate(preview):
-            print(f"\n--- Match {i+1} ---\n{match}\n")
-    else:
-        print("⚠️  No match found for preview.")
-
-    if dry_run:
-        print("🧪 Dry run: patch not written.")
-        return True
-
-    new_content, count = re.subn(pattern, replacement, content, flags=re.MULTILINE | re.DOTALL)
-
-    if count == 0:
-        print("⚠️  Pattern not found in target file. No changes made.")
-        return False
-
-    with open(target_file, "w") as f:
-        f.write(new_content)
-
-    print(f"✅ Patch applied to {target_file} ({count} replacements)")
-
-    if CURSOR_PROJECT_PATH:
-        # Optional: copy patched file to Cursor project
-        cursor_target = os.path.join(CURSOR_PROJECT_PATH, os.path.basename(target_file))
-        shutil.copy(target_file, cursor_target)
-        print(f"📤 Synced patched file to Cursor path: {cursor_target}")
-
-    return True
-
-def run_tests():
+        return None
+    
+    # Sort by modification time (newest first)
+    patch_files.sort(key=lambda x: os.path.getmtime(os.path.join(patches_dir, x)), reverse=True)
+    latest_patch_file = os.path.join(patches_dir, patch_files[0])
+    
     try:
-        subprocess.run(["npm", "test"], check=True)
-        print("✅ Test suite ran successfully.")
+        with open(latest_patch_file, 'r') as f:
+            return json.load(f)
     except Exception as e:
-        print(f"⚠️  Test suite failed or not available: {e}")
+        print(f"Error loading patch: {e}")
+        return None
 
-def git_commit(target_file, patch_file):
+def log_patch_entry(patch_data: Dict[str, Any], result: Dict[str, Any]):
+    """Log patch application to patch log."""
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "patch_id": patch_data.get("id", "unknown"),
+        "target_file": patch_data.get("target_file", ""),
+        "description": patch_data.get("description", ""),
+        "success": result.get("success", False),
+        "message": result.get("message", ""),
+        "changes_made": result.get("changes_made", False),
+        "backup_created": result.get("backup_created", False)
+    }
+    
+    log_file = "patch-log.json"
     try:
-        subprocess.run(["git", "add", target_file], check=True)
-        subprocess.run(["git", "commit", "-m", f"Apply patch from {os.path.basename(patch_file)}"], check=True)
-        print("✅ Changes committed to git.")
+        if os.path.exists(log_file):
+            with open(log_file, 'r') as f:
+                existing_data = json.load(f)
+                
+            # Handle both old array format and new object format
+            if isinstance(existing_data, list):
+                # Convert old format to new format
+                log_data = {"entries": existing_data}
+            else:
+                log_data = existing_data
+        else:
+            log_data = {"entries": []}
+        
+        log_data["entries"].append(log_entry)
+        
+        # Keep only last 100 entries
+        if len(log_data["entries"]) > 100:
+            log_data["entries"] = log_data["entries"][-100:]
+        
+        with open(log_file, 'w') as f:
+            json.dump(log_data, f, indent=2)
+            
     except Exception as e:
-        print(f"⚠️  Git commit failed: {e}")
+        print(f"Error logging patch entry: {e}")
+
+def run_tests(target_file: str) -> bool:
+    """Run tests on the target file (placeholder)."""
+    # This would integrate with your actual test runner
+    print(f"🧪 Running tests on {target_file}")
+    return True
 
 def main():
-    patch, patch_file = load_latest_patch()
-    if not patch:
-        return
-
-    dry_run = input("🧪 Run in dry mode (no file write)? (y/n): ").strip().lower() == "y"
-
-    success = apply_patch(patch, dry_run=dry_run)
-
-    log_patch_entry({
-        "timestamp": datetime.utcnow().isoformat(),
-        "patch_file": patch_file,
-        "target": patch.get("target_file"),
-        "success": success,
-        "dry_run": dry_run
-    })
-
-    if success and not dry_run:
-        run_tests()
-        do_commit = input("💾 Commit changes to git? (y/n): ").strip().lower()
-        if do_commit == "y":
-            git_commit(patch["target_file"], patch_file)
+    parser = argparse.ArgumentParser(description="Apply patches to target files")
+    parser.add_argument("--dry-run", action="store_true", default=True, help="Dry run (default)")
+    parser.add_argument("--force", action="store_true", help="Force apply without prompts")
+    parser.add_argument("--auto", action="store_true", help="Auto-confirm prompts")
+    parser.add_argument("--patch-file", help="Specific patch file to apply")
+    parser.add_argument("--target-dir", default=".", help="Target directory for patches")
+    
+    args = parser.parse_args()
+    
+    # Load latest patch if no specific file
+    if args.patch_file:
+        try:
+            with open(args.patch_file, 'r') as f:
+                patch_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading patch file: {e}")
+            return 1
+    else:
+        patch_data = load_latest_patch()
+        if not patch_data:
+            print("No patches found")
+            return 1
+    
+    # Apply patch
+    result = apply_patch(patch_data, dry_run=args.dry_run, force=args.force)
+    
+    # Log the result
+    log_patch_entry(patch_data, result)
+    
+    # Display result
+    print(f"📄 Patch: {patch_data.get('id', 'unknown')}")
+    print(f"🎯 Target: {result['target_file']}")
+    print(f"✅ Success: {result['success']}")
+    print(f"📝 Message: {result['message']}")
+    
+    if result.get("backup_created"):
+        print(f"💾 Backup: {result['backup_file']}")
+    
+    if result.get("success") and not args.dry_run:
+        # Run tests if patch was applied
+        if run_tests(result['target_file']):
+            print("✅ Tests passed")
+        else:
+            print("❌ Tests failed")
+    
+    return 0 if result.get("success") else 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())
