@@ -11,8 +11,7 @@ import json
 import shutil
 import argparse
 from datetime import datetime
-from typing import Dict, Any, Optional, List
-from pathlib import Path
+from typing import Dict, Any, Optional
 
 # Import schema validation
 try:
@@ -28,10 +27,33 @@ try:
 except ImportError:
     EVENT_LOGGER = None
 
-def log_patch_event(event_type: str, patch_data: Dict[str, Any], result: Dict[str, Any] = None):
+# Import notification system
+try:
+    from .slack_proxy import create_slack_proxy
+    slack_proxy = create_slack_proxy()
+except ImportError:
+    slack_proxy = None
+
+def log_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
     """Log patch events for UI display."""
     if EVENT_LOGGER:
         EVENT_LOGGER.log_patch_event(event_type, patch_data, result)
+
+def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
+    """Notify Slack of patch events."""
+    if slack_proxy:
+        try:
+            if event_type == "patch_applied" and result and result.get("success"):
+                slack_proxy.notify_patch_applied(
+                    patch_data.get("id", "unknown"),
+                    patch_data.get("target_file", "unknown"),
+                    True
+                )
+            elif event_type in ["validation_failed", "application_error", "dangerous_pattern"]:
+                error_msg = result.get("message", "Unknown error") if result else "Unknown error"
+                slack_proxy.notify_error(f"Patch {event_type}: {error_msg}", context=patch_data.get("target_file", ""))
+        except Exception as e:
+            print(f"Error notifying Slack: {e}")
 
 def is_dangerous_pattern(pattern: str) -> bool:
     """Check if a pattern is potentially dangerous."""
@@ -66,17 +88,20 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
     if not is_valid:
         result["message"] = f"Schema validation failed: {error_msg}"
         log_patch_event("validation_failed", patch_data, result)
+        notify_patch_event("validation_failed", patch_data, result)
         return result
     
     target_file = patch_data.get("target_file")
     if not target_file:
         result["message"] = "No target file specified"
         log_patch_event("missing_target", patch_data, result)
+        notify_patch_event("missing_target", patch_data, result)
         return result
     
     if not os.path.exists(target_file):
         result["message"] = f"Target file not found: {target_file}"
         log_patch_event("file_not_found", patch_data, result)
+        notify_patch_event("file_not_found", patch_data, result)
         return result
     
     patch_info = patch_data.get("patch", {})
@@ -86,17 +111,20 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
     if not pattern:
         result["message"] = "No pattern specified"
         log_patch_event("missing_pattern", patch_data, result)
+        notify_patch_event("missing_pattern", patch_data, result)
         return result
     
     if not replacement:
         result["message"] = "No replacement specified"
         log_patch_event("missing_replacement", patch_data, result)
+        notify_patch_event("missing_replacement", patch_data, result)
         return result
     
     # Check for dangerous patterns
     if is_dangerous_pattern(pattern) and not force:
         result["message"] = f"Dangerous pattern detected: {pattern}"
         log_patch_event("dangerous_pattern", patch_data, result)
+        notify_patch_event("dangerous_pattern", patch_data, result)
         return result
     
     try:
@@ -107,6 +135,7 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         if pattern not in content:
             result["message"] = f"Pattern not found in file: {pattern}"
             log_patch_event("pattern_not_found", patch_data, result)
+            notify_patch_event("pattern_not_found", patch_data, result)
             return result
         
         # Create backup if not dry run
@@ -122,6 +151,7 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         if new_content == content:
             result["message"] = "No changes made (replacement identical)"
             log_patch_event("no_changes", patch_data, result)
+            notify_patch_event("no_changes", patch_data, result)
             return result
         
         # Write changes if not dry run
@@ -132,16 +162,24 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
             result["success"] = True
             result["message"] = f"Successfully applied patch to {target_file}"
             log_patch_event("patch_applied", patch_data, result)
+            notify_patch_event("patch_applied", patch_data, result)
         else:
             result["message"] = f"Dry run: Would apply patch to {target_file}"
             result["success"] = True
             log_patch_event("dry_run", patch_data, result)
+            notify_patch_event("dry_run", patch_data, result)
         
         return result
         
     except Exception as e:
         result["message"] = f"Error applying patch: {str(e)}"
         log_patch_event("application_error", patch_data, result)
+        notify_patch_event("application_error", patch_data, result)
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error applying patch: {e}", context=patch_data.get("target_file", ""))
+        except Exception:
+            pass
         return result
 
 def load_latest_patch(patches_dir: str = "patches") -> Optional[Dict[str, Any]]:
@@ -162,6 +200,11 @@ def load_latest_patch(patches_dir: str = "patches") -> Optional[Dict[str, Any]]:
             return json.load(f)
     except Exception as e:
         print(f"Error loading patch: {e}")
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error loading patch: {e}", context=latest_patch_file)
+        except Exception:
+            pass
         return None
 
 def log_patch_entry(patch_data: Dict[str, Any], result: Dict[str, Any]):
@@ -203,6 +246,11 @@ def log_patch_entry(patch_data: Dict[str, Any], result: Dict[str, Any]):
             
     except Exception as e:
         print(f"Error logging patch entry: {e}")
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error logging patch entry: {e}", context=log_file)
+        except Exception:
+            pass
 
 def run_tests(target_file: str) -> bool:
     """Run tests on the target file (placeholder)."""
@@ -227,6 +275,11 @@ def main():
                 patch_data = json.load(f)
         except Exception as e:
             print(f"Error loading patch file: {e}")
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error loading patch file: {e}", context=args.patch_file)
+            except Exception:
+                pass
             return 1
     else:
         patch_data = load_latest_patch()

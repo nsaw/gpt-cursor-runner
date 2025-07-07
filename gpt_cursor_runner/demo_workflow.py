@@ -8,7 +8,6 @@ import os
 import time
 import subprocess
 import requests
-import json
 from dotenv import load_dotenv
 
 def step1_start_server():

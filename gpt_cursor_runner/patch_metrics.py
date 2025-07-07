@@ -12,6 +12,13 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
+# Import notification system
+try:
+    from .slack_proxy import create_slack_proxy
+    slack_proxy = create_slack_proxy()
+except ImportError:
+    slack_proxy = None
+
 @dataclass
 class PatchMetrics:
     """Metrics for a single patch application."""
@@ -74,6 +81,11 @@ class MetricsTracker:
                 json.dump(data, f, indent=2)
         except Exception as e:
             print(f"Error writing metrics: {e}")
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error writing metrics: {e}", context=self.metrics_file)
+            except Exception:
+                pass
     
     def _read_metrics(self) -> Dict[str, Any]:
         """Read metrics data from file."""
@@ -82,6 +94,11 @@ class MetricsTracker:
                 return json.load(f)
         except Exception as e:
             print(f"Error reading metrics: {e}")
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error reading metrics: {e}", context=self.metrics_file)
+            except Exception:
+                pass
             return {"patches": [], "summary": {}, "last_updated": datetime.now().isoformat()}
     
     def start_patch_tracking(self, patch_id: str, target_file: str) -> float:
@@ -117,7 +134,12 @@ class MetricsTracker:
         """Count matches of pattern in content."""
         try:
             return len(re.findall(re.escape(pattern), content))
-        except:
+        except Exception as e:
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error in count_matches: {e}", context=pattern)
+            except Exception:
+                pass
             return 0
     
     def end_patch_tracking(

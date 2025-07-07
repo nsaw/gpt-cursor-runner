@@ -4,7 +4,6 @@ Test script to simulate Slack pinging the test endpoint.
 """
 
 import requests
-import json
 
 def test_slack_ping():
     """Test the Slack test endpoint."""

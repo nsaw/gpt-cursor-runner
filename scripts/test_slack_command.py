@@ -4,7 +4,6 @@ Test script to simulate Slack slash command payloads.
 """
 
 import requests
-import json
 import time
 import hmac
 import hashlib

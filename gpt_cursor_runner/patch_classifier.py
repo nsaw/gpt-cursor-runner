@@ -5,7 +5,7 @@ Auto-labels patches by UI role (button, modal, nav, etc.) and applies role-speci
 """
 
 import re
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dataclasses import dataclass
 
 @dataclass

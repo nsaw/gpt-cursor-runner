@@ -9,7 +9,6 @@ import json
 import time
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from pathlib import Path
 
 class EventLogger:
     """Logs events for UI display and automation."""
@@ -44,9 +43,15 @@ class EventLogger:
                 return json.load(f)
         except Exception as e:
             print(f"Error reading log file: {e}")
+            try:
+                from .slack_proxy import create_slack_proxy
+                slack_proxy = create_slack_proxy()
+                slack_proxy.notify_error(f"Error reading log file: {e}", context=self.log_file)
+            except Exception:
+                pass
             return {"events": [], "last_updated": datetime.now().isoformat(), "total_events": 0}
     
-    def log_patch_event(self, event_type: str, patch_data: Dict[str, Any], result: Dict[str, Any] = None):
+    def log_patch_event(self, event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
         """Log patch-related events."""
         event = {
             "id": f"patch_{int(time.time() * 1000)}",
@@ -63,7 +68,7 @@ class EventLogger:
         
         self._add_event(event)
     
-    def log_slack_event(self, event_type: str, slack_data: Dict[str, Any], result: Dict[str, Any] = None):
+    def log_slack_event(self, event_type: str, slack_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
         """Log Slack-related events."""
         event = {
             "id": f"slack_{int(time.time() * 1000)}",
@@ -79,7 +84,7 @@ class EventLogger:
         
         self._add_event(event)
     
-    def log_system_event(self, event_type: str, data: Dict[str, Any] = None):
+    def log_system_event(self, event_type: str, data: Optional[Dict[str, Any]] = None):
         """Log system events."""
         event = {
             "id": f"system_{int(time.time() * 1000)}",
@@ -106,7 +111,7 @@ class EventLogger:
         
         self._write_log(log_data)
     
-    def get_recent_events(self, limit: int = 50, event_type: str = None) -> List[Dict[str, Any]]:
+    def get_recent_events(self, limit: int = 50, event_type: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get recent events, optionally filtered by type."""
         log_data = self._read_log()
         events = log_data.get("events", [])
@@ -163,9 +168,15 @@ class EventLogger:
                 event_time = datetime.fromisoformat(event.get("timestamp", "")).timestamp()
                 if event_time > cutoff_time:
                     filtered_events.append(event)
-            except:
+            except Exception as e:
                 # Keep events with invalid timestamps
                 filtered_events.append(event)
+                try:
+                    from .slack_proxy import create_slack_proxy
+                    slack_proxy = create_slack_proxy()
+                    slack_proxy.notify_error(f"Error parsing event timestamp: {e}", context=str(event))
+                except Exception:
+                    pass
         
         log_data["events"] = filtered_events
         log_data["total_events"] = len(filtered_events)

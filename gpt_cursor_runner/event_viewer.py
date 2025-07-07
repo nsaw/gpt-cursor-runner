@@ -5,11 +5,10 @@ Event Viewer CLI for GPT-Cursor Runner.
 Browse and search logged events from patch runner and Slack integration.
 """
 
-import os
 import json
 import argparse
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Dict, Any
 from .event_logger import EventLogger
 
 def format_timestamp(timestamp_str: str) -> str:
@@ -17,7 +16,13 @@ def format_timestamp(timestamp_str: str) -> str:
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
         return dt.strftime("%Y-%m-%d %H:%M:%S")
-    except:
+    except Exception as e:
+        try:
+            from .slack_proxy import create_slack_proxy
+            slack_proxy = create_slack_proxy()
+            slack_proxy.notify_error(f"Error formatting timestamp: {e}", context=timestamp_str)
+        except Exception:
+            pass
         return timestamp_str
 
 def display_event(event: Dict[str, Any], show_details: bool = False):
@@ -114,7 +119,7 @@ def main():
             print(f"  {event_type}: {count}")
         
         if summary['recent_events']:
-            print(f"\nRecent activity:")
+            print("\nRecent activity:")
             for event in summary['recent_events'][-5:]:
                 display_event(event, show_details=False)
         return
@@ -143,10 +148,10 @@ def main():
     for event in events:
         display_event(event, show_details=args.details)
     
-    print(f"\n💡 Use --summary to see event statistics")
-    print(f"💡 Use --search <term> to search events")
-    print(f"💡 Use --details to see full event data")
-    print(f"💡 Use --type <type> to filter by event type")
+    print("\n💡 Use --summary to see event statistics")
+    print("💡 Use --search <term> to search events")
+    print("💡 Use --details to see full event data")
+    print("💡 Use --type <type> to filter by event type")
 
 if __name__ == "__main__":
     main() 

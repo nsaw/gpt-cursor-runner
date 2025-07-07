@@ -13,12 +13,20 @@ import requests
 import re
 from typing import Dict, Any, Optional, List
 from flask import request, jsonify
+from datetime import datetime
 
 # Import event logger
 try:
     from .event_logger import event_logger
 except ImportError:
     event_logger = None
+
+# Import notification system
+try:
+    from .slack_proxy import create_slack_proxy
+    slack_proxy = create_slack_proxy()
+except ImportError:
+    slack_proxy = None
 
 def verify_slack_signature(request_body: bytes, signature: str, timestamp: str) -> bool:
     """Verify Slack request signature."""
@@ -50,26 +58,38 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
             "text": text
         })
     
-    if command == '/patch':
-        return handle_patch_command(text, user_id, channel_id)
-    elif command == '/patch-preview':
-        return handle_patch_preview_command(text, user_id, channel_id)
-    elif command == '/patch-status':
-        return handle_patch_status_command(text, user_id, channel_id)
-    elif command == '/dashboard':
-        return handle_dashboard_command(text, user_id, channel_id)
-    elif command == '/patch-approve':
-        return handle_patch_approve_command(text, user_id, channel_id)
-    elif command == '/patch-revert':
-        return handle_patch_revert_command(text, user_id, channel_id)
-    elif command == '/pause-runner':
-        return handle_pause_runner_command(text, user_id, channel_id)
-    elif command == '/command-center':
-        return handle_command_center_command(text, user_id, channel_id)
-    else:
+    try:
+        if command == '/patch':
+            return handle_patch_command(text, user_id, channel_id)
+        elif command == '/patch-preview':
+            return handle_patch_preview_command(text, user_id, channel_id)
+        elif command == '/patch-status':
+            return handle_patch_status_command(text, user_id, channel_id)
+        elif command == '/dashboard':
+            return handle_dashboard_command(text, user_id, channel_id)
+        elif command == '/patch-approve':
+            return handle_patch_approve_command(text, user_id, channel_id)
+        elif command == '/patch-revert':
+            return handle_patch_revert_command(text, user_id, channel_id)
+        elif command == '/pause-runner':
+            return handle_pause_runner_command(text, user_id, channel_id)
+        elif command == '/command-center':
+            return handle_command_center_command(text, user_id, channel_id)
+        else:
+            return {
+                "response_type": "ephemeral",
+                "text": f"Unknown command: {command}"
+            }
+    except Exception as e:
+        error_msg = f"Error handling Slack command: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context=f"handle_slack_command: {command}")
+        except Exception:
+            pass
         return {
             "response_type": "ephemeral",
-            "text": f"Unknown command: {command}"
+            "text": f"❌ {error_msg}"
         }
 
 def handle_dashboard_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
@@ -132,6 +152,14 @@ def handle_patch_approve_command(text: str, user_id: str, channel_id: str) -> Di
                 "result": result
             })
         
+        # Notify Slack of patch approval
+        if slack_proxy and result.get("success"):
+            slack_proxy.notify_patch_applied(
+                latest_patch.get("id", "unknown"),
+                latest_patch.get("target_file", "unknown"),
+                True
+            )
+        
         return {
             "response_type": "in_channel",
             "text": f"✅ *Patch Approved:* `{latest_patch.get('id')}`",
@@ -166,6 +194,13 @@ def handle_patch_approve_command(text: str, user_id: str, channel_id: str) -> Di
                 "error": str(e)
             })
         
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="patch_approve_command")
+        except Exception:
+            pass
+        
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
@@ -186,7 +221,13 @@ def handle_patch_revert_command(text: str, user_id: str, channel_id: str) -> Dic
         # Revert the patch
         from .patch_reverter import PatchReverter
         reverter = PatchReverter()
-        result = reverter.revert_patch(latest_patch.get("id"))
+        target_file = latest_patch.get("target_file")
+        if not isinstance(target_file, str) or not target_file:
+            return {
+                "response_type": "ephemeral",
+                "text": "❌ Latest patch does not have a valid target_file to revert."
+            }
+        result = reverter.revert_latest_patch(target_file)
         
         # Log the revert
         if event_logger:
@@ -197,15 +238,23 @@ def handle_patch_revert_command(text: str, user_id: str, channel_id: str) -> Dic
                 "result": result
             })
         
+        # Notify Slack of patch revert
+        if slack_proxy and result.get("success"):
+            slack_proxy.notify_patch_applied(
+                latest_patch.get("id", "unknown"),
+                latest_patch.get("target_file", "unknown"),
+                False  # Reverted
+            )
+        
         return {
             "response_type": "in_channel",
-            "text": f"🔄 *Patch Reverted:* `{latest_patch.get('id')}`",
+            "text": f"♻️ *Patch Reverted:* `{latest_patch.get('id')}`",
             "blocks": [
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f"🔄 *Patch Reverted Successfully*\n\n*ID:* `{latest_patch.get('id')}`\n*Target:* `{latest_patch.get('target_file')}`\n*Description:* {latest_patch.get('description')}"
+                        "text": f"♻️ *Patch Reverted Successfully*\n\n*ID:* `{latest_patch.get('id')}`\n*Target:* `{latest_patch.get('target_file')}`\n*Description:* {latest_patch.get('description')}"
                     }
                 },
                 {
@@ -213,7 +262,7 @@ def handle_patch_revert_command(text: str, user_id: str, channel_id: str) -> Dic
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": f"Reverted by <@{user_id}> • Backup restored"
+                            "text": f"Reverted by <@{user_id}> • {result.get('message', 'Reverted successfully')}"
                         }
                     ]
                 }
@@ -230,6 +279,13 @@ def handle_patch_revert_command(text: str, user_id: str, channel_id: str) -> Dic
                 "channel_id": channel_id,
                 "error": str(e)
             })
+        
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="patch_revert_command")
+        except Exception:
+            pass
         
         return {
             "response_type": "ephemeral",
@@ -249,6 +305,29 @@ def handle_pause_runner_command(text: str, user_id: str, channel_id: str) -> Dic
                 "channel_id": channel_id,
                 "reason": text or "Manual pause"
             })
+        
+        # Notify Slack of runner pause
+        try:
+            if slack_proxy:
+                slack_proxy.send_message("⏸️ GPT-Cursor Runner Paused", [{
+                    "color": "warning",
+                    "fields": [
+                        {
+                            "title": "Paused by",
+                            "value": f"<@{user_id}>",
+                            "short": True
+                        },
+                        {
+                            "title": "Reason",
+                            "value": text or "Manual pause",
+                            "short": True
+                        }
+                    ],
+                    "footer": "GPT-Cursor Runner",
+                    "ts": int(time.time())
+                }])
+        except Exception:
+            pass
         
         return {
             "response_type": "in_channel",
@@ -284,6 +363,13 @@ def handle_pause_runner_command(text: str, user_id: str, channel_id: str) -> Dic
                 "error": str(e)
             })
         
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="pause_runner_command")
+        except Exception:
+            pass
+        
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
@@ -291,128 +377,132 @@ def handle_pause_runner_command(text: str, user_id: str, channel_id: str) -> Dic
 
 def handle_command_center_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
     """Handle /command-center slash command."""
-    command_center_text = """🧠 *GPT-Cursor Runner Command Center*
-
-You're in commander mode. Here's what to watch and how to act:
-
-📡 *What You'll See in This Channel*
-✅ Patch applied — Phase complete
-📸 Screenshot — Visual check may be needed
-🔧 Fix attempt — GPT reacting to Cursor logs
-🤖 Patch proposed — Ready for approval
-🛑 Crash detected — GPT diagnosing issue
-
-👨‍✈️ *How to Take Action*
-• `/patch-approve` — ✅ Approve next GPT patch
-• `/patch-revert` — 🔁 Roll back last patch
-• `/pause-runner` — ⏸️ Stop GPT from submitting more
-• `/dashboard` — 📊 View live patch logs
-
-💻 *Terminal Commands*
-• `CTRL+C` — Kill the gpt-cursor-runner if needed
-• `killall ngrok` — Kill tunnel
-
-📊 *Quick Links*
-• <http://localhost:5050/dashboard|Live Dashboard>
-• <http://localhost:5050/events|Event Logs>"""
-    
-    # Log the command center request
-    if event_logger:
-        event_logger.log_slack_event("command_center_request", {
-            "user_id": user_id,
-            "channel_id": channel_id
-        })
-    
-    return {
-        "response_type": "in_channel",
-        "text": command_center_text,
-        "blocks": [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": command_center_text
+    try:
+        # Log the command center request
+        if event_logger:
+            event_logger.log_slack_event("command_center_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🎮 *Command Center*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*🎮 GPT-Cursor Runner Command Center*\n\nAvailable commands:"
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "*Patch Commands:*\n• `/patch` - Create a patch\n• `/patch-preview` - Preview a patch\n• `/patch-status` - Show patch stats\n• `/patch-approve` - Approve latest patch\n• `/patch-revert` - Revert latest patch"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*System Commands:*\n• `/dashboard` - Open dashboard\n• `/pause-runner` - Pause GPT submissions\n• `/command-center` - Show this help"
+                        }
+                    ]
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use any command to get started"
+                        }
+                    ]
                 }
-            }
-        ]
-    }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error showing command center: {str(e)}"
+        
+        # Log the error
+        if event_logger:
+            event_logger.log_slack_event("command_center_error", {
+                "user_id": user_id,
+                "channel_id": channel_id,
+                "error": str(e)
+            })
+        
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="command_center_command")
+        except Exception:
+            pass
+        
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
 
 def get_latest_pending_patch() -> Optional[Dict[str, Any]]:
     """Get the latest pending patch."""
-    import glob
-    import os
-    
-    patches_dir = "patches"
-    if not os.path.exists(patches_dir):
-        return None
-    
-    patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
-    if not patch_files:
-        return None
-    
-    # Get the most recent patch file
-    latest_file = max(patch_files, key=os.path.getmtime)
-    
     try:
-        with open(latest_file, 'r') as f:
-            return json.load(f)
-    except Exception:
+        from .patch_runner import load_latest_patch
+        return load_latest_patch()
+    except Exception as e:
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error getting latest pending patch: {e}", context="get_latest_pending_patch")
+        except Exception:
+            pass
         return None
 
 def get_latest_applied_patch() -> Optional[Dict[str, Any]]:
     """Get the latest applied patch."""
-    # This would need to be implemented based on your patch tracking system
-    # For now, return the latest patch file
-    return get_latest_pending_patch()
+    return get_latest_pending_patch()  # For now, same as pending
 
 def pause_runner():
-    """Pause the GPT-Cursor runner."""
-    # This would need to be implemented in the main runner
-    # For now, just log the pause request
-    if event_logger:
-        event_logger.log_system_event("runner_paused", {
-            "timestamp": time.time(),
-            "reason": "Manual pause via Slack command"
-        })
+    """Pause the runner (placeholder)."""
+    print("⏸️ Runner paused")
+    # This would set a global flag or update a status file
 
 def handle_patch_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
     """Handle /patch slash command."""
     if not text.strip():
         return {
             "response_type": "ephemeral",
-            "text": "Usage: `/patch <target_file> <description> <pattern> <replacement>`"
+            "text": "❌ Please provide patch details. Usage: `/patch <file> <desc> <pattern> <replacement>`"
         }
     
-    # Parse command text
-    parts = text.split(' ', 3)
-    if len(parts) < 4:
-        return {
-            "response_type": "ephemeral",
-            "text": "Usage: `/patch <target_file> <description> <pattern> <replacement>`"
-        }
-    
-    target_file, description, pattern, replacement = parts
-    
-    # Create patch data
-    patch_data = {
-        "id": f"slack-patch-{int(time.time())}",
-        "role": "ui_patch",
-        "description": description,
-        "target_file": target_file,
-        "patch": {
-            "pattern": pattern,
-            "replacement": replacement
-        },
-        "metadata": {
-            "author": f"slack-user-{user_id}",
-            "source": "slack_command",
-            "channel_id": channel_id,
-            "timestamp": time.time()
-        }
-    }
-    
-    # Save patch
     try:
+        # Parse the patch command
+        parts = text.split(' ', 3)
+        if len(parts) < 4:
+            return {
+                "response_type": "ephemeral",
+                "text": "❌ Invalid format. Usage: `/patch <file> <desc> <pattern> <replacement>`"
+            }
+        
+        target_file, description, pattern, replacement = parts
+        
+        # Create patch data
+        patch_data = {
+            "id": f"slack-patch-{int(time.time())}",
+            "role": "ui_patch",
+            "description": description,
+            "target_file": target_file,
+            "patch": {
+                "pattern": pattern,
+                "replacement": replacement
+            },
+            "metadata": {
+                "author": f"<@{user_id}>",
+                "source": "slack_command",
+                "timestamp": datetime.now().isoformat()
+            }
+        }
+        
+        # Process the patch
         from .webhook_handler import process_hybrid_block
         result = process_hybrid_block(patch_data)
         
@@ -421,36 +511,38 @@ def handle_patch_command(text: str, user_id: str, channel_id: str) -> Dict[str, 
             event_logger.log_slack_event("patch_created", {
                 "user_id": user_id,
                 "channel_id": channel_id,
-                "command": "/patch",
-                "text": text
-            }, {"success": True, "patch_id": patch_data["id"]})
+                "patch_id": patch_data["id"],
+                "result": result
+            })
         
-        return {
-            "response_type": "in_channel",
-            "text": f"✅ Patch created: `{patch_data['id']}`\n🎯 Target: `{target_file}`\n📝 Description: {description}",
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": f"✅ *Patch Created Successfully*\n\n*ID:* `{patch_data['id']}`\n*Target:* `{target_file}`\n*Description:* {description}"
-                    }
-                },
-                {
-                    "type": "section",
-                    "fields": [
-                        {
+        if result.get("success"):
+            return {
+                "response_type": "in_channel",
+                "text": f"✅ *Patch Created:* `{patch_data['id']}`",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
                             "type": "mrkdwn",
-                            "text": f"*Pattern:*\n`{pattern[:50]}{'...' if len(pattern) > 50 else ''}`"
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": f"*Replacement:*\n`{replacement[:50]}{'...' if len(replacement) > 50 else ''}`"
+                            "text": f"✅ *Patch Created Successfully*\n\n*ID:* `{patch_data['id']}`\n*Target:* `{target_file}`\n*Description:* {description}"
                         }
-                    ]
-                }
-            ]
-        }
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": f"Created by <@{user_id}> • Use `/patch-approve` to apply"
+                            }
+                        ]
+                    }
+                ]
+            }
+        else:
+            return {
+                "response_type": "ephemeral",
+                "text": f"❌ Error creating patch: {result.get('error', 'Unknown error')}"
+            }
         
     except Exception as e:
         error_msg = f"Error creating patch: {str(e)}"
@@ -464,6 +556,13 @@ def handle_patch_command(text: str, user_id: str, channel_id: str) -> Dict[str, 
                 "text": text
             }, {"error": str(e)})
         
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="patch_command")
+        except Exception:
+            pass
+        
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
@@ -474,32 +573,20 @@ def handle_patch_preview_command(text: str, user_id: str, channel_id: str) -> Di
     if not text.strip():
         return {
             "response_type": "ephemeral",
-            "text": "Usage: `/patch-preview <patch_id_or_description>`"
+            "text": "❌ Please provide a patch ID to preview. Usage: `/patch-preview <patch_id>`"
         }
     
-    search_term = text.strip()
-    
-    # Search for patches
     try:
+        search_term = text.strip()
         patches = search_patches(search_term)
         
         if not patches:
             return {
                 "response_type": "ephemeral",
-                "text": f"❌ No patches found matching: `{search_term}`"
+                "text": f"❌ No patches found matching '{search_term}'"
             }
         
-        # Return preview of the first match
-        patch = patches[0]
-        
-        # Log the preview request
-        if event_logger:
-            event_logger.log_slack_event("patch_preview", {
-                "user_id": user_id,
-                "channel_id": channel_id,
-                "search_term": search_term,
-                "patch_id": patch.get("id")
-            })
+        patch = patches[0]  # Get the first match
         
         return {
             "response_type": "ephemeral",
@@ -547,6 +634,13 @@ def handle_patch_preview_command(text: str, user_id: str, channel_id: str) -> Di
                 "channel_id": channel_id,
                 "search_term": search_term
             }, {"error": str(e)})
+        
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="patch_preview_command")
+        except Exception:
+            pass
         
         return {
             "response_type": "ephemeral",
@@ -611,107 +705,105 @@ def handle_patch_status_command(text: str, user_id: str, channel_id: str) -> Dic
                 "channel_id": channel_id
             }, {"error": str(e)})
         
+        # Notify Slack of error
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="patch_status_command")
+        except Exception:
+            pass
+        
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
         }
 
 def search_patches(search_term: str) -> List[Dict[str, Any]]:
-    """Search for patches by ID or description."""
-    import glob
-    import os
-    
-    patches = []
-    patches_dir = "patches"
-    
-    if not os.path.exists(patches_dir):
-        return patches
-    
-    patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
-    
-    for filepath in patch_files:
-        try:
-            with open(filepath, 'r') as f:
-                patch_data = json.load(f)
+    """Search patches by content."""
+    try:
+        from .patch_viewer import list_patches
+        patches = list_patches()
+        
+        results = []
+        search_term_lower = search_term.lower()
+        
+        for patch in patches:
+            data = patch["data"]
             
-            # Search in ID, description, or target file
-            if (search_term.lower() in patch_data.get('id', '').lower() or
-                search_term.lower() in patch_data.get('description', '').lower() or
-                search_term.lower() in patch_data.get('target_file', '').lower()):
-                patches.append(patch_data)
+            # Search in various fields
+            searchable_text = [
+                data.get("id", ""),
+                data.get("description", ""),
+                data.get("target_file", ""),
+                data.get("metadata", {}).get("author", ""),
+                data.get("metadata", {}).get("source", ""),
+                data.get("patch", {}).get("pattern", ""),
+                data.get("patch", {}).get("replacement", "")
+            ]
+            
+            if any(search_term_lower in text.lower() for text in searchable_text):
+                results.append(data)
+        
+        return results
+        
+    except Exception as e:
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error searching patches: {e}", context=search_term)
         except Exception:
-            continue
-    
-    return patches
+            pass
+        return []
 
 def get_patch_status() -> Dict[str, Any]:
-    """Get patch status statistics."""
-    import glob
-    import os
-    
-    patches_dir = "patches"
+    """Get patch statistics for /patch-status."""
     stats = {
         "total_patches": 0,
         "recent_24h": 0,
         "success_rate": 0.0,
         "avg_apply_time": 0.0
     }
-    
-    if not os.path.exists(patches_dir):
-        return stats
-    
-    patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
-    stats["total_patches"] = len(patch_files)
-    
-    # Count recent patches
-    current_time = time.time()
-    for filepath in patch_files:
-        try:
-            stat = os.stat(filepath)
-            if current_time - stat.st_mtime < 24 * 3600:  # 24 hours
-                stats["recent_24h"] += 1
-        except:
-            continue
-    
-    # Try to get metrics from patch metrics
     try:
-        from .patch_metrics import PatchMetrics
-        metrics = PatchMetrics()
-        summary = metrics.get_summary_stats()
+        from .patch_metrics import metrics_tracker
+        summary = metrics_tracker.get_summary()
+        stats["total_patches"] = summary.get("total_patches", 0)
+        try:
+            # Calculate recent_24h from patch files
+            import os
+            import time
+            current_time = time.time()
+            patches_dir = "patches"
+            if os.path.exists(patches_dir):
+                for filename in os.listdir(patches_dir):
+                    if filename.endswith('.json'):
+                        stat = os.stat(os.path.join(patches_dir, filename))
+                        if current_time - stat.st_mtime < 24 * 3600:  # 24 hours
+                            stats["recent_24h"] += 1
+        except Exception as e:
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error calculating recent_24h: {e}")
+            except Exception:
+                pass
         stats["success_rate"] = summary.get("success_rate", 0.0)
-        stats["avg_apply_time"] = summary.get("avg_apply_time", 0.0)
-    except:
-        pass
-    
+        stats["avg_apply_time"] = summary.get("average_duration_ms", 0.0) / 1000  # Convert to seconds
+    except Exception as e:
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error in get_patch_status: {e}")
+        except Exception:
+            pass
     return stats
 
 def handle_slack_event(event_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Handle Slack event subscription."""
-    event_type = event_data.get('type', '')
+    """Handle Slack events."""
+    event = event_data.get('event', {})
+    event_type = event.get('type')
     
-    # Log the event
-    if event_logger:
-        event_logger.log_slack_event("event_received", {
-            "event_type": event_type,
-            "data": event_data
-        })
-    
-    if event_type == 'url_verification':
-        return {"challenge": event_data.get('challenge', '')}
-    
-    elif event_type == 'event_callback':
-        event = event_data.get('event', {})
-        event_subtype = event.get('subtype', '')
-        
-        # Handle app mention
-        if event.get('type') == 'app_mention':
-            return handle_app_mention(event)
-        
-        # Handle message events (but not bot messages)
-        elif event.get('type') == 'message' and event_subtype != 'bot_message':
-            return handle_message_event(event)
-    
-    return {"status": "ok"}
+    if event_type == 'app_mention':
+        return handle_app_mention(event)
+    elif event_type == 'message':
+        return handle_message_event(event)
+    else:
+        return {"status": "ok"}
 
 def handle_app_mention(event: Dict[str, Any]) -> Dict[str, Any]:
     """Handle app mention events."""
@@ -757,25 +849,13 @@ def handle_app_mention(event: Dict[str, Any]) -> Dict[str, Any]:
 
 def handle_message_event(event: Dict[str, Any]) -> Dict[str, Any]:
     """Handle message events."""
-    text = event.get('text', '')
-    user_id = event.get('user', '')
-    channel_id = event.get('channel', '')
-    
-    # Log the message
+    # For now, just log the message
     if event_logger:
         event_logger.log_slack_event("message", {
-            "user_id": user_id,
-            "channel_id": channel_id,
-            "text": text
+            "user_id": event.get('user', ''),
+            "channel_id": event.get('channel', ''),
+            "text": event.get('text', '')
         })
-    
-    # Check for patch-related keywords
-    if any(keyword in text.lower() for keyword in ['patch', 'fix', 'update', 'change']):
-        # Auto-suggest patch commands
-        return {
-            "response_type": "ephemeral",
-            "text": "💡 Tip: Use `/patch` to create a new patch or `/patch-preview` to preview existing patches!"
-        }
     
     return {"status": "ok"}
 
@@ -828,73 +908,106 @@ def handle_status_command(user_id: str, channel_id: str) -> Dict[str, Any]:
         }
         
     except Exception as e:
+        error_msg = f"Error getting status: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="status_command")
+        except Exception:
+            pass
         return {
             "response_type": "ephemeral",
-            "text": f"❌ Error getting status: {str(e)}"
+            "text": f"❌ {error_msg}"
         }
 
 def handle_help_command(user_id: str, channel_id: str) -> Dict[str, Any]:
     """Handle help command."""
-    help_text = """*🤖 GPT-Cursor Runner Help*
-
-*Available Commands:*
-• `/patch <file> <desc> <pattern> <replacement>` - Create a new patch
-• `/patch-preview <patch_id>` - Preview an existing patch
-• `/patch-status` - Show patch statistics
-• `/dashboard` - Open live dashboard
-• `/patch-approve` - Approve latest patch
-• `/patch-revert` - Revert latest patch
-• `/pause-runner` - Pause GPT runner
-• `/command-center` - Show command center
-
-*App Mentions:*
-• `@bot patch <file> <desc> <pattern> <replacement>` - Create patch via mention
-• `@bot preview <patch_id>` - Preview patch via mention
-• `@bot status` - Show system status
-• `@bot dashboard` - Open dashboard
-• `@bot approve` - Approve latest patch
-• `@bot revert` - Revert latest patch
-• `@bot pause` - Pause runner
-• `@bot help` - Show this help
-
-*Examples:*
-• `/patch src/main.py "Fix typo" "old text" "new text"`
-• `/patch-preview slack-patch-1234567890`
-• `/dashboard`
-• `@bot status`"""
-    
-    # Log the help request
-    if event_logger:
-        event_logger.log_slack_event("help_request", {
-            "user_id": user_id,
-            "channel_id": channel_id
-        })
-    
-    return {
-        "response_type": "ephemeral",
-        "text": help_text
-    }
+    try:
+        # Log the help request
+        if event_logger:
+            event_logger.log_slack_event("help_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "ephemeral",
+            "text": "🤖 *GPT-Cursor Runner Help*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*🤖 GPT-Cursor Runner Help*\n\nI can help you manage code patches and monitor the system."
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "*Patch Commands:*\n• `/patch` - Create a patch\n• `/patch-preview` - Preview a patch\n• `/patch-status` - Show patch stats\n• `/patch-approve` - Approve latest patch\n• `/patch-revert` - Revert latest patch"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*System Commands:*\n• `/dashboard` - Open dashboard\n• `/pause-runner` - Pause GPT submissions\n• `/command-center` - Show all commands"
+                        }
+                    ]
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "Need help? Just mention me with any command!"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error showing help: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="help_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
 
 def get_system_status() -> Dict[str, Any]:
-    """Get system status information."""
-    import psutil
-    
+    """Get system status."""
     try:
+        import psutil
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('.')
         
         return {
-            "status": "🟢 Online",
-            "uptime": "24h 30m",  # Simplified
-            "memory_usage": f"{memory.percent:.1f}",
-            "disk_usage": f"{(disk.used / disk.total * 100):.1f}"
+            "status": "Running",
+            "uptime": "Unknown",  # Would need to track start time
+            "memory_usage": memory.percent,
+            "disk_usage": (disk.used / disk.total) * 100
         }
     except ImportError:
         return {
-            "status": "🟡 Limited",
+            "status": "Running (limited)",
             "uptime": "Unknown",
-            "memory_usage": "Unknown",
-            "disk_usage": "Unknown"
+            "memory_usage": 0,
+            "disk_usage": 0
+        }
+    except Exception as e:
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error getting system status: {e}")
+        except Exception:
+            pass
+        return {
+            "status": "Error",
+            "uptime": "Unknown",
+            "memory_usage": 0,
+            "disk_usage": 0
         }
 
 def send_slack_response(response_url: str, response_data: Dict[str, Any]) -> bool:
@@ -908,4 +1021,81 @@ def send_slack_response(response_url: str, response_data: Dict[str, Any]) -> boo
                 "response_url": response_url,
                 "error": str(e)
             })
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error sending Slack response: {e}", context=response_url)
+        except Exception:
+            pass
         return False 
+
+def create_slack_webhook_handler():
+    """Create Slack webhook handler function for Flask integration."""
+    return handle_slack_webhook
+
+def handle_slack_webhook():
+    """Handle Slack webhook requests."""
+    try:
+        # Verify Slack signature (skip in debug mode)
+        debug_mode = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
+        print(f"DEBUG: DEBUG_MODE = {os.getenv('DEBUG_MODE')}, debug_mode = {debug_mode}")
+        
+        if not debug_mode:
+            timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
+            signature = request.headers.get('X-Slack-Signature', '')
+            
+            if not verify_slack_signature(request.get_data(), signature, timestamp):
+                return jsonify({"error": "Invalid signature"}), 401
+        else:
+            print("DEBUG: Skipping signature verification in debug mode")
+        
+        # Parse request data
+        if request.content_type == 'application/x-www-form-urlencoded':
+            data = request.form.to_dict()
+        else:
+            data = request.get_json()
+        
+        # Log the Slack request
+        if event_logger:
+            event_logger.log_system_event("slack_webhook_received", {
+                "data": data,
+                "headers": dict(request.headers)
+            })
+        
+        # Handle URL verification
+        if data.get('type') == 'url_verification':
+            return jsonify({"challenge": data.get('challenge', '')})
+        
+        # Handle slash commands
+        if 'command' in data:
+            response = handle_slack_command(data)
+            
+            # Send response if response_url is provided
+            response_url = data.get('response_url')
+            if response_url:
+                send_slack_response(response_url, response)
+            
+            return jsonify(response)
+        
+        # Handle events
+        if data.get('type') == 'event_callback':
+            data.get('event', {})
+            response = handle_slack_event(data)
+            return jsonify(response)
+        
+        return jsonify({"status": "ok"})
+        
+    except Exception as e:
+        error_msg = f"Error processing Slack webhook: {str(e)}"
+        
+        # Log the error
+        if event_logger:
+            event_logger.log_system_event("slack_webhook_error", {
+                "error": str(e),
+                "headers": dict(request.headers)
+            })
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="/webhook Slack handler")
+        except Exception:
+            pass
+        return jsonify({"error": error_msg}), 500 

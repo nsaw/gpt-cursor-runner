@@ -317,3 +317,27 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 **Status**: ✅ Production-ready with full Slack integration, safety guardrails, CI/CD automation, and advanced features including metrics, role-based patching, and auto-revert capabilities. 
+
+# Manual Fallback
+
+To restart all systems manually:
+
+```bash
+cd /Users/sawyer/gitSync/gpt-cursor-runner && ./cursor_runner_selfcheck_v1.sh
+```
+
+# Manual Fallback
+
+To restart all systems manually:
+
+```bash
+cd /Users/sawyer/gitSync/gpt-cursor-runner && ./cursor_runner_selfcheck_v1.sh
+```
+
+# Manual Fallback
+
+To restart all systems manually:
+
+```bash
+cd /Users/sawyer/gitSync/gpt-cursor-runner && ./cursor_runner_selfcheck_v1.sh
+```

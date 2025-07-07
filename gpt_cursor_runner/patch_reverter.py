@@ -10,7 +10,6 @@ import shutil
 import glob
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
-from pathlib import Path
 
 class PatchReverter:
     """Reverts patches and manages backup files."""
@@ -246,7 +245,14 @@ class PatchReverter:
                 
                 if patch_data.get("id") == patch_id:
                     return patch_file
-            except Exception:
+            except Exception as e:
+                try:
+                    from .slack_proxy import create_slack_proxy
+                    slack_proxy = create_slack_proxy()
+                    context_str = patch_file if isinstance(patch_file, str) else str(patch_file)
+                    slack_proxy.notify_error(f"Error reading patch file in _find_patch_by_id: {e}", context=context_str)
+                except Exception:
+                    pass
                 continue
         
         return None
@@ -277,6 +283,13 @@ class PatchReverter:
                     
             except Exception as e:
                 result["errors"].append(f"Error processing {backup_file}: {e}")
+                try:
+                    from .slack_proxy import create_slack_proxy
+                    slack_proxy = create_slack_proxy()
+                    context_str = backup_file if isinstance(backup_file, str) else str(backup_file)
+                    slack_proxy.notify_error(f"Error processing backup file in cleanup_old_backups: {e}", context=context_str)
+                except Exception:
+                    pass
         
         return result
 

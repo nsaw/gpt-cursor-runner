@@ -8,7 +8,6 @@ import os
 import json
 import re
 import glob
-from datetime import datetime
 
 def load_patch(patch_file):
     """Load a patch from a JSON file."""

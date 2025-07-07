@@ -1,6 +1,3 @@
-import os
-import json
-import tempfile
 import pytest
 from gpt_cursor_runner.main import app
 

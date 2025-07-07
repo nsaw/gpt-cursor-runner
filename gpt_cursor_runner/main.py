@@ -6,7 +6,6 @@ Flask server for handling webhooks and providing API endpoints.
 """
 
 import os
-import json
 from datetime import datetime
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -67,18 +66,29 @@ def webhook():
                 "error": str(e),
                 "headers": dict(request.headers)
             })
-        
+        try:
+            from .slack_proxy import create_slack_proxy
+            slack_proxy = create_slack_proxy()
+            slack_proxy.notify_error(error_msg, context="/webhook endpoint")
+        except Exception:
+            pass
         return jsonify({"error": error_msg}), 500
 
 def handle_slack_webhook():
     """Handle Slack webhook requests."""
     try:
-        # Verify Slack signature
-        timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
-        signature = request.headers.get('X-Slack-Signature', '')
+        # Verify Slack signature (skip in debug mode)
+        debug_mode = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
+        print(f"DEBUG: DEBUG_MODE = {os.getenv('DEBUG_MODE')}, debug_mode = {debug_mode}")
         
-        if not verify_slack_signature(request.get_data(), signature, timestamp):
-            return jsonify({"error": "Invalid signature"}), 401
+        if not debug_mode:
+            timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
+            signature = request.headers.get('X-Slack-Signature', '')
+            
+            if not verify_slack_signature(request.get_data(), signature, timestamp):
+                return jsonify({"error": "Invalid signature"}), 401
+        else:
+            print("DEBUG: Skipping signature verification in debug mode")
         
         # Parse request data
         if request.content_type == 'application/x-www-form-urlencoded':
@@ -110,7 +120,7 @@ def handle_slack_webhook():
         
         # Handle events
         if data.get('type') == 'event_callback':
-            event = data.get('event', {})
+            data.get('event', {})
             response = handle_slack_event(data)
             return jsonify(response)
         
@@ -125,7 +135,12 @@ def handle_slack_webhook():
                 "error": str(e),
                 "headers": dict(request.headers)
             })
-        
+        try:
+            from .slack_proxy import create_slack_proxy
+            slack_proxy = create_slack_proxy()
+            slack_proxy.notify_error(error_msg, context="/webhook Slack handler")
+        except Exception:
+            pass
         return jsonify({"error": error_msg}), 500
 
 @app.route('/slack/test', methods=['POST'])
@@ -174,7 +189,12 @@ def slack_test():
             event_logger.log_system_event("slack_test_error", {
                 "error": str(e)
             })
-        
+        try:
+            from .slack_proxy import create_slack_proxy
+            slack_proxy = create_slack_proxy()
+            slack_proxy.notify_error(error_msg, context="/slack/test endpoint")
+        except Exception:
+            pass
         return jsonify({"error": error_msg}), 500
 
 @app.route('/events', methods=['GET'])
@@ -187,7 +207,7 @@ def get_events():
         if not event_logger:
             return jsonify({"error": "Event logging not available"}), 500
         
-        events = event_logger.get_recent_events(limit, event_type)
+        events = event_logger.get_recent_events(limit, event_type if isinstance(event_type, str) and event_type else None)
         return jsonify({
             "events": events,
             "count": len(events),
@@ -267,7 +287,7 @@ def main():
         print(f"📊 Dashboard: http://localhost:{port}/dashboard")
     print(f"🧪 Test endpoint: http://localhost:{port}/slack/test")
     print(f"📊 Events endpoint: http://localhost:{port}/events")
-    print(f"🔗 Supports: GPT hybrid blocks + Slack events")
+    print("🔗 Supports: GPT hybrid blocks + Slack events")
     
     app.run(host='0.0.0.0', port=port, debug=True)
 

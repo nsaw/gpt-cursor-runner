@@ -4,10 +4,9 @@ Configuration Manager for GPT-Cursor Runner.
 Handles .patchrc configuration file and default settings.
 """
 
-import os
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 class ConfigManager:
     """Manages configuration settings from .patchrc file."""

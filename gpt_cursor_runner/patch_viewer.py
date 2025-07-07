@@ -10,12 +10,24 @@ from datetime import datetime
 from typing import List, Dict, Any
 import argparse
 
+# Import notification system
+try:
+    from .slack_proxy import create_slack_proxy
+    slack_proxy = create_slack_proxy()
+except ImportError:
+    slack_proxy = None
+
 def list_patches(patches_dir: str = "patches") -> List[Dict[str, Any]]:
     """List all patches with metadata."""
     patches = []
     
     if not os.path.exists(patches_dir):
         print(f"❌ Patches directory not found: {patches_dir}")
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Patches directory not found: {patches_dir}", context="list_patches")
+        except Exception:
+            pass
         return patches
     
     patch_files = sorted(glob.glob(os.path.join(patches_dir, "*.json")), 
@@ -38,6 +50,11 @@ def list_patches(patches_dir: str = "patches") -> List[Dict[str, Any]]:
             })
         except Exception as e:
             print(f"⚠️  Error reading {patch_file}: {e}")
+            try:
+                if slack_proxy:
+                    slack_proxy.notify_error(f"Error reading patch file: {e}", context=patch_file)
+            except Exception:
+                pass
     
     return patches
 
@@ -63,6 +80,11 @@ def view_patch(patch_file: str, show_content: bool = False):
         
     except Exception as e:
         print(f"❌ Error viewing patch: {e}")
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(f"Error viewing patch: {e}", context=patch_file)
+        except Exception:
+            pass
 
 def search_patches(patches: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
     """Search patches by content."""
@@ -127,9 +149,9 @@ def main():
     if len(patches) > args.limit:
         print(f"... and {len(patches) - args.limit} more patches")
     
-    print(f"\n💡 Use --view <filename> to view a specific patch")
-    print(f"💡 Use --search <query> to search patches")
-    print(f"💡 Use --show-content to see pattern and replacement")
+    print("\n💡 Use --view <filename> to view a specific patch")
+    print("💡 Use --search <query> to search patches")
+    print("💡 Use --show-content to see pattern and replacement")
 
 if __name__ == "__main__":
     main() 

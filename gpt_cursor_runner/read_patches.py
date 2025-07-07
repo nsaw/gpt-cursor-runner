@@ -7,7 +7,6 @@ This demonstrates how Cursor could read and process the saved hybrid blocks.
 import os
 import json
 import glob
-from datetime import datetime
 
 def read_patches():
     """Read all saved patches from the patches/ directory."""

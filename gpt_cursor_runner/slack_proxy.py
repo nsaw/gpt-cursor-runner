@@ -5,10 +5,9 @@ Provides alternative Slack integration when app installation is blocked.
 """
 
 import os
-import json
 import time
 import requests
-from typing import Dict, Any, Optional
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
