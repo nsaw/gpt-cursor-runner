@@ -4,7 +4,9 @@
   "description": "GPT-Cursor Runner with Slack integration and Cloudflare tunnel support",
   "main": "server/index.js",
   "scripts": {
+    "prestart": "./prestart.sh",
     "start": "node server/index.js",
+    "predev": "./prestart.sh",
     "dev": "nodemon server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "fly deploy",
@@ -12,7 +14,8 @@
     "status": "fly status",
     "inject-manifest": "node scripts/inject_slack_manifest_commands_v1.js",
     "update-manifest-cli": "node scripts/update_slack_manifest_cli.js",
-    "migrate-granite": "node scripts/migrate-to-granite.js"
+    "migrate-granite": "node scripts/migrate-to-granite.js",
+    "inject-secrets": "./prestart.sh"
   },
   "keywords": [
     "gpt",
