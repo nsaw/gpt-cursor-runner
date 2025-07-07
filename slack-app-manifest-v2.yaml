@@ -51,25 +51,7 @@ features:
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 
-    - command: /restart-runner
-      description: Restart the GPT-Cursor Runner service
-      usage_hint: Restart service
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-
-    - command: /restart-runner-gpt
-      description: Restart GPT integration specifically
-      usage_hint: Restart GPT
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-
-    - command: /continue-runner
-      description: Resume the paused runner
-      usage_hint: Continue runner
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-
-    - command: /status
+    - command: /status-runner
       description: Check current runner status and health
       usage_hint: Check status
       url: https://gpt-cursor-runner.fly.dev/slack/commands
@@ -87,7 +69,7 @@ features:
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 
-    - command: /kill-runner
+    - command: /kill
       description: Force stop the runner (emergency)
       usage_hint: Kill runner
       url: https://gpt-cursor-runner.fly.dev/slack/commands
@@ -135,12 +117,6 @@ features:
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 
-    - command: /approve-screenshot
-      description: Approve screenshot-based patches
-      usage_hint: Approve screenshot
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-
     - command: /revert-phase
       description: Revert to previous phase
       usage_hint: Revert phase
@@ -165,12 +141,6 @@ features:
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 
-    - command: /retry-last-failed
-      description: Retry the last failed operation
-      usage_hint: Retry failed
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-
     - command: /lock-runner
       description: Lock runner (prevent changes)
       usage_hint: Lock runner
@@ -186,6 +156,66 @@ features:
     - command: /alert-runner-crash
       description: Send crash alert notification
       usage_hint: Alert crash
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /proceed
+      description: Proceed with next action (approve, continue, resume)
+      usage_hint: Proceed with action
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /again
+      description: Retry failed operation or restart runner
+      usage_hint: Retry or restart
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /manual-revise
+      description: Manually revise current patch with custom instructions
+      usage_hint: Manual revision
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /manual-append
+      description: Manually append content to current patch
+      usage_hint: Manual append
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /interrupt
+      description: Interrupt current operations (pause, stop, force)
+      usage_hint: Interrupt operations
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /troubleshoot
+      description: Automated troubleshooting and diagnostics
+      usage_hint: Auto troubleshoot
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /troubleshoot-oversight
+      description: Manual oversight of automated troubleshooting
+      usage_hint: Troubleshoot oversight
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /send-with
+      description: Request AI to resend with additional context
+      usage_hint: Send with context
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /gpt-slack-dispatch
+      description: Enable GPT to post messages directly to Slack
+      usage_hint: GPT Slack dispatch
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /cursor-slack-dispatch
+      description: Enable Cursor to post messages directly to Slack
+      usage_hint: Cursor Slack dispatch
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 

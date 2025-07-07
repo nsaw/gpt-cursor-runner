@@ -41,6 +41,14 @@ class ConfigManager:
             "enable_tests": True,
             "enable_backup": True,
             "enable_metrics": True
+        },
+        "gpt_slack": {
+            "allow_gpt_slack_posts": True,
+            "gpt_authorized_routes": ["/slack/cheatblock", "/slack/help", "/slack/dashboard-ping"],
+            "default_channel": "#runner-control",
+            "rate_limit_per_minute": 5,
+            "require_approval": False,
+            "allowed_actions": ["postMessage", "updateMessage", "deleteMessage"]
         }
     }
     
@@ -136,6 +144,26 @@ class ConfigManager:
     def get_integrations_config(self) -> Dict[str, Any]:
         """Get integrations configuration."""
         return self.get("integrations", {})
+    
+    def get_gpt_slack_config(self) -> Dict[str, Any]:
+        """Get GPT Slack dispatch configuration."""
+        return self.get("gpt_slack", {})
+    
+    def is_gpt_slack_enabled(self) -> bool:
+        """Check if GPT Slack posts are enabled."""
+        return self.get("gpt_slack.allow_gpt_slack_posts", True)
+    
+    def get_gpt_authorized_routes(self) -> list:
+        """Get authorized routes for GPT Slack dispatch."""
+        return self.get("gpt_slack.gpt_authorized_routes", ["/slack/cheatblock", "/slack/help", "/slack/dashboard-ping"])
+    
+    def get_gpt_default_channel(self) -> str:
+        """Get default channel for GPT Slack posts."""
+        return self.get("gpt_slack.default_channel", "#runner-control")
+    
+    def get_gpt_allowed_actions(self) -> list:
+        """Get allowed actions for GPT Slack dispatch."""
+        return self.get("gpt_slack.allowed_actions", ["postMessage", "updateMessage", "deleteMessage"])
     
     def is_auto_confirm_enabled(self) -> bool:
         """Check if auto-confirm is enabled."""
