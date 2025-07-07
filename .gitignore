@@ -162,3 +162,4 @@ cython_debug/
 patches/
 *.bak_*
 patch-log.json
+node_modules/
