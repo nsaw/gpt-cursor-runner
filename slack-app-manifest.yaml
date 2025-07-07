@@ -1,0 +1,166 @@
+display_information:
+  name: GPT-Cursor Runner
+  description: Full control interface for GPT-powered Cursor automation
+  background_color: "#4A154B"
+
+features:
+  bot_user:
+    display_name: gpt-runner
+    always_online: true
+
+  slash_commands:
+    - command: /dashboard
+      description: View GPT-Cursor Runner dashboard and stats
+      usage_hint: View dashboard
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /patch-approve
+      description: Approve the next pending GPT patch
+      usage_hint: Approve patch
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /patch-revert
+      description: Revert the last applied patch
+      usage_hint: Revert patch
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /pause-runner
+      description: Pause the GPT-Cursor Runner
+      usage_hint: Pause runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /restart-runner
+      description: Restart the GPT-Cursor Runner service
+      usage_hint: Restart service
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /restart-runner-gpt
+      description: Restart GPT integration specifically
+      usage_hint: Restart GPT
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /continue-runner
+      description: Resume the paused runner
+      usage_hint: Continue runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /status
+      description: Check current runner status and health
+      usage_hint: Check status
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /show-roadmap
+      description: Display development roadmap
+      usage_hint: Show roadmap
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /roadmap
+      description: Show project roadmap and milestones
+      usage_hint: View roadmap
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /kill-runner
+      description: Force stop the runner (emergency)
+      usage_hint: Kill runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /toggle-runner-on
+      description: Enable the runner
+      usage_hint: Enable runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /toggle-runner-off
+      description: Disable the runner
+      usage_hint: Disable runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /toggle-runner-auto
+      description: Toggle automatic patch processing
+      usage_hint: Toggle auto mode
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /theme
+      description: Manage Cursor theme settings
+      usage_hint: Manage theme
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /theme-status
+      description: Check current theme status
+      usage_hint: Theme status
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /theme-fix
+      description: Fix theme-related issues
+      usage_hint: Fix theme
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /patch-preview
+      description: Preview pending patches
+      usage_hint: Preview patch
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /approve-screenshot
+      description: Approve screenshot-based patches
+      usage_hint: Approve screenshot
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /revert-phase
+      description: Revert to previous phase
+      usage_hint: Revert phase
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /log-phase-status
+      description: Log current phase status
+      usage_hint: Log status
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /cursor-mode
+      description: Switch Cursor operation modes
+      usage_hint: Switch mode
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /whoami
+      description: Show current user and permissions
+      usage_hint: Show user info
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /retry-last-failed
+      description: Retry the last failed operation
+      usage_hint: Retry failed
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /lock-runner
+      description: Lock runner (prevent changes)
+      usage_hint: Lock runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /unlock-runner
+      description: Unlock runner (allow changes)
+      usage_hint: Unlock runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+    - command: /alert-runner-crash
+      description: Send crash alert notification
+      usage_hint: Alert crash
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+
+oauth_config:
+  scopes:
+    bot:
+      - commands
+      - chat:write
+      - users:read
+      - app_mentions:read
+
+settings:
+  event_subscriptions:
+    request_url: https://gpt-cursor-runner.fly.dev/slack/events
+    bot_events:
+      - app_mention
+      - message.channels
+  interactivity:
+    is_enabled: true
+    request_url: https://gpt-cursor-runner.fly.dev/slack/interactions
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false 
