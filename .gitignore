@@ -163,3 +163,8 @@ patches/
 *.bak_*
 patch-log.json
 node_modules/
+
+# Cursor
+.cursor/
+.env
+.env.*
