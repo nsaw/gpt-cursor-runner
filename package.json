@@ -4,10 +4,8 @@
   "description": "GPT-Cursor Runner with Slack integration and Cloudflare tunnel support",
   "main": "server/index.js",
   "scripts": {
-    "prestart": "./prestart.sh",
     "start": "node server/index.js",
-    "predev": "./prestart.sh",
-    "dev": "nodemon server/index.js",
+    "dev": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "fly deploy",
     "logs": "fly logs",
@@ -27,12 +25,12 @@
   "author": "Sawyer",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "dotenv": "^16.3.1",
-    "crypto": "^1.0.1",
-    "axios": "^1.6.0",
     "@slack/socket-mode": "^2.0.0",
-    "@slack/web-api": "^6.8.1"
+    "@slack/web-api": "^6.8.1",
+    "axios": "^1.6.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
