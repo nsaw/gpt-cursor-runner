@@ -75,6 +75,64 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
             return handle_pause_runner_command(text, user_id, channel_id)
         elif command == '/command-center':
             return handle_command_center_command(text, user_id, channel_id)
+        elif command == '/status-runner':
+            return handle_status_runner_command(text, user_id, channel_id)
+        elif command == '/whoami':
+            return handle_whoami_command(text, user_id, channel_id)
+        elif command == '/toggle-runner-auto':
+            return handle_toggle_runner_auto_command(text, user_id, channel_id)
+        elif command == '/restart-runner':
+            return handle_restart_runner_command(text, user_id, channel_id)
+        elif command == '/restart-runner-gpt':
+            return handle_restart_runner_gpt_command(text, user_id, channel_id)
+        elif command == '/continue-runner':
+            return handle_continue_runner_command(text, user_id, channel_id)
+        elif command == '/toggle-runner-on':
+            return handle_toggle_runner_on_command(text, user_id, channel_id)
+        elif command == '/toggle-runner-off':
+            return handle_toggle_runner_off_command(text, user_id, channel_id)
+        elif command == '/kill':
+            return handle_kill_command(text, user_id, channel_id)
+        elif command == '/lock-runner':
+            return handle_lock_runner_command(text, user_id, channel_id)
+        elif command == '/unlock-runner':
+            return handle_unlock_runner_command(text, user_id, channel_id)
+        elif command == '/roadmap':
+            return handle_roadmap_command(text, user_id, channel_id)
+        elif command == '/show-roadmap':
+            return handle_show_roadmap_command(text, user_id, channel_id)
+        elif command == '/theme':
+            return handle_theme_command(text, user_id, channel_id)
+        elif command == '/theme-status':
+            return handle_theme_status_command(text, user_id, channel_id)
+        elif command == '/theme-fix':
+            return handle_theme_fix_command(text, user_id, channel_id)
+        elif command == '/approve-screenshot':
+            return handle_approve_screenshot_command(text, user_id, channel_id)
+        elif command == '/revert-phase':
+            return handle_revert_phase_command(text, user_id, channel_id)
+        elif command == '/log-phase-status':
+            return handle_log_phase_status_command(text, user_id, channel_id)
+        elif command == '/cursor-mode':
+            return handle_cursor_mode_command(text, user_id, channel_id)
+        elif command == '/retry-last-failed':
+            return handle_retry_last_failed_command(text, user_id, channel_id)
+        elif command == '/alert-runner-crash':
+            return handle_alert_runner_crash_command(text, user_id, channel_id)
+        elif command == '/read-secret':
+            return handle_read_secret_command(text, user_id, channel_id)
+        elif command == '/manual-revise':
+            return handle_manual_revise_command(text, user_id, channel_id)
+        elif command == '/manual-append':
+            return handle_manual_append_command(text, user_id, channel_id)
+        elif command == '/interrupt':
+            return handle_interrupt_command(text, user_id, channel_id)
+        elif command == '/send-with':
+            return handle_send_with_command(text, user_id, channel_id)
+        elif command == '/troubleshoot':
+            return handle_troubleshoot_command(text, user_id, channel_id)
+        elif command == '/troubleshoot-oversight':
+            return handle_troubleshoot_oversight_command(text, user_id, channel_id)
         else:
             return {
                 "response_type": "ephemeral",
@@ -94,7 +152,7 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
 
 def handle_dashboard_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
     """Handle /dashboard slash command."""
-    dashboard_url = os.getenv("DASHBOARD_URL", "http://localhost:5050/dashboard")
+    dashboard_url = os.getenv("DASHBOARD_URL", "https://runner-dev.thoughtmarks.app/dashboard")
     
     # Log the dashboard request
     if event_logger:
@@ -439,6 +497,1327 @@ def handle_command_center_command(text: str, user_id: str, channel_id: str) -> D
         except Exception:
             pass
         
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_status_runner_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /status-runner slash command."""
+    try:
+        # Get system status
+        status = get_system_status()
+        
+        # Log the status request
+        if event_logger:
+            event_logger.log_slack_event("status_runner_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "📊 System Status",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*📊 System Status*"
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Status:* {status['status']}"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Uptime:* {status['uptime']}"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Memory:* {status['memory_usage']}%"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f"*Disk:* {status['disk_usage']}%"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error getting status: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="status_runner_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_whoami_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /whoami slash command."""
+    try:
+        # Log the whoami request
+        if event_logger:
+            event_logger.log_slack_event("whoami_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": f"👤 *Who Am I?*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"👤 *Who Am I?*\n\nYour Slack user ID: `{user_id}`"
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use `/help` for more commands"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error getting whoami: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="whoami_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_toggle_runner_auto_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /toggle-runner-auto slash command."""
+    try:
+        # This command would typically toggle a runner's auto-patching mode
+        # For now, we'll just return a placeholder message
+        if event_logger:
+            event_logger.log_slack_event("toggle_runner_auto_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔄 *Toggling Auto-Patching...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔄 *Toggling Auto-Patching...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error toggling auto-patching: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="toggle_runner_auto_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_restart_runner_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /restart-runner slash command."""
+    try:
+        # This command would typically restart the runner process
+        if event_logger:
+            event_logger.log_slack_event("restart_runner_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔄 *Restarting GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔄 *Restarting GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error restarting runner: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="restart_runner_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_restart_runner_gpt_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /restart-runner-gpt slash command."""
+    try:
+        # This command would typically restart the GPT process
+        if event_logger:
+            event_logger.log_slack_event("restart_runner_gpt_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔄 *Restarting GPT Process...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔄 *Restarting GPT Process...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error restarting runner GPT: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="restart_runner_gpt_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_continue_runner_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /continue-runner slash command."""
+    try:
+        # This command would typically resume the runner from a paused state
+        if event_logger:
+            event_logger.log_slack_event("continue_runner_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "✅ *Resuming GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "✅ *Resuming GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error continuing runner: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="continue_runner_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_toggle_runner_on_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /toggle-runner-on slash command."""
+    try:
+        # This command would typically turn the runner on
+        if event_logger:
+            event_logger.log_slack_event("toggle_runner_on_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "✅ *Enabling GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "✅ *Enabling GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error toggling runner on: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="toggle_runner_on_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_toggle_runner_off_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /toggle-runner-off slash command."""
+    try:
+        # This command would typically turn the runner off
+        if event_logger:
+            event_logger.log_slack_event("toggle_runner_off_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "⏸️ *Disabling GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "⏸️ *Disabling GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error toggling runner off: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="toggle_runner_off_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_kill_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /kill slash command."""
+    try:
+        # This command would typically kill the runner process
+        if event_logger:
+            event_logger.log_slack_event("kill_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "💀 *Killing GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "💀 *Killing GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error killing runner: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="kill_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_lock_runner_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /lock-runner slash command."""
+    try:
+        # This command would typically lock the runner to prevent patches
+        if event_logger:
+            event_logger.log_slack_event("lock_runner_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔒 *Locking GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔒 *Locking GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error locking runner: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="lock_runner_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_unlock_runner_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /unlock-runner slash command."""
+    try:
+        # This command would typically unlock the runner
+        if event_logger:
+            event_logger.log_slack_event("unlock_runner_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔓 *Unlocking GPT-Cursor Runner...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔓 *Unlocking GPT-Cursor Runner...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error unlocking runner: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="unlock_runner_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_roadmap_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /roadmap slash command."""
+    try:
+        # This command would typically show the roadmap
+        if event_logger:
+            event_logger.log_slack_event("roadmap_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "📜 *Roadmap*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*📜 GPT-Cursor Runner Roadmap*\n\n*Current Features:*\n• Code patch creation and application\n• Real-time patch status tracking\n• Dashboard for patch logs\n• Auto-patching with approval\n• System status monitoring\n• Command center for all actions\n\n*Future Plans:*\n• Advanced error handling and recovery\n• Multi-language support\n• More sophisticated patch logic\n• Enhanced dashboard features\n• AI-powered suggestions"
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use `/show-roadmap` to see a more detailed version"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error showing roadmap: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="roadmap_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_show_roadmap_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /show-roadmap slash command."""
+    try:
+        # This command would typically show a more detailed roadmap
+        if event_logger:
+            event_logger.log_slack_event("show_roadmap_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "�� *Detailed Roadmap*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*📜 GPT-Cursor Runner Detailed Roadmap*\n\n*Current Features:*\n• Code patch creation and application\n• Real-time patch status tracking\n• Dashboard for patch logs\n• Auto-patching with approval\n• System status monitoring\n• Command center for all actions\n\n*Future Plans:*\n• Advanced error handling and recovery\n• Multi-language support\n• More sophisticated patch logic\n• Enhanced dashboard features\n• AI-powered suggestions"
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use `/roadmap` to see a high-level overview"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error showing detailed roadmap: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="show_roadmap_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_theme_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /theme slash command."""
+    try:
+        # This command would typically change the theme
+        if event_logger:
+            event_logger.log_slack_event("theme_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🎨 *Changing Theme...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🎨 *Changing Theme...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error changing theme: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="theme_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_theme_status_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /theme-status slash command."""
+    try:
+        # This command would typically show the current theme status
+        if event_logger:
+            event_logger.log_slack_event("theme_status_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🎨 *Theme Status*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*🎨 GPT-Cursor Runner Theme Status*\n\n*Current Theme:* Dark Mode"
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use `/theme` to change theme"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error getting theme status: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="theme_status_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_theme_fix_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /theme-fix slash command."""
+    try:
+        # This command would typically fix a theme-related issue
+        if event_logger:
+            event_logger.log_slack_event("theme_fix_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🛠️ *Fixing Theme...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🛠️ *Fixing Theme...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error fixing theme: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="theme_fix_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_approve_screenshot_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /approve-screenshot slash command."""
+    try:
+        # This command would typically approve a screenshot
+        if event_logger:
+            event_logger.log_slack_event("approve_screenshot_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "✅ *Approving Screenshot...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "✅ *Approving Screenshot...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error approving screenshot: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="approve_screenshot_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_revert_phase_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /revert-phase slash command."""
+    try:
+        # This command would typically revert to a previous phase
+        if event_logger:
+            event_logger.log_slack_event("revert_phase_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "♻️ *Reverting Phase...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "♻️ *Reverting Phase...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error reverting phase: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="revert_phase_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_log_phase_status_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /log-phase-status slash command."""
+    try:
+        # This command would typically log the status of the current phase
+        if event_logger:
+            event_logger.log_slack_event("log_phase_status_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "📝 *Phase Status*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*📝 GPT-Cursor Runner Phase Status*\n\n*Current Phase:* Patching"
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Use `/revert-phase` to revert"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error getting phase status: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="log_phase_status_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_cursor_mode_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /cursor-mode slash command."""
+    try:
+        # This command would typically toggle the cursor mode
+        if event_logger:
+            event_logger.log_slack_event("cursor_mode_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🖱️ *Toggling Cursor Mode...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🖱️ *Toggling Cursor Mode...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error toggling cursor mode: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="cursor_mode_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_retry_last_failed_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /retry-last-failed slash command."""
+    try:
+        # This command would typically retry the last failed patch
+        if event_logger:
+            event_logger.log_slack_event("retry_last_failed_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔄 *Retrying Last Failed Patch...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔄 *Retrying Last Failed Patch...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error retrying last failed patch: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="retry_last_failed_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_alert_runner_crash_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /alert-runner-crash slash command."""
+    try:
+        # This command would typically alert the runner to a crash
+        if event_logger:
+            event_logger.log_slack_event("alert_runner_crash_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "⚠️ *Alerting Runner to Crash...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "⚠️ *Alerting Runner to Crash...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error alerting runner crash: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="alert_runner_crash_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_read_secret_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /read-secret slash command."""
+    try:
+        # This command would typically read a secret from the runner's secrets file
+        if event_logger:
+            event_logger.log_slack_event("read_secret_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔑 *Reading Secret...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔑 *Reading Secret...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error reading secret: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="read_secret_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_manual_revise_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /manual-revise slash command."""
+    try:
+        # This command would typically allow manual revision of the generated code
+        if event_logger:
+            event_logger.log_slack_event("manual_revise_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "✏️ *Manual Revision...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "✏️ *Manual Revision...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error manual revise: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="manual_revise_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_manual_append_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /manual-append slash command."""
+    try:
+        # This command would typically allow manual appending to the generated code
+        if event_logger:
+            event_logger.log_slack_event("manual_append_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "📝 *Manual Append...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "📝 *Manual Append...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error manual append: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="manual_append_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_interrupt_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /interrupt slash command."""
+    try:
+        # This command would typically interrupt the current patch generation
+        if event_logger:
+            event_logger.log_slack_event("interrupt_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "⚡ *Interrupting...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "⚡ *Interrupting...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error interrupting: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="interrupt_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_send_with_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /send-with slash command."""
+    try:
+        # This command would typically send a message with a specific format
+        if event_logger:
+            event_logger.log_slack_event("send_with_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "💬 *Sending with...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "💬 *Sending with...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error sending with: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="send_with_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_troubleshoot_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /troubleshoot slash command."""
+    try:
+        # This command would typically provide troubleshooting tips
+        if event_logger:
+            event_logger.log_slack_event("troubleshoot_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🛠️ *Troubleshooting...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🛠️ *Troubleshooting...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error troubleshooting: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="troubleshoot_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_troubleshoot_oversight_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /troubleshoot-oversight slash command."""
+    try:
+        # This command would typically provide oversight for troubleshooting
+        if event_logger:
+            event_logger.log_slack_event("troubleshoot_oversight_request", {
+                "user_id": user_id,
+                "channel_id": channel_id
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "👀 *Troubleshooting Oversight...*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "👀 *Troubleshooting Oversight...*\n\nThis command is not yet fully implemented."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This feature is under development."
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error troubleshooting oversight: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="troubleshoot_oversight_command")
+        except Exception:
+            pass
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"

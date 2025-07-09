@@ -1,83 +1,61 @@
-const stateManager = require('../utils/stateManager');
+const patchManager = require('../utils/patchManager');
+const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleProceed(req, res) {
   const { user_name, text } = req.body;
   console.log("⚡️ /proceed triggered by:", user_name, "with text:", text);
   
   try {
-    const currentState = await stateManager.getState();
-    const themeStatus = await stateManager.getThemeStatus();
+    const action = text ? text.trim().toLowerCase() : 'auto';
     
-    // Determine action based on context or explicit parameter
-    const action = text?.trim().toLowerCase() || 'auto';
+    // Get current status
+    const runnerStatus = runnerController.getRunnerStatus();
+    const patchStats = await patchManager.getPatchStats();
     
-    let response = '';
+    let response = `🚀 *Proceed Command*\n\n*Requested by:* ${user_name}\n*Action:* ${action}\n*Timestamp:* ${new Date().toLocaleString()}\n\n`;
     
-    if (action === 'screenshot' || action === 'approve' || (themeStatus.lastThemeAudit && !themeStatus.lastThemeAudit.approved)) {
-      // Handle screenshot approval
-      if (!themeStatus.lastThemeAudit) {
-        res.send(`❌ No recent theme changes found to approve.`);
-        return;
+    if (action === 'approve' || action === 'patch') {
+      // Approve next pending patch
+      const pendingPatches = await patchManager.getPendingPatches();
+      if (pendingPatches.length === 0) {
+        response += `❌ No pending patches to approve.\n\nUse \`/patch-approve\` to approve specific patches.`;
+      } else {
+        const nextPatch = pendingPatches[0];
+        const approveResult = await patchManager.approvePatch(nextPatch.id);
+        if (approveResult.success) {
+          response += `✅ *Patch Approved*\n\nPatch \`${nextPatch.id}\` has been approved.\n\nFile: ${nextPatch.file || 'Unknown'}\nDescription: ${nextPatch.description || 'No description'}`;
+        } else {
+          response += `❌ Failed to approve patch: ${approveResult.message}`;
+        }
       }
-
-      const approvalResult = {
-        success: true,
-        approvedBy: user_name,
-        timestamp: new Date().toISOString(),
-        changes: themeStatus.lastThemeAudit.changes || []
-      };
-
-      await stateManager.updateThemeAudit({
-        ...themeStatus.lastThemeAudit,
-        approved: true,
-        approvedBy: user_name,
-        approvedAt: new Date().toISOString()
-      });
-
-      response = `
-📸 *Screenshot Approved*
-
-*Status:* ✅ Approved by ${user_name}
-*Timestamp:* ${new Date(approvalResult.timestamp).toLocaleString()}
-*Changes:* ${approvalResult.changes.length} theme changes approved
-
-*Approved Changes:*
-${approvalResult.changes.length > 0 
-  ? approvalResult.changes.map(change => `• ${change}`).join('\n')
-  : '• Theme updates applied'
-}
-
-*Next Steps:*
-• Theme changes are now live
-• Monitor with \`/theme-status\`
-• Check overall status with \`/status-runner\`
-      `.trim();
-    } else if (action === 'continue' || action === 'resume' || currentState.paused) {
-      // Handle runner continuation
-      if (!currentState.paused) {
-        res.send(`▶️ Runner is not paused. Use \`/pause-runner\` to pause.`);
-        return;
+    } else if (action === 'runner' || action === 'start') {
+      // Start the runner
+      if (runnerStatus.isRunning) {
+        response += `✅ Runner is already running.\n\nUse \`/status-runner\` to check current status.`;
+      } else {
+        const startResult = await runnerController.startRunner();
+        if (startResult.success) {
+          response += `✅ *Runner Started*\n\nThe GPT-Cursor Runner has been started successfully.`;
+        } else {
+          response += `❌ Failed to start runner: ${startResult.message}`;
+        }
       }
-
-      await stateManager.resumeRunner();
-      
-      response = `▶️ *Runner Resumed*\n\nRunner has been resumed by ${user_name}. Patches will now be processed normally.`;
     } else {
-      // Default: approve next patch
-      const patchStats = await require('../utils/patchManager').getPatchStats();
+      // Auto mode - check what needs to be done
+      response += `🤖 *Auto Proceed Mode*\n\n`;
       
-      if (patchStats.pending === 0) {
-        res.send(`📋 No pending patches to approve.`);
-        return;
+      if (!runnerStatus.isRunning) {
+        response += `🔴 Runner is not running.\n\nUse \`/toggle-runner-on\` to start the runner.`;
+      } else if (patchStats.pending > 0) {
+        response += `⏳ ${patchStats.pending} pending patches found.\n\nUse \`/patch-approve\` to approve the next patch.`;
+      } else {
+        response += `✅ All systems operational.\n\nNo pending actions required.`;
       }
-
-      // Simulate patch approval
-      response = `✅ *Patch Approved*\n\nNext pending patch has been approved by ${user_name}.\n\nUse \`/status-runner\` to check progress.`;
     }
-
+    
     res.send(response);
   } catch (error) {
     console.error('Error in proceed action:', error);
-    res.send(`❌ Error in proceed action: ${error.message}`);
+    res.send(`❌ Error processing proceed command: ${error.message}`);
   }
 }; 

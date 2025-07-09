@@ -2,108 +2,76 @@
 
 ## 🚀 Quick Start
 
+### Development Environment
+- **Production Runner**: `https://runner.thoughtmarks.app` (port 5555)
+- **Development Runner**: `https://runner-dev.thoughtmarks.app` (port 5051)
+- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
+- **Health check**: `https://runner-dev.thoughtmarks.app/health`
+
 ### Starting the Development Server
 
 ```bash
-# Option 1: Using npm
+# Start the Node.js server (Slack commands)
 npm run dev
 
-# Option 2: Direct node command
-node server/index.js
-
-# Option 3: Using Cursor (open project in Cursor first)
-# Then use the integrated terminal or Cursor's run commands
+# Start the Python runner (GPT webhooks)
+python3 -m gpt_cursor_runner.main
 ```
 
-### Cursor Integration
+### Development URLs
+- **Slack Commands**: `https://runner-dev.thoughtmarks.app/slack/commands`
+- **Webhook Endpoint**: `https://runner-dev.thoughtmarks.app/webhook`
+- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
+- **Health Check**: `https://runner-dev.thoughtmarks.app/health`
 
-1. **Open Project in Cursor:**
-   ```bash
-   cursor .
-   ```
+### Testing Commands
 
-2. **Development Server:**
-   - The server runs on `http://localhost:5555`
-   - Dashboard: `http://localhost:5555/dashboard`
-   - Health check: `http://localhost:5555/health`
+```bash
+# Test Slack commands
+node scripts/verify_slack_commands.js
 
-3. **Hybrid Mode:**
-   - Cursor is configured with `hybridMode: true`
-   - This enables AI assistance with hybrid block logs
-   - Check the Cursor output panel for AI interactions
+# Test webhook endpoint
+curl -X POST https://runner-dev.thoughtmarks.app/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"id": "test", "role": "system", "description": "Test"}'
 
-## 📁 Project Structure
-
-```
-gpt-cursor-runner/
-├── .cursor/
-│   ├── cursor.json          # Cursor configuration
-│   └── environment.json     # Cursor environment settings
-├── server/
-│   ├── index.js            # Main server entry point
-│   ├── handlers/           # Slack command handlers
-│   ├── routes/             # Express routes
-│   └── utils/              # Utility functions
-├── gpt_cursor_runner/      # Python backend
-└── .env                    # Environment variables
+# Test Slack ping
+python3 scripts/test_slack_ping.py
 ```
 
 ## 🔧 Configuration
 
-### Cursor Configuration (`.cursor/cursor.json`)
-```json
-{
-  "projectName": "gpt-cursor-runner",
-  "entry": "server/index.js",
-  "framework": "node",
-  "agentCanUpdateSnapshot": true,
-  "experimentalAI": true,
-  "hybridMode": true,
-  "devCommand": "node server/index.js"
-}
-```
+##***REMOVED***
+- `RUNNER_URL`: Production runner URL (`https://runner.thoughtmarks.app`)
+- `RUNNER_DEV_URL`: Development runner URL (`https://runner-dev.thoughtmarks.app`)
+- `ENDPOINT_URL`: Webhook endpoint for GPT
+- `DASHBOARD_URL`: Dashboard URL for Slack commands
 
-##***REMOVED*** (`.env`)
-```bash
-# Manually restored in case Vault disabled it
-CURSOR_API_KEY=sk-proj-REPLACE_ME_IF_NEEDED
-
-# Generated from HashiCorp Vault
-# No secrets found in Vault
-# To populate: cd ~/gitSync/dev-tools && ./vault-sync-env.js
-```
-
-## 🛠️ Troubleshooting
-
-### If Cursor dev command doesn't work:
-- Use `npm run dev` or `node server/index.js` instead
-- The `cursor dev` command doesn't exist in Cursor CLI
-
-### If server won't start:
-1. Check if port 5555 is available
-2. Verify `.env` file exists and has proper permissions
-3. Ensure Node.js dependencies are installed: `npm install`
-
-### If Cursor AI isn't working:
-1. Verify `CURSOR_API_KEY` is set in `.env`
-2. Check Cursor settings for AI features
-3. Restart Cursor if needed
+### Cloudflare Tunnel Configuration
+- **Production**: `runner.thoughtmarks.app` → `http://localhost:5555`
+- **Development**: `runner-dev.thoughtmarks.app` → `http://localhost:5051`
 
 ## 📊 Monitoring
 
-- **Health Check:** `http://localhost:5555/health`
-- **Dashboard:** `http://localhost:5555/dashboard`
-- **Logs:** Check `logs/` directory for application logs
+### Health Checks
+- **Health Check:** `https://runner-dev.thoughtmarks.app/health`
+- **Dashboard:** `https://runner-dev.thoughtmarks.app/dashboard`
 
-## 🔄 Development Workflow
+### Logs
+- Event logs: `event-log.json`
+- Runner state: `runner.state.json`
+- Patch files: `patches/` directory
 
-1. Start the server: `npm run dev`
-2. Open Cursor: `cursor .`
-3. Make changes to code
-4. Server auto-restarts (if using nodemon)
-5. Test endpoints and Slack commands
-6. Check hybrid block logs in Cursor
+## 🚨 Troubleshooting
 
-## 🏷️ Version Tags
+### Common Issues
+1. **Port conflicts**: Ensure ports 5555 and 5051 are available
+2. **Tunnel issues**: Check Cloudflare tunnel status
+3. **Slack commands**: Verify Slack app configuration
 
-- `v1.4.0_cursor_runtime_restored` - Cursor runtime repair completed 
+### Debug Mode
+```bash
+# Enable debug mode
+export DEBUG_MODE=true
+python3 -m gpt_cursor_runner.main
+``` 

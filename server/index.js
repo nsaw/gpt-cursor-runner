@@ -99,10 +99,9 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 GPT-Cursor Runner started on port ${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`🔗 Health: http://localhost:${PORT}/health`);
-  console.log(`🧪 Slack Test: http://localhost:${PORT}/slack/test`);
+    console.log(`🚀 GPT-Cursor Runner Server running on port ${PORT}`);
+    console.log(`📡 Slack commands: http://localhost:${PORT}/slack/commands`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
 });
 
 module.exports = app; 

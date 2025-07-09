@@ -11,18 +11,18 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
 # Import handlers
-from .webhook_handler import process_hybrid_block
-from .slack_handler import (
+from gpt_cursor_runner.webhook_handler import process_hybrid_block
+from gpt_cursor_runner.slack_handler import (
     verify_slack_signature, 
     handle_slack_command, 
     handle_slack_event,
     send_slack_response
 )
-from .event_logger import event_logger
+from gpt_cursor_runner.event_logger import event_logger
 
 # Import dashboard
 try:
-    from .dashboard import create_dashboard_routes
+    from gpt_cursor_runner.dashboard import create_dashboard_routes
 except ImportError:
     create_dashboard_routes = None
 
@@ -67,7 +67,7 @@ def webhook():
                 "headers": dict(request.headers)
             })
         try:
-            from .slack_proxy import create_slack_proxy
+            from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
             slack_proxy.notify_error(error_msg, context="/webhook endpoint")
         except Exception:
@@ -136,7 +136,7 @@ def handle_slack_webhook():
                 "headers": dict(request.headers)
             })
         try:
-            from .slack_proxy import create_slack_proxy
+            from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
             slack_proxy.notify_error(error_msg, context="/webhook Slack handler")
         except Exception:
@@ -190,7 +190,7 @@ def slack_test():
                 "error": str(e)
             })
         try:
-            from .slack_proxy import create_slack_proxy
+            from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
             slack_proxy.notify_error(error_msg, context="/slack/test endpoint")
         except Exception:
@@ -278,16 +278,15 @@ def health_check():
     })
 
 def main():
-    """Main function to run the Flask server."""
-    port = int(os.getenv('PORT', 5050))
+    """Main entry point."""
+    port = int(os.getenv('PYTHON_PORT', 5051))
     
     print(f"🚀 Starting GPT-Cursor Runner on port {port}")
     print(f"📡 Webhook endpoint: http://localhost:{port}/webhook")
-    if create_dashboard_routes:
-        print(f"📊 Dashboard: http://localhost:{port}/dashboard")
+    print(f"📊 Dashboard: http://localhost:{port}/dashboard")
     print(f"🧪 Test endpoint: http://localhost:{port}/slack/test")
     print(f"📊 Events endpoint: http://localhost:{port}/events")
-    print("🔗 Supports: GPT hybrid blocks + Slack events")
+    print(f"🔗 Supports: GPT hybrid blocks + Slack events")
     
     app.run(host='0.0.0.0', port=port, debug=True)
 

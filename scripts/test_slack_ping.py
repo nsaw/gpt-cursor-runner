@@ -9,7 +9,7 @@ def test_slack_ping():
     """Test the Slack test endpoint."""
     
     # Simple POST request to the test endpoint
-    url = "http://localhost:5050/slack/test"
+    url = "https://runner-dev.thoughtmarks.app/slack/test"
     
     try:
         response = requests.post(url, json={"test": "ping"})
