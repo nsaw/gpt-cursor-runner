@@ -1,4 +1,3 @@
-const stateManager = require('../utils/stateManager');
 const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleAgain(req, res) {
@@ -6,79 +5,18 @@ module.exports = async function handleAgain(req, res) {
   console.log("⚡️ /again triggered by:", user_name, "with text:", text);
   
   try {
-    const currentState = await stateManager.getState();
-    const action = text?.trim().toLowerCase() || 'auto';
+    const status = runnerController.getRunnerStatus();
     
-    let response = '';
-    
-    if (action === 'retry' || action === 'failed') {
-      // Handle retry last failed operation
-      const lastError = currentState.lastError || 'No recent errors found';
-      
-      if (!currentState.lastError) {
-        res.send(`❌ No recent failed operations to retry.`);
-        return;
-      }
-
-      // Simulate retry of last failed operation
-      response = `
-🔄 *Retrying Last Failed Operation*
-
-*Last Error:* ${lastError}
-*Retried By:* ${user_name}
-*Timestamp:* ${new Date().toLocaleString()}
-
-*Status:* 🔄 Retrying...
-*Next:* Monitor with \`/status-runner\`
-      `.trim();
-    } else if (action === 'restart' || action === 'runner' || !currentState.runner.isRunning) {
-      // Handle runner restart
-      if (currentState.runner.isRunning) {
-        await runnerController.killRunner();
-      }
-      
-      await runnerController.startRunner();
-      await stateManager.updateState({ 
-        runner: { isRunning: true },
-        lastRestartedBy: user_name,
-        lastRestartedAt: new Date().toISOString()
-      });
-      
-      response = `
-🔄 *Runner Restarted*
-
-*Status:* ✅ Runner restarted by ${user_name}
-*Timestamp:* ${new Date().toLocaleString()}
-*Process:* New PID assigned
-
-*Next Steps:*
-• Monitor with \`/status-runner\`
-• Check patches with \`/patch-preview\`
-      `.trim();
-    } else {
-      // Default: retry last failed
-      const lastError = currentState.lastError || 'No recent errors found';
-      
-      if (!currentState.lastError) {
-        res.send(`❌ No recent failed operations to retry.`);
-        return;
-      }
-
-      response = `
-🔄 *Retrying Last Failed Operation*
-
-*Last Error:* ${lastError}
-*Retried By:* ${user_name}
-*Timestamp:* ${new Date().toLocaleString()}
-
-*Status:* 🔄 Retrying...
-*Next:* Monitor with \`/status-runner\`
-      `.trim();
+    if (!status.isRunning) {
+      res.send(`❌ Runner is not currently running. Please start it first with \`/toggle-runner-on\`.`);
+      return;
     }
-
-    res.send(response);
+    
+    // For now, just acknowledge the command
+    // TODO: Implement retry logic for the last failed operation
+    res.send(`🔄 *Retry Command*\n\nRetry command received from ${user_name}.\n\nThis feature is under development.`);
   } catch (error) {
     console.error('Error in again action:', error);
-    res.send(`❌ Error in again action: ${error.message}`);
+    res.send(`❌ Error processing retry command: ${error.message}`);
   }
 }; 

@@ -5,7 +5,7 @@ module.exports = async function handlePatchApprove(req, res) {
   console.log("⚡️ /patch-approve triggered by:", user_name);
   
   try {
-    const patchId = text.trim();
+    const patchId = text ? text.trim() : '';
     
     if (!patchId) {
       // Get the last pending patch if no ID specified

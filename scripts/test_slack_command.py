@@ -51,7 +51,7 @@ def test_slack_slash_command():
     }
     
     # Send request
-    url = "http://localhost:5050/webhook"
+    url = "https://runner-dev.thoughtmarks.app/webhook"
     
     try:
         response = requests.post(url, data=payload, headers=headers)

@@ -33,12 +33,9 @@ setup(
     ],
     python_requires=">=3.9",
     install_requires=[
-        "flask>=3.0.0",
-        "requests>=2.25.0",
+        "flask>=2.3.0",
         "python-dotenv>=1.0.0",
-        "pyngrok>=7.0.0",
-        "pyyaml>=6.0.0",
-        "click>=8.0.0",
+        "requests>=2.31.0",
     ],
     extras_require={
         "dev": [

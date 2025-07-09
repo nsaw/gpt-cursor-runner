@@ -1,56 +1,74 @@
-const stateManager = require('../utils/stateManager');
-const runnerController = require('../utils/runnerController');
 const patchManager = require('../utils/patchManager');
+const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleStatusRunner(req, res) {
   const { user_name } = req.body;
   console.log("⚡️ /status-runner triggered by:", user_name);
   
   try {
-    const [state, runnerStatus, patchStats] = await Promise.all([
-      stateManager.getRunnerStatus(),
-      runnerController.getRunnerStatus(),
-      patchManager.getPatchStats()
-    ]);
-
-    const status = {
-      ...state,
-      runner: runnerStatus,
-      patches: patchStats,
-      timestamp: new Date().toISOString()
-    };
-
-    const statusText = `
-🚀 *GPT-Cursor Runner Status*
-
-*Runner State:*
-• Status: ${status.runner.isRunning ? '🟢 Running' : '🔴 Stopped'}
-• Paused: ${status.paused ? '⏸️ Yes' : '▶️ No'}
-• Auto Mode: ${status.autoMode ? '🤖 Enabled' : '👤 Manual'}
-• Lockdown: ${status.lockdown ? '🔒 Locked' : '🔓 Unlocked'}
-• Crash Fence: ${status.crashFence ? '🚧 Active' : '✅ Clear'}
-
-*Runner Process:*
-• PID: ${status.runner.pid || 'N/A'}
-• Uptime: ${Math.floor(status.runner.uptime / 1000)}s
-• Last Error: ${status.runner.lastError || 'None'}
-
-*Patch Statistics:*
-• Total: ${status.patches.total}
-• Approved: ${status.patches.approved} (${status.patches.successRate}%)
-• Pending: ${status.patches.pending}
-• Failed: ${status.patches.failed}
-• Reverted: ${status.patches.reverted}
-
-*System:*
-• Server Uptime: ${Math.floor(status.uptime)}s
-• Memory: ${Math.round(status.memory.heapUsed / 1024 / 1024)}MB
-• Timestamp: ${new Date(status.timestamp).toLocaleString()}
-    `.trim();
-
-    res.send(statusText);
+    // Get runner status
+    const runnerStatus = runnerController.getRunnerStatus();
+    const runnerHealth = await runnerController.checkRunnerHealth();
+    
+    // Get patch statistics
+    const patchStats = await patchManager.getPatchStats();
+    
+    // Build status response
+    let response = `📊 *Runner Status Report*\n\n*Requested by:* ${user_name}\n*Timestamp:* ${new Date().toLocaleString()}\n\n`;
+    
+    // Runner status
+    if (runnerStatus.isRunning) {
+      response += `🟢 *Runner:* Running\n`;
+      response += `⏱️ *Uptime:* ${Math.floor(runnerStatus.uptime / 1000 / 60)} minutes\n`;
+      if (runnerStatus.pid) {
+        response += `🆔 *PID:* ${runnerStatus.pid}\n`;
+      }
+    } else {
+      response += `🔴 *Runner:* Not Running\n`;
+    }
+    
+    // Health status
+    response += `🏥 *Health:* ${runnerHealth.healthy ? 'Healthy' : 'Unhealthy'}\n`;
+    if (!runnerHealth.healthy) {
+      response += `💊 *Health Message:* ${runnerHealth.message}\n`;
+    }
+    
+    // Patch statistics
+    response += `\n📦 *Patch Statistics*\n`;
+    response += `• Total: ${patchStats.total}\n`;
+    response += `• Approved: ${patchStats.approved}\n`;
+    response += `• Pending: ${patchStats.pending}\n`;
+    response += `• Reverted: ${patchStats.reverted}\n`;
+    response += `• Failed: ${patchStats.failed}\n`;
+    response += `• Success Rate: ${patchStats.successRate}%\n`;
+    
+    // Recent activity
+    const recentPatches = await patchManager.listPatches(5);
+    if (recentPatches.length > 0) {
+      response += `\n🕒 *Recent Activity*\n`;
+      recentPatches.forEach(patch => {
+        const status = patch.status === 'approved' ? '✅' : 
+                     patch.status === 'pending' ? '⏳' : 
+                     patch.status === 'reverted' ? '🔄' : '❌';
+        response += `• ${status} ${patch.id} (${patch.status})\n`;
+      });
+    }
+    
+    // Recommendations
+    response += `\n💡 *Recommendations*\n`;
+    if (!runnerStatus.isRunning) {
+      response += `• Use \`/toggle-runner-on\` to start the runner\n`;
+    } else if (!runnerHealth.healthy) {
+      response += `• Use \`/restart-runner\` to restart the runner\n`;
+    } else if (patchStats.pending > 0) {
+      response += `• Use \`/patch-approve\` to approve pending patches\n`;
+    } else {
+      response += `• All systems operational\n`;
+    }
+    
+    res.send(response);
   } catch (error) {
     console.error('Error getting status:', error);
-    res.send(`❌ Error getting status: ${error.message}`);
+    res.send(`❌ Error getting runner status: ${error.message}`);
   }
 }; 

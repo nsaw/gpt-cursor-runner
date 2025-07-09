@@ -173,7 +173,7 @@ def main():
         print("   - Integrate with your actual GPT workflow")
         print("   - Customize the patch format for your needs")
         print("   - Add Git integration for automatic commits")
-        print("   - Set up ngrok for external access")
+        print("   - Set up Cloudflare tunnel for external access")
     else:
         print("⚠️  Some steps failed. Check the output above for issues.")
     

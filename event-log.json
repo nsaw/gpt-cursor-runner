@@ -174,8 +174,163 @@
         "target_file": "test.py",
         "filepath": "patches/test-patch-123_20250706_212913.json"
       }
+    },
+    {
+      "id": "system_1751933248587",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:07:28.587290",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "text": "\ufffd\ufffd **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ufffd\ufffd **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933248588",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-07T17:07:28.588170",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "text": "\ufffd\ufffd **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ufffd\ufffd **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933271564",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:07:51.564711",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "progress-update",
+          "text": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933271565",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-07T17:07:51.565298",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "progress-update",
+          "text": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933296301",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:08:16.301231",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "progress-update",
+          "role": "system",
+          "target_file": "status.md",
+          "patch": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!",
+          "description": "Progress update on secrets pipeline and runner setup"
+        }
+      }
+    },
+    {
+      "id": "system_1751933296302",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-07T17:08:16.302199",
+      "data": {
+        "patch_id": "progress-update",
+        "target_file": "status.md",
+        "filepath": "patches/progress-update_20250707_170816.json"
+      }
+    },
+    {
+      "id": "system_1751933371836",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:09:31.836628",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "watchdog-status",
+          "role": "system",
+          "target_file": "status.md",
+          "patch": "\ud83d\udd27 **Watchdog Daemon Status**\n\n\u2705 **Launchd Service**: Installed and running\n\u2705 **Monitoring**: Active on port 5050\n\u2705 **Auto-restart**: Enabled\n\u2705 **Logging**: ~/.gpt-runner-watchdog.log\n\n\ud83d\ude80 **Dev Pipeline**:\n- npm run dev:secrets working correctly\n- Secrets injection functional\n- 1Password persistent session active\n\n\ufffd\ufffd **Status**: All systems operational and monitored!",
+          "description": "Watchdog daemon installation and status confirmation"
+        }
+      }
+    },
+    {
+      "id": "system_1751933371838",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-07T17:09:31.838693",
+      "data": {
+        "patch_id": "watchdog-status",
+        "target_file": "status.md",
+        "filepath": "patches/watchdog-status_20250707_170931.json"
+      }
+    },
+    {
+      "id": "system_1752000776874",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-08T11:52:56.875000",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "webhook"
+        }
+      }
+    },
+    {
+      "id": "system_1752000776875",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-08T11:52:56.875985",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "webhook"
+        }
+      }
+    },
+    {
+      "id": "system_1752003704181",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-08T12:41:44.181499",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-ghost-tunnel",
+          "role": "system",
+          "description": "Ghost CMS tunnel daemon test",
+          "target_file": "ghost-tunnel-test.md",
+          "patch": "Test Ghost tunnel daemon"
+        }
+      }
+    },
+    {
+      "id": "system_1752003704182",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-08T12:41:44.182365",
+      "data": {
+        "patch_id": "test-ghost-tunnel",
+        "target_file": "ghost-tunnel-test.md",
+        "filepath": "patches/test-ghost-tunnel_20250708_124144.json"
+      }
     }
   ],
-  "last_updated": "2025-07-06T21:29:13.075010",
-  "total_events": 11
+  "last_updated": "2025-07-08T12:41:44.182659",
+  "total_events": 23
 }
