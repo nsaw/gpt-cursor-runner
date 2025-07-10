@@ -1,0 +1,42 @@
+{
+  "terminal": {
+    "timeout": {
+      "enabled": true,
+      "duration": 30000,
+      "fallback": "dismiss"
+    },
+    "autoRelease": {
+      "enabled": true,
+      "delay": 10000
+    },
+    "backgroundHangRescue": {
+      "enabled": true,
+      "timeout": 15000,
+      "action": "kill"
+    },
+    "feedbackLoopProtection": {
+      "enabled": true,
+      "maxIterations": 3,
+      "timeout": 20000
+    }
+  },
+  "agent": {
+    "safety": {
+      "terminalBlockingProtection": true,
+      "autoDismissStuckSessions": true,
+      "maxSessionDuration": 60000
+    }
+  },
+  "autopilot": {
+    "returnSummaryToGPT": true
+  },
+  "crew": {
+    "captain": "Nick",
+    "manager": "GPT",
+    "agents": [
+      "DEV",
+      "BRAUN"
+    ],
+    "ghostRelay": true
+  }
+}
