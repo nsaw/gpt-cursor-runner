@@ -329,8 +329,41 @@
         "target_file": "ghost-tunnel-test.md",
         "filepath": "patches/test-ghost-tunnel_20250708_124144.json"
       }
+    },
+    {
+      "id": "slack_1752106823183",
+      "type": "slack_event",
+      "event_type": "status_runner_request",
+      "timestamp": "2025-07-09T17:20:23.183564",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
+    },
+    {
+      "id": "slack_1752106826321",
+      "type": "slack_event",
+      "event_type": "dashboard_request",
+      "timestamp": "2025-07-09T17:20:26.321978",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
+    },
+    {
+      "id": "slack_1752106953945",
+      "type": "slack_event",
+      "event_type": "status_runner_request",
+      "timestamp": "2025-07-09T17:22:33.945352",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
     }
   ],
-  "last_updated": "2025-07-08T12:41:44.182659",
-  "total_events": 23
+  "last_updated": "2025-07-09T17:22:33.945526",
+  "total_events": 26
 }

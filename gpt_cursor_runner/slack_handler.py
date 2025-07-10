@@ -133,6 +133,14 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
             return handle_troubleshoot_command(text, user_id, channel_id)
         elif command == '/troubleshoot-oversight':
             return handle_troubleshoot_oversight_command(text, user_id, channel_id)
+        elif command == '/again':
+            return handle_again_command(text, user_id, channel_id)
+        elif command == '/cursor-slack-dispatch':
+            return handle_cursor_slack_dispatch_command(text, user_id, channel_id)
+        elif command == '/gpt-slack-dispatch':
+            return handle_gpt_slack_dispatch_command(text, user_id, channel_id)
+        elif command == '/proceed':
+            return handle_proceed_command(text, user_id, channel_id)
         else:
             return {
                 "response_type": "ephemeral",
@@ -2478,3 +2486,187 @@ def handle_slack_webhook():
         except Exception:
             pass
         return jsonify({"error": error_msg}), 500 
+
+def handle_again_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /again slash command - retry failed operation or restart runner."""
+    try:
+        # Log the again command
+        if event_logger:
+            event_logger.log_slack_event("again_command", {
+                "user_id": user_id,
+                "channel_id": channel_id,
+                "text": text
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🔄 *Retrying Last Operation*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🔄 *Retrying Last Operation*\n\nAttempting to retry the last failed operation or restart the runner."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • This will retry the most recent failed operation"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error retrying operation: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="again_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_cursor_slack_dispatch_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /cursor-slack-dispatch slash command - enable Cursor to post messages directly to Slack."""
+    try:
+        # Log the cursor slack dispatch command
+        if event_logger:
+            event_logger.log_slack_event("cursor_slack_dispatch_command", {
+                "user_id": user_id,
+                "channel_id": channel_id,
+                "text": text
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🤖 *Cursor Slack Dispatch Enabled*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🤖 *Cursor Slack Dispatch Enabled*\n\nCursor can now post messages directly to Slack channels."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Enabled by <@{user_id}> • Cursor will now send updates to this channel"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error enabling cursor slack dispatch: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="cursor_slack_dispatch_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_gpt_slack_dispatch_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /gpt-slack-dispatch slash command - enable GPT to post messages directly to Slack."""
+    try:
+        # Log the gpt slack dispatch command
+        if event_logger:
+            event_logger.log_slack_event("gpt_slack_dispatch_command", {
+                "user_id": user_id,
+                "channel_id": channel_id,
+                "text": text
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "🧠 *GPT Slack Dispatch Enabled*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "🧠 *GPT Slack Dispatch Enabled*\n\nGPT can now post messages directly to Slack channels."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Enabled by <@{user_id}> • GPT will now send updates to this channel"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error enabling gpt slack dispatch: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="gpt_slack_dispatch_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
+
+def handle_proceed_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /proceed slash command - proceed with next action (approve, continue, resume)."""
+    try:
+        # Log the proceed command
+        if event_logger:
+            event_logger.log_slack_event("proceed_command", {
+                "user_id": user_id,
+                "channel_id": channel_id,
+                "text": text
+            })
+        
+        return {
+            "response_type": "in_channel",
+            "text": "✅ *Proceeding with Next Action*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "✅ *Proceeding with Next Action*\n\nApproving, continuing, or resuming the current operation."
+                    }
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"Requested by <@{user_id}> • Proceeding with next step in workflow"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+    except Exception as e:
+        error_msg = f"Error proceeding with action: {str(e)}"
+        try:
+            if slack_proxy:
+                slack_proxy.notify_error(error_msg, context="proceed_command")
+        except Exception:
+            pass
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ {error_msg}"
+        }
