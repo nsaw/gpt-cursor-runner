@@ -201,6 +201,54 @@ features:
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
 
+    - command: /approve-screenshot
+      description: Approve screenshot or image content
+      usage_hint: Approve screenshot
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /command-center
+      description: Show command center with all available commands
+      usage_hint: Show commands
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /continue-runner
+      description: Continue runner operations after pause
+      usage_hint: Continue runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /patch-status
+      description: Show current patch status and statistics
+      usage_hint: Patch status
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /read-secret
+      description: Read secret or sensitive information
+      usage_hint: Read secret
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /restart-runner
+      description: Restart the GPT-Cursor Runner
+      usage_hint: Restart runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /restart-runner-gpt
+      description: Restart runner with GPT-specific settings
+      usage_hint: Restart GPT runner
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
+    - command: /retry-last-failed
+      description: Retry the last failed operation
+      usage_hint: Retry failed
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+
     - command: /send-with
       description: Request AI to resend with additional context
       usage_hint: Send with context
