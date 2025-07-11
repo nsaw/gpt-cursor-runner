@@ -31,6 +31,8 @@ try:
 except ImportError:
     slack_proxy = None
 
+from .patch_runner import patch_runner_health_check
+
 def create_dashboard_routes(app):
     """Create dashboard routes for the Flask app."""
     
@@ -168,6 +170,15 @@ def create_dashboard_routes(app):
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
+
+    @app.route('/api/dashboard/patch-health')
+    def dashboard_patch_health():
+        """Get patch runner health status."""
+        try:
+            health = patch_runner_health_check()
+            return jsonify(health)
+        except Exception as e:
+            return jsonify({"status": "fail", "message": str(e)})
 
 def get_dashboard_stats() -> Dict[str, Any]:
     """Get comprehensive dashboard statistics."""
@@ -755,6 +766,8 @@ DASHBOARD_HTML = """
                 <div class="loading">Loading Slack command stats...</div>
             </div>
         </div>
+
+        <div class="section"><h2>🩺 Patch Runner Health</h2><div id="patch-health-status" class="event-list"><div class="loading">Loading patch health...</div></div></div>
     </div>
 
     <script>
@@ -766,6 +779,7 @@ DASHBOARD_HTML = """
             loadAgents();
             loadQueues();
             loadSlackCommands();
+            loadPatchHealth();
         }
         
         async function loadStats() {
@@ -954,6 +968,17 @@ DASHBOARD_HTML = """
                 }
             } catch (error) {
                 console.error('Error loading Slack commands:', error);
+            }
+        }
+
+        async function loadPatchHealth() {
+            try {
+                const response = await fetch('/api/dashboard/patch-health');
+                const health = await response.json();
+                const healthDiv = document.getElementById('patch-health-status');
+                healthDiv.innerHTML = `<div class="event-item"><div><strong>Status:</strong> ${health.status}</div><div>${health.message}</div></div>`;
+            } catch (error) {
+                console.error('Error loading patch health:', error);
             }
         }
         

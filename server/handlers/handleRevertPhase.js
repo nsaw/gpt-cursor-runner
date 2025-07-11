@@ -2,13 +2,13 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handleRevertPhase(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /revert-phase triggered by:", user_name);
+  console.log('⚡️ /revert-phase triggered by:', user_name);
   
   try {
     const phaseId = text ? text.trim() : '';
     
     if (!phaseId) {
-      res.send(`❌ Please specify a phase ID to revert.\n\nUsage: \`/revert-phase <phase-id>\``);
+      res.send('❌ Please specify a phase ID to revert.\n\nUsage: `/revert-phase <phase-id>`');
       return;
     }
     

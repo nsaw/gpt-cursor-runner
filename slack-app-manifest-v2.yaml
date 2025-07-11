@@ -27,6 +27,15 @@ features:
     always_online: true
 
   slash_commands:
+  - command: /repair-bridge
+    description: Trigger Fly repair bridge
+    usage_hint: "/repair-bridge"
+  - command: /recovery-status
+    description: Check recovery system status
+    usage_hint: "/recovery-status"
+  - command: /plist-status
+    description: Check launchd .plist status for watchdog services
+    usage_hint: "/plist-status"
     - command: /dashboard
       description: View GPT-Cursor Runner dashboard and stats
       usage_hint: View dashboard

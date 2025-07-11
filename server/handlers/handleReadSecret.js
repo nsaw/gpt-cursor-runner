@@ -2,19 +2,19 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleReadSecret(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /read-secret triggered by:", user_name, "text:", text);
+  console.log('⚡️ /read-secret triggered by:', user_name, 'text:', text);
   
   try {
     // Check if user is authorized to read secrets
     const authorizedUsers = ['gpt', 'nick', 'sawyer', 'admin'];
     if (!authorizedUsers.includes(user_name.toLowerCase())) {
-      return res.send(`❌ Access denied. Only authorized users can read secrets.`);
+      return res.send('❌ Access denied. Only authorized users can read secrets.');
     }
     
     // Parse the secret name from the command text
     const secretName = text.trim();
     if (!secretName) {
-      return res.send(`❌ Please specify a secret name. Usage: /read-secret <secret_name>`);
+      return res.send('❌ Please specify a secret name. Usage: /read-secret <secret_name>');
     }
     
     // Define available secrets

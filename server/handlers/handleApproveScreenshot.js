@@ -2,13 +2,13 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleApproveScreenshot(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /approve-screenshot triggered by:", user_name);
+  console.log('⚡️ /approve-screenshot triggered by:', user_name);
   
   try {
     const themeStatus = await stateManager.getThemeStatus();
     
     if (!themeStatus.lastThemeAudit) {
-      res.send(`❌ No recent theme changes found to approve.`);
+      res.send('❌ No recent theme changes found to approve.');
       return;
     }
 
@@ -37,8 +37,8 @@ module.exports = async function handleApproveScreenshot(req, res) {
 
 *Approved Changes:*
 ${approvalResult.changes.length > 0 
-  ? approvalResult.changes.map(change => `• ${change}`).join('\n')
-  : '• Theme updates applied'
+    ? approvalResult.changes.map(change => `• ${change}`).join('\n')
+    : '• Theme updates applied'
 }
 
 *Next Steps:*

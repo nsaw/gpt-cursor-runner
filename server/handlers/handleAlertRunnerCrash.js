@@ -3,7 +3,7 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleAlertRunnerCrash(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /alert-runner-crash triggered by:", user_name);
+  console.log('⚡️ /alert-runner-crash triggered by:', user_name);
   
   try {
     // Check runner health

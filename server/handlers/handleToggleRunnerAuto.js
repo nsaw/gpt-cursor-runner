@@ -2,7 +2,7 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleToggleRunnerAuto(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /toggle-runner-auto triggered by:", user_name);
+  console.log('⚡️ /toggle-runner-auto triggered by:', user_name);
   
   try {
     const currentState = await stateManager.getState();

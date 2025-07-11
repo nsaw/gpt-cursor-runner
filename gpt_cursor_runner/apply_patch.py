@@ -8,6 +8,8 @@ import os
 import json
 import re
 import glob
+import argparse
+from .patch_runner import apply_patch_with_retry, patch_runner_health_check
 
 def load_patch(patch_file):
     """Load a patch from a JSON file."""

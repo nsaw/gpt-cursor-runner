@@ -3,8 +3,8 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleStatusRunner(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /status-runner triggered by:", user_name);
-  console.log("✅ /status-runner hit - starting handler");
+  console.log('⚡️ /status-runner triggered by:', user_name);
+  console.log('✅ /status-runner hit - starting handler');
   
   try {
     // Get runner status
@@ -19,13 +19,13 @@ module.exports = async function handleStatusRunner(req, res) {
     
     // Runner status
     if (runnerStatus.isRunning) {
-      response += `🟢 *Runner:* Running\n`;
+      response += '🟢 *Runner:* Running\n';
       response += `⏱️ *Uptime:* ${Math.floor(runnerStatus.uptime / 1000 / 60)} minutes\n`;
       if (runnerStatus.pid) {
         response += `🆔 *PID:* ${runnerStatus.pid}\n`;
       }
     } else {
-      response += `🔴 *Runner:* Not Running\n`;
+      response += '🔴 *Runner:* Not Running\n';
     }
     
     // Health status
@@ -35,7 +35,7 @@ module.exports = async function handleStatusRunner(req, res) {
     }
     
     // Patch statistics
-    response += `\n📦 *Patch Statistics*\n`;
+    response += '\n📦 *Patch Statistics*\n';
     response += `• Total: ${patchStats.total}\n`;
     response += `• Approved: ${patchStats.approved}\n`;
     response += `• Pending: ${patchStats.pending}\n`;
@@ -46,32 +46,32 @@ module.exports = async function handleStatusRunner(req, res) {
     // Recent activity
     const recentPatches = await patchManager.listPatches(5);
     if (recentPatches.length > 0) {
-      response += `\n🕒 *Recent Activity*\n`;
+      response += '\n🕒 *Recent Activity*\n';
       recentPatches.forEach(patch => {
         const status = patch.status === 'approved' ? '✅' : 
-                     patch.status === 'pending' ? '⏳' : 
-                     patch.status === 'reverted' ? '🔄' : '❌';
+          patch.status === 'pending' ? '⏳' : 
+            patch.status === 'reverted' ? '🔄' : '❌';
         response += `• ${status} ${patch.id} (${patch.status})\n`;
       });
     }
     
     // Recommendations
-    response += `\n💡 *Recommendations*\n`;
+    response += '\n💡 *Recommendations*\n';
     if (!runnerStatus.isRunning) {
-      response += `• Use \`/toggle-runner-on\` to start the runner\n`;
+      response += '• Use `/toggle-runner-on` to start the runner\n';
     } else if (!runnerHealth.healthy) {
-      response += `• Use \`/restart-runner\` to restart the runner\n`;
+      response += '• Use `/restart-runner` to restart the runner\n';
     } else if (patchStats.pending > 0) {
-      response += `• Use \`/patch-approve\` to approve pending patches\n`;
+      response += '• Use `/patch-approve` to approve pending patches\n';
     } else {
-      response += `• All systems operational\n`;
+      response += '• All systems operational\n';
     }
     
-    console.log("📤 Sending response:", response.substring(0, 100) + "...");
+    console.log('📤 Sending response:', response.substring(0, 100) + '...');
     res.send(response);
   } catch (error) {
     console.error('Error getting status:', error);
-    console.log("❌ Sending error response");
+    console.log('❌ Sending error response');
     res.send(`❌ Error getting runner status: ${error.message}`);
   }
 }; 

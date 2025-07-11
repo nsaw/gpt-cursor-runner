@@ -2,13 +2,13 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleContinueRunner(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /continue-runner triggered by:", user_name);
+  console.log('⚡️ /continue-runner triggered by:', user_name);
   
   try {
     const currentState = await stateManager.getState();
     
     if (!currentState.paused) {
-      res.send(`▶️ Runner is not paused. Use \`/pause-runner\` to pause.`);
+      res.send('▶️ Runner is not paused. Use `/pause-runner` to pause.');
       return;
     }
 

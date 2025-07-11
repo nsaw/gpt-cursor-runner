@@ -2,7 +2,7 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handlePatchPreview(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /patch-preview triggered by:", user_name);
+  console.log('⚡️ /patch-preview triggered by:', user_name);
   
   try {
     const patchId = text ? text.trim() : '';
@@ -11,7 +11,7 @@ module.exports = async function handlePatchPreview(req, res) {
       // Get the last patch if no ID specified
       const lastPatch = await patchManager.getLastPatch();
       if (!lastPatch) {
-        res.send(`❌ No patches found to preview.`);
+        res.send('❌ No patches found to preview.');
         return;
       }
       

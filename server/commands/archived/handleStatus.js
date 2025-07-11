@@ -4,7 +4,7 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handleStatus(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /status triggered by:", user_name);
+  console.log('⚡️ /status triggered by:', user_name);
   
   try {
     const [state, runnerStatus, patchStats] = await Promise.all([

@@ -2,7 +2,7 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handlePatchStatus(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /patch-status triggered by:", user_name);
+  console.log('⚡️ /patch-status triggered by:', user_name);
   
   try {
     const patchStats = await patchManager.getPatchStats();
@@ -20,13 +20,13 @@ module.exports = async function handlePatchStatus(req, res) {
 
 *Recent Patches:*
 ${recentPatches.length > 0 
-  ? recentPatches.map(patch => {
+    ? recentPatches.map(patch => {
       const status = patch.status === 'approved' ? '✅' : 
-                   patch.status === 'pending' ? '⏳' : 
-                   patch.status === 'reverted' ? '🔄' : '❌';
+        patch.status === 'pending' ? '⏳' : 
+          patch.status === 'reverted' ? '🔄' : '❌';
       return `• ${status} ${patch.id} (${patch.status})`;
     }).join('\n')
-  : '• No patches found'
+    : '• No patches found'
 }
 
 *Current Status:*

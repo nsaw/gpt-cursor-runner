@@ -2,11 +2,11 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleManualAppend(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /manual-append triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /manual-append triggered by:', user_name, 'with text:', text);
   
   try {
     if (!text || text.trim().length < 5) {
-      res.send(`❌ Please provide content to append (minimum 5 characters).\n\nUsage: \`/manual-append <content to append>\``);
+      res.send('❌ Please provide content to append (minimum 5 characters).\n\nUsage: `/manual-append <content to append>`');
       return;
     }
 

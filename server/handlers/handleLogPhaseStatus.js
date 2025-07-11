@@ -2,13 +2,13 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handleLogPhaseStatus(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /log-phase-status triggered by:", user_name);
+  console.log('⚡️ /log-phase-status triggered by:', user_name);
   
   try {
     const phaseId = text ? text.trim() : '';
     
     if (!phaseId) {
-      res.send(`❌ Please specify a phase ID.\n\nUsage: \`/log-phase-status <phase-id>\``);
+      res.send('❌ Please specify a phase ID.\n\nUsage: `/log-phase-status <phase-id>`');
       return;
     }
     
@@ -41,7 +41,7 @@ module.exports = async function handleLogPhaseStatus(req, res) {
     // Build response
     let response = `📊 *Phase Status Report*\n\n*Phase:* ${phaseId}\n*Requested by:* ${user_name}\n*Timestamp:* ${new Date().toLocaleString()}\n\n`;
     
-    response += `📦 *Phase Statistics*\n`;
+    response += '📦 *Phase Statistics*\n';
     response += `• Total Patches: ${phaseStats.total}\n`;
     response += `• Approved: ${phaseStats.approved}\n`;
     response += `• Pending: ${phaseStats.pending}\n`;
@@ -51,17 +51,17 @@ module.exports = async function handleLogPhaseStatus(req, res) {
     
     // Show recent patches in this phase
     if (phasePatches.length > 0) {
-      response += `\n🕒 *Recent Patches in Phase*\n`;
+      response += '\n🕒 *Recent Patches in Phase*\n';
       phasePatches.slice(-5).forEach(patch => {
         const status = patch.status === 'approved' ? '✅' : 
-                     patch.status === 'pending' ? '⏳' : 
-                     patch.status === 'reverted' ? '🔄' : '❌';
+          patch.status === 'pending' ? '⏳' : 
+            patch.status === 'reverted' ? '🔄' : '❌';
         response += `• ${status} ${patch.id} (${patch.status})\n`;
       });
     }
     
     // Overall system status
-    response += `\n🌐 *Overall System Status*\n`;
+    response += '\n🌐 *Overall System Status*\n';
     response += `• Total Patches: ${patchStats.total}\n`;
     response += `• System Success Rate: ${patchStats.successRate}%\n`;
     

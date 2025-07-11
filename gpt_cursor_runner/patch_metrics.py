@@ -229,5 +229,24 @@ class MetricsTracker:
                 return patch
         return None
 
+    def log_patch_retry(self, patch_id, message):
+        self._log_metric_event('retry_failed', patch_id, message)
+    def log_patch_quarantine(self, patch_id, message):
+        self._log_metric_event('quarantined', patch_id, message)
+    def log_health_check(self, status, message):
+        self._log_metric_event('patch_health_check', 'N/A', f'{status}: {message}')
+    def _log_metric_event(self, event_type, patch_id, message):
+        event = {
+            'timestamp': datetime.now().isoformat(),
+            'event_type': event_type,
+            'patch_id': patch_id,
+            'message': message
+        }
+        try:
+            with open(self.metrics_file, 'a') as f:
+                f.write(json.dumps(event) + '\n')
+        except Exception as e:
+            print(f'Error logging metric event: {e}')
+
 # Global instance
 metrics_tracker = MetricsTracker() 

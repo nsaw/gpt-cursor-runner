@@ -3,13 +3,13 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleRestartRunnerGpt(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /restart-runner-gpt triggered by:", user_name);
+  console.log('⚡️ /restart-runner-gpt triggered by:', user_name);
   
   try {
     // First, ensure runner is not locked
     const currentState = await stateManager.getState();
     if (currentState.lockdown) {
-      res.send(`🔒 Runner is locked. Unlock with \`/unlock-runner\` before restarting.`);
+      res.send('🔒 Runner is locked. Unlock with `/unlock-runner` before restarting.');
       return;
     }
 

@@ -20,7 +20,7 @@ class ConfigManager:
             "preferred_editor": "code"
         },
         "slack": {
-            "rate_limit_per_minute": 10,
+            "rate_limit_per_minute": 60,
             "enable_notifications": True,
             "default_channel": "#general"
         },
@@ -34,7 +34,7 @@ class ConfigManager:
             "show_metrics": True,
             "show_preview": True,
             "color_output": True,
-            "verbose_logging": False
+            "verbose_logging": True
         },
         "integrations": {
             "enable_git": True,
@@ -46,7 +46,7 @@ class ConfigManager:
             "allow_gpt_slack_posts": True,
             "gpt_authorized_routes": ["/slack/cheatblock", "/slack/help", "/slack/dashboard-ping"],
             "default_channel": "#runner-control",
-            "rate_limit_per_minute": 5,
+            "rate_limit_per_minute": 30,
             "require_approval": False,
             "allowed_actions": ["postMessage", "updateMessage", "deleteMessage"]
         }

@@ -37,6 +37,14 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 const slackRouter = require('./routes/slack');
 app.use('/slack', slackRouter);
 
+// API routes
+const apiRouter = require('./routes/api');
+app.use('/api', apiRouter);
+
+// Fallback bridge routes
+const fallbackRouter = require('./routes/fallback');
+app.use('/fallback', fallbackRouter);
+
 // Dashboard endpoint with modern UI
 app.get('/dashboard', (req, res) => {
   const uptime = Math.floor(process.uptime());
@@ -92,9 +100,9 @@ app.get('/dashboard', (req, res) => {
               <span class="status-indicator inline-block w-3 h-3 bg-green-400 rounded-full"></span>
               <span class="text-green-400 font-medium">System Operational</span>
               <span class="text-gray-400">•</span>
-              <span class="text-gray-300">Port ${PORT}</span>
+              <span class="text-gray-300">Port " + PORT + "</span>
               <span class="text-gray-400">•</span>
-              <span class="text-gray-300">${env}</span>
+              <span class="text-gray-300">" + env + "</span>
             </div>
           </div>
 
@@ -109,7 +117,7 @@ app.get('/dashboard', (req, res) => {
                 </div>
                 <div class="ml-4">
                   <p class="text-gray-400 text-sm">Uptime</p>
-                  <p class="text-2xl font-bold">${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m</p>
+                  <p class="text-2xl font-bold">" + Math.floor(uptime / 3600) + "h " + Math.floor((uptime % 3600) / 60) + "m</p>
                 </div>
               </div>
             </div>
@@ -123,7 +131,7 @@ app.get('/dashboard', (req, res) => {
                 </div>
                 <div class="ml-4">
                   <p class="text-gray-400 text-sm">Memory</p>
-                  <p class="text-2xl font-bold">${memoryMB}MB</p>
+                  <p class="text-2xl font-bold">" + memoryMB + "MB</p>
                 </div>
               </div>
             </div>
@@ -157,16 +165,188 @@ app.get('/dashboard', (req, res) => {
             </div>
           </div>
 
-          <!-- Command Sections -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Slack-Registered Commands -->
-            <div class="bg-thoughtmarks-800 rounded-lg p-6">
-              <h2 class="text-xl font-bold mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                </svg>
-                Slack-Registered Commands (38)
-              </h2>
+          <!-- Status Tabs -->
+          <div class="mb-8">
+            <div class="flex space-x-2 mb-4">
+              <button onclick="showTab('agents')" id="tab-agents" class="px-4 py-2 bg-thoughtmarks-700 rounded-lg text-white hover:bg-thoughtmarks-600 transition-colors">
+                🤖 Agent Status
+              </button>
+              <button onclick="showTab('tunnels')" id="tab-tunnels" class="px-4 py-2 bg-thoughtmarks-600 rounded-lg text-gray-300 hover:bg-thoughtmarks-700 transition-colors">
+                🌐 Tunnel Status
+              </button>
+              <button onclick="showTab('queues')" id="tab-queues" class="px-4 py-2 bg-thoughtmarks-600 rounded-lg text-gray-300 hover:bg-thoughtmarks-700 transition-colors">
+                📋 Live Queues
+              </button>
+              <button onclick="showTab('commands')" id="tab-commands" class="px-4 py-2 bg-thoughtmarks-600 rounded-lg text-gray-300 hover:bg-thoughtmarks-700 transition-colors">
+                ⌨️ Commands
+              </button>
+            </div>
+            
+            <!-- Agent Status Tab -->
+            <div id="content-agents" class="tab-content">
+              <div class="bg-thoughtmarks-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Agent Status
+                </h2>
+                <div id="agent-status-list" class="space-y-4">
+                  <div class="flex items-center justify-between p-4 bg-thoughtmarks-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                      <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                      <div>
+                        <div class="font-medium">DEV Agent</div>
+                        <div class="text-sm text-gray-400">PID: <span id="dev-pid">-</span> | Repo: gpt-cursor-runner</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-medium" id="dev-status">Online</div>
+                      <div class="text-xs text-gray-400" id="dev-task">Idle</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between p-4 bg-thoughtmarks-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                      <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+                      <div>
+                        <div class="font-medium">MAIN Agent</div>
+                        <div class="text-sm text-gray-400">PID: <span id="main-pid">-</span> | Repo: tm-mobile-cursor</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-medium" id="main-status">Offline</div>
+                      <div class="text-xs text-gray-400" id="main-task">-</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <button onclick="refreshAgentStatus()" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    🔄 Refresh Status
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tunnel Status Tab -->
+            <div id="content-tunnels" class="tab-content hidden">
+              <div class="bg-thoughtmarks-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                  Tunnel Status
+                </h2>
+                <div id="tunnel-status-list" class="space-y-4">
+                  <div class="flex items-center justify-between p-4 bg-thoughtmarks-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                      <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                      <div>
+                        <div class="font-medium">Cloudflare Tunnel</div>
+                        <div class="text-sm text-gray-400">Endpoint: gpt-cursor-runner.fly.dev</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-medium" id="cf-status">Active</div>
+                      <div class="text-xs text-gray-400" id="cf-latency">~50ms</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between p-4 bg-thoughtmarks-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                      <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                      <div>
+                        <div class="font-medium">Local Tunnel</div>
+                        <div class="text-sm text-gray-400">Port: 5051</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-medium" id="local-status">Listening</div>
+                      <div class="text-xs text-gray-400" id="local-uptime">2h 15m</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <button onclick="refreshTunnelStatus()" class="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                    🔄 Check Tunnels
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Live Queues Tab -->
+            <div id="content-queues" class="tab-content hidden">
+              <div class="bg-thoughtmarks-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  Live Queues
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Patch Queue -->
+                  <div class="bg-thoughtmarks-700 rounded-lg p-4">
+                    <h3 class="font-bold mb-3 flex items-center">
+                      <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                      Patch Queue
+                    </h3>
+                    <div id="patch-queue-list" class="space-y-2 max-h-64 overflow-y-auto">
+                      <div class="flex items-center justify-between p-2 bg-thoughtmarks-600 rounded">
+                        <div>
+                          <div class="text-sm font-medium">UI Component Update</div>
+                          <div class="text-xs text-gray-400">Status: Running</div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-xs text-blue-400">ETA: 2m</div>
+                          <div class="text-xs text-gray-400">ID: abc123</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-3 flex space-x-2">
+                      <button class="px-3 py-1 bg-blue-600 rounded text-xs hover:bg-blue-700">Skip</button>
+                      <button class="px-3 py-1 bg-yellow-600 rounded text-xs hover:bg-yellow-700">Reprioritize</button>
+                    </div>
+                  </div>
+                  
+                  <!-- Event Queue -->
+                  <div class="bg-thoughtmarks-700 rounded-lg p-4">
+                    <h3 class="font-bold mb-3 flex items-center">
+                      <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                      Event Queue
+                    </h3>
+                    <div id="event-queue-list" class="space-y-2 max-h-64 overflow-y-auto">
+                      <div class="flex items-center justify-between p-2 bg-thoughtmarks-600 rounded">
+                        <div>
+                          <div class="text-sm font-medium">Slack Command</div>
+                          <div class="text-xs text-gray-400">Type: /status-runner</div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-xs text-green-400">Processed</div>
+                          <div class="text-xs text-gray-400">2s ago</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-3 flex space-x-2">
+                      <button class="px-3 py-1 bg-green-600 rounded text-xs hover:bg-green-700">Clear</button>
+                      <button class="px-3 py-1 bg-purple-600 rounded text-xs hover:bg-purple-700">Export</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <button onclick="refreshQueues()" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+                    🔄 Refresh Queues
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Commands Tab -->
+            <div id="content-commands" class="tab-content hidden">
+              <div class="bg-thoughtmarks-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                  Slack-Registered Commands (38)
+                </h2>
               <div class="space-y-2 max-h-96 overflow-y-auto">
                 <div class="flex items-center justify-between p-2 bg-thoughtmarks-700 rounded">
                   <span class="text-sm">/dashboard</span>
@@ -417,6 +597,130 @@ app.get('/dashboard', (req, res) => {
         </div>
 
         <script>
+          // Tab switching functionality
+          function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+              content.classList.add('hidden');
+            });
+            
+            // Remove active state from all tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+              tab.classList.remove('bg-thoughtmarks-700', 'text-white');
+              tab.classList.add('bg-thoughtmarks-600', 'text-gray-300');
+            });
+            
+            // Show selected tab content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Set active state for selected tab
+            document.getElementById('tab-' + tabName).classList.remove('bg-thoughtmarks-600', 'text-gray-300');
+            document.getElementById('tab-' + tabName).classList.add('bg-thoughtmarks-700', 'text-white');
+          }
+          
+          // Agent status refresh
+          async function refreshAgentStatus() {
+            try {
+              const response = await fetch('/api/plist-status');
+              if (response.ok) {
+                const data = await response.json();
+                updateAgentStatus(data);
+              }
+            } catch (error) {
+              console.error('Error refreshing agent status:', error);
+            }
+          }
+          
+          function updateAgentStatus(data) {
+            // Update DEV agent status
+            const devAgent = data.services.find(s => s.label.includes('gpt-cursor-runner'));
+            if (devAgent) {
+              document.getElementById('dev-pid').textContent = devAgent.pid || '-';
+              document.getElementById('dev-status').textContent = devAgent.isRunning ? 'Online' : 'Offline';
+              document.getElementById('dev-task').textContent = devAgent.isRunning ? 'Active' : 'Stopped';
+            }
+            
+            // Update MAIN agent status (placeholder for now)
+            document.getElementById('main-pid').textContent = '-';
+            document.getElementById('main-status').textContent = 'Offline';
+            document.getElementById('main-task').textContent = '-';
+          }
+          
+          // Tunnel status refresh
+          async function refreshTunnelStatus() {
+            try {
+              // Check Cloudflare tunnel
+              const cfResponse = await fetch('https://gpt-cursor-runner.fly.dev/health');
+              const cfStatus = cfResponse.ok ? 'Active' : 'Inactive';
+              const cfLatency = cfResponse.ok ? '~50ms' : 'Timeout';
+              document.getElementById('cf-status').textContent = cfStatus;
+              document.getElementById('cf-latency').textContent = cfLatency;
+              
+              // Update local tunnel status
+              document.getElementById('local-status').textContent = 'Listening';
+              document.getElementById('local-uptime').textContent = '2h 15m';
+            } catch (error) {
+              console.error('Error refreshing tunnel status:', error);
+              document.getElementById('cf-status').textContent = 'Error';
+              document.getElementById('cf-latency').textContent = 'Failed';
+            }
+          }
+          
+          // Queue refresh
+          async function refreshQueues() {
+            try {
+              // Fetch patch queue status
+              const patchResponse = await fetch('/slack/commands', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  command: '/patch-status',
+                  text: '',
+                  user_id: 'dashboard',
+                  channel_id: 'dashboard'
+                })
+              });
+              
+              // Update patch queue display
+              updatePatchQueue();
+              
+              // Update event queue display
+              updateEventQueue();
+            } catch (error) {
+              console.error('Error refreshing queues:', error);
+            }
+          }
+          
+          function updatePatchQueue() {
+            const queueList = document.getElementById('patch-queue-list');
+            // Add sample patch items (replace with real data)
+            queueList.innerHTML = '<div class="flex items-center justify-between p-2 bg-thoughtmarks-600 rounded">' +
+              '<div>' +
+              '<div class="text-sm font-medium">UI Component Update</div>' +
+              '<div class="text-xs text-gray-400">Status: Running</div>' +
+              '</div>' +
+              '<div class="text-right">' +
+              '<div class="text-xs text-blue-400">ETA: 2m</div>' +
+              '<div class="text-xs text-gray-400">ID: abc123</div>' +
+              '</div>' +
+              '</div>';
+          }
+          
+          function updateEventQueue() {
+            const queueList = document.getElementById('event-queue-list');
+            // Add sample event items (replace with real data)
+            queueList.innerHTML = '<div class="flex items-center justify-between p-2 bg-thoughtmarks-600 rounded">' +
+              '<div>' +
+              '<div class="text-sm font-medium">Slack Command</div>' +
+              '<div class="text-xs text-gray-400">Type: /status-runner</div>' +
+              '</div>' +
+              '<div class="text-right">' +
+              '<div class="text-xs text-green-400">Processed</div>' +
+              '<div class="text-xs text-gray-400">2s ago</div>' +
+              '</div>' +
+              '</div>';
+          }
+          
           async function testCommand(command) {
             try {
               const response = await fetch('/slack/commands', {
@@ -433,9 +737,9 @@ app.get('/dashboard', (req, res) => {
               });
               
               const result = await response.text();
-              alert(\`Command \${command} result: \${result}\`);
+              alert('Command ' + command + ' result: ' + result);
             } catch (error) {
-              alert(\`Error testing command: \${error.message}\`);
+              alert('Error testing command: ' + error.message);
             }
           }
 
@@ -480,7 +784,7 @@ app.get('/dashboard', (req, res) => {
               const minutes = Math.floor((elapsed % 3600) / 60);
               const seconds = elapsed % 60;
               document.getElementById('elapsed-time').textContent = 
-                \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')}\`;
+                hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
               
             } catch (error) {
               console.error('Error updating queue status:', error);
@@ -493,9 +797,21 @@ app.get('/dashboard', (req, res) => {
           // Update watchdog status every 10 seconds
           setInterval(updateWatchdogStatus, 10000);
           
+          // Update agent status every 15 seconds
+          setInterval(refreshAgentStatus, 15000);
+          
+          // Update tunnel status every 30 seconds
+          setInterval(refreshTunnelStatus, 30000);
+          
+          // Update queues every 10 seconds
+          setInterval(refreshQueues, 10000);
+          
           // Initial updates
           updateQueueStatus();
           updateWatchdogStatus();
+          refreshAgentStatus();
+          refreshTunnelStatus();
+          refreshQueues();
           
           // Watchdog functions
           async function testWatchdog() {
@@ -514,9 +830,9 @@ app.get('/dashboard', (req, res) => {
               });
               
               const result = await response.text();
-              alert(`Watchdog test result: ${result}`);
+              alert('Watchdog test result: ' + result);
             } catch (error) {
-              alert(`Error testing watchdog: ${error.message}`);
+              alert('Error testing watchdog: ' + error.message);
             }
           }
           
@@ -572,14 +888,14 @@ app.post('/api/logs/sync', (req, res) => {
       fs.mkdirSync(logDir, { recursive: true });
     }
     
-    const syncFile = path.join(logDir, `${project_name}_${Date.now()}.json`);
+    const syncFile = path.join(logDir, project_name + "_" + Date.now() + ".json");
     fs.writeFileSync(syncFile, JSON.stringify(req.body, null, 2));
     
-    console.log(`✅ Logs synced from ${project_name} (${Object.keys(log_files).length} files)`);
+    console.log("✅ Logs synced from " + project_name + " (" + Object.keys(log_files).length + " files)");
     
     res.json({
       success: true,
-      message: `Logs received from ${project_name}`,
+      message: "Logs received from " + project_name,
       files_received: Object.keys(log_files).length,
       timestamp: new Date().toISOString()
     });

@@ -172,7 +172,7 @@ function printReport(report) {
   console.log('\n🔍 Infrastructure Pointer Audit Report');
   console.log('=====================================\n');
   
-  console.log(`📊 Summary:`);
+  console.log('📊 Summary:');
   console.log(`   Files Scanned: ${report.summary.total_files_scanned}`);
   console.log(`   Files with Issues: ${report.summary.files_with_issues}`);
   console.log(`   Total Issues Found: ${report.summary.total_issues}\n`);

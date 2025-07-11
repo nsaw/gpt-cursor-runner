@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = async function handlePatchWatchdogStatus(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /patch-watchdog-status triggered by:", user_name, "text:", text);
+  console.log('⚡️ /patch-watchdog-status triggered by:', user_name, 'text:', text);
   
   try {
     const statusFile = path.join(__dirname, '../../logs/patch-watchdog-status.json');
@@ -62,8 +62,8 @@ module.exports = async function handlePatchWatchdogStatus(req, res) {
 
 *Recent Activity:*
 ${recentEscalations.length > 0 
-  ? recentEscalations.map(esc => `• ${esc.substring(0, 100)}...`).join('\n')
-  : '• No recent escalations'
+    ? recentEscalations.map(esc => `• ${esc.substring(0, 100)}...`).join('\n')
+    : '• No recent escalations'
 }
 
 *Quick Actions:*

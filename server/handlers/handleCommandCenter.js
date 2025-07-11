@@ -2,7 +2,7 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleCommandCenter(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /command-center triggered by:", user_name);
+  console.log('⚡️ /command-center triggered by:', user_name);
   
   try {
     const commandCenterText = `

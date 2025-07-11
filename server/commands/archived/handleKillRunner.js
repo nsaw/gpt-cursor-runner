@@ -2,7 +2,7 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleKillRunner(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /kill-runner triggered by:", user_name);
+  console.log('⚡️ /kill-runner triggered by:', user_name);
   
   try {
     const killResult = await runnerController.killRunner();

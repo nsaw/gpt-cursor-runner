@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const crypto = require('crypto');
+const { execSync } = require('child_process');
 
 // Configuration
 const CONFIG = {
@@ -21,12 +22,46 @@ const CONFIG = {
   TIMEOUT_MS: 61000, // 61 seconds
   CHECK_INTERVAL_MS: 10000, // 10 seconds
   MAX_RETRIES: 3,
-  DASHBOARD_WEBHOOK: 'https://gpt-cursor-runner.fly.dev/slack/commands'
+  DASHBOARD_WEBHOOK: 'https://gpt-cursor-runner.fly.dev/slack/commands',
+  FALLBACK_WEBHOOK: 'http://localhost:5051/fallback/trigger',
+  FALLBACK_ENABLED: true
 };
 
 // Patch tracking state
 const patchRegistry = new Map();
 const failedPatches = new Map();
+
+function checkPatchRunnerHealth() {
+  try {
+    // Call the Python patch runner health check
+    const result = execSync('python3 -m gpt_cursor_runner.patch_runner --health', { encoding: 'utf8' });
+    if (result.includes('ok')) {
+      console.log('🩺 Patch runner health: OK');
+      return true;
+    } else {
+      console.error('🩺 Patch runner health: FAIL', result);
+      return false;
+    }
+  } catch (e) {
+    console.error('🩺 Patch runner health check error:', e.message);
+    return false;
+  }
+}
+
+function retryWithHealthCheck(fn, maxRetries = 3) {
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    const result = fn();
+    if (result) return true;
+    console.log(`🔄 Retry health check attempt ${attempt + 1}`);
+    attempt++;
+    sleep(2 ** attempt * 1000);
+  }
+  // Escalate after all retries fail
+  // TODO: Integrate with Slack escalation
+  console.error('🚨 Patch runner health check failed after retries!');
+  return false;
+}
 
 class PatchWatchdog {
   constructor() {
@@ -207,6 +242,63 @@ class PatchWatchdog {
 
     // Notify GPT and DEV
     this.notifyEscalation(uuid, escalationReport);
+    
+    // Trigger fallback if enabled
+    if (CONFIG.FALLBACK_ENABLED) {
+      this.triggerFallback(uuid);
+    }
+  }
+
+  triggerFallback(uuid) {
+    const patch = patchRegistry.get(uuid);
+    if (!patch) return;
+
+    this.log(`🚨 Triggering GitHub fallback for patch ${uuid}`, 'CRITICAL');
+
+    const fallbackPayload = {
+      patch_id: uuid,
+      target_file: patch.data.target_file || 'README.md',
+      description: `Fallback trigger for failed patch ${uuid}`,
+      source: 'watchdog-escalation',
+      patch_content: JSON.stringify(patch.data.patch || {
+        pattern: '## Fallback Patch',
+        replacement: '## Fallback Patch\n\n✅ Applied via watchdog fallback trigger'
+      })
+    };
+
+    // Send fallback trigger
+    const data = JSON.stringify(fallbackPayload);
+    const options = {
+      hostname: 'localhost',
+      port: 5051,
+      path: '/fallback/trigger',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length
+      }
+    };
+
+    const req = require('http').request(options, (res) => {
+      let responseData = '';
+      res.on('data', (chunk) => {
+        responseData += chunk;
+      });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          this.log(`✅ Fallback trigger successful for patch ${uuid}`);
+        } else {
+          this.log(`❌ Fallback trigger failed for patch ${uuid}: ${res.statusCode}`, 'ERROR');
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      this.log(`❌ Fallback trigger error for patch ${uuid}: ${error.message}`, 'ERROR');
+    });
+
+    req.write(data);
+    req.end();
   }
 
   triggerAutoRepair(uuid) {

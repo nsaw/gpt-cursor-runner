@@ -38,5 +38,19 @@
       "BRAUN"
     ],
     "ghostRelay": true
+  },
+  "enforcement": {
+    "shellWhitelist": true,
+    "allowedCommands": [
+      "git", "npm", "node", "python3", "curl", "wget", "ls", "cat", "echo", "mkdir", "rm", "cp", "mv",
+      "kill", "launchctl", "pbcopy", "pbpaste", "open", "ps", "top", "lsof", "netstat", "ifconfig",
+      "ping", "nslookup", "dig", "ssh", "scp", "rsync", "tar", "gzip", "unzip", "brew", "apt", "yum",
+      "docker", "docker-compose", "kubectl", "helm", "terraform", "aws", "gcloud", "az",
+      "flyctl", "cloudflared", "ngrok", "jq", "yq", "xargs", "grep", "sed", "awk", "find",
+      "chmod", "chown", "sudo", "su", "whoami", "id", "groups", "passwd", "ssh-keygen",
+      "crontab", "launchctl", "systemctl", "service", "initctl", "upstart",
+      "screen", "tmux", "nohup", "bg", "fg", "jobs", "killall", "pkill", "kill",
+      "|", "&&", "||", ";", ">", "<", ">>", "<<", "2>&1", "1>&2"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 module.exports = async function handleWhoami(req, res) {
   const { user_name, user_id, team_id } = req.body;
-  console.log("⚡️ /whoami triggered by:", user_name);
+  console.log('⚡️ /whoami triggered by:', user_name);
   
   try {
     const whoamiText = `

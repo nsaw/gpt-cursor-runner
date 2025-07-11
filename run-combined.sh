@@ -24,18 +24,35 @@ echo "🔒 Starting patch watchdog daemon..."
 node scripts/patch-watchdog.js &
 PATCH_WATCHDOG_PID=$!
 
-# Start Python runner in background on port 5051
-echo "🐍 Starting Python runner on port 5051..."
-PYTHON_PORT=5051 python3 -m gpt_cursor_runner.main &
+# Start Python runner in background on port 5053 (separate from Node.js)
+echo "🐍 Starting Python runner on port 5053..."
+PYTHON_PORT=5053 python3 -m gpt_cursor_runner.main &
 PYTHON_PID=$!
 
 # Wait a moment for Python to start
 sleep 5
 
-# Start Node.js backend on port 5051
+# Start Node.js backend on port 5051 (Fly.io expected port)
 echo "🟢 Starting Node.js backend on port 5051..."
-npm run dev &
+PORT=5051 npm run dev &
 NODE_PID=$!
+
+# Autoload Fly log daemon via launchd plist (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  FLYLOG_PLIST="$HOME/Library/LaunchAgents/com.gpt.flylog.plist"
+  FLYLOG_LABEL="com.gpt.flylog"
+  if ! launchctl list | grep -q "$FLYLOG_LABEL"; then
+    echo "🟢 Loading Fly log daemon plist: $FLYLOG_PLIST"
+    if launchctl load "$FLYLOG_PLIST" 2>/dev/null; then
+      echo "✅ Fly log daemon plist loaded"
+    else
+      echo "⚠️  Failed to load Fly log plist. (Dry-run fallback)"
+      echo "[DRY-RUN] Would have run: launchctl load $FLYLOG_PLIST" >> logs/flylog-plist-dryrun.log
+    fi
+  else
+    echo "✅ Fly log daemon already running via launchd"
+  fi
+fi
 
 # Function to cleanup processes on exit
 cleanup() {
@@ -49,8 +66,8 @@ trap cleanup SIGTERM SIGINT
 
 # Log startup completion
 echo "✅ All services started successfully"
-echo "📊 Python Runner PID: $PYTHON_PID"
-echo "📊 Node.js Backend PID: $NODE_PID"
+echo "📊 Python Runner PID: $PYTHON_PID (port 5053)"
+echo "📊 Node.js Backend PID: $NODE_PID (port 5051)"
 echo "📊 Log Watcher PID: $LOG_WATCHER_PID"
 echo "📊 Watchdog PID: $WATCHDOG_PID"
 echo "🔒 Patch Watchdog PID: $PATCH_WATCHDOG_PID"

@@ -152,7 +152,7 @@ def slack_test():
             "id": f"slack-test-patch-{int(datetime.now().timestamp())}",
             "role": "ui_patch",
             "description": "Test patch triggered by Slack ping",
-            "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+            "target_file": "test-components/TestComponent.tsx",
             "patch": {
                 "pattern": "Test patch",
                 "replacement": "✅ Test patch applied successfully!"

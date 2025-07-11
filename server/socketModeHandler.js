@@ -169,14 +169,14 @@ class SocketModeHandler {
     const { type, event: eventData } = event;
 
     switch (type) {
-      case 'app_mention':
-        await this.handleAppMention(eventData);
-        break;
-      case 'message':
-        await this.handleMessage(eventData);
-        break;
-      default:
-        console.log(`📨 Unhandled event type: ${type}`);
+    case 'app_mention':
+      await this.handleAppMention(eventData);
+      break;
+    case 'message':
+      await this.handleMessage(eventData);
+      break;
+    default:
+      console.log(`📨 Unhandled event type: ${type}`);
     }
   }
 
@@ -191,7 +191,7 @@ class SocketModeHandler {
       // Send acknowledgment
       await this.webClient.chat.postMessage({
         channel: channel,
-        text: `Hello! I'm the GPT-Cursor Runner. Use /status to check my current status.`
+        text: 'Hello! I\'m the GPT-Cursor Runner. Use /status to check my current status.'
       });
     } catch (error) {
       console.error('❌ Error handling app mention:', error);
@@ -256,14 +256,14 @@ class SocketModeHandler {
 
       // Handle different interactive component types
       switch (type) {
-        case 'block_actions':
-          await this.handleBlockActions(event);
-          break;
-        case 'view_submission':
-          await this.handleViewSubmission(event);
-          break;
-        default:
-          console.log(`🔘 Unhandled interactive type: ${type}`);
+      case 'block_actions':
+        await this.handleBlockActions(event);
+        break;
+      case 'view_submission':
+        await this.handleViewSubmission(event);
+        break;
+      default:
+        console.log(`🔘 Unhandled interactive type: ${type}`);
       }
     } catch (error) {
       console.error('❌ Error handling interactive component:', error);
@@ -281,16 +281,16 @@ class SocketModeHandler {
     // Add other handlers as needed
 
     switch (command) {
-      case '/status':
-        return await handleStatus(userId, channelId);
-      case '/dashboard':
-        return await handleDashboard(userId, channelId);
-      case '/whoami':
-        return await handleWhoami(userId, channelId);
-      default:
-        return {
-          text: `❌ Unknown command: ${command}. Use /status to see available commands.`
-        };
+    case '/status':
+      return await handleStatus(userId, channelId);
+    case '/dashboard':
+      return await handleDashboard(userId, channelId);
+    case '/whoami':
+      return await handleWhoami(userId, channelId);
+    default:
+      return {
+        text: `❌ Unknown command: ${command}. Use /status to see available commands.`
+      };
     }
   }
 

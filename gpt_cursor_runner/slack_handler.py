@@ -28,6 +28,9 @@ try:
 except ImportError:
     slack_proxy = None
 
+# Import patch runner
+from .patch_runner import apply_patch_with_retry, patch_runner_health_check
+
 def verify_slack_signature(request_body: bytes, signature: str, timestamp: str) -> bool:
     """Verify Slack request signature."""
     slack_signing_secret = os.getenv('SLACK_SIGNING_SECRET')
@@ -141,6 +144,8 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
             return handle_gpt_slack_dispatch_command(text, user_id, channel_id)
         elif command == '/proceed':
             return handle_proceed_command(text, user_id, channel_id)
+        elif command == '/patch-health':
+            return handle_patch_health_command(text, user_id, channel_id)
         else:
             return {
                 "response_type": "ephemeral",
@@ -194,22 +199,15 @@ def handle_dashboard_command(text: str, user_id: str, channel_id: str) -> Dict[s
     }
 
 def handle_patch_approve_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
-    """Handle /patch-approve slash command."""
+    """Handle /patch-approve slash command with retry logic."""
     try:
-        # Get the latest pending patch
         latest_patch = get_latest_pending_patch()
-        
         if not latest_patch:
             return {
                 "response_type": "ephemeral",
                 "text": "❌ No pending patches found to approve"
             }
-        
-        # Apply the patch
-        from .patch_runner import apply_patch
-        result = apply_patch(latest_patch, dry_run=False)
-        
-        # Log the approval
+        result = apply_patch_with_retry(latest_patch, dry_run=False)
         if event_logger:
             event_logger.log_slack_event("patch_approved", {
                 "user_id": user_id,
@@ -217,56 +215,28 @@ def handle_patch_approve_command(text: str, user_id: str, channel_id: str) -> Di
                 "patch_id": latest_patch.get("id"),
                 "result": result
             })
-        
-        # Notify Slack of patch approval
         if slack_proxy and result.get("success"):
             slack_proxy.notify_patch_applied(
                 latest_patch.get("id", "unknown"),
                 latest_patch.get("target_file", "unknown"),
                 True
             )
-        
+        elif slack_proxy and result.get("quarantined"):
+            slack_proxy.notify_error(
+                f"Patch quarantined after repeated failures: {result.get('message')}",
+                context=latest_patch.get("target_file", "unknown")
+            )
         return {
             "response_type": "in_channel",
-            "text": f"✅ *Patch Approved:* `{latest_patch.get('id')}`",
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": f"✅ *Patch Approved Successfully*\n\n*ID:* `{latest_patch.get('id')}`\n*Target:* `{latest_patch.get('target_file')}`\n*Description:* {latest_patch.get('description')}"
-                    }
-                },
-                {
-                    "type": "context",
-                    "elements": [
-                        {
-                            "type": "mrkdwn",
-                            "text": f"Approved by <@{user_id}> • {result.get('message', 'Applied successfully')}"
-                        }
-                    ]
-                }
-            ]
+            "text": f"{'✅' if result.get('success') else '❌'} {result.get('message')}"
         }
-        
     except Exception as e:
         error_msg = f"Error approving patch: {str(e)}"
-        
-        # Log the error
-        if event_logger:
-            event_logger.log_slack_event("patch_approve_error", {
-                "user_id": user_id,
-                "channel_id": channel_id,
-                "error": str(e)
-            })
-        
-        # Notify Slack of error
         try:
             if slack_proxy:
                 slack_proxy.notify_error(error_msg, context="patch_approve_command")
         except Exception:
             pass
-        
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
@@ -2669,4 +2639,18 @@ def handle_proceed_command(text: str, user_id: str, channel_id: str) -> Dict[str
         return {
             "response_type": "ephemeral",
             "text": f"❌ {error_msg}"
+        }
+
+def handle_patch_health_command(text: str, user_id: str, channel_id: str) -> Dict[str, Any]:
+    """Handle /patch-health slash command to report patch runner health."""
+    try:
+        health = patch_runner_health_check()
+        return {
+            "response_type": "in_channel",
+            "text": f"Patch Runner Health: {health['status']} - {health['message']}"
+        }
+    except Exception as e:
+        return {
+            "response_type": "ephemeral",
+            "text": f"❌ Error checking patch runner health: {str(e)}"
         }

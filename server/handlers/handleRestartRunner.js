@@ -3,7 +3,7 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleRestartRunner(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /restart-runner triggered by:", user_name);
+  console.log('⚡️ /restart-runner triggered by:', user_name);
   
   try {
     const restartResult = await runnerController.restartRunner();

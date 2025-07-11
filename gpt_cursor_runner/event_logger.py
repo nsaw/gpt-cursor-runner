@@ -96,6 +96,13 @@ class EventLogger:
         
         self._add_event(event)
     
+    def log_patch_retry(self, patch_data, result):
+        self.log_patch_event('retry_failed', patch_data, result)
+    def log_patch_quarantine(self, patch_data, result):
+        self.log_patch_event('quarantined', patch_data, result)
+    def log_health_check(self, status, message):
+        self.log_system_event('patch_health_check', {'status': status, 'message': message})
+    
     def _add_event(self, event: Dict[str, Any]):
         """Add event to log."""
         log_data = self._read_log()

@@ -6,7 +6,7 @@ const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 module.exports = async function handleCursorSlackDispatch(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /cursor-slack-dispatch triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /cursor-slack-dispatch triggered by:', user_name, 'with text:', text);
   
   try {
     // Parse the Cursor dispatch request
@@ -14,7 +14,7 @@ module.exports = async function handleCursorSlackDispatch(req, res) {
     try {
       dispatchRequest = JSON.parse(text);
     } catch (error) {
-      res.send(`❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}`);
+      res.send('❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}');
       return;
     }
 
@@ -22,7 +22,7 @@ module.exports = async function handleCursorSlackDispatch(req, res) {
     
     // Validate required fields
     if (!action || !channel) {
-      res.send(`❌ Missing required fields. Need 'action' and 'channel'`);
+      res.send('❌ Missing required fields. Need \'action\' and \'channel\'');
       return;
     }
 
@@ -36,84 +36,84 @@ module.exports = async function handleCursorSlackDispatch(req, res) {
     let result;
     
     switch (action) {
-      case 'postMessage':
-        if (!text && (!blocks || blocks.length === 0)) {
-          res.send(`❌ Missing 'text' or 'blocks' for postMessage`);
-          return;
-        }
-        
-        result = await slack.chat.postMessage({
-          channel: channel,
-          text: text || '',
-          blocks: blocks || undefined,
-          username: 'Cursor Editor',
-          icon_emoji: ':cursor:'
-        });
-        
-        break;
-        
-      case 'postCodeBlock':
-        if (!text) {
-          res.send(`❌ Missing 'text' for postCodeBlock`);
-          return;
-        }
-        
-        const codeBlocks = [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `*Cursor Code Block*\n${context ? `*Context:* ${context}\n` : ''}\`\`\`\n${text}\n\`\`\``
-            }
-          }
-        ];
-        
-        result = await slack.chat.postMessage({
-          channel: channel,
-          text: `Cursor Code Block: ${text.substring(0, 100)}...`,
-          blocks: codeBlocks,
-          username: 'Cursor Editor',
-          icon_emoji: ':cursor:'
-        });
-        
-        break;
-        
-      case 'updateMessage':
-        if (!ts) {
-          res.send(`❌ Missing 'ts' (timestamp) for updateMessage`);
-          return;
-        }
-        
-        if (!text && (!blocks || blocks.length === 0)) {
-          res.send(`❌ Missing 'text' or 'blocks' for updateMessage`);
-          return;
-        }
-        
-        result = await slack.chat.update({
-          channel: channel,
-          ts: ts,
-          text: text || '',
-          blocks: blocks || undefined
-        });
-        
-        break;
-        
-      case 'deleteMessage':
-        if (!ts) {
-          res.send(`❌ Missing 'ts' (timestamp) for deleteMessage`);
-          return;
-        }
-        
-        result = await slack.chat.delete({
-          channel: channel,
-          ts: ts
-        });
-        
-        break;
-        
-      default:
-        res.send(`❌ Unknown action: ${action}`);
+    case 'postMessage':
+      if (!text && (!blocks || blocks.length === 0)) {
+        res.send('❌ Missing \'text\' or \'blocks\' for postMessage');
         return;
+      }
+        
+      result = await slack.chat.postMessage({
+        channel: channel,
+        text: text || '',
+        blocks: blocks || undefined,
+        username: 'Cursor Editor',
+        icon_emoji: ':cursor:'
+      });
+        
+      break;
+        
+    case 'postCodeBlock':
+      if (!text) {
+        res.send('❌ Missing \'text\' for postCodeBlock');
+        return;
+      }
+        
+      const codeBlocks = [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Cursor Code Block*\n${context ? `*Context:* ${context}\n` : ''}\`\`\`\n${text}\n\`\`\``
+          }
+        }
+      ];
+        
+      result = await slack.chat.postMessage({
+        channel: channel,
+        text: `Cursor Code Block: ${text.substring(0, 100)}...`,
+        blocks: codeBlocks,
+        username: 'Cursor Editor',
+        icon_emoji: ':cursor:'
+      });
+        
+      break;
+        
+    case 'updateMessage':
+      if (!ts) {
+        res.send('❌ Missing \'ts\' (timestamp) for updateMessage');
+        return;
+      }
+        
+      if (!text && (!blocks || blocks.length === 0)) {
+        res.send('❌ Missing \'text\' or \'blocks\' for updateMessage');
+        return;
+      }
+        
+      result = await slack.chat.update({
+        channel: channel,
+        ts: ts,
+        text: text || '',
+        blocks: blocks || undefined
+      });
+        
+      break;
+        
+    case 'deleteMessage':
+      if (!ts) {
+        res.send('❌ Missing \'ts\' (timestamp) for deleteMessage');
+        return;
+      }
+        
+      result = await slack.chat.delete({
+        channel: channel,
+        ts: ts
+      });
+        
+      break;
+        
+    default:
+      res.send(`❌ Unknown action: ${action}`);
+      return;
     }
 
     // Log the dispatch

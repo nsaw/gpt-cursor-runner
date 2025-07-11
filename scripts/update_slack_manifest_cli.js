@@ -240,7 +240,7 @@ async function main() {
     console.log('🚀 Starting Slack manifest injection via CLI...');
     console.log(`📋 App ID: ${SLACK_APP_ID}`);
     console.log(`📊 Channel: ${SLACK_CHANNEL}`);
-    console.log(`🔗 Commands: 27 slash commands configured`);
+    console.log('🔗 Commands: 27 slash commands configured');
     
     // Generate manifest
     console.log('\n📝 Generating manifest...');

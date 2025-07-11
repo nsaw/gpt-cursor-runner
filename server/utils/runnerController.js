@@ -202,7 +202,7 @@ class RunnerController {
       const { exec } = require('child_process');
       const checkProcess = () => {
         return new Promise((resolve) => {
-          exec("lsof -i :5053 2>/dev/null | grep -i python || netstat -tlnp 2>/dev/null | grep :5053 | grep -i python || ss -tlnp 2>/dev/null | grep :5053 | grep -i python", (error, stdout, stderr) => {
+          exec('lsof -i :5053 2>/dev/null | grep -i python || netstat -tlnp 2>/dev/null | grep :5053 | grep -i python || ss -tlnp 2>/dev/null | grep :5053 | grep -i python', (error, stdout, stderr) => {
             console.log('Process detection stdout:', stdout);
             console.log('Process detection stderr:', stderr);
             if (error) console.log('Process detection error:', error.message);

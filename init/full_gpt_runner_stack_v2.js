@@ -41,18 +41,18 @@ module.exports = async function ${handlerName}(req, res) {
   }
 });
 
-let routerCode = `const express = require('express');\nconst router = express.Router();\n`;
+let routerCode = 'const express = require(\'express\');\nconst router = express.Router();\n';
 ALL_COMMANDS.forEach(cmd => {
   const handlerName = 'handle' + cmd.replace(/-(.)/g, (_, c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase());
   routerCode += `const ${handlerName} = require('../handlers/${handlerName}');\n`;
 });
 
-routerCode += `\nrouter.post('/commands', (req, res) => {\n  const { command } = req.body;\n  const routes = {\n`;
+routerCode += '\nrouter.post(\'/commands\', (req, res) => {\n  const { command } = req.body;\n  const routes = {\n';
 ALL_COMMANDS.forEach(cmd => {
   const handlerName = 'handle' + cmd.replace(/-(.)/g, (_, c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase());
   routerCode += `    '/${cmd}': ${handlerName},\n`;
 });
-routerCode += `  };\n  if (routes[command]) return routes[command](req, res);\n  res.send(\`❓ Unknown slash command: \${command}\`);\n});\n\nmodule.exports = router;\n`;
+routerCode += '  };\n  if (routes[command]) return routes[command](req, res);\n  res.send(`❓ Unknown slash command: ${command}`);\n});\n\nmodule.exports = router;\n';
 
 fs.writeFileSync(ROUTER_PATH, routerCode);
 

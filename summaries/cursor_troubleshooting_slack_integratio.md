@@ -67,12 +67,12 @@ app.post('/slack/commands', verifySlackRequest, (req, res) => {
   const { command, text, user_id, channel_id } = req.body;
   // Route based on command
   switch (command) {
-    case '/dashboard':
-      // handle dashboard logic
-      break;
+  case '/dashboard':
+    // handle dashboard logic
+    break;
     // ... other commands
-    default:
-      res.send('Unknown command');
+  default:
+    res.send('Unknown command');
   }
 });
 ```
@@ -138,12 +138,12 @@ app.post('/slack/commands', verifySlackRequest, (req, res) => {
   const { command, text, user_id, channel_id } = req.body;
   // Route based on command
   switch (command) {
-    case '/dashboard':
-      // handle dashboard logic
-      break;
+  case '/dashboard':
+    // handle dashboard logic
+    break;
     // ... other commands
-    default:
-      res.send('Unknown command');
+  default:
+    res.send('Unknown command');
   }
 });
 ```

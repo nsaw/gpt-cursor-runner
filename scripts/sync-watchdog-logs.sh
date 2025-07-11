@@ -29,8 +29,8 @@ log() {
     echo "[$timestamp] [$level] $message" | tee -a "$SUMMARY_FILE"
 }
 
-# Generate operation UUID
-OPERATION_UUID=$(uuidgen)
+# Generate operation UUID with fallback
+OPERATION_UUID=$(uuidgen 2>/dev/null || echo "sync-$(date +%s)-$(hostname | cut -c1-8)")
 
 log "INFO" "🔄 Starting log sync operation: $OPERATION_UUID"
 log "INFO" "📁 Project: $PROJECT_NAME"
