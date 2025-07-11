@@ -48,6 +48,9 @@ if [ -d "patches" ] && [ "$(ls -A patches/*.json 2>/dev/null)" ]; then
     # Apply patches with force-root
     python3 apply_all_patches.py --force-root=/Users/sawyer/gitSync/gpt-cursor-runner > logs/auto-apply.log 2>&1
     
+    # Archive completed patches
+    ./scripts/archive-completed-patches.sh >> logs/auto-apply.log 2>&1
+    
     # Check patch log for results
     if [ -f "patch-log.json" ]; then
         # Extract latest patch result

@@ -28,7 +28,7 @@ try:
 except ImportError:
     EVENT_LOGGER = None
 
-# Import notification system
+# Import notification system (optional - not required for patch success)
 try:
     from .slack_proxy import create_slack_proxy
     slack_proxy = create_slack_proxy()
@@ -51,7 +51,7 @@ def log_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optiona
         EVENT_LOGGER.log_patch_event(event_type, patch_data, result)
 
 def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
-    """Notify Slack of patch events."""
+    """Notify Slack of patch events (optional - not required for success)."""
     if slack_proxy:
         try:
             if event_type == "patch_applied" and result and result.get("success"):
@@ -64,7 +64,70 @@ def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Opti
                 error_msg = result.get("message", "Unknown error") if result else "Unknown error"
                 slack_proxy.notify_error(f"Patch {event_type}: {error_msg}", context=patch_data.get("target_file", ""))
         except Exception as e:
-            print(f"Error notifying Slack: {e}")
+            print(f"Warning: Slack notification failed: {e}")
+
+def log_patch_failure(patch_data: Dict[str, Any], result: Dict[str, Any], stderr_output: str = ""):
+    """Log patch failure details to logs/patch-failures/ directory."""
+    try:
+        # Create patch-failures directory if it doesn't exist
+        failures_dir = "logs/patch-failures"
+        os.makedirs(failures_dir, exist_ok=True)
+        
+        # Create log filename based on patch ID and timestamp
+        patch_id = patch_data.get("id", "unknown")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_filename = f"{patch_id}_{timestamp}.log"
+        log_path = os.path.join(failures_dir, log_filename)
+        
+        # Prepare failure log content
+        failure_log = {
+            "timestamp": datetime.now().isoformat(),
+            "patch_id": patch_id,
+            "target_file": patch_data.get("target_file", ""),
+            "description": patch_data.get("description", ""),
+            "success": result.get("success", False),
+            "message": result.get("message", ""),
+            "stderr_output": stderr_output,
+            "patch_data": patch_data,
+            "result": result
+        }
+        
+        # Write failure log
+        with open(log_path, 'w') as f:
+            json.dump(failure_log, f, indent=2)
+        
+        print(f"📝 Patch failure logged to: {log_path}")
+        
+    except Exception as e:
+        print(f"Warning: Failed to log patch failure: {e}")
+
+def quarantine_failed_patch(patch_file_path: str, patch_data: Dict[str, Any], result: Dict[str, Any]):
+    """Move failed patch to patches/failed/ directory."""
+    try:
+        # Create failed directory if it doesn't exist
+        failed_dir = "patches/failed"
+        os.makedirs(failed_dir, exist_ok=True)
+        
+        # Generate new filename for failed patch
+        patch_id = patch_data.get("id", "unknown")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        failed_filename = f"{patch_id}_FAILED_{timestamp}.json"
+        failed_path = os.path.join(failed_dir, failed_filename)
+        
+        # Add failure metadata to patch data
+        patch_data["failure_metadata"] = {
+            "failed_at": datetime.now().isoformat(),
+            "failure_message": result.get("message", ""),
+            "original_file": patch_file_path
+        }
+        
+        # Move patch to failed directory
+        shutil.move(patch_file_path, failed_path)
+        
+        print(f"🚨 Failed patch quarantined to: {failed_path}")
+        
+    except Exception as e:
+        print(f"Warning: Failed to quarantine patch: {e}")
 
 def is_dangerous_pattern(pattern: str) -> bool:
     """Check if a pattern is potentially dangerous."""
@@ -72,10 +135,9 @@ def is_dangerous_pattern(pattern: str) -> bool:
         r'^\.\*$',  # .*
         r'^\*$',    # *
         r'^\.$',    # .
-        r'^\*.*$',  # *anything
-        r'^.*\*$',  # anything*
-        r'^\*.*\*$',  # *anything*
-        r'^.*$',    # .* (too broad)
+        r'^\*[^a-zA-Z0-9_]*$',  # * followed by only special chars
+        r'^[^a-zA-Z0-9_]*\*$',  # * preceded by only special chars
+        r'^\*[^a-zA-Z0-9_]*\*$',  # * surrounded by only special chars
     ]
     
     # Allow React/TSX patterns that are commonly used
@@ -215,22 +277,35 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
             pass
         return result
 
-def apply_patch_with_retry(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = False, max_retries: int = 3) -> Dict[str, Any]:
+def apply_patch_with_retry(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = False, max_retries: int = 3, patch_file_path: str = None) -> Dict[str, Any]:
     """Apply a patch with retry logic and health check."""
     attempt = 0
     backoff = 2
+    stderr_output = ""
+    
     while attempt < max_retries:
         result = apply_patch(patch_data, dry_run=dry_run, force=force)
         if result.get('success'):
             return result
         else:
+            # Capture stderr for failure logging
+            stderr_output += f"Attempt {attempt + 1}: {result.get('message', 'Unknown error')}\n"
             log_patch_event("retry_failed", patch_data, result)
             notify_patch_event("retry_failed", patch_data, result)
             time.sleep(backoff ** attempt)
             attempt += 1
-    # Escalate after all retries fail
+    
+    # All retries failed - quarantine the patch
     result['message'] = f"Patch failed after {max_retries} attempts. Marking as quarantined."
     result['quarantined'] = True
+    
+    # Log failure details
+    log_patch_failure(patch_data, result, stderr_output)
+    
+    # Quarantine failed patch if file path provided
+    if patch_file_path and os.path.exists(patch_file_path):
+        quarantine_failed_patch(patch_file_path, patch_data, result)
+    
     log_patch_event("quarantined", patch_data, result)
     notify_patch_event("quarantined", patch_data, result)
     return result

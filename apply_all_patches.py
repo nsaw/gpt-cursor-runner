@@ -12,13 +12,31 @@ from datetime import datetime
 from gpt_cursor_runner.patch_runner import apply_patch_with_retry, log_patch_entry
 
 def get_patch_files():
-    """Get all patch files sorted by timestamp."""
+    """Get all patch files sorted by timestamp, excluding failed patches."""
     patch_files = glob.glob("patches/*.json")
+    
+    # Filter out patches that are in the failed directory
+    failed_dir = "patches/failed"
+    if os.path.exists(failed_dir):
+        failed_files = {os.path.basename(f) for f in glob.glob(f"{failed_dir}/*.json")}
+        # Remove the _FAILED_* suffix to match original filenames
+        failed_base_names = set()
+        for failed_file in failed_files:
+            if "_FAILED_" in failed_file:
+                # Extract original filename from failed patch name
+                parts = failed_file.split("_FAILED_")
+                if len(parts) >= 2:
+                    original_name = parts[0] + ".json"
+                    failed_base_names.add(original_name)
+        
+        # Filter out patches that have failed versions
+        patch_files = [f for f in patch_files if os.path.basename(f) not in failed_base_names]
+    
     # Sort by modification time (newest first)
     patch_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     return patch_files
 
-def apply_all_patches(dry_run=True, force=False, force_root=None):
+def apply_all_patches(dry_run=True, force=False, force_root=None, auto_archive=True):
     """Apply all patches in the patches directory."""
     patch_files = get_patch_files()
     
@@ -47,14 +65,14 @@ def apply_all_patches(dry_run=True, force=False, force_root=None):
                 original_target_dir = os.environ.get('TARGET_PROJECT_DIR')
                 os.environ['TARGET_PROJECT_DIR'] = force_root
                 try:
-                    result = apply_patch_with_retry(patch_data, dry_run=dry_run, force=force)
+                    result = apply_patch_with_retry(patch_data, dry_run=dry_run, force=force, patch_file_path=patch_file)
                 finally:
                     if original_target_dir:
                         os.environ['TARGET_PROJECT_DIR'] = original_target_dir
                     else:
                         os.environ.pop('TARGET_PROJECT_DIR', None)
             else:
-                result = apply_patch_with_retry(patch_data, dry_run=dry_run, force=force)
+                result = apply_patch_with_retry(patch_data, dry_run=dry_run, force=force, patch_file_path=patch_file)
             
             # Log the result
             log_patch_entry(patch_data, result)
@@ -92,6 +110,20 @@ def apply_all_patches(dry_run=True, force=False, force_root=None):
     
     if not dry_run:
         print(f"\n🎉 Applied {successful} patches successfully!")
+        
+        # Archive completed patches if auto_archive is enabled
+        if auto_archive and total > 0:
+            print("🗄️  Archiving completed patches...")
+            try:
+                import subprocess
+                result = subprocess.run(["./scripts/archive-completed-patches.sh"], 
+                                      capture_output=True, text=True, cwd=os.getcwd())
+                if result.returncode == 0:
+                    print("✅ Patches archived successfully")
+                else:
+                    print(f"⚠️  Archive process had issues: {result.stderr}")
+            except Exception as e:
+                print(f"⚠️  Archive process failed: {e}")
     else:
         print(f"\n🔍 Dry run completed. {successful} patches would be applied.")
 

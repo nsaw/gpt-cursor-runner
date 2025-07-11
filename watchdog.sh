@@ -15,6 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 RUNNER_DIR="/Users/sawyer/gitSync/gpt-cursor-runner"
 RUNNER_CMD="python3 -m gpt_cursor_runner.main"
+RUNNER_URL="http://localhost:5051"
 CHECK_INTERVAL=30
 LOG_FILE="/Users/sawyer/Library/Logs/gpt-cursor-runner-watchdog.log"
 
@@ -36,10 +37,22 @@ log() {
 }
 
 check_runner() {
-    if pgrep -f "python3 -m gpt_cursor_runner.main" > /dev/null; then
-        return 0
-    else
+    # Check if process is running
+    if ! pgrep -f "python3 -m gpt_cursor_runner.main" > /dev/null; then
         return 1
+    fi
+    
+    # Check if runner is responding on localhost:5051
+    if command -v curl >/dev/null 2>&1; then
+        if curl -s -f "$RUNNER_URL/health" >/dev/null 2>&1; then
+            return 0
+        else
+            log "warning" "Runner process running but not responding on localhost:5051"
+            return 1
+        fi
+    else
+        # Fallback: just check if process is running
+        return 0
     fi
 }
 
@@ -90,12 +103,12 @@ main() {
     
     # Main monitoring loop
     while true; do
-        if check_runner; then
-            log "success" "Runner is healthy"
-        else
-            log "error" "Runner is down, restarting..."
-            restart_runner
-        fi
+            if check_runner; then
+        log "success" "Runner is healthy (localhost:5051)"
+    else
+        log "error" "Runner is down or not responding on localhost:5051, restarting..."
+        restart_runner
+    fi
         
         sleep "$CHECK_INTERVAL"
     done
