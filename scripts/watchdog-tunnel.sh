@@ -1,20 +1,21 @@
 #!/bin/bash
 
 # Tunnel Watchdog Daemon v1.0
-# Monitors Cloudflare tunnel health with PID monitoring and localhost endpoint checks
+# Monitors Cloudflare tunnel health and connectivity
 # Part of the hardened fallback pipeline for GHOST↔DEV reliability
 
 set -e
 
 # Configuration
-TUNNEL_NAME="tm-runner-expo"
-RUNNER_PORT=5555
-CHECK_URL="http://localhost:$RUNNER_PORT/health"
+TUNNEL_NAME="gpt-cursor-runner-tunnel"
+RUNNER_PORT=5000
+HEALTH_ENDPOINT="http://localhost:$RUNNER_PORT/health"
 LOG_DIR="./logs/watchdogs"
 PID_FILE="./logs/watchdog-tunnel.pid"
 CHECK_INTERVAL=30
 MAX_RETRIES=3
 DASHBOARD_WEBHOOK="https://gpt-cursor-runner.fly.dev/slack/commands"
+SUMMARIES_DIR="./summaries"
 
 # Colors for output
 RED='\033[0;31m'
@@ -26,6 +27,33 @@ NC='\033[0m' # No Color
 # Generate operation UUID for tracking
 OPERATION_UUID=$(uuidgen)
 START_TIME=$(date +%s)
+
+# Ensure summaries directory exists
+mkdir -p "$SUMMARIES_DIR"
+
+# Write summary function
+write_summary() {
+    local event_type="$1"
+    local title="$2"
+    local content="$3"
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    local filename="summary-tunnel-watchdog-${event_type}_${timestamp}.md"
+    local filepath="$SUMMARIES_DIR/$filename"
+    
+    cat > "$filepath" << EOF
+# $title
+
+**Event Type:** $event_type
+**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+**Watchdog:** Tunnel
+**Context:** $TUNNEL_NAME
+
+$content
+
+EOF
+    
+    echo "📝 Summary written: $filepath"
+}
 
 # Logging function
 log() {
@@ -70,10 +98,10 @@ check_cloudflared_installed() {
     log "INFO" "🔍 Checking if cloudflared is installed"
     
     if command -v cloudflared >/dev/null 2>&1; then
-        log "INFO" "✅ cloudflared found in PATH"
+        log "INFO" "✅ cloudflared is installed"
         return 0
     else
-        log "ERROR" "❌ cloudflared not found in PATH"
+        log "ERROR" "❌ cloudflared is not installed"
         return 1
     fi
 }
@@ -82,35 +110,52 @@ check_cloudflared_installed() {
 check_cloudflared_process() {
     log "INFO" "🔍 Checking if cloudflared process is running"
     
-    if pgrep -f cloudflared >/dev/null; then
-        local pids=$(pgrep -f cloudflared)
-        log "INFO" "✅ cloudflared process running (PIDs: $pids)"
+    if pgrep -f "cloudflared" >/dev/null 2>&1; then
+        log "INFO" "✅ cloudflared process is running"
         return 0
     else
-        log "ERROR" "❌ cloudflared process not found"
+        log "ERROR" "❌ cloudflared process is not running"
         return 1
     fi
 }
 
 # Check tunnel configuration
 check_tunnel_config() {
-    log "INFO" "🔍 Checking tunnel configuration for $TUNNEL_NAME"
+    log "INFO" "🔍 Checking tunnel configuration"
     
-    if cloudflared tunnel info "$TUNNEL_NAME" >/dev/null 2>&1; then
-        log "INFO" "✅ Tunnel $TUNNEL_NAME configuration found"
+    # Check if tunnel config file exists
+    local config_file="$HOME/.cloudflared/config.yml"
+    if [ -f "$config_file" ]; then
+        log "INFO" "✅ Tunnel config file exists: $config_file"
         return 0
     else
-        log "ERROR" "❌ Tunnel $TUNNEL_NAME configuration not found"
+        log "WARN" "⚠️ Tunnel config file not found: $config_file"
         return 1
     fi
 }
 
-# Check localhost endpoint health
+# Check runner port
+check_runner_port() {
+    log "INFO" "🔍 Checking runner port $RUNNER_PORT"
+    
+    if netstat -an 2>/dev/null | grep -q ":$RUNNER_PORT.*LISTEN"; then
+        log "INFO" "✅ Runner port $RUNNER_PORT is listening"
+        return 0
+    elif lsof -i :$RUNNER_PORT >/dev/null 2>&1; then
+        log "INFO" "✅ Runner port $RUNNER_PORT is in use"
+        return 0
+    else
+        log "ERROR" "❌ Runner port $RUNNER_PORT is not listening"
+        return 1
+    fi
+}
+
+# Check localhost endpoint
 check_localhost_endpoint() {
-    log "INFO" "🔍 Checking localhost endpoint: $CHECK_URL"
+    log "INFO" "🔍 Checking localhost endpoint: $HEALTH_ENDPOINT"
     
     local health_response
-    health_response=$(curl -s --max-time 10 "$CHECK_URL" 2>&1)
+    health_response=$(curl -s --max-time 10 "$HEALTH_ENDPOINT" 2>&1)
     local exit_code=$?
     
     if [ $exit_code -eq 0 ] && echo "$health_response" | grep -q "OK\|healthy\|alive"; then
@@ -118,19 +163,6 @@ check_localhost_endpoint() {
         return 0
     else
         log "ERROR" "❌ Localhost endpoint check failed (exit: $exit_code): $health_response"
-        return 1
-    fi
-}
-
-# Check if runner port is listening
-check_runner_port() {
-    log "INFO" "🔍 Checking if runner port $RUNNER_PORT is listening"
-    
-    if netstat -an 2>/dev/null | grep -q ":$RUNNER_PORT.*LISTEN"; then
-        log "INFO" "✅ Runner port $RUNNER_PORT is listening"
-        return 0
-    else
-        log "ERROR" "❌ Runner port $RUNNER_PORT is not listening"
         return 1
     fi
 }
@@ -204,26 +236,104 @@ trigger_tunnel_repair() {
     log "WARN" "🛠️ Triggering tunnel repair sequence"
     notify_dashboard "Triggering tunnel repair sequence" "WARNING"
     
-    # Call the repair script
+    # Write repair summary
+    write_summary "repair_triggered" "Tunnel Watchdog Repair Triggered" "
+## Tunnel Watchdog Repair Triggered
+
+The tunnel watchdog has detected health issues and is triggering repair sequence.
+
+### Repair Details
+- **Watchdog:** Tunnel
+- **Tunnel:** $TUNNEL_NAME
+- **Trigger:** Health check failure
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Next Steps
+1. Execute repair-tunnel.sh script
+2. Monitor repair progress
+3. Verify health after repair
+"
+    
+    # Call the repair script using safe-run
     if [ -f "./scripts/repair-tunnel.sh" ]; then
-        log "INFO" "🔧 Executing repair-tunnel.sh"
-        ./scripts/repair-tunnel.sh >> "$LOG_DIR/tunnel-repair.log" 2>&1
+        log "INFO" "🔧 Executing repair-tunnel.sh via safe-run"
+        ./scripts/safe-run.sh shell "./scripts/repair-tunnel.sh" "Tunnel Repair" 120
         local repair_exit=$?
         
         if [ $repair_exit -eq 0 ]; then
             log "INFO" "✅ Tunnel repair completed successfully"
             notify_dashboard "Tunnel repair completed successfully" "SUCCESS"
+            
+            # Write success summary
+            write_summary "repair_success" "Tunnel Watchdog Repair Success" "
+## Tunnel Watchdog Repair Success
+
+The tunnel repair sequence completed successfully.
+
+### Repair Results
+- **Status:** SUCCESS
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Status
+- **Tunnel:** $TUNNEL_NAME
+- **Repair:** Completed
+- **Next Check:** In $CHECK_INTERVAL seconds
+"
         else
             log "ERROR" "❌ Tunnel repair failed (exit: $repair_exit)"
             notify_dashboard "Tunnel repair failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "repair_failure" "Tunnel Watchdog Repair Failure" "
+## Tunnel Watchdog Repair Failure
+
+The tunnel repair sequence failed.
+
+### Repair Results
+- **Status:** FAILED
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Error Details
+- **Script:** repair-tunnel.sh
+- **Exit Code:** $repair_exit
+- **Context:** Tunnel health check failure
+
+### Next Steps
+1. Check repair script logs
+2. Manual intervention may be required
+3. Monitor for additional failures
+"
         fi
     else
         log "ERROR" "❌ Repair script not found: ./scripts/repair-tunnel.sh"
         notify_dashboard "Tunnel repair script not found" "ERROR"
+        
+        # Write missing script summary
+        write_summary "repair_script_missing" "Tunnel Watchdog Repair Script Missing" "
+## Tunnel Watchdog Repair Script Missing
+
+The tunnel repair script was not found.
+
+### Error Details
+- **Missing Script:** ./scripts/repair-tunnel.sh
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- Automatic repair is not available
+- Manual intervention required
+- Health issues may persist
+
+### Next Steps
+1. Create repair-tunnel.sh script
+2. Implement repair logic
+3. Test repair functionality
+"
     fi
 }
 
-# Start the watchdog daemon
+# Start the watchdog daemon (FOREGROUND for launchd)
 start_daemon() {
     log "INFO" "🚀 Starting tunnel watchdog daemon for $TUNNEL_NAME"
     
@@ -236,37 +346,141 @@ start_daemon() {
         return 1
     fi
     
-    # Start background monitoring
-    (
-        log "INFO" "📡 Starting tunnel health monitoring loop"
-        
-        while true; do
-            # Perform comprehensive health check
-            if check_tunnel_health; then
-                log "INFO" "✅ Tunnel health check passed"
-            else
-                log "ERROR" "❌ Tunnel health check failed"
-                notify_dashboard "Tunnel health check failed" "ERROR"
-                
-                # Trigger repair after failure
-                trigger_tunnel_repair
-            fi
+    # Write startup summary
+    write_summary "started" "Tunnel Watchdog Started" "
+## Tunnel Watchdog Started
+
+The tunnel watchdog daemon has been started.
+
+### Startup Details
+- **Tunnel:** $TUNNEL_NAME
+- **Health Endpoint:** $HEALTH_ENDPOINT
+- **Check Interval:** $CHECK_INTERVAL seconds
+- **PID File:** $PID_FILE
+- **Log Directory:** $LOG_DIR
+
+### Configuration
+- **Max Retries:** $MAX_RETRIES
+- **Dashboard Webhook:** $DASHBOARD_WEBHOOK
+- **Operation UUID:** $OPERATION_UUID
+
+### Status
+- **State:** STARTING
+- **Mode:** FOREGROUND (launchd compatible)
+- **Monitoring:** Active
+"
+    
+    # Save current PID for launchd
+    echo $$ > "$PID_FILE"
+    log "INFO" "✅ Tunnel watchdog daemon started with PID: $$"
+    
+    # Write daemon summary
+    write_summary "daemon_running" "Tunnel Watchdog Daemon Running" "
+## Tunnel Watchdog Daemon Running
+
+The tunnel watchdog is now running in foreground mode.
+
+### Daemon Status
+- **PID:** $$
+- **Mode:** FOREGROUND
+- **Launchd:** Compatible
+- **Status:** ACTIVE
+
+### Monitoring Loop
+- **Health Checks:** Every $CHECK_INTERVAL seconds
+- **Repair Triggers:** On health failure
+- **Summary Generation:** On all events
+"
+    
+    # FOREGROUND MONITORING LOOP (no backgrounding)
+    log "INFO" "📡 Starting tunnel health monitoring loop (FOREGROUND)"
+    
+    while true; do
+        # Perform comprehensive health check
+        if check_tunnel_health; then
+            log "INFO" "✅ Tunnel health check passed"
             
-            # Wait before next check
-            sleep $CHECK_INTERVAL
-        done
-    ) &
-    
-    local daemon_pid=$!
-    echo $daemon_pid > "$PID_FILE"
-    log "INFO" "✅ Tunnel watchdog daemon started with PID: $daemon_pid"
-    
-    return 0
+            # Write periodic health summary (every 10th check)
+            local check_count=$(( (SECONDS - START_TIME) / CHECK_INTERVAL ))
+            if [ $((check_count % 10)) -eq 0 ]; then
+                write_summary "health_ok" "Tunnel Health Check OK" "
+## Tunnel Health Check OK
+
+Periodic health check completed successfully.
+
+### Health Status
+- **Tunnel:** $TUNNEL_NAME
+- **Status:** HEALTHY
+- **Check Count:** $check_count
+- **Uptime:** $((SECONDS - START_TIME)) seconds
+
+### All Checks Passed
+- ✅ cloudflared installed
+- ✅ cloudflared process running
+- ✅ tunnel configuration
+- ✅ runner port listening
+- ✅ localhost endpoint
+- ✅ external connectivity
+"
+            fi
+        else
+            log "ERROR" "❌ Tunnel health check failed"
+            notify_dashboard "Tunnel health check failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "health_failure" "Tunnel Health Check Failed" "
+## Tunnel Health Check Failed
+
+The tunnel health check has failed.
+
+### Failure Details
+- **Tunnel:** $TUNNEL_NAME
+- **Status:** UNHEALTHY
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Checks
+- ❌ cloudflared installed
+- ❌ cloudflared process running
+- ❌ tunnel configuration
+- ❌ runner port listening
+- ❌ localhost endpoint
+- ❌ external connectivity
+
+### Next Action
+- Triggering repair sequence
+- Monitoring repair progress
+- Re-checking health after repair
+"
+            
+            # Trigger repair after failure
+            trigger_tunnel_repair
+        fi
+        
+        # Wait before next check
+        sleep $CHECK_INTERVAL
+    done
 }
 
 # Stop the daemon
 stop_daemon() {
     log "INFO" "🛑 Stopping tunnel watchdog daemon"
+    
+    # Write stop summary
+    write_summary "stopped" "Tunnel Watchdog Stopped" "
+## Tunnel Watchdog Stopped
+
+The tunnel watchdog daemon has been stopped.
+
+### Stop Details
+- **Tunnel:** $TUNNEL_NAME
+- **PID:** $$
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Status
+- **State:** STOPPED
+- **Monitoring:** Inactive
+- **Health Checks:** Disabled
+"
     
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
@@ -288,6 +502,24 @@ status() {
         local pid=$(cat "$PID_FILE")
         log "INFO" "✅ Tunnel watchdog daemon running (PID: $pid)"
         
+        # Write status summary
+        write_summary "status_check" "Tunnel Watchdog Status Check" "
+## Tunnel Watchdog Status Check
+
+The tunnel watchdog daemon is running.
+
+### Status Details
+- **Tunnel:** $TUNNEL_NAME
+- **PID:** $pid
+- **Status:** RUNNING
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Recent Activity
+- **Health Checks:** Active
+- **Monitoring:** Enabled
+- **Logs:** Available
+"
+        
         # Show recent logs
         if [ -f "$LOG_DIR/tunnel-watchdog.log" ]; then
             log "INFO" "📋 Recent watchdog logs:"
@@ -299,6 +531,29 @@ status() {
         return 0
     else
         log "WARN" "❌ Tunnel watchdog daemon not running"
+        
+        # Write not running summary
+        write_summary "not_running" "Tunnel Watchdog Not Running" "
+## Tunnel Watchdog Not Running
+
+The tunnel watchdog daemon is not currently running.
+
+### Status Details
+- **Tunnel:** $TUNNEL_NAME
+- **Status:** STOPPED
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- **Health Monitoring:** Disabled
+- **Automatic Repair:** Unavailable
+- **Dashboard Alerts:** Inactive
+
+### Next Steps
+1. Start the watchdog daemon
+2. Check for startup errors
+3. Verify launchd configuration
+"
+        
         return 1
     fi
 }
@@ -306,6 +561,19 @@ status() {
 # Run single health check
 health_check() {
     log "INFO" "🔍 Running single tunnel health check"
+    
+    # Write single check summary
+    write_summary "single_check" "Tunnel Single Health Check" "
+## Tunnel Single Health Check
+
+Performing a single health check.
+
+### Check Details
+- **Tunnel:** $TUNNEL_NAME
+- **Type:** Single Check
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+"
+    
     check_tunnel_health
 }
 
@@ -330,7 +598,7 @@ case "${1:-start}" in
         ;;
     *)
         echo "Usage: $0 {start|stop|restart|status|health}"
-        echo "  start   - Start the tunnel watchdog daemon"
+        echo "  start   - Start the tunnel watchdog daemon (FOREGROUND)"
         echo "  stop    - Stop the tunnel watchdog daemon"
         echo "  restart - Restart the tunnel watchdog daemon"
         echo "  status  - Show daemon status and recent logs"

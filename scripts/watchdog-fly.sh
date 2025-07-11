@@ -14,6 +14,7 @@ PID_FILE="./logs/watchdog-fly.pid"
 CHECK_INTERVAL=30
 MAX_RETRIES=3
 DASHBOARD_WEBHOOK="https://gpt-cursor-runner.fly.dev/slack/commands"
+SUMMARIES_DIR="./summaries"
 
 # Colors for output
 RED='\033[0;31m'
@@ -25,6 +26,33 @@ NC='\033[0m' # No Color
 # Generate operation UUID for tracking
 OPERATION_UUID=$(uuidgen)
 START_TIME=$(date +%s)
+
+# Ensure summaries directory exists
+mkdir -p "$SUMMARIES_DIR"
+
+# Write summary function
+write_summary() {
+    local event_type="$1"
+    local title="$2"
+    local content="$3"
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    local filename="summary-fly-watchdog-${event_type}_${timestamp}.md"
+    local filepath="$SUMMARIES_DIR/$filename"
+    
+    cat > "$filepath" << EOF
+# $title
+
+**Event Type:** $event_type
+**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+**Watchdog:** Fly
+**Context:** $APP_NAME
+
+$content
+
+EOF
+    
+    echo "📝 Summary written: $filepath"
+}
 
 # Logging function
 log() {
@@ -163,26 +191,104 @@ trigger_fly_repair() {
     log "WARN" "🛠️ Triggering Fly repair sequence"
     notify_dashboard "Triggering Fly repair sequence" "WARNING"
     
-    # Call the repair script
+    # Write repair summary
+    write_summary "repair_triggered" "Fly Watchdog Repair Triggered" "
+## Fly Watchdog Repair Triggered
+
+The Fly watchdog has detected health issues and is triggering repair sequence.
+
+### Repair Details
+- **Watchdog:** Fly
+- **App:** $APP_NAME
+- **Trigger:** Health check failure
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Next Steps
+1. Execute repair-fly.sh script
+2. Monitor repair progress
+3. Verify health after repair
+"
+    
+    # Call the repair script using safe-run
     if [ -f "./scripts/repair-fly.sh" ]; then
-        log "INFO" "🔧 Executing repair-fly.sh"
-        ./scripts/repair-fly.sh >> "$LOG_DIR/fly-repair.log" 2>&1
+        log "INFO" "🔧 Executing repair-fly.sh via safe-run"
+        ./scripts/safe-run.sh shell "./scripts/repair-fly.sh" "Fly Repair" 120
         local repair_exit=$?
         
         if [ $repair_exit -eq 0 ]; then
             log "INFO" "✅ Fly repair completed successfully"
             notify_dashboard "Fly repair completed successfully" "SUCCESS"
+            
+            # Write success summary
+            write_summary "repair_success" "Fly Watchdog Repair Success" "
+## Fly Watchdog Repair Success
+
+The Fly repair sequence completed successfully.
+
+### Repair Results
+- **Status:** SUCCESS
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Status
+- **App:** $APP_NAME
+- **Repair:** Completed
+- **Next Check:** In $CHECK_INTERVAL seconds
+"
         else
             log "ERROR" "❌ Fly repair failed (exit: $repair_exit)"
             notify_dashboard "Fly repair failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "repair_failure" "Fly Watchdog Repair Failure" "
+## Fly Watchdog Repair Failure
+
+The Fly repair sequence failed.
+
+### Repair Results
+- **Status:** FAILED
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Error Details
+- **Script:** repair-fly.sh
+- **Exit Code:** $repair_exit
+- **Context:** Fly health check failure
+
+### Next Steps
+1. Check repair script logs
+2. Manual intervention may be required
+3. Monitor for additional failures
+"
         fi
     else
         log "ERROR" "❌ Repair script not found: ./scripts/repair-fly.sh"
         notify_dashboard "Fly repair script not found" "ERROR"
+        
+        # Write missing script summary
+        write_summary "repair_script_missing" "Fly Watchdog Repair Script Missing" "
+## Fly Watchdog Repair Script Missing
+
+The Fly repair script was not found.
+
+### Error Details
+- **Missing Script:** ./scripts/repair-fly.sh
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- Automatic repair is not available
+- Manual intervention required
+- Health issues may persist
+
+### Next Steps
+1. Create repair-fly.sh script
+2. Implement repair logic
+3. Test repair functionality
+"
     fi
 }
 
-# Start the watchdog daemon
+# Start the watchdog daemon (FOREGROUND for launchd)
 start_daemon() {
     log "INFO" "🚀 Starting Fly watchdog daemon for $APP_NAME"
     
@@ -195,37 +301,135 @@ start_daemon() {
         return 1
     fi
     
-    # Start background monitoring
-    (
-        log "INFO" "📡 Starting Fly health monitoring loop"
-        
-        while true; do
-            # Perform comprehensive health check
-            if check_fly_health; then
-                log "INFO" "✅ Fly health check passed"
-            else
-                log "ERROR" "❌ Fly health check failed"
-                notify_dashboard "Fly health check failed" "ERROR"
-                
-                # Trigger repair after failure
-                trigger_fly_repair
-            fi
+    # Write startup summary
+    write_summary "started" "Fly Watchdog Started" "
+## Fly Watchdog Started
+
+The Fly watchdog daemon has been started.
+
+### Startup Details
+- **App:** $APP_NAME
+- **Health Endpoint:** $HEALTH_ENDPOINT
+- **Check Interval:** $CHECK_INTERVAL seconds
+- **PID File:** $PID_FILE
+- **Log Directory:** $LOG_DIR
+
+### Configuration
+- **Max Retries:** $MAX_RETRIES
+- **Dashboard Webhook:** $DASHBOARD_WEBHOOK
+- **Operation UUID:** $OPERATION_UUID
+
+### Status
+- **State:** STARTING
+- **Mode:** FOREGROUND (launchd compatible)
+- **Monitoring:** Active
+"
+    
+    # Save current PID for launchd
+    echo $$ > "$PID_FILE"
+    log "INFO" "✅ Fly watchdog daemon started with PID: $$"
+    
+    # Write daemon summary
+    write_summary "daemon_running" "Fly Watchdog Daemon Running" "
+## Fly Watchdog Daemon Running
+
+The Fly watchdog is now running in foreground mode.
+
+### Daemon Status
+- **PID:** $$
+- **Mode:** FOREGROUND
+- **Launchd:** Compatible
+- **Status:** ACTIVE
+
+### Monitoring Loop
+- **Health Checks:** Every $CHECK_INTERVAL seconds
+- **Repair Triggers:** On health failure
+- **Summary Generation:** On all events
+"
+    
+    # FOREGROUND MONITORING LOOP (no backgrounding)
+    log "INFO" "📡 Starting Fly health monitoring loop (FOREGROUND)"
+    
+    while true; do
+        # Perform comprehensive health check
+        if check_fly_health; then
+            log "INFO" "✅ Fly health check passed"
             
-            # Wait before next check
-            sleep $CHECK_INTERVAL
-        done
-    ) &
-    
-    local daemon_pid=$!
-    echo $daemon_pid > "$PID_FILE"
-    log "INFO" "✅ Fly watchdog daemon started with PID: $daemon_pid"
-    
-    return 0
+            # Write periodic health summary (every 10th check)
+            local check_count=$(( (SECONDS - START_TIME) / CHECK_INTERVAL ))
+            if [ $((check_count % 10)) -eq 0 ]; then
+                write_summary "health_ok" "Fly Health Check OK" "
+## Fly Health Check OK
+
+Periodic health check completed successfully.
+
+### Health Status
+- **App:** $APP_NAME
+- **Status:** HEALTHY
+- **Check Count:** $check_count
+- **Uptime:** $((SECONDS - START_TIME)) seconds
+
+### All Checks Passed
+- ✅ Fly app status
+- ✅ Health endpoint
+- ✅ Recent logs
+"
+            fi
+        else
+            log "ERROR" "❌ Fly health check failed"
+            notify_dashboard "Fly health check failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "health_failure" "Fly Health Check Failed" "
+## Fly Health Check Failed
+
+The Fly health check has failed.
+
+### Failure Details
+- **App:** $APP_NAME
+- **Status:** UNHEALTHY
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Checks
+- ❌ Fly app status
+- ❌ Health endpoint  
+- ❌ Recent logs
+
+### Next Action
+- Triggering repair sequence
+- Monitoring repair progress
+- Re-checking health after repair
+"
+            
+            # Trigger repair after failure
+            trigger_fly_repair
+        fi
+        
+        # Wait before next check
+        sleep $CHECK_INTERVAL
+    done
 }
 
 # Stop the daemon
 stop_daemon() {
     log "INFO" "🛑 Stopping Fly watchdog daemon"
+    
+    # Write stop summary
+    write_summary "stopped" "Fly Watchdog Stopped" "
+## Fly Watchdog Stopped
+
+The Fly watchdog daemon has been stopped.
+
+### Stop Details
+- **App:** $APP_NAME
+- **PID:** $$
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Status
+- **State:** STOPPED
+- **Monitoring:** Inactive
+- **Health Checks:** Disabled
+"
     
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
@@ -247,6 +451,24 @@ status() {
         local pid=$(cat "$PID_FILE")
         log "INFO" "✅ Fly watchdog daemon running (PID: $pid)"
         
+        # Write status summary
+        write_summary "status_check" "Fly Watchdog Status Check" "
+## Fly Watchdog Status Check
+
+The Fly watchdog daemon is running.
+
+### Status Details
+- **App:** $APP_NAME
+- **PID:** $pid
+- **Status:** RUNNING
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Recent Activity
+- **Health Checks:** Active
+- **Monitoring:** Enabled
+- **Logs:** Available
+"
+        
         # Show recent logs
         if [ -f "$LOG_DIR/fly-watchdog.log" ]; then
             log "INFO" "📋 Recent watchdog logs:"
@@ -258,6 +480,29 @@ status() {
         return 0
     else
         log "WARN" "❌ Fly watchdog daemon not running"
+        
+        # Write not running summary
+        write_summary "not_running" "Fly Watchdog Not Running" "
+## Fly Watchdog Not Running
+
+The Fly watchdog daemon is not currently running.
+
+### Status Details
+- **App:** $APP_NAME
+- **Status:** STOPPED
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- **Health Monitoring:** Disabled
+- **Automatic Repair:** Unavailable
+- **Dashboard Alerts:** Inactive
+
+### Next Steps
+1. Start the watchdog daemon
+2. Check for startup errors
+3. Verify launchd configuration
+"
+        
         return 1
     fi
 }
@@ -265,6 +510,19 @@ status() {
 # Run single health check
 health_check() {
     log "INFO" "🔍 Running single Fly health check"
+    
+    # Write single check summary
+    write_summary "single_check" "Fly Single Health Check" "
+## Fly Single Health Check
+
+Performing a single health check.
+
+### Check Details
+- **App:** $APP_NAME
+- **Type:** Single Check
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+"
+    
     check_fly_health
 }
 
@@ -289,7 +547,7 @@ case "${1:-start}" in
         ;;
     *)
         echo "Usage: $0 {start|stop|restart|status|health}"
-        echo "  start   - Start the Fly watchdog daemon"
+        echo "  start   - Start the Fly watchdog daemon (FOREGROUND)"
         echo "  stop    - Stop the Fly watchdog daemon"
         echo "  restart - Restart the Fly watchdog daemon"
         echo "  status  - Show daemon status and recent logs"

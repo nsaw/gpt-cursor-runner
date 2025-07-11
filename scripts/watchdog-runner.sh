@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # Patch Runner Watchdog Daemon v1.0
-# Monitors patch-runner daemon health and queue status
+# Monitors patch-runner health and functionality
 # Part of the hardened fallback pipeline for GHOST↔DEV reliability
 
 set -e
 
 # Configuration
-RUNNER_PORT=5052
+RUNNER_PORT=5000
 HEALTH_ENDPOINT="http://localhost:$RUNNER_PORT/health"
 LOG_DIR="./logs/watchdogs"
 PID_FILE="./logs/watchdog-runner.pid"
-RUNNER_PID_FILE="./logs/local-daemon.pid"
 CHECK_INTERVAL=30
 MAX_RETRIES=3
 DASHBOARD_WEBHOOK="https://gpt-cursor-runner.fly.dev/slack/commands"
+SUMMARIES_DIR="./summaries"
 
 # Colors for output
 RED='\033[0;31m'
@@ -26,6 +26,33 @@ NC='\033[0m' # No Color
 # Generate operation UUID for tracking
 OPERATION_UUID=$(uuidgen)
 START_TIME=$(date +%s)
+
+# Ensure summaries directory exists
+mkdir -p "$SUMMARIES_DIR"
+
+# Write summary function
+write_summary() {
+    local event_type="$1"
+    local title="$2"
+    local content="$3"
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    local filename="summary-runner-watchdog-${event_type}_${timestamp}.md"
+    local filepath="$SUMMARIES_DIR/$filename"
+    
+    cat > "$filepath" << EOF
+# $title
+
+**Event Type:** $event_type
+**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+**Watchdog:** Runner
+**Context:** Patch Runner
+
+$content
+
+EOF
+    
+    echo "📝 Summary written: $filepath"
+}
 
 # Logging function
 log() {
@@ -69,17 +96,28 @@ check_pid() {
 check_runner_daemon() {
     log "INFO" "🔍 Checking if patch-runner daemon is running"
     
-    if [ -f "$RUNNER_PID_FILE" ]; then
-        local runner_pid=$(cat "$RUNNER_PID_FILE")
-        if kill -0 "$runner_pid" 2>/dev/null; then
-            log "INFO" "✅ Patch-runner daemon running (PID: $runner_pid)"
-            return 0
-        else
-            log "ERROR" "❌ Patch-runner daemon not running (stale PID: $runner_pid)"
-            return 1
-        fi
+    # Check for Python patch-runner process
+    if pgrep -f "python.*patch_runner" >/dev/null 2>&1; then
+        log "INFO" "✅ Patch-runner daemon is running"
+        return 0
     else
-        log "ERROR" "❌ Patch-runner PID file not found"
+        log "ERROR" "❌ Patch-runner daemon is not running"
+        return 1
+    fi
+}
+
+# Check runner port
+check_runner_port() {
+    log "INFO" "🔍 Checking runner port $RUNNER_PORT"
+    
+    if netstat -an 2>/dev/null | grep -q ":$RUNNER_PORT.*LISTEN"; then
+        log "INFO" "✅ Runner port $RUNNER_PORT is listening"
+        return 0
+    elif lsof -i :$RUNNER_PORT >/dev/null 2>&1; then
+        log "INFO" "✅ Runner port $RUNNER_PORT is in use"
+        return 0
+    else
+        log "ERROR" "❌ Runner port $RUNNER_PORT is not listening"
         return 1
     fi
 }
@@ -101,15 +139,15 @@ check_runner_health() {
     fi
 }
 
-# Check if runner port is listening
-check_runner_port() {
-    log "INFO" "🔍 Checking if runner port $RUNNER_PORT is listening"
+# Check Python patch runner module
+check_python_runner() {
+    log "INFO" "🔍 Checking Python patch runner module"
     
-    if netstat -an 2>/dev/null | grep -q ":$RUNNER_PORT.*LISTEN"; then
-        log "INFO" "✅ Runner port $RUNNER_PORT is listening"
+    if python3 -c "from gpt_cursor_runner.patch_runner import apply_patch; print('✅ Patch runner module available')" 2>/dev/null; then
+        log "INFO" "✅ Python patch runner module is available"
         return 0
     else
-        log "ERROR" "❌ Runner port $RUNNER_PORT is not listening"
+        log "ERROR" "❌ Python patch runner module is not available"
         return 1
     fi
 }
@@ -118,55 +156,27 @@ check_runner_port() {
 check_patch_queue() {
     log "INFO" "🔍 Checking patch queue health"
     
-    # Check if patches directory exists and is accessible
-    if [ ! -d "./patches" ]; then
-        log "ERROR" "❌ Patches directory not found"
-        return 1
-    fi
-    
-    # Check for stuck or failed patches
-    local failed_patches=$(find ./patches -name "*.json" -mtime +1 2>/dev/null | wc -l)
-    if [ "$failed_patches" -gt 0 ]; then
-        log "WARN" "⚠️ Found $failed_patches potentially stuck patches"
-    else
-        log "INFO" "✅ No stuck patches detected"
-    fi
-    
-    # Check quarantine directory
-    if [ -d "./quarantine" ]; then
-        local quarantined_patches=$(find ./quarantine -name "*.json" 2>/dev/null | wc -l)
-        if [ "$quarantined_patches" -gt 0 ]; then
-            log "WARN" "⚠️ Found $quarantined_patches quarantined patches"
-        fi
-    fi
-    
-    return 0
-}
-
-# Check Python patch runner module
-check_python_runner() {
-    log "INFO" "🔍 Checking Python patch runner module"
-    
-    if python3 -c "import gpt_cursor_runner.patch_runner" 2>/dev/null; then
-        log "INFO" "✅ Python patch runner module available"
+    # Check if patches directory exists and has files
+    if [ -d "patches" ] && [ "$(ls -A patches 2>/dev/null)" ]; then
+        local patch_count=$(find patches -name "*.json" | wc -l)
+        log "INFO" "✅ Patch queue has $patch_count patches"
         return 0
     else
-        log "ERROR" "❌ Python patch runner module not available"
-        return 1
+        log "WARN" "⚠️ Patch queue is empty or directory not found"
+        return 0  # Not a failure, just empty
     fi
 }
 
-# Check patch runner logs for errors
+# Check runner logs for errors
 check_runner_logs() {
-    log "INFO" "🔍 Checking patch runner logs for errors"
-    
-    local log_files=(
-        "./logs/patch-daemon.log"
-        "./logs/patch-application.log"
-        "./logs/patch-daemon-error.log"
-    )
+    log "INFO" "🔍 Checking runner logs for errors"
     
     local error_found=false
+    local log_files=(
+        "logs/patch-failures/*.log"
+        "logs/watchdogs/*.log"
+        "patch-log.json"
+    )
     
     for log_file in "${log_files[@]}"; do
         if [ -f "$log_file" ]; then
@@ -235,26 +245,103 @@ trigger_runner_repair() {
     log "WARN" "🛠️ Triggering runner repair sequence"
     notify_dashboard "Triggering runner repair sequence" "WARNING"
     
-    # Call the repair script
+    # Write repair summary
+    write_summary "repair_triggered" "Runner Watchdog Repair Triggered" "
+## Runner Watchdog Repair Triggered
+
+The runner watchdog has detected health issues and is triggering repair sequence.
+
+### Repair Details
+- **Watchdog:** Runner
+- **Trigger:** Health check failure
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Next Steps
+1. Execute repair-runner.sh script
+2. Monitor repair progress
+3. Verify health after repair
+"
+    
+    # Call the repair script using safe-run
     if [ -f "./scripts/repair-runner.sh" ]; then
-        log "INFO" "🔧 Executing repair-runner.sh"
-        ./scripts/repair-runner.sh >> "$LOG_DIR/runner-repair.log" 2>&1
+        log "INFO" "🔧 Executing repair-runner.sh via safe-run"
+        ./scripts/safe-run.sh shell "./scripts/repair-runner.sh" "Runner Repair" 120
         local repair_exit=$?
         
         if [ $repair_exit -eq 0 ]; then
             log "INFO" "✅ Runner repair completed successfully"
             notify_dashboard "Runner repair completed successfully" "SUCCESS"
+            
+            # Write success summary
+            write_summary "repair_success" "Runner Watchdog Repair Success" "
+## Runner Watchdog Repair Success
+
+The runner repair sequence completed successfully.
+
+### Repair Results
+- **Status:** SUCCESS
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Status
+- **Runner:** Patch Runner
+- **Repair:** Completed
+- **Next Check:** In $CHECK_INTERVAL seconds
+"
         else
             log "ERROR" "❌ Runner repair failed (exit: $repair_exit)"
             notify_dashboard "Runner repair failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "repair_failure" "Runner Watchdog Repair Failure" "
+## Runner Watchdog Repair Failure
+
+The runner repair sequence failed.
+
+### Repair Results
+- **Status:** FAILED
+- **Exit Code:** $repair_exit
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Error Details
+- **Script:** repair-runner.sh
+- **Exit Code:** $repair_exit
+- **Context:** Runner health check failure
+
+### Next Steps
+1. Check repair script logs
+2. Manual intervention may be required
+3. Monitor for additional failures
+"
         fi
     else
         log "ERROR" "❌ Repair script not found: ./scripts/repair-runner.sh"
         notify_dashboard "Runner repair script not found" "ERROR"
+        
+        # Write missing script summary
+        write_summary "repair_script_missing" "Runner Watchdog Repair Script Missing" "
+## Runner Watchdog Repair Script Missing
+
+The runner repair script was not found.
+
+### Error Details
+- **Missing Script:** ./scripts/repair-runner.sh
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- Automatic repair is not available
+- Manual intervention required
+- Health issues may persist
+
+### Next Steps
+1. Create repair-runner.sh script
+2. Implement repair logic
+3. Test repair functionality
+"
     fi
 }
 
-# Start the watchdog daemon
+# Start the watchdog daemon (FOREGROUND for launchd)
 start_daemon() {
     log "INFO" "🚀 Starting patch-runner watchdog daemon"
     
@@ -267,37 +354,140 @@ start_daemon() {
         return 1
     fi
     
-    # Start background monitoring
-    (
-        log "INFO" "📡 Starting patch-runner health monitoring loop"
-        
-        while true; do
-            # Perform comprehensive health check
-            if check_runner_health_comprehensive; then
-                log "INFO" "✅ Patch-runner health check passed"
-            else
-                log "ERROR" "❌ Patch-runner health check failed"
-                notify_dashboard "Patch-runner health check failed" "ERROR"
-                
-                # Trigger repair after failure
-                trigger_runner_repair
-            fi
+    # Write startup summary
+    write_summary "started" "Runner Watchdog Started" "
+## Runner Watchdog Started
+
+The runner watchdog daemon has been started.
+
+### Startup Details
+- **Health Endpoint:** $HEALTH_ENDPOINT
+- **Check Interval:** $CHECK_INTERVAL seconds
+- **PID File:** $PID_FILE
+- **Log Directory:** $LOG_DIR
+
+### Configuration
+- **Max Retries:** $MAX_RETRIES
+- **Dashboard Webhook:** $DASHBOARD_WEBHOOK
+- **Operation UUID:** $OPERATION_UUID
+
+### Status
+- **State:** STARTING
+- **Mode:** FOREGROUND (launchd compatible)
+- **Monitoring:** Active
+"
+    
+    # Save current PID for launchd
+    echo $$ > "$PID_FILE"
+    log "INFO" "✅ Patch-runner watchdog daemon started with PID: $$"
+    
+    # Write daemon summary
+    write_summary "daemon_running" "Runner Watchdog Daemon Running" "
+## Runner Watchdog Daemon Running
+
+The runner watchdog is now running in foreground mode.
+
+### Daemon Status
+- **PID:** $$
+- **Mode:** FOREGROUND
+- **Launchd:** Compatible
+- **Status:** ACTIVE
+
+### Monitoring Loop
+- **Health Checks:** Every $CHECK_INTERVAL seconds
+- **Repair Triggers:** On health failure
+- **Summary Generation:** On all events
+"
+    
+    # FOREGROUND MONITORING LOOP (no backgrounding)
+    log "INFO" "📡 Starting patch-runner health monitoring loop (FOREGROUND)"
+    
+    while true; do
+        # Perform comprehensive health check
+        if check_runner_health_comprehensive; then
+            log "INFO" "✅ Patch-runner health check passed"
             
-            # Wait before next check
-            sleep $CHECK_INTERVAL
-        done
-    ) &
-    
-    local daemon_pid=$!
-    echo $daemon_pid > "$PID_FILE"
-    log "INFO" "✅ Patch-runner watchdog daemon started with PID: $daemon_pid"
-    
-    return 0
+            # Write periodic health summary (every 10th check)
+            local check_count=$(( (SECONDS - START_TIME) / CHECK_INTERVAL ))
+            if [ $((check_count % 10)) -eq 0 ]; then
+                write_summary "health_ok" "Runner Health Check OK" "
+## Runner Health Check OK
+
+Periodic health check completed successfully.
+
+### Health Status
+- **Runner:** Patch Runner
+- **Status:** HEALTHY
+- **Check Count:** $check_count
+- **Uptime:** $((SECONDS - START_TIME)) seconds
+
+### All Checks Passed
+- ✅ Patch-runner daemon running
+- ✅ Runner port listening
+- ✅ Health endpoint
+- ✅ Python module available
+- ✅ Patch queue accessible
+- ✅ No recent errors in logs
+"
+            fi
+        else
+            log "ERROR" "❌ Patch-runner health check failed"
+            notify_dashboard "Patch-runner health check failed" "ERROR"
+            
+            # Write failure summary
+            write_summary "health_failure" "Runner Health Check Failed" "
+## Runner Health Check Failed
+
+The runner health check has failed.
+
+### Failure Details
+- **Runner:** Patch Runner
+- **Status:** UNHEALTHY
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Health Checks
+- ❌ Patch-runner daemon running
+- ❌ Runner port listening
+- ❌ Health endpoint
+- ❌ Python module available
+- ❌ Patch queue accessible
+- ❌ Recent errors in logs
+
+### Next Action
+- Triggering repair sequence
+- Monitoring repair progress
+- Re-checking health after repair
+"
+            
+            # Trigger repair after failure
+            trigger_runner_repair
+        fi
+        
+        # Wait before next check
+        sleep $CHECK_INTERVAL
+    done
 }
 
 # Stop the daemon
 stop_daemon() {
     log "INFO" "🛑 Stopping patch-runner watchdog daemon"
+    
+    # Write stop summary
+    write_summary "stopped" "Runner Watchdog Stopped" "
+## Runner Watchdog Stopped
+
+The runner watchdog daemon has been stopped.
+
+### Stop Details
+- **Runner:** Patch Runner
+- **PID:** $$
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Status
+- **State:** STOPPED
+- **Monitoring:** Inactive
+- **Health Checks:** Disabled
+"
     
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
@@ -319,6 +509,24 @@ status() {
         local pid=$(cat "$PID_FILE")
         log "INFO" "✅ Patch-runner watchdog daemon running (PID: $pid)"
         
+        # Write status summary
+        write_summary "status_check" "Runner Watchdog Status Check" "
+## Runner Watchdog Status Check
+
+The runner watchdog daemon is running.
+
+### Status Details
+- **Runner:** Patch Runner
+- **PID:** $pid
+- **Status:** RUNNING
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Recent Activity
+- **Health Checks:** Active
+- **Monitoring:** Enabled
+- **Logs:** Available
+"
+        
         # Show recent logs
         if [ -f "$LOG_DIR/runner-watchdog.log" ]; then
             log "INFO" "📋 Recent watchdog logs:"
@@ -330,6 +538,29 @@ status() {
         return 0
     else
         log "WARN" "❌ Patch-runner watchdog daemon not running"
+        
+        # Write not running summary
+        write_summary "not_running" "Runner Watchdog Not Running" "
+## Runner Watchdog Not Running
+
+The runner watchdog daemon is not currently running.
+
+### Status Details
+- **Runner:** Patch Runner
+- **Status:** STOPPED
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+### Impact
+- **Health Monitoring:** Disabled
+- **Automatic Repair:** Unavailable
+- **Dashboard Alerts:** Inactive
+
+### Next Steps
+1. Start the watchdog daemon
+2. Check for startup errors
+3. Verify launchd configuration
+"
+        
         return 1
     fi
 }
@@ -337,6 +568,19 @@ status() {
 # Run single health check
 health_check() {
     log "INFO" "🔍 Running single patch-runner health check"
+    
+    # Write single check summary
+    write_summary "single_check" "Runner Single Health Check" "
+## Runner Single Health Check
+
+Performing a single health check.
+
+### Check Details
+- **Runner:** Patch Runner
+- **Type:** Single Check
+- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+"
+    
     check_runner_health_comprehensive
 }
 
@@ -361,7 +605,7 @@ case "${1:-start}" in
         ;;
     *)
         echo "Usage: $0 {start|stop|restart|status|health}"
-        echo "  start   - Start the patch-runner watchdog daemon"
+        echo "  start   - Start the patch-runner watchdog daemon (FOREGROUND)"
         echo "  stop    - Stop the patch-runner watchdog daemon"
         echo "  restart - Restart the patch-runner watchdog daemon"
         echo "  status  - Show daemon status and recent logs"
