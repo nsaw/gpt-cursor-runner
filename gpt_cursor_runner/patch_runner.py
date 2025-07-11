@@ -35,6 +35,21 @@ try:
 except ImportError:
     slack_proxy = None
 
+# Import summary manager for mandatory .md generation
+try:
+    from .summary_manager import (
+        write_failure_summary,
+        write_completion_summary,
+        write_pause_summary,
+        write_fallback_summary,
+        write_manual_summary,
+        write_daemon_summary
+    )
+    SUMMARY_MANAGER_AVAILABLE = True
+except ImportError:
+    SUMMARY_MANAGER_AVAILABLE = False
+    print("Warning: Summary manager not available - patch summaries will not be generated")
+
 # Target project configuration
 TARGET_PROJECT_DIR = os.environ.get('TARGET_PROJECT_DIR', '/Users/sawyer/gitSync/gpt-cursor-runner')
 
@@ -98,6 +113,15 @@ def log_patch_failure(patch_data: Dict[str, Any], result: Dict[str, Any], stderr
         
         print(f"📝 Patch failure logged to: {log_path}")
         
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=result.get("message", "Unknown error"),
+                error_type="patch_application_failure",
+                patch_data=patch_data,
+                context=f"patch_id:{patch_id}"
+            )
+        
     except Exception as e:
         print(f"Warning: Failed to log patch failure: {e}")
 
@@ -125,6 +149,15 @@ def quarantine_failed_patch(patch_file_path: str, patch_data: Dict[str, Any], re
         shutil.move(patch_file_path, failed_path)
         
         print(f"🚨 Failed patch quarantined to: {failed_path}")
+        
+        # Write quarantine summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_fallback_summary(
+                fallback_reason="patch_quarantine",
+                original_action="patch_application",
+                fallback_action="patch_quarantine",
+                context=f"patch_id:{patch_id}"
+            )
         
     except Exception as e:
         print(f"Warning: Failed to quarantine patch: {e}")
@@ -180,6 +213,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = f"Schema validation failed: {error_msg}"
         log_patch_event("validation_failed", patch_data, result)
         notify_patch_event("validation_failed", patch_data, result)
+        
+        # Write validation failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=error_msg,
+                error_type="patch_validation_failure",
+                patch_data=patch_data,
+                context="schema_validation"
+            )
+        
         return result
     
     target_file = patch_data.get("target_file")
@@ -187,6 +230,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = "No target file specified"
         log_patch_event("missing_target", patch_data, result)
         notify_patch_event("missing_target", patch_data, result)
+        
+        # Write missing target summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message="No target file specified",
+                error_type="missing_target_file",
+                patch_data=patch_data,
+                context="patch_validation"
+            )
+        
         return result
     
     # Get the full path to the target file in the target project
@@ -197,6 +250,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = f"Target file not found: {target_file_path}"
         log_patch_event("file_not_found", patch_data, result)
         notify_patch_event("file_not_found", patch_data, result)
+        
+        # Write file not found summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=f"Target file not found: {target_file_path}",
+                error_type="file_not_found",
+                patch_data=patch_data,
+                context="file_validation"
+            )
+        
         return result
     
     patch_info = patch_data.get("patch", {})
@@ -207,12 +270,32 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = "No pattern specified"
         log_patch_event("missing_pattern", patch_data, result)
         notify_patch_event("missing_pattern", patch_data, result)
+        
+        # Write missing pattern summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message="No pattern specified",
+                error_type="missing_pattern",
+                patch_data=patch_data,
+                context="patch_content"
+            )
+        
         return result
     
     if not replacement:
         result["message"] = "No replacement specified"
         log_patch_event("missing_replacement", patch_data, result)
         notify_patch_event("missing_replacement", patch_data, result)
+        
+        # Write missing replacement summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message="No replacement specified",
+                error_type="missing_replacement",
+                patch_data=patch_data,
+                context="patch_content"
+            )
+        
         return result
     
     # Check for dangerous patterns
@@ -220,6 +303,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = f"Dangerous pattern detected: {pattern}"
         log_patch_event("dangerous_pattern", patch_data, result)
         notify_patch_event("dangerous_pattern", patch_data, result)
+        
+        # Write dangerous pattern summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=f"Dangerous pattern detected: {pattern}",
+                error_type="dangerous_pattern",
+                patch_data=patch_data,
+                context="pattern_validation"
+            )
+        
         return result
     
     try:
@@ -231,6 +324,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
             result["message"] = f"Pattern not found in file: {pattern}"
             log_patch_event("pattern_not_found", patch_data, result)
             notify_patch_event("pattern_not_found", patch_data, result)
+            
+            # Write pattern not found summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_failure_summary(
+                    error_message=f"Pattern not found in file: {pattern}",
+                    error_type="pattern_not_found",
+                    patch_data=patch_data,
+                    context="pattern_matching"
+                )
+            
             return result
         
         # Create backup if not dry run
@@ -247,6 +350,15 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
             result["message"] = "No changes made (replacement identical)"
             log_patch_event("no_changes", patch_data, result)
             notify_patch_event("no_changes", patch_data, result)
+            
+            # Write no changes summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_completion_summary(
+                    result=result,
+                    patch_data=patch_data,
+                    context="no_changes_detected"
+                )
+            
             return result
         
         # Write changes if not dry run
@@ -258,11 +370,27 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
             result["message"] = f"Successfully applied patch to {target_file_path}"
             log_patch_event("patch_applied", patch_data, result)
             notify_patch_event("patch_applied", patch_data, result)
+            
+            # Write success summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_completion_summary(
+                    result=result,
+                    patch_data=patch_data,
+                    context="patch_applied_successfully"
+                )
         else:
             result["message"] = f"Dry run: Would apply patch to {target_file_path}"
             result["success"] = True
             log_patch_event("dry_run", patch_data, result)
             notify_patch_event("dry_run", patch_data, result)
+            
+            # Write dry run summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_completion_summary(
+                    result=result,
+                    patch_data=patch_data,
+                    context="dry_run_completed"
+                )
         
         return result
         
@@ -270,6 +398,16 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = True, force: bool = 
         result["message"] = f"Error applying patch: {str(e)}"
         log_patch_event("application_error", patch_data, result)
         notify_patch_event("application_error", patch_data, result)
+        
+        # Write application error summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="patch_application_error",
+                patch_data=patch_data,
+                context="patch_execution"
+            )
+        
         try:
             if slack_proxy:
                 slack_proxy.notify_error(f"Error applying patch: {e}", context=patch_data.get("target_file", ""))
@@ -283,15 +421,41 @@ def apply_patch_with_retry(patch_data: Dict[str, Any], dry_run: bool = True, for
     backoff = 2
     stderr_output = ""
     
+    # Write retry start summary
+    if SUMMARY_MANAGER_AVAILABLE:
+        write_daemon_summary(
+            daemon_name="patch-runner",
+            status="retry_started",
+            details=f"Starting patch application with {max_retries} retries",
+            context=f"patch_id:{patch_data.get('id', 'unknown')}"
+        )
+    
     while attempt < max_retries:
         result = apply_patch(patch_data, dry_run=dry_run, force=force)
         if result.get('success'):
+            # Write retry success summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_completion_summary(
+                    result=result,
+                    patch_data=patch_data,
+                    context=f"retry_success_attempt_{attempt + 1}"
+                )
             return result
         else:
             # Capture stderr for failure logging
             stderr_output += f"Attempt {attempt + 1}: {result.get('message', 'Unknown error')}\n"
             log_patch_event("retry_failed", patch_data, result)
             notify_patch_event("retry_failed", patch_data, result)
+            
+            # Write retry failure summary
+            if SUMMARY_MANAGER_AVAILABLE:
+                write_failure_summary(
+                    error_message=f"Retry attempt {attempt + 1} failed: {result.get('message', 'Unknown error')}",
+                    error_type="retry_failure",
+                    patch_data=patch_data,
+                    context=f"retry_attempt_{attempt + 1}"
+                )
+            
             time.sleep(backoff ** attempt)
             attempt += 1
     
@@ -308,6 +472,16 @@ def apply_patch_with_retry(patch_data: Dict[str, Any], dry_run: bool = True, for
     
     log_patch_event("quarantined", patch_data, result)
     notify_patch_event("quarantined", patch_data, result)
+    
+    # Write final failure summary
+    if SUMMARY_MANAGER_AVAILABLE:
+        write_failure_summary(
+            error_message=f"Patch failed after {max_retries} attempts",
+            error_type="max_retries_exceeded",
+            patch_data=patch_data,
+            context="retry_exhausted"
+        )
+    
     return result
 
 
@@ -397,76 +571,43 @@ def log_patch_entry(patch_data: Dict[str, Any], result: Dict[str, Any]):
             pass
 
 def run_tests(target_file: str) -> bool:
-    """Run tests on the target file (placeholder)."""
-    # This would integrate with your actual test runner
-    print(f"🧪 Running tests on {target_file}")
+    """Run tests for the target file (placeholder)."""
+    # This is a placeholder for test running functionality
+    # In a real implementation, this would run appropriate tests
     return True
 
 def main():
+    """Main entry point for command line usage."""
     parser = argparse.ArgumentParser(description="Apply patches to target files")
-    parser.add_argument("--dry-run", action="store_true", default=True, help="Dry run (default)")
-    parser.add_argument("--force", action="store_true", help="Force apply without prompts")
-    parser.add_argument("--auto", action="store_true", help="Auto-confirm prompts")
-    parser.add_argument("--patch-file", help="Specific patch file to apply")
-    parser.add_argument("--target-dir", default=".", help="Target directory for patches")
+    parser.add_argument("patch_file", help="Path to the patch file")
+    parser.add_argument("--dry-run", action="store_true", help="Perform a dry run without making changes")
+    parser.add_argument("--force", action="store_true", help="Force apply even if pattern is dangerous")
+    parser.add_argument("--max-retries", type=int, default=3, help="Maximum number of retry attempts")
     
     args = parser.parse_args()
     
-    # Load latest patch if no specific file
-    if args.patch_file:
-        try:
-            with open(args.patch_file, 'r') as f:
-                patch_data = json.load(f)
-        except Exception as e:
-            print(f"Error loading patch file: {e}")
-            try:
-                if slack_proxy:
-                    slack_proxy.notify_error(f"Error loading patch file: {e}", context=args.patch_file)
-            except Exception:
-                pass
-            return 1
-    else:
-        patch_data = load_latest_patch()
-        if not patch_data:
-            print("No patches found")
-            return 1
-    
-    # Apply patch
-    result = apply_patch_with_retry(patch_data, dry_run=args.dry_run, force=args.force)
-    
-    # --- Safe wrapper for todo_write (UI queue fallback)
     try:
-        if patch_data.get('showInUI'):
-            try:
-                from tools.todo_write import write_task_to_ui
-                write_task_to_ui(patch_data)
-            except ImportError:
-                print('[WARN] todo_write tool not available. UI queue will not be updated.')
-            except Exception as e:
-                print(f'[WARN] todo_write failed: {e}')
-    except Exception:
-        pass
-
-    # Log the result
-    log_patch_entry(patch_data, result)
-    
-    # Display result
-    print(f"📄 Patch: {patch_data.get('id', 'unknown')}")
-    print(f"🎯 Target: {result['target_file']}")
-    print(f"✅ Success: {result['success']}")
-    print(f"📝 Message: {result['message']}")
-    
-    if result.get("backup_created"):
-        print(f"💾 Backup: {result['backup_file']}")
-    
-    if result.get("success") and not args.dry_run:
-        # Run tests if patch was applied
-        if run_tests(result['target_file']):
-            print("✅ Tests passed")
+        with open(args.patch_file, 'r') as f:
+            patch_data = json.load(f)
+        
+        result = apply_patch_with_retry(
+            patch_data, 
+            dry_run=args.dry_run, 
+            force=args.force, 
+            max_retries=args.max_retries,
+            patch_file_path=args.patch_file
+        )
+        
+        if result.get('success'):
+            print(f"✅ Patch applied successfully: {result.get('message')}")
+            exit(0)
         else:
-            print("❌ Tests failed")
-    
-    return 0 if result.get("success") else 1
+            print(f"❌ Patch failed: {result.get('message')}")
+            exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        exit(1)
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()

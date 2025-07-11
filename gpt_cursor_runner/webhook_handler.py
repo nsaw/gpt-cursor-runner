@@ -23,6 +23,21 @@ try:
 except ImportError:
     event_logger = None
 
+# Import summary manager for mandatory .md generation
+try:
+    from .summary_manager import (
+        write_failure_summary,
+        write_completion_summary,
+        write_pause_summary,
+        write_fallback_summary,
+        write_manual_summary,
+        write_daemon_summary
+    )
+    SUMMARY_MANAGER_AVAILABLE = True
+except ImportError:
+    SUMMARY_MANAGER_AVAILABLE = False
+    print("Warning: Summary manager not available - webhook summaries will not be generated")
+
 def create_webhook_handler():
     """Create webhook handler function for Flask integration."""
     return process_hybrid_block
@@ -35,10 +50,23 @@ def process_hybrid_block(block_data: Dict[str, Any]) -> Dict[str, Any]:
         for field in required_fields:
             if field not in block_data:
                 error_msg = f"Missing required field: {field}"
+                
+                # Log error
                 if event_logger:
                     event_logger.log_system_event("webhook_validation_error", {"error": error_msg, "block_data": block_data})
+                
+                # Notify Slack of error
                 if slack_proxy:
                     slack_proxy.notify_error(error_msg, context="process_hybrid_block")
+                
+                # Write validation failure summary
+                if SUMMARY_MANAGER_AVAILABLE:
+                    write_failure_summary(
+                        error_message=error_msg,
+                        error_type="webhook_validation_error",
+                        context=f"missing_field:{field}"
+                    )
+                
                 return {"success": False, "error": error_msg}
         
         # Create patches directory if it doesn't exist
@@ -70,12 +98,22 @@ def process_hybrid_block(block_data: Dict[str, Any]) -> Dict[str, Any]:
                 block_data.get("description", "No description")
             )
         
-        return {
+        result = {
             "success": True,
             "message": f"Patch saved to {filename}",
             "filepath": filepath,
             "patch_id": block_data["id"]
         }
+        
+        # Write completion summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_completion_summary(
+                result=result,
+                patch_data=block_data,
+                context="webhook_patch_creation"
+            )
+        
+        return result
         
     except Exception as e:
         error_msg = f"Error processing hybrid block: {str(e)}"
@@ -90,6 +128,15 @@ def process_hybrid_block(block_data: Dict[str, Any]) -> Dict[str, Any]:
         # Notify Slack of error
         if slack_proxy:
             slack_proxy.notify_error(error_msg, context="process_hybrid_block")
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=error_msg,
+                error_type="webhook_processing_error",
+                patch_data=block_data,
+                context="webhook_processing"
+            )
         
         return {
             "success": False,

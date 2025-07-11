@@ -1,0 +1,16 @@
+# Watchdog cron entries for extra safety
+# Generated on 2025-07-11T17:47:37.3NZ
+# Operation UUID: 4C4B566F-31D8-4B99-92BB-FC5BCC78661F
+
+# Fly watchdog - every 5 minutes
+*/5 * * * * cd /Users/sawyer/gitSync/gpt-cursor-runner && ./scripts/watchdog-fly.sh health >> ./logs/watchdogs/fly-cron.log 2>&1
+
+# Tunnel watchdog - every 5 minutes
+*/5 * * * * cd /Users/sawyer/gitSync/gpt-cursor-runner && ./scripts/watchdog-tunnel.sh health >> ./logs/watchdogs/tunnel-cron.log 2>&1
+
+# Runner watchdog - every 5 minutes
+*/5 * * * * cd /Users/sawyer/gitSync/gpt-cursor-runner && ./scripts/watchdog-runner.sh health >> ./logs/watchdogs/runner-cron.log 2>&1
+
+# Patch retry - every 10 minutes
+*/10 * * * * cd /Users/sawyer/gitSync/gpt-cursor-runner && ./scripts/retry-patch-delivery.sh run >> ./logs/watchdogs/retry-cron.log 2>&1
+

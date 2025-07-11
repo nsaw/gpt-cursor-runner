@@ -20,6 +20,21 @@ from gpt_cursor_runner.slack_handler import (
 )
 from gpt_cursor_runner.event_logger import event_logger
 
+# Import summary manager for mandatory .md generation
+try:
+    from gpt_cursor_runner.summary_manager import (
+        write_failure_summary,
+        write_completion_summary,
+        write_pause_summary,
+        write_fallback_summary,
+        write_manual_summary,
+        write_daemon_summary
+    )
+    SUMMARY_MANAGER_AVAILABLE = True
+except ImportError:
+    SUMMARY_MANAGER_AVAILABLE = False
+    print("Warning: Summary manager not available - summaries will not be generated")
+
 # Import dashboard
 try:
     from gpt_cursor_runner.dashboard import create_dashboard_routes
@@ -55,6 +70,14 @@ def webhook():
             })
         
         result = process_hybrid_block(data)
+        
+        # Write completion summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_completion_summary(
+                result=result,
+                context="webhook_processing"
+            )
+        
         return jsonify({"status": "success", "result": result})
         
     except Exception as e:
@@ -66,6 +89,15 @@ def webhook():
                 "error": str(e),
                 "headers": dict(request.headers)
             })
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="webhook_processing_error",
+                context="/webhook endpoint"
+            )
+        
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
@@ -135,6 +167,15 @@ def handle_slack_webhook():
                 "error": str(e),
                 "headers": dict(request.headers)
             })
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="slack_webhook_error",
+                context="/webhook Slack handler"
+            )
+        
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
@@ -174,6 +215,14 @@ def slack_test():
                 "result": result
             })
         
+        # Write completion summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_completion_summary(
+                result=result,
+                patch_data=test_patch,
+                context="slack_test_endpoint"
+            )
+        
         return jsonify({
             "status": "success",
             "message": "Test patch created successfully",
@@ -189,6 +238,15 @@ def slack_test():
             event_logger.log_system_event("slack_test_error", {
                 "error": str(e)
             })
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="slack_test_error",
+                context="/slack/test endpoint"
+            )
+        
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
             slack_proxy = create_slack_proxy()
@@ -199,96 +257,143 @@ def slack_test():
 
 @app.route('/events', methods=['GET'])
 def get_events():
-    """Get recent events for UI display."""
+    """Get all events."""
+    if not event_logger:
+        return jsonify({"error": "Event logger not available"}), 500
+    
     try:
-        limit = request.args.get('limit', 50, type=int)
-        event_type = request.args.get('type')
-        
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-        
-        events = event_logger.get_recent_events(limit, event_type if isinstance(event_type, str) and event_type else None)
-        return jsonify({
-            "events": events,
-            "count": len(events),
-            "timestamp": datetime.now().isoformat()
-        })
-        
+        events = event_logger.get_all_events()
+        return jsonify({"events": events})
     except Exception as e:
-        return jsonify({"error": f"Error getting events: {str(e)}"}), 500
+        error_msg = f"Error retrieving events: {str(e)}"
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="events_retrieval_error",
+                context="/events endpoint"
+            )
+        
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/events/summary', methods=['GET'])
 def get_event_summary():
-    """Get event summary for UI display."""
+    """Get event summary."""
+    if not event_logger:
+        return jsonify({"error": "Event logger not available"}), 500
+    
     try:
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-        
         summary = event_logger.get_event_summary()
         return jsonify(summary)
-        
     except Exception as e:
-        return jsonify({"error": f"Error getting event summary: {str(e)}"}), 500
+        error_msg = f"Error retrieving event summary: {str(e)}"
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="event_summary_error",
+                context="/events/summary endpoint"
+            )
+        
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/events/patch', methods=['GET'])
 def get_patch_events():
-    """Get patch-specific events."""
+    """Get patch events."""
+    if not event_logger:
+        return jsonify({"error": "Event logger not available"}), 500
+    
     try:
-        limit = request.args.get('limit', 20, type=int)
-        
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-        
-        events = event_logger.get_patch_events(limit)
-        return jsonify({
-            "events": events,
-            "count": len(events),
-            "timestamp": datetime.now().isoformat()
-        })
-        
+        events = event_logger.get_patch_events()
+        return jsonify({"patch_events": events})
     except Exception as e:
-        return jsonify({"error": f"Error getting patch events: {str(e)}"}), 500
+        error_msg = f"Error retrieving patch events: {str(e)}"
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="patch_events_error",
+                context="/events/patch endpoint"
+            )
+        
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/events/slack', methods=['GET'])
 def get_slack_events():
-    """Get Slack-specific events."""
+    """Get Slack events."""
+    if not event_logger:
+        return jsonify({"error": "Event logger not available"}), 500
+    
     try:
-        limit = request.args.get('limit', 20, type=int)
-        
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-        
-        events = event_logger.get_slack_events(limit)
-        return jsonify({
-            "events": events,
-            "count": len(events),
-            "timestamp": datetime.now().isoformat()
-        })
-        
+        events = event_logger.get_slack_events()
+        return jsonify({"slack_events": events})
     except Exception as e:
-        return jsonify({"error": f"Error getting Slack events: {str(e)}"}), 500
+        error_msg = f"Error retrieving Slack events: {str(e)}"
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="slack_events_error",
+                context="/events/slack endpoint"
+            )
+        
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
-    return jsonify({
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
-    })
+    try:
+        # Basic health check
+        health_status = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "summary_manager": SUMMARY_MANAGER_AVAILABLE
+        }
+        
+        # Write daemon summary for health check
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_daemon_summary(
+                daemon_name="gpt-cursor-runner",
+                status="healthy",
+                details="Health check passed",
+                context="/health endpoint"
+            )
+        
+        return jsonify(health_status)
+    except Exception as e:
+        error_msg = f"Health check failed: {str(e)}"
+        
+        # Write failure summary
+        if SUMMARY_MANAGER_AVAILABLE:
+            write_failure_summary(
+                error_message=str(e),
+                error_type="health_check_error",
+                context="/health endpoint"
+            )
+        
+        return jsonify({"status": "unhealthy", "error": error_msg}), 500
 
 def main():
-    """Main entry point."""
-    port = int(os.getenv('PYTHON_PORT', 5051))
+    """Main application entry point."""
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('DEBUG_MODE', 'false').lower() == 'true'
+    
+    # Write startup summary
+    if SUMMARY_MANAGER_AVAILABLE:
+        write_daemon_summary(
+            daemon_name="gpt-cursor-runner",
+            status="starting",
+            details=f"Starting Flask server on port {port}",
+            context="application_startup"
+        )
     
     print(f"🚀 Starting GPT-Cursor Runner on port {port}")
-    print(f"📡 Webhook endpoint: http://localhost:{port}/webhook")
-    print(f"📊 Dashboard: http://localhost:{port}/dashboard")
-    print(f"🧪 Test endpoint: http://localhost:{port}/slack/test")
-    print(f"📊 Events endpoint: http://localhost:{port}/events")
-    print(f"🔗 Supports: GPT hybrid blocks + Slack events")
-    
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=debug)
 
 if __name__ == '__main__':
     main()

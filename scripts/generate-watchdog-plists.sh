@@ -35,12 +35,8 @@ generate_fly_plist() {
     log "INFO" "🔧 Generating Fly watchdog plist"
     
     node _global/dev-tools/gen-launchd-watchdog.js \
-        --label "com.thoughtmarks.watchdog.fly" \
-        --script "./scripts/watchdog-fly.sh" \
-        --log-dir "./logs/watchdogs" \
-        --start-interval 30 \
-        --throttle-interval 10 \
-        --write
+        --write-to-disk \
+        --load
     
     if [ $? -eq 0 ]; then
         log "INFO" "✅ Fly watchdog plist generated successfully"
@@ -55,12 +51,8 @@ generate_tunnel_plist() {
     log "INFO" "🔧 Generating Tunnel watchdog plist"
     
     node _global/dev-tools/gen-launchd-watchdog.js \
-        --label "com.thoughtmarks.watchdog.tunnel" \
-        --script "./scripts/watchdog-tunnel.sh" \
-        --log-dir "./logs/watchdogs" \
-        --start-interval 30 \
-        --throttle-interval 10 \
-        --write
+        --write-to-disk \
+        --load
     
     if [ $? -eq 0 ]; then
         log "INFO" "✅ Tunnel watchdog plist generated successfully"
@@ -75,12 +67,8 @@ generate_runner_plist() {
     log "INFO" "🔧 Generating Runner watchdog plist"
     
     node _global/dev-tools/gen-launchd-watchdog.js \
-        --label "com.thoughtmarks.watchdog.runner" \
-        --script "./scripts/watchdog-runner.sh" \
-        --log-dir "./logs/watchdogs" \
-        --start-interval 30 \
-        --throttle-interval 10 \
-        --write
+        --write-to-disk \
+        --load
     
     if [ $? -eq 0 ]; then
         log "INFO" "✅ Runner watchdog plist generated successfully"
