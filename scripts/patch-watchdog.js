@@ -47,7 +47,8 @@ class PatchWatchdog {
     const dirs = [
       path.dirname(CONFIG.DELIVERY_TRACE_LOG),
       path.dirname(CONFIG.ESCALATION_LOG),
-      CONFIG.QUARANTINE_DIR
+      CONFIG.QUARANTINE_DIR,
+      './logs'  // Ensure logs directory exists
     ];
     
     dirs.forEach(dir => {

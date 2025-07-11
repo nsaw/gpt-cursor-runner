@@ -24,9 +24,9 @@ echo "🔒 Starting patch watchdog daemon..."
 node scripts/patch-watchdog.js &
 PATCH_WATCHDOG_PID=$!
 
-# Start Python runner in background on port 5053
-echo "🐍 Starting Python runner on port 5053..."
-PYTHON_PORT=5053 python3 -m gpt_cursor_runner.main &
+# Start Python runner in background on port 5051
+echo "🐍 Starting Python runner on port 5051..."
+PYTHON_PORT=5051 python3 -m gpt_cursor_runner.main &
 PYTHON_PID=$!
 
 # Wait a moment for Python to start
