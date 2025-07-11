@@ -4,6 +4,7 @@ const runnerController = require('../utils/runnerController');
 module.exports = async function handleStatusRunner(req, res) {
   const { user_name } = req.body;
   console.log("⚡️ /status-runner triggered by:", user_name);
+  console.log("✅ /status-runner hit - starting handler");
   
   try {
     // Get runner status
@@ -66,9 +67,11 @@ module.exports = async function handleStatusRunner(req, res) {
       response += `• All systems operational\n`;
     }
     
+    console.log("📤 Sending response:", response.substring(0, 100) + "...");
     res.send(response);
   } catch (error) {
     console.error('Error getting status:', error);
+    console.log("❌ Sending error response");
     res.send(`❌ Error getting runner status: ${error.message}`);
   }
 }; 

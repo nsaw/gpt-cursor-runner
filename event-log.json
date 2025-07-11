@@ -362,8 +362,66 @@
       "command": "",
       "text": "",
       "result": {}
+    },
+    {
+      "id": "system_1752165980654",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-10T09:46:20.654605",
+      "data": {
+        "patch_id": "slack-test-patch-1752165980",
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "filepath": "patches/slack-test-patch-1752165980_20250710_094620.json"
+      }
+    },
+    {
+      "id": "system_1752165980656",
+      "type": "system_event",
+      "event_type": "slack_test_triggered",
+      "timestamp": "2025-07-10T09:46:20.656215",
+      "data": {
+        "patch_id": "slack-test-patch-1752165980",
+        "result": {
+          "success": true,
+          "message": "Patch saved to slack-test-patch-1752165980_20250710_094620.json",
+          "filepath": "patches/slack-test-patch-1752165980_20250710_094620.json",
+          "patch_id": "slack-test-patch-1752165980"
+        }
+      }
+    },
+    {
+      "id": "system_1752166010597",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-10T09:46:50.597500",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "command": "/status-runner",
+          "user_name": "testuser",
+          "text": "",
+          "user_id": "U123456",
+          "channel_id": "C123456"
+        }
+      }
+    },
+    {
+      "id": "system_1752166010598",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-10T09:46:50.598258",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "command": "/status-runner",
+          "user_name": "testuser",
+          "text": "",
+          "user_id": "U123456",
+          "channel_id": "C123456"
+        }
+      }
     }
   ],
-  "last_updated": "2025-07-09T17:22:33.945526",
-  "total_events": 26
+  "last_updated": "2025-07-10T09:46:50.598792",
+  "total_events": 30
 }

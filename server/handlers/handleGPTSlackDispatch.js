@@ -5,15 +5,30 @@ const stateManager = require('../utils/stateManager');
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 module.exports = async function handleGPTSlackDispatch(req, res) {
+  const fs = require("fs");
+  const log = (msg) => fs.appendFileSync("logs/ghost-dispatch.log", `[${new Date().toISOString()}] ${msg}\n`);
+  
   const { user_name, text } = req.body;
   console.log("⚡️ /gpt-slack-dispatch triggered by:", user_name, "with text:", text);
+  log(`GHOST Dispatch triggered by: ${user_name} with text: ${text}`);
   
   try {
+    // Additional crash protection
+    if (!req || !res) {
+      console.error("❌ Invalid request/response objects");
+      return;
+    }
     // Parse the GPT dispatch request
     let dispatchRequest;
     try {
+      console.log("🔍 Attempting to parse JSON:", text);
+      console.log("🔍 Text type:", typeof text);
+      console.log("🔍 Text length:", text.length);
       dispatchRequest = JSON.parse(text);
+      console.log("✅ JSON parsed successfully:", dispatchRequest);
     } catch (error) {
+      console.error("❌ JSON parse error:", error.message);
+      console.error("❌ Raw text:", text);
       res.send(`❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}`);
       return;
     }
@@ -117,6 +132,7 @@ ${result.channel ? `*Channel ID:* ${result.channel}` : ''}
 *Next:* Monitor with \`/status-runner\`
     `.trim();
 
+    log(`Slack Dispatch Response: ${response}`);
     res.send(response);
   } catch (error) {
     console.error('Error in GPT Slack dispatch:', error);
@@ -133,6 +149,7 @@ ${result.channel ? `*Channel ID:* ${result.channel}` : ''}
       }
     });
     
+    log(`Slack Dispatch Error: ${error.message}`);
     res.send(`❌ Error in GPT Slack dispatch: ${error.message}`);
   }
 }; 

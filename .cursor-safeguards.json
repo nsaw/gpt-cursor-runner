@@ -1,0 +1,29 @@
+{
+  "verifiedTagPolicy": {
+    "enforced": true,
+    "allowOnlyBy": ["GPT", "Nick"],
+    "requireDryRun": true,
+    "enforceGlobal": true,
+    "description": "Prevents false-positive tags, requires GPT/Nick approval for all verified tags across all Cursor agents"
+  },
+  "safetyEnforcement": {
+    "requireDryRunConfirmation": true,
+    "blockSelfVerification": true,
+    "enforceGlobalScope": true,
+    "applyToAgents": ["DEV", "BRAUN", "GHOST", "future-agents"]
+  },
+  "tagValidation": {
+    "requireGPTApproval": true,
+    "requireNickApproval": true,
+    "preventAgentSelfVerify": true,
+    "enforceDryRunFirst": true
+  },
+  "loggingPolicy": {
+    "dispatchLogging": true,
+    "pingCommandVerified": true,
+    "logFile": "logs/ghost-dispatch.log",
+    "logSuccessPattern": "✅ Ping sent to Slack",
+    "logFailurePattern": "Slack send fail",
+    "enforced": true
+  }
+} 

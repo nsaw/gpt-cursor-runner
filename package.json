@@ -5,19 +5,27 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "PORT=5555 node server/index.js",
+    "dev": "node server/index.js",
     "dev:python": "python3 -m gpt_cursor_runner.main",
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:python\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["gpt", "cursor", "automation", "slack", "webhooks"],
+  "keywords": [
+    "gpt",
+    "cursor",
+    "automation",
+    "slack",
+    "webhooks"
+  ],
   "author": "Sawyer",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "@slack/socket-mode": "^2.0.4",
+    "@slack/web-api": "^6.13.0",
     "axios": "^1.6.0",
+    "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
-    "concurrently": "^8.2.2"
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

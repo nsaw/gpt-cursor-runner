@@ -6,7 +6,7 @@ module.exports = async function handleDashboard(req, res) {
   
   try {
     const state = await stateManager.getState();
-    const dashboardUrl = state.public_url || process.env.DASHBOARD_URL || 'https://runner-dev.thoughtmarks.app';
+    const dashboardUrl = state.public_url || process.env.DASHBOARD_URL || 'https://gpt-cursor-runner.fly.dev/dashboard';
     
     const dashboardText = `
 📊 *GPT-Cursor Runner Dashboard*

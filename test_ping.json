@@ -1,0 +1,5 @@
+{
+  "command": "/gpt-slack-dispatch",
+  "user_name": "test_user",
+  "text": "{\"action\": \"postMessage\", \"channel\": \"#cursor-thoughtmarks-native-build\", \"text\": \"🤖 GPT-Cursor Runner Ping Test - Online and responding\"}"
+} 

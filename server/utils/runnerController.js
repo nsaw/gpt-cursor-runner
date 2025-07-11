@@ -27,7 +27,11 @@ class RunnerController {
 
       this.runnerProcess = spawn('python3', [runnerPath], {
         cwd: path.join(__dirname, '../..'),
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: {
+          ...process.env,
+          PYTHON_PORT: '5053'  // Use different port for Python runner
+        }
       });
 
       this.isRunning = true;
@@ -114,12 +118,25 @@ class RunnerController {
   }
 
   getRunnerStatus() {
+    // Check if runner is actually active using port probe
+    const isActuallyRunning = this.isRunnerActive();
+    
+    // Update our internal state if it doesn't match reality
+    if (isActuallyRunning && !this.isRunning) {
+      this.isRunning = true;
+      this.startTime = this.startTime || new Date();
+    } else if (!isActuallyRunning && this.isRunning) {
+      this.isRunning = false;
+      this.runnerProcess = null;
+    }
+    
     return {
       isRunning: this.isRunning,
       startTime: this.startTime,
       uptime: this.startTime ? Date.now() - this.startTime.getTime() : 0,
       lastError: this.lastError,
-      pid: this.runnerProcess?.pid
+      pid: this.runnerProcess?.pid,
+      portActive: isActuallyRunning
     };
   }
 
@@ -135,13 +152,75 @@ class RunnerController {
     });
   }
 
+  isRunnerActive() {
+    const { execSync } = require('child_process');
+    try {
+      // Try lsof first
+      const out = execSync('lsof -i :5053').toString();
+      console.log('lsof output:', out);
+      // Check for any Python process (case insensitive)
+      if (out.toLowerCase().includes('python')) return true;
+      // Also check for python3 process
+      if (out.toLowerCase().includes('python3')) return true;
+    } catch(e) {
+      console.log('lsof error:', e.message);
+      // Fallback: try netstat if lsof is not available
+      try {
+        const netstat = execSync('netstat -tlnp 2>/dev/null | grep :5053').toString();
+        console.log('netstat output:', netstat);
+        if (netstat.toLowerCase().includes('python')) return true;
+      } catch(e2) {
+        console.log('netstat error:', e2.message);
+        // Final fallback: try ss command
+        try {
+          const ss = execSync('ss -tlnp 2>/dev/null | grep :5053').toString();
+          console.log('ss output:', ss);
+          if (ss.toLowerCase().includes('python')) return true;
+        } catch(e3) {
+          console.log('ss error:', e3.message);
+        }
+      }
+    }
+    return false;
+  }
+
   async checkRunnerHealth() {
     try {
-      // Check if runner process is still alive
+      // First check if our managed process is running
       if (this.runnerProcess && this.isRunning) {
-        // Send a test signal to check if process is responsive
-        this.runnerProcess.kill(0);
-        return { healthy: true, message: 'Runner process is healthy' };
+        try {
+          this.runnerProcess.kill(0);
+          return { healthy: true, message: 'Runner process is healthy' };
+        } catch (error) {
+          // Process is dead, update state
+          this.isRunning = false;
+          this.runnerProcess = null;
+        }
+      }
+      
+      // Check for any Python runner processes on port 5053
+      const { exec } = require('child_process');
+      const checkProcess = () => {
+        return new Promise((resolve) => {
+          exec("lsof -i :5053 2>/dev/null | grep -i python || netstat -tlnp 2>/dev/null | grep :5053 | grep -i python || ss -tlnp 2>/dev/null | grep :5053 | grep -i python", (error, stdout, stderr) => {
+            console.log('Process detection stdout:', stdout);
+            console.log('Process detection stderr:', stderr);
+            if (error) console.log('Process detection error:', error.message);
+            if (error || !stdout.trim()) {
+              resolve(false);
+            } else {
+              resolve(true);
+            }
+          });
+        });
+      };
+      
+      const isRunning = await checkProcess();
+      if (isRunning) {
+        // Update our state to reflect the running process
+        this.isRunning = true;
+        this.startTime = this.startTime || new Date();
+        return { healthy: true, message: 'Runner process is healthy (detected externally)' };
       } else {
         return { healthy: false, message: 'Runner process is not running' };
       }

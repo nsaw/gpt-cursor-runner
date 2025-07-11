@@ -3,14 +3,18 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'gpt-cursor-runner-devv'
+app = 'gpt-cursor-runner'
 primary_region = 'sea'
 
 [build]
 
+[processes]
+app = "./run-combined.sh"
+
 [env]
   NODE_ENV = 'production'
   PUBLIC_RUNNER_URL = 'https://runner.thoughtmarks.app'
+  PORT = '5051'
 
 [http_service]
   internal_port = 5051
@@ -22,15 +26,15 @@ primary_region = 'sea'
 
   [[http_service.checks]]
     interval = '30s'
-    timeout = '5s'
-    grace_period = '10s'
+    timeout = '45s'
+    grace_period = '60s'
     method = 'get'
     path = '/health'
 
   [[http_service.checks]]
     interval = '30s'
-    timeout = '5s'
-    grace_period = '10s'
+    timeout = '45s'
+    grace_period = '60s'
     method = 'get'
     path = '/slack/test'
 

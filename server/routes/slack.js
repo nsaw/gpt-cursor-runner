@@ -32,6 +32,17 @@ const handleTroubleshootOversight = require('../handlers/handleTroubleshootOvers
 const handleSendWith = require('../handlers/handleSendWith');
 const handleGPTSlackDispatch = require('../handlers/handleGPTSlackDispatch');
 const handleCursorSlackDispatch = require('../handlers/handleCursorSlackDispatch');
+const handlePing = require('../handlers/handlePing');
+const handleApproveScreenshot = require('../handlers/handleApproveScreenshot');
+const handleContinueRunner = require('../handlers/handleContinueRunner');
+const handleRestartRunner = require('../handlers/handleRestartRunner');
+const handleRestartRunnerGpt = require('../handlers/handleRestartRunnerGpt');
+const handleRetryLastFailed = require('../handlers/handleRetryLastFailed');
+const handleCommandCenter = require('../handlers/handleCommandCenter');
+const handlePatchStatus = require('../handlers/handlePatchStatus');
+const handleReadSecret = require('../handlers/handleReadSecret');
+const handlePatchWatchdogStatus = require('../handlers/handlePatchWatchdogStatus');
+const handlePlistStatus = require('../handlers/handlePlistStatus');
 
 router.post('/commands', (req, res) => {
   const { command } = req.body;
@@ -68,6 +79,17 @@ router.post('/commands', (req, res) => {
     '/send-with': handleSendWith,
     '/gpt-slack-dispatch': handleGPTSlackDispatch,
     '/cursor-slack-dispatch': handleCursorSlackDispatch,
+    '/gpt-ping': handlePing,
+    '/approve-screenshot': handleApproveScreenshot,
+    '/continue-runner': handleContinueRunner,
+    '/restart-runner': handleRestartRunner,
+    '/restart-runner-gpt': handleRestartRunnerGpt,
+    '/retry-last-failed': handleRetryLastFailed,
+    '/command-center': handleCommandCenter,
+    '/patch-status': handlePatchStatus,
+    '/read-secret': handleReadSecret,
+    '/patch-watchdog-status': handlePatchWatchdogStatus,
+    '/plist-status': handlePlistStatus,
   };
   if (routes[command]) return routes[command](req, res);
   res.send(`❓ Unknown slash command: ${command}`);
