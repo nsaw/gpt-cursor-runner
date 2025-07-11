@@ -18,6 +18,7 @@ A production-ready CLI tool and webhook microservice for handling GPT-generated 
 - **🛡️ Rate Limiting**: Prevent Slack spam on malformed inputs
 - **🏷️ Role-based Patching**: Auto-labels patches by UI role (button, modal, nav)
 - **↩️ Auto-revert Tool**: Revert by `patch_id` or timestamp
+- **🔧 Admin Dashboard**: Remote monitoring and management interface
 
 ## 📦 Installation
 
@@ -173,6 +174,25 @@ python3 scripts/test_slack_command.py
 # Test ping endpoint
 python3 scripts/test_slack_ping.py
 ```
+
+### Admin Dashboard
+
+```bash
+# Setup admin dashboard
+python3 scripts/setup_admin.py
+
+# Start server with admin dashboard
+python3 -m gpt_cursor_runner.main
+
+# Access admin dashboard
+# http://localhost:5000/admin
+
+# For remote access, use ngrok:
+ngrok http 5000
+# Then access via: https://your-ngrok-url.ngrok-free.app/admin
+```
+
+For detailed admin dashboard documentation, see [ADMIN_DASHBOARD.md](ADMIN_DASHBOARD.md).
 
 ## 📋 Patch Format
 

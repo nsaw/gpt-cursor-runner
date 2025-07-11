@@ -27,6 +27,18 @@ try:
 except ImportError:
     create_dashboard_routes = None
 
+# Import admin dashboard
+try:
+    from .admin_dashboard import create_admin_dashboard_routes
+except ImportError:
+    create_admin_dashboard_routes = None
+
+# Import admin authentication
+try:
+    from .admin_config import create_admin_auth_routes
+except ImportError:
+    create_admin_auth_routes = None
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -34,6 +46,14 @@ app = Flask(__name__)
 # Create dashboard routes if available
 if create_dashboard_routes:
     create_dashboard_routes(app)
+
+# Create admin authentication routes if available
+if create_admin_auth_routes:
+    create_admin_auth_routes(app)
+
+# Create admin dashboard routes if available
+if create_admin_dashboard_routes:
+    create_admin_dashboard_routes(app)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
