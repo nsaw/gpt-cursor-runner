@@ -434,6 +434,19 @@ def main():
     # Apply patch
     result = apply_patch_with_retry(patch_data, dry_run=args.dry_run, force=args.force)
     
+    # --- Safe wrapper for todo_write (UI queue fallback)
+    try:
+        if patch_data.get('showInUI'):
+            try:
+                from tools.todo_write import write_task_to_ui
+                write_task_to_ui(patch_data)
+            except ImportError:
+                print('[WARN] todo_write tool not available. UI queue will not be updated.')
+            except Exception as e:
+                print(f'[WARN] todo_write failed: {e}')
+    except Exception:
+        pass
+
     # Log the result
     log_patch_entry(patch_data, result)
     
