@@ -1,0 +1,7 @@
+{
+  "id": "test-ghost-tunnel",
+  "role": "system",
+  "description": "Ghost CMS tunnel daemon test",
+  "target_file": "ghost-tunnel-test.md",
+  "patch": "Test Ghost tunnel daemon"
+}

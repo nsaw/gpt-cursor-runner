@@ -1,0 +1,2 @@
+[console_scripts]
+gpt-cursor-runner = gpt_cursor_runner.main:run_server

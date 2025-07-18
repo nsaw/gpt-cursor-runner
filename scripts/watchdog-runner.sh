@@ -14,7 +14,7 @@ PID_FILE="./logs/watchdog-runner.pid"
 CHECK_INTERVAL=30
 MAX_RETRIES=3
 DASHBOARD_WEBHOOK="https://gpt-cursor-runner.fly.dev/slack/commands"
-SUMMARIES_DIR="./summaries"
+LOG_FILE="$LOG_DIR/.runner-watchdog"
 
 # Colors for output
 RED='\033[0;31m'
@@ -27,31 +27,39 @@ NC='\033[0m' # No Color
 OPERATION_UUID=$(uuidgen)
 START_TIME=$(date +%s)
 
-# Ensure summaries directory exists
-mkdir -p "$SUMMARIES_DIR"
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
 
-# Write summary function
-write_summary() {
+# Rotate log function (replaces write_summary)
+log_rotate() {
     local event_type="$1"
     local title="$2"
     local content="$3"
-    local timestamp=$(date +"%Y%m%d_%H%M%S")
-    local filename="summary-runner-watchdog-${event_type}_${timestamp}.md"
-    local filepath="$SUMMARIES_DIR/$filename"
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
     
-    cat > "$filepath" << EOF
-# $title
-
-**Event Type:** $event_type
-**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-**Watchdog:** Runner
-**Context:** Patch Runner
-
-$content
-
+    # Create log entry as JSON for structured logging
+    local log_entry=$(cat <<EOF
+{"timestamp":"$timestamp","event_type":"$event_type","title":"$title","watchdog":"runner","content":"$content","operation_uuid":"$OPERATION_UUID"}
 EOF
+)
     
-    echo "📝 Summary written: $filepath"
+    # Append to log file
+    echo "$log_entry" >> "$LOG_FILE"
+    
+    # Rotate log if older than 48 hours (2 days)
+    if [ -f "$LOG_FILE" ]; then
+        local log_age=$(($(date +%s) - $(stat -f %m "$LOG_FILE" 2>/dev/null || echo 0)))
+        local max_age=172800  # 48 hours in seconds
+        
+        if [ $log_age -gt $max_age ]; then
+            # Create backup and truncate
+            mv "$LOG_FILE" "${LOG_FILE}.$(date +%Y%m%d_%H%M%S).bak" 2>/dev/null || true
+            touch "$LOG_FILE"
+            log "INFO" "🔄 Log rotated: ${LOG_FILE}.$(date +%Y%m%d_%H%M%S).bak"
+        fi
+    fi
+    
+    echo "📝 Log entry written: $event_type"
 }
 
 # Logging function
@@ -245,22 +253,8 @@ trigger_runner_repair() {
     log "WARN" "🛠️ Triggering runner repair sequence"
     notify_dashboard "Triggering runner repair sequence" "WARNING"
     
-    # Write repair summary
-    write_summary "repair_triggered" "Runner Watchdog Repair Triggered" "
-## Runner Watchdog Repair Triggered
-
-The runner watchdog has detected health issues and is triggering repair sequence.
-
-### Repair Details
-- **Watchdog:** Runner
-- **Trigger:** Health check failure
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Next Steps
-1. Execute repair-runner.sh script
-2. Monitor repair progress
-3. Verify health after repair
-"
+    # Log repair trigger
+    log_rotate "repair_triggered" "Runner Watchdog Repair Triggered" "The runner watchdog has detected health issues and is triggering repair sequence. Watchdog: Runner, Trigger: Health check failure, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Next Steps: Execute repair-runner.sh script, Monitor repair progress, Verify health after repair."
     
     # Call the repair script using safe-run
     if [ -f "./scripts/repair-runner.sh" ]; then
@@ -272,72 +266,21 @@ The runner watchdog has detected health issues and is triggering repair sequence
             log "INFO" "✅ Runner repair completed successfully"
             notify_dashboard "Runner repair completed successfully" "SUCCESS"
             
-            # Write success summary
-            write_summary "repair_success" "Runner Watchdog Repair Success" "
-## Runner Watchdog Repair Success
-
-The runner repair sequence completed successfully.
-
-### Repair Results
-- **Status:** SUCCESS
-- **Exit Code:** $repair_exit
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Health Status
-- **Runner:** Patch Runner
-- **Repair:** Completed
-- **Next Check:** In $CHECK_INTERVAL seconds
-"
+            # Log success
+            log_rotate "repair_success" "Runner Watchdog Repair Success" "The runner repair sequence completed successfully. Status: SUCCESS, Exit Code: $repair_exit, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Health Status: Runner: Patch Runner, Repair: Completed, Next Check: In $CHECK_INTERVAL seconds."
         else
             log "ERROR" "❌ Runner repair failed (exit: $repair_exit)"
             notify_dashboard "Runner repair failed" "ERROR"
             
-            # Write failure summary
-            write_summary "repair_failure" "Runner Watchdog Repair Failure" "
-## Runner Watchdog Repair Failure
-
-The runner repair sequence failed.
-
-### Repair Results
-- **Status:** FAILED
-- **Exit Code:** $repair_exit
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Error Details
-- **Script:** repair-runner.sh
-- **Exit Code:** $repair_exit
-- **Context:** Runner health check failure
-
-### Next Steps
-1. Check repair script logs
-2. Manual intervention may be required
-3. Monitor for additional failures
-"
+            # Log failure
+            log_rotate "repair_failure" "Runner Watchdog Repair Failure" "The runner repair sequence failed. Status: FAILED, Exit Code: $repair_exit, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Error Details: Script: repair-runner.sh, Exit Code: $repair_exit, Context: Runner health check failure. Next Steps: Check repair script logs, Manual intervention may be required, Monitor for additional failures."
         fi
     else
         log "ERROR" "❌ Repair script not found: ./scripts/repair-runner.sh"
         notify_dashboard "Runner repair script not found" "ERROR"
         
-        # Write missing script summary
-        write_summary "repair_script_missing" "Runner Watchdog Repair Script Missing" "
-## Runner Watchdog Repair Script Missing
-
-The runner repair script was not found.
-
-### Error Details
-- **Missing Script:** ./scripts/repair-runner.sh
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Impact
-- Automatic repair is not available
-- Manual intervention required
-- Health issues may persist
-
-### Next Steps
-1. Create repair-runner.sh script
-2. Implement repair logic
-3. Test repair functionality
-"
+        # Log missing script
+        log_rotate "repair_script_missing" "Runner Watchdog Repair Script Missing" "The runner repair script was not found. Error Details: Missing Script: ./scripts/repair-runner.sh, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Impact: Automatic repair is not available, Manual intervention required, Health issues may persist. Next Steps: Create repair-runner.sh script, Implement repair logic, Test repair functionality."
     fi
 }
 
@@ -354,50 +297,15 @@ start_daemon() {
         return 1
     fi
     
-    # Write startup summary
-    write_summary "started" "Runner Watchdog Started" "
-## Runner Watchdog Started
-
-The runner watchdog daemon has been started.
-
-### Startup Details
-- **Health Endpoint:** $HEALTH_ENDPOINT
-- **Check Interval:** $CHECK_INTERVAL seconds
-- **PID File:** $PID_FILE
-- **Log Directory:** $LOG_DIR
-
-### Configuration
-- **Max Retries:** $MAX_RETRIES
-- **Dashboard Webhook:** $DASHBOARD_WEBHOOK
-- **Operation UUID:** $OPERATION_UUID
-
-### Status
-- **State:** STARTING
-- **Mode:** FOREGROUND (launchd compatible)
-- **Monitoring:** Active
-"
+    # Log startup
+    log_rotate "started" "Runner Watchdog Started" "The runner watchdog daemon has been started. Startup Details: Health Endpoint: $HEALTH_ENDPOINT, Check Interval: $CHECK_INTERVAL seconds, PID File: $PID_FILE, Log Directory: $LOG_DIR. Configuration: Max Retries: $MAX_RETRIES, Dashboard Webhook: $DASHBOARD_WEBHOOK, Operation UUID: $OPERATION_UUID. Status: State: STARTING, Mode: FOREGROUND (launchd compatible), Monitoring: Active."
     
     # Save current PID for launchd
     echo $$ > "$PID_FILE"
     log "INFO" "✅ Patch-runner watchdog daemon started with PID: $$"
     
-    # Write daemon summary
-    write_summary "daemon_running" "Runner Watchdog Daemon Running" "
-## Runner Watchdog Daemon Running
-
-The runner watchdog is now running in foreground mode.
-
-### Daemon Status
-- **PID:** $$
-- **Mode:** FOREGROUND
-- **Launchd:** Compatible
-- **Status:** ACTIVE
-
-### Monitoring Loop
-- **Health Checks:** Every $CHECK_INTERVAL seconds
-- **Repair Triggers:** On health failure
-- **Summary Generation:** On all events
-"
+    # Log daemon running
+    log_rotate "daemon_running" "Runner Watchdog Daemon Running" "The runner watchdog is now running in foreground mode. Daemon Status: PID: $$, Mode: FOREGROUND, Launchd: Compatible, Status: ACTIVE. Monitoring Loop: Health Checks: Every $CHECK_INTERVAL seconds, Repair Triggers: On health failure, Summary Generation: On all events."
     
     # FOREGROUND MONITORING LOOP (no backgrounding)
     log "INFO" "📡 Starting patch-runner health monitoring loop (FOREGROUND)"
@@ -407,57 +315,17 @@ The runner watchdog is now running in foreground mode.
         if check_runner_health_comprehensive; then
             log "INFO" "✅ Patch-runner health check passed"
             
-            # Write periodic health summary (every 10th check)
+            # Log periodic health (every 10th check)
             local check_count=$(( (SECONDS - START_TIME) / CHECK_INTERVAL ))
             if [ $((check_count % 10)) -eq 0 ]; then
-                write_summary "health_ok" "Runner Health Check OK" "
-## Runner Health Check OK
-
-Periodic health check completed successfully.
-
-### Health Status
-- **Runner:** Patch Runner
-- **Status:** HEALTHY
-- **Check Count:** $check_count
-- **Uptime:** $((SECONDS - START_TIME)) seconds
-
-### All Checks Passed
-- ✅ Patch-runner daemon running
-- ✅ Runner port listening
-- ✅ Health endpoint
-- ✅ Python module available
-- ✅ Patch queue accessible
-- ✅ No recent errors in logs
-"
+                log_rotate "health_ok" "Runner Health Check OK" "Periodic health check completed successfully. Health Status: Runner: Patch Runner, Status: HEALTHY, Check Count: $check_count, Uptime: $((SECONDS - START_TIME)) seconds. All Checks Passed: Patch-runner daemon running, Runner port listening, Health endpoint, Python module available, Patch queue accessible, No recent errors in logs."
             fi
         else
             log "ERROR" "❌ Patch-runner health check failed"
             notify_dashboard "Patch-runner health check failed" "ERROR"
             
-            # Write failure summary
-            write_summary "health_failure" "Runner Health Check Failed" "
-## Runner Health Check Failed
-
-The runner health check has failed.
-
-### Failure Details
-- **Runner:** Patch Runner
-- **Status:** UNHEALTHY
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Health Checks
-- ❌ Patch-runner daemon running
-- ❌ Runner port listening
-- ❌ Health endpoint
-- ❌ Python module available
-- ❌ Patch queue accessible
-- ❌ Recent errors in logs
-
-### Next Action
-- Triggering repair sequence
-- Monitoring repair progress
-- Re-checking health after repair
-"
+            # Log failure
+            log_rotate "health_failure" "Runner Health Check Failed" "The runner health check has failed. Failure Details: Runner: Patch Runner, Status: UNHEALTHY, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Health Checks: Patch-runner daemon running, Runner port listening, Health endpoint, Python module available, Patch queue accessible, Recent errors in logs. Next Action: Triggering repair sequence, Monitoring repair progress, Re-checking health after repair."
             
             # Trigger repair after failure
             trigger_runner_repair
@@ -472,22 +340,8 @@ The runner health check has failed.
 stop_daemon() {
     log "INFO" "🛑 Stopping patch-runner watchdog daemon"
     
-    # Write stop summary
-    write_summary "stopped" "Runner Watchdog Stopped" "
-## Runner Watchdog Stopped
-
-The runner watchdog daemon has been stopped.
-
-### Stop Details
-- **Runner:** Patch Runner
-- **PID:** $$
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Status
-- **State:** STOPPED
-- **Monitoring:** Inactive
-- **Health Checks:** Disabled
-"
+    # Log stop
+    log_rotate "stopped" "Runner Watchdog Stopped" "The runner watchdog daemon has been stopped. Stop Details: Runner: Patch Runner, PID: $$, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Status: State: STOPPED, Monitoring: Inactive, Health Checks: Disabled."
     
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
@@ -509,23 +363,8 @@ status() {
         local pid=$(cat "$PID_FILE")
         log "INFO" "✅ Patch-runner watchdog daemon running (PID: $pid)"
         
-        # Write status summary
-        write_summary "status_check" "Runner Watchdog Status Check" "
-## Runner Watchdog Status Check
-
-The runner watchdog daemon is running.
-
-### Status Details
-- **Runner:** Patch Runner
-- **PID:** $pid
-- **Status:** RUNNING
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Recent Activity
-- **Health Checks:** Active
-- **Monitoring:** Enabled
-- **Logs:** Available
-"
+        # Log status check
+        log_rotate "status_check" "Runner Watchdog Status Check" "The runner watchdog daemon is running. Status Details: Runner: Patch Runner, PID: $pid, Status: RUNNING, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Recent Activity: Health Checks: Active, Monitoring: Enabled, Logs: Available."
         
         # Show recent logs
         if [ -f "$LOG_DIR/runner-watchdog.log" ]; then
@@ -539,27 +378,8 @@ The runner watchdog daemon is running.
     else
         log "WARN" "❌ Patch-runner watchdog daemon not running"
         
-        # Write not running summary
-        write_summary "not_running" "Runner Watchdog Not Running" "
-## Runner Watchdog Not Running
-
-The runner watchdog daemon is not currently running.
-
-### Status Details
-- **Runner:** Patch Runner
-- **Status:** STOPPED
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-
-### Impact
-- **Health Monitoring:** Disabled
-- **Automatic Repair:** Unavailable
-- **Dashboard Alerts:** Inactive
-
-### Next Steps
-1. Start the watchdog daemon
-2. Check for startup errors
-3. Verify launchd configuration
-"
+        # Log not running
+        log_rotate "not_running" "Runner Watchdog Not Running" "The runner watchdog daemon is not currently running. Status Details: Runner: Patch Runner, Status: STOPPED, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ"). Impact: Health Monitoring: Disabled, Automatic Repair: Unavailable, Dashboard Alerts: Inactive. Next Steps: Start the watchdog daemon, Check for startup errors, Verify launchd configuration."
         
         return 1
     fi
@@ -569,17 +389,8 @@ The runner watchdog daemon is not currently running.
 health_check() {
     log "INFO" "🔍 Running single patch-runner health check"
     
-    # Write single check summary
-    write_summary "single_check" "Runner Single Health Check" "
-## Runner Single Health Check
-
-Performing a single health check.
-
-### Check Details
-- **Runner:** Patch Runner
-- **Type:** Single Check
-- **Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-"
+    # Log single check
+    log_rotate "single_check" "Runner Single Health Check" "Performing a single health check. Check Details: Runner: Patch Runner, Type: Single Check, Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")."
     
     check_runner_health_comprehensive
 }

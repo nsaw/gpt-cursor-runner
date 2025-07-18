@@ -1,0 +1,15 @@
+{
+  "id": "onboarding-modal-runner-test",
+  "role": "ui_patch",
+  "description": "Test patch for runner — updates title text",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+  "patch": {
+    "pattern": ".*<Text[^>]*>.*?</Text>.*",
+    "replacement": "<Text style={{ fontWeight: 'bold', fontSize: 20 }}>🚀 Welcome to Runner Mode</Text>"
+  },
+  "metadata": {
+    "author": "gpt-4",
+    "timestamp": "auto"
+  }
+}
+

@@ -40,51 +40,40 @@ warning() {
 # Generate summary filename
 generate_summary_filename() {
     local timestamp=$(date +'%Y%m%d_%H%M%S')
-    echo "summary-startup-healthcheck-${timestamp}.md"
+    echo "startup-healthcheck-${timestamp}"
 }
 
-# Write summary to file
-write_summary() {
-    local summary_file="$1"
-    local content="$2"
+# Rotate log function (replaces write_summary)
+log_rotate() {
+    local event_type="$1"
+    local title="$2"
+    local content="$3"
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+    local log_file="$LOGS_DIR/.startup-watchdog"
     
-    cat > "$SUMMARIES_DIR/$summary_file" << EOF
-# Runner Stack Startup Summary
-
-**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
-**Script:** start-runner-stack.sh
-**Status:** $3
-
-## Startup Results
-
-$content
-
-## Services Started
-
-- Fly.io runner (if not running)
-- Cloudflare/Ngrok tunnel
-- Ghost relay (Python runner on :5051)
-- Node dashboard (if enabled, on :5555)
-
-## Health Checks
-
-- Port availability verification
-- Process status monitoring
-- Service connectivity tests
-
-## Logs
-
-- Startup logs: logs/startup.log
-- Individual service logs in logs/fly/, logs/tunnel/
-- PIDs stored in logs/*.pid files
-
-## Next Steps
-
-- Monitor logs/startup.log for service status
-- Check individual service PIDs for health
-- Verify tunnel connectivity
-- Test ghost relay endpoints
+    # Create log entry as JSON for structured logging
+    local log_entry=$(cat <<EOF
+{"timestamp":"$timestamp","event_type":"$event_type","title":"$title","watchdog":"startup","content":"$content","operation_uuid":"$(uuidgen)"}
 EOF
+)
+    
+    # Append to log file
+    echo "$log_entry" >> "$log_file"
+    
+    # Rotate log if older than 48 hours (2 days)
+    if [ -f "$log_file" ]; then
+        local log_age=$(($(date +%s) - $(stat -f %m "$log_file" 2>/dev/null || echo 0)))
+        local max_age=172800  # 48 hours in seconds
+        
+        if [ $log_age -gt $max_age ]; then
+            # Create backup and truncate
+            mv "$log_file" "${log_file}.$(date +%Y%m%d_%H%M%S).bak" 2>/dev/null || true
+            touch "$log_file"
+            log "INFO" "🔄 Log rotated: ${log_file}.$(date +%Y%m%d_%H%M%S).bak"
+        fi
+    fi
+    
+    echo "📝 Log entry written: $event_type"
 }
 
 # Check if port is available
@@ -392,12 +381,12 @@ main() {
         status="PARTIAL_FAILURE"
     fi
     
-    write_summary "$summary_file" "$summary_content" "$status"
+    log_rotate "INFO" "Startup Summary" "$summary_content"
     
     log "=== STARTUP COMPLETED ==="
     log "Services started: $services_started"
     log "Services failed: $services_failed"
-    log "Summary written to: $SUMMARIES_DIR/$summary_file"
+    log "Summary written to: $LOGS_DIR/.startup-watchdog"
     log "Startup log: $startup_log"
     
     if [[ $services_failed -eq 0 ]]; then

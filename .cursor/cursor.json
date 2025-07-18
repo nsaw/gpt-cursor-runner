@@ -1,0 +1,9 @@
+{
+  "projectName": "gpt-cursor-runner",
+  "entry": "server/index.js",
+  "framework": "node",
+  "agentCanUpdateSnapshot": true,
+  "experimentalAI": true,
+  "hybridMode": true,
+  "devCommand": "node server/index.js"
+} 

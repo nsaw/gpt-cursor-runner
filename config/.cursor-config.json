@@ -1,0 +1,35 @@
+{
+  "autopilot": {
+    "enabled": true,
+    "trustedDispatchers": ["GPT"],
+    "enforceSystemsGo": true,
+    "acceptAllFromGhost": true,
+    "returnSummaryToGPT": true,
+    "requirePostTaskValidation": true,
+    "blockNextStepIfUnverified": true
+  },
+  "showInUI": true,
+  "terminalBlockingProtection": {
+    "enabled": true,
+    "autoDismiss": true,
+    "maxSessionDuration": 60,
+    "timeoutMs": 30000,
+    "backgroundHangRescue": true
+  },
+  "systemsGoHandshake": {
+    "enabled": true,
+    "requireSummary": true,
+    "expectHttpTest": "curl -s <target> | grep OK",
+    "blockNextStepIfUnverified": true,
+    "pingInterval": 30,
+    "maxSilentWindow": 90,
+    "autoNudgeGPT": true,
+    "autoReissueIfHung": true
+  },
+  "trustDaemon": {
+    "enabled": true,
+    "enforceMode": true,
+    "requireRuntimeValidation": true,
+    "blockFalseVerifications": true
+  }
+}

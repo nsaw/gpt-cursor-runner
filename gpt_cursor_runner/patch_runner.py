@@ -538,7 +538,7 @@ def log_patch_entry(patch_data: Dict[str, Any], result: Dict[str, Any]):
         "backup_created": result.get("backup_created", False)
     }
     
-    log_file = "patch-log.json"
+    log_file = "data/patch-log.json"
     try:
         if os.path.exists(log_file):
             with open(log_file, 'r') as f:

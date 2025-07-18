@@ -44,15 +44,21 @@ module.exports = async function handleStatusRunner(req, res) {
     response += `• Success Rate: ${patchStats.successRate}%\n`;
     
     // Recent activity
-    const recentPatches = await patchManager.listPatches(5);
-    if (recentPatches.length > 0) {
-      response += '\n🕒 *Recent Activity*\n';
-      recentPatches.forEach(patch => {
-        const status = patch.status === 'approved' ? '✅' : 
-          patch.status === 'pending' ? '⏳' : 
-            patch.status === 'reverted' ? '🔄' : '❌';
-        response += `• ${status} ${patch.id} (${patch.status})\n`;
-      });
+    try {
+      const recentPatches = await patchManager.listPatches(5);
+      if (recentPatches.length > 0) {
+        response += '\n🕒 *Recent Activity*\n';
+        recentPatches.forEach(patch => {
+          const status = patch.status === 'approved' ? '✅' : 
+            patch.status === 'pending' ? '⏳' : 
+              patch.status === 'reverted' ? '🔄' : '❌';
+          const patchId = patch.patch_id || patch.id || 'unknown';
+          response += `• ${status} ${patchId} (${patch.status || 'unknown'})\n`;
+        });
+      }
+    } catch (error) {
+      console.error('Error getting recent patches:', error);
+      response += '\n🕒 *Recent Activity:* Error loading recent patches\n';
     }
     
     // Recommendations

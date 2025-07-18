@@ -1,0 +1,10 @@
+{
+  "id": "ghost-test-patch",
+  "role": "ui_patch",
+  "description": "GHOST patch test",
+  "target_file": "test.tsx",
+  "patch": {
+    "pattern": "test",
+    "replacement": "GHOST patch received!"
+  }
+}

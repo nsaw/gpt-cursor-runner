@@ -43,6 +43,8 @@ const handlePatchStatus = require('../handlers/handlePatchStatus');
 const handleReadSecret = require('../handlers/handleReadSecret');
 const handlePatchWatchdogStatus = require('../handlers/handlePatchWatchdogStatus');
 const handlePlistStatus = require('../handlers/handlePlistStatus');
+const handlePatchSummary = require('../handlers/handlePatchSummary');
+const handlePatchBridge = require('../handlers/handlePatchBridge');
 
 router.post('/commands', (req, res) => {
   const { command } = req.body;
@@ -62,6 +64,8 @@ router.post('/commands', (req, res) => {
     '/theme-status': handleThemeStatus,
     '/theme-fix': handleThemeFix,
     '/patch-preview': handlePatchPreview,
+    '/patch-summary': handlePatchSummary,
+    '/patch-bridge': handlePatchBridge,
     '/revert-phase': handleRevertPhase,
     '/log-phase-status': handleLogPhaseStatus,
     '/cursor-mode': handleCursorMode,

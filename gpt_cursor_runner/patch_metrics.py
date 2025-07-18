@@ -54,7 +54,7 @@ class PatchMetrics:
 class MetricsTracker:
     """Tracks patch application metrics."""
     
-    def __init__(self, metrics_file: str = "patch-metrics.json"):
+    def __init__(self, metrics_file: str = "data/patch-metrics.json"):
         self.metrics_file = metrics_file
         self.ensure_metrics_file()
     

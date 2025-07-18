@@ -1,0 +1,14 @@
+{
+  "id": "test-safe-patch",
+  "role": "ui_patch",
+  "description": "Test patch with safe pattern",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+  "patch": {
+    "pattern": "This text will be patched by the runner\\.",
+    "replacement": "✅ SUCCESSFULLY PATCHED by GPT-Cursor Runner!"
+  },
+  "metadata": {
+    "author": "test",
+    "timestamp": "auto"
+  }
+} 

@@ -1,0 +1,10 @@
+{
+  "id": "test-correct-pattern",
+  "role": "ui_patch",
+  "description": "Test patch with correct pattern",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+  "patch": {
+    "pattern": "import React, { useState } from 'react';",
+    "replacement": "import React, { useState } from 'react'; // GHOST patch applied!"
+  }
+}

@@ -13,7 +13,7 @@ from typing import Dict, Any, List, Optional
 class EventLogger:
     """Logs events for UI display and automation."""
     
-    def __init__(self, log_file: str = "event-log.json"):
+    def __init__(self, log_file: str = "data/event-log.json"):
         self.log_file = log_file
         self.max_entries = 1000
         self.ensure_log_file()

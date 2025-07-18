@@ -1,0 +1,15 @@
+{
+  "id": "slack-patch-onboarding-modal",
+  "role": "ui_patch",
+  "description": "fix button alignment",
+  "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+  "patch": {
+    "pattern": "export.*onboarding-modal",
+    "replacement": "// TODO: Apply patch for onboarding-modal\n// Requested by Slack user U123456"
+  },
+  "metadata": {
+    "author": "slack-user-U123456",
+    "source": "slack_command",
+    "timestamp": "auto"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "onboarding-modal-fix",
+  "role": "ui_patch",
+  "description": "Fix onboarding modal image cropping",
+  "target_file": "src/screens/OnboardingModal.tsx",
+  "patch": {
+    "pattern": ".*",
+    "replacement": "<View style={{ paddingTop: 30 }}>\n  <Image source={...} style={{ resizeMode: 'contain' }} />\n</View>"
+  },
+  "metadata": {
+    "author": "gpt-4",
+    "timestamp": "auto"
+  }
+}

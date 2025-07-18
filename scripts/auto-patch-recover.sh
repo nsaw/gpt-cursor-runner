@@ -14,7 +14,7 @@ fi
 # Check for new patches and apply them
 if [ -d "patches" ] && [ "$(ls -A patches/*.json 2>/dev/null)" ]; then
     echo "$(date): Found patches, applying..."
-    python3 apply_all_patches.py >> logs/patch-recovery.log 2>&1
+    python3 scripts/apply_all_patches.py >> logs/patch-recovery.log 2>&1
 fi
 
 echo "$(date): Patch recovery check completed" 

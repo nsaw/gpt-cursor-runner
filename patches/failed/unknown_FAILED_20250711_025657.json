@@ -1,0 +1,54 @@
+{
+  "showInUI": true,
+  "notes": [
+    "🧠 MISSION: Repair patch quarantine system, reroute daemon off tunnel, and re-enable patch failure visibility",
+    "🎯 GOAL: Ensure patch-runner failures are never silent, daemon watches correct (local) runner instance, and quarantined patches are moved to a visible folder",
+    "🚨 FAILSAFE ENFORCEMENT:",
+    "✅ Quarantined patches move to `patches/failed/` not `.archive/`",
+    "✅ Daemon always logs failures to `logs/patch-failures/` with full stderr",
+    "✅ Disable Slack webhook as a hard requirement for patch success",
+    "✅ Patch-runner auto-recovery kicks in after failed runs",
+    "✅ Daemon and watchdog must monitor `http://localhost:5051` — not tunnel"
+  ],
+  "parseCheck": false,
+  "onParseFail": "alert-only",
+  "postMutationBuild": "echo 'No rebuild required — runtime logic only'",
+  "blockCommitOnError": false,
+  "watchConsole": true,
+  "onReloadHang": "Move to background and resume automatically",
+  "execution": {
+    "autoReleaseTimeoutMs": 30000
+  },
+  "branch": "hotfix/patch-runner-recovery",
+  "mode": "auto",
+  "phases": [
+    {
+      "section": "Patch runner quarantine logic + logging",
+      "actions": [
+        "Patch `patch_runner.py` to remove hard Slack webhook dependency for patch success",
+        "Ensure all stderr from failed patch applications is saved to `logs/patch-failures/{patchName}.log`",
+        "Move failed patches to `patches/failed/` directory, not `.archive/`",
+        "Update `apply_all_patches.py` to check `failed/` before retrying"
+      ],
+      "commit": "fix: quarantine logging and patch failure visibility",
+      "tag": "v1.0.1_patch-runner-quarantine-fix_20250711_UTC"
+    },
+    {
+      "section": "Reroute daemon + patch-runner from tunnel to localhost",
+      "actions": [
+        "Patch `start-fly-log-daemon.sh`, `watchdog.sh`, and `patch_runner_daemon.py` to use `http://localhost:5051` as health endpoint and patch target",
+        "Remove all `https://runner.thoughtmarks.app` references in cron, launchd, or watchdog scripts",
+        "Reload launchd if applicable with updated `.plist`",
+        "Log next heartbeat to `logs/daemon-heartbeat.log` with note `[rerouted to localhost]`"
+      ],
+      "commit": "chore: daemon rerouted to local host",
+      "tag": "v1.0.1_daemon-reroute-complete_20250711_UTC"
+    }
+  ],
+  "final": {
+    "commit": "chore: patch-runner reliability and daemon reroute",
+    "tag": "v1.0.1_patchrunner-stabilized_20250711_UTC",
+    "notes": "Patch quarantine recovery complete. Daemon and runner fully restored and no longer dependent on Cloudflare tunnel."
+  }
+}
+

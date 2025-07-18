@@ -1,0 +1,42 @@
+{
+  "protocol": "systems-go-handshake",
+  "appliesTo": ["BRAUN", "DEV"],
+  "triggerOn": ["autopilot-start", "manual-handoff"],
+  "sequence": [
+    {
+      "check": "trust-daemon-active",
+      "enforce": true,
+      "fallback": "auto-reboot"
+    },
+    {
+      "check": "tunnel-online",
+      "type": "cloudflare",
+      "mode": "venv"
+    },
+    {
+      "check": "ghost-relay-listening",
+      "expectResponseWithin": "30s",
+      "fallback": "ping-runner-and-retry"
+    },
+    {
+      "check": "execution-summary-hook",
+      "requireSummary": true,
+      "enforceRouting": "cursor → ghost → gpt"
+    },
+    {
+      "check": "gpt-response-validation",
+      "blockFollowupUntilVerified": true,
+      "expectStructuredBlock": true
+    },
+    {
+      "watchdog": {
+        "pingInterval": "30s",
+        "maxSilentWindow": "90s",
+        "autoNudgeGPT": true,
+        "autoReissueIfHung": true
+      }
+    }
+  ],
+  "enforceGlobally": true,
+  "statusTag": "🟢 SYSTEMS GO | Full autopilot enabled"
+} 

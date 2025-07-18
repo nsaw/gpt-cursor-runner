@@ -1,0 +1,14 @@
+{
+  "id": "onboarding-runner-test",
+  "role": "ui_patch",
+  "description": "Test patch for runner integration",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+  "patch": {
+    "pattern": "This text will be patched by the runner\\.",
+    "replacement": "✅ SUCCESSFULLY PATCHED by GPT-Cursor Runner!"
+  },
+  "metadata": {
+    "author": "gpt-cursor-runner",
+    "timestamp": "auto"
+  }
+} 

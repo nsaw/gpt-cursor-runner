@@ -1,0 +1,1004 @@
+{
+  "entries": [
+    {
+      "timestamp": "2025-07-11T01:43:33.194506",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:43:39.522071",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:43:46.597796",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:43:53.672015",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:44:00.755274",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:44:07.828027",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:44:14.904651",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:45:53.271650",
+      "patch_id": "ghost-confirmation-final",
+      "target_file": "test.tsx",
+      "description": "Final GHOST confirmation test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:00.350530",
+      "patch_id": "ghost-test-patch",
+      "target_file": "test.tsx",
+      "description": "GHOST patch test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:07.430399",
+      "patch_id": "slack-test-patch-1752165980",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:14.511149",
+      "patch_id": "test-ghost-tunnel",
+      "target_file": "ghost-tunnel-test.md",
+      "description": "Ghost CMS tunnel daemon test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:21.591475",
+      "patch_id": "watchdog-status",
+      "target_file": "status.md",
+      "description": "Watchdog daemon installation and status confirmation",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:28.671675",
+      "patch_id": "progress-update",
+      "target_file": "status.md",
+      "description": "Progress update on secrets pipeline and runner setup",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:35.754361",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:42.842588",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:49.926752",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:46:57.010814",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:04.096421",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:11.185201",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:18.271947",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:25.361008",
+      "patch_id": "onboarding-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner integration",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:32.449530",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:39.537321",
+      "patch_id": "onboarding-modal-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner \u2014 updates title text",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:47:46.627122",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:09.866783",
+      "patch_id": "test-correct-target",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct target file",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:16.954665",
+      "patch_id": "ghost-confirmation-final",
+      "target_file": "test.tsx",
+      "description": "Final GHOST confirmation test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:24.046992",
+      "patch_id": "ghost-test-patch",
+      "target_file": "test.tsx",
+      "description": "GHOST patch test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:31.140421",
+      "patch_id": "slack-test-patch-1752165980",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:38.233321",
+      "patch_id": "test-ghost-tunnel",
+      "target_file": "ghost-tunnel-test.md",
+      "description": "Ghost CMS tunnel daemon test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:45.328318",
+      "patch_id": "watchdog-status",
+      "target_file": "status.md",
+      "description": "Watchdog daemon installation and status confirmation",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:52.418279",
+      "patch_id": "progress-update",
+      "target_file": "status.md",
+      "description": "Progress update on secrets pipeline and runner setup",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:48:59.515285",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:06.605303",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:13.701621",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:20.799853",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:27.900081",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:34.998952",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:42.092074",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:49.192992",
+      "patch_id": "onboarding-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner integration",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:49:56.306717",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:03.404383",
+      "patch_id": "onboarding-modal-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner \u2014 updates title text",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:10.504790",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:26.410596",
+      "patch_id": "test-correct-pattern",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:33.506216",
+      "patch_id": "test-correct-target",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct target file",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:40.611434",
+      "patch_id": "ghost-confirmation-final",
+      "target_file": "test.tsx",
+      "description": "Final GHOST confirmation test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:47.716703",
+      "patch_id": "ghost-test-patch",
+      "target_file": "test.tsx",
+      "description": "GHOST patch test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:50:54.822625",
+      "patch_id": "slack-test-patch-1752165980",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:01.921934",
+      "patch_id": "test-ghost-tunnel",
+      "target_file": "ghost-tunnel-test.md",
+      "description": "Ghost CMS tunnel daemon test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:09.031069",
+      "patch_id": "watchdog-status",
+      "target_file": "status.md",
+      "description": "Watchdog daemon installation and status confirmation",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:16.145276",
+      "patch_id": "progress-update",
+      "target_file": "status.md",
+      "description": "Progress update on secrets pipeline and runner setup",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:23.253229",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:30.363781",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:37.473522",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:44.581546",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:51.689321",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:51:58.802452",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:52:05.915823",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:52:13.030641",
+      "patch_id": "onboarding-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner integration",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:52:20.144594",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:52:27.256225",
+      "patch_id": "onboarding-modal-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner \u2014 updates title text",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T01:52:34.368067",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:04:57.674161",
+      "patch_id": "test-simple-pattern",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with simple pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:04:59.941373",
+      "patch_id": "test-simple-pattern",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with simple pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:04.789491",
+      "patch_id": "test-correct-pattern",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:07.056273",
+      "patch_id": "test-correct-pattern",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:11.911145",
+      "patch_id": "test-correct-target",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct target file",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:14.180762",
+      "patch_id": "test-correct-target",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+      "description": "Test patch with correct target file",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:19.032094",
+      "patch_id": "ghost-confirmation-final",
+      "target_file": "test.tsx",
+      "description": "Final GHOST confirmation test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:21.299532",
+      "patch_id": "ghost-confirmation-final",
+      "target_file": "test.tsx",
+      "description": "Final GHOST confirmation test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:26.150247",
+      "patch_id": "ghost-test-patch",
+      "target_file": "test.tsx",
+      "description": "GHOST patch test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:26.167978",
+      "patch_id": "slack-test-patch-1752165980",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": true,
+      "message": "Dry run: Would apply patch to /Users/sawyer/gitSync/gpt-cursor-runner/mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:28.419508",
+      "patch_id": "ghost-test-patch",
+      "target_file": "test.tsx",
+      "description": "GHOST patch test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:28.435497",
+      "patch_id": "slack-test-patch-1752165980",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": true,
+      "message": "Successfully applied patch to /Users/sawyer/gitSync/gpt-cursor-runner/mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "changes_made": true,
+      "backup_created": true
+    },
+    {
+      "timestamp": "2025-07-11T02:05:33.290219",
+      "patch_id": "test-ghost-tunnel",
+      "target_file": "ghost-tunnel-test.md",
+      "description": "Ghost CMS tunnel daemon test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:35.553283",
+      "patch_id": "test-ghost-tunnel",
+      "target_file": "ghost-tunnel-test.md",
+      "description": "Ghost CMS tunnel daemon test",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:40.407274",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:40.422715",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": true,
+      "message": "Dry run: Would apply patch to /Users/sawyer/gitSync/gpt-cursor-runner/mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:42.673352",
+      "patch_id": "test-patch-123",
+      "target_file": "test.py",
+      "description": "Test patch",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:42.689738",
+      "patch_id": "slack-test-patch-1751862547",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": true,
+      "message": "Successfully applied patch to /Users/sawyer/gitSync/gpt-cursor-runner/mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "changes_made": true,
+      "backup_created": true
+    },
+    {
+      "timestamp": "2025-07-11T02:05:47.548870",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:49.814767",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:54.670150",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:05:56.952057",
+      "patch_id": "slack-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch triggered by Slack ping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:01.786764",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:04.074459",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:08.906514",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:11.196104",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:16.025166",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:18.312155",
+      "patch_id": "slack-patch-onboarding-modal",
+      "target_file": "mobile-native-fresh/src/components/ui/onboarding-modal.tsx",
+      "description": "fix button alignment",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:23.148835",
+      "patch_id": "onboarding-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner integration",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:25.434894",
+      "patch_id": "onboarding-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner integration",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:30.272714",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:32.560870",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:37.392562",
+      "patch_id": "onboarding-modal-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner \u2014 updates title text",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:39.682239",
+      "patch_id": "onboarding-modal-runner-test",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch for runner \u2014 updates title text",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:44.514426",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:06:46.805667",
+      "patch_id": "onboarding-modal-fix",
+      "target_file": "src/screens/OnboardingModal.tsx",
+      "description": "Fix onboarding modal image cropping",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:37:02.444033",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:56:57.042612",
+      "patch_id": "unknown",
+      "target_file": "",
+      "description": "",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    },
+    {
+      "timestamp": "2025-07-11T02:57:04.065031",
+      "patch_id": "feature-bundle_ui-dashboard_slash-preview_release",
+      "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+      "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+      "success": false,
+      "message": "Patch failed after 3 attempts. Marking as quarantined.",
+      "changes_made": false,
+      "backup_created": false
+    }
+  ]
+}

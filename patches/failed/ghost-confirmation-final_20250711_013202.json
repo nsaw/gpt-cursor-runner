@@ -1,0 +1,10 @@
+{
+  "id": "ghost-confirmation-final",
+  "role": "ui_patch",
+  "description": "Final GHOST confirmation test",
+  "target_file": "test.tsx",
+  "patch": {
+    "pattern": "test",
+    "replacement": "GHOST patch confirmed!"
+  }
+}

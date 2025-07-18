@@ -1,0 +1,152 @@
+# Rebuilding HTML landing page using latest plain-text structure
+
+html_page = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thoughtpilot AI</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+    header {
+      background: #101828;
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    header p {
+      max-width: 800px;
+      margin: auto;
+      font-size: 1.2em;
+    }
+    section {
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+    h2 {
+      font-size: 2em;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .tier {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .tier h3 {
+      font-size: 1.6em;
+      margin-bottom: 10px;
+    }
+    .tier p {
+      margin: 10px 0;
+    }
+    .tier ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Thoughtpilot AI</h1>
+  <p>Eliminate the middleman with this AI-powered patch runner that connects GPT, Cursor, and Slack for seamless code automation. AI writes, applies, logs, and routes approvals. Infra meets intelligence.</p>
+</header>
+
+<section>
+  <h2>Pricing</h2>
+
+  <div class="tier">
+    <h3>Free Tier</h3>
+    <p>Includes:</p>
+    <ul>
+      <li>CLI</li>
+      <li>Local patches (run GPT patches in your terminal)</li>
+    </ul>
+    <p>Perfect for solo developers and offline/local-only workflows.</p>
+    <p><strong>$0 / forever</strong></p>
+  </div>
+
+  <div class="tier">
+    <h3>Pro Tier</h3>
+    <p>Includes –</p>
+    <p>Everything in Free Tier:</p>
+    <ul>
+      <li>CLI</li>
+      <li>Local patches</li>
+    </ul>
+    <p>Plus:</p>
+    <ul>
+      <li>Slack patch approval (/approve, /revert)</li>
+      <li>Basic hosted dashboard</li>
+      <li>Patch logs for local and Slack runs</li>
+    </ul>
+    <p><strong>Upgrade Now! +$30/mo</strong></p>
+  </div>
+
+  <div class="tier">
+    <h3>Team Tier</h3>
+    <p>Includes –</p>
+    <p>Everything in Pro Tier:</p>
+    <ul>
+      <li>CLI</li>
+      <li>Local patches</li>
+      <li>Slack approvals</li>
+      <li>Hosted dashboard</li>
+      <li>Patch logs</li>
+    </ul>
+    <p>Plus:</p>
+    <ul>
+      <li>Multi-user support</li>
+      <li>Patch history with rollback</li>
+      <li>CI/CD triggers from Slack</li>
+      <li>Audit logs with full traceability</li>
+    </ul>
+    <p><strong>Scale your team +$75/mo</strong></p>
+  </div>
+
+  <div class="tier">
+    <h3>Enterprise Tier</h3>
+    <p>Includes –</p>
+    <p>Everything in Team Tier:</p>
+    <ul>
+      <li>Multi-user and team scaling</li>
+      <li>Slack and CI/CD workflows</li>
+      <li>Hosted dashboard and audit trail</li>
+    </ul>
+    <p>Plus:</p>
+    <ul>
+      <li>Airgapped deployment</li>
+      <li>GitHub Enterprise support</li>
+      <li>Custom GPT endpoints (internal/private models)</li>
+      <li>Priority onboarding and dedicated support</li>
+    </ul>
+    <p><strong>Contact us for pricing</strong></p>
+  </div>
+
+</section>
+</body>
+</html>
+"""
+
+file_path = "/mnt/data/thoughtpilot_landing_final.html"
+with open(file_path, "w") as f:
+    f.write(html_page)
+
+file_path
+

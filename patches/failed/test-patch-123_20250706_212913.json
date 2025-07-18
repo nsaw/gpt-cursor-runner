@@ -1,0 +1,14 @@
+{
+  "id": "test-patch-123",
+  "role": "ui_patch",
+  "target_file": "test.py",
+  "description": "Test patch",
+  "patch": {
+    "pattern": "old",
+    "replacement": "new"
+  },
+  "metadata": {
+    "author": "test",
+    "source": "test"
+  }
+}

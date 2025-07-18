@@ -1,0 +1,10 @@
+{
+  "id": "test-simple-pattern",
+  "role": "ui_patch",
+  "description": "Test patch with simple pattern",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+  "patch": {
+    "pattern": "import React",
+    "replacement": "import React // GHOST patch applied!"
+  }
+}

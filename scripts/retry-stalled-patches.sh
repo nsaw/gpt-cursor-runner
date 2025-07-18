@@ -43,38 +43,40 @@ warning() {
 # Generate summary filename
 generate_summary_filename() {
     local timestamp=$(date +'%Y%m%d_%H%M%S')
-    echo "summary-ghost-retry-${timestamp}.md"
+    echo "ghost-retry-${timestamp}"
 }
 
-# Write summary to file
-write_summary() {
-    local summary_file="$1"
-    local content="$2"
+# Rotate log function (replaces write_summary)
+log_rotate() {
+    local event_type="$1"
+    local title="$2"
+    local content="$3"
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+    local log_file="$LOGS_DIR/.ghost-retry-watchdog"
     
-    cat > "$SUMMARIES_DIR/$summary_file" << EOF
-# GHOST Patch Retry Summary
-
-**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
-**Script:** retry-stalled-patches.sh
-**Status:** $3
-
-## Details
-
-$content
-
-## Actions Taken
-
-- Scanned patches directory for stalled patches
-- Attempted retry with patch_runner.py
-- Escalated to GitHub fallback on 3rd failure
-- Logged all attempts to logs/retry/
-
-## Next Steps
-
-- Monitor logs/retry/ for retry attempts
-- Check GitHub for fallback patches
-- Review failed patches in patches/failed/
+    # Create log entry as JSON for structured logging
+    local log_entry=$(cat <<EOF
+{"timestamp":"$timestamp","event_type":"$event_type","title":"$title","watchdog":"ghost_retry","content":"$content","operation_uuid":"$(uuidgen)"}
 EOF
+)
+    
+    # Append to log file
+    echo "$log_entry" >> "$log_file"
+    
+    # Rotate log if older than 48 hours (2 days)
+    if [ -f "$log_file" ]; then
+        local log_age=$(($(date +%s) - $(stat -f %m "$log_file" 2>/dev/null || echo 0)))
+        local max_age=172800  # 48 hours in seconds
+        
+        if [ $log_age -gt $max_age ]; then
+            # Create backup and truncate
+            mv "$log_file" "${log_file}.$(date +%Y%m%d_%H%M%S).bak" 2>/dev/null || true
+            touch "$log_file"
+            log "INFO" "🔄 Log rotated: ${log_file}.$(date +%Y%m%d_%H%M%S).bak"
+        fi
+    fi
+    
+    echo "📝 Log entry written: $event_type"
 }
 
 # Check if patch is stalled
@@ -166,7 +168,7 @@ main() {
     if [[ ${#patch_files[@]} -eq 0 ]]; then
         log "No patch files found in $PATCHES_DIR"
         summary_content="No patch files found to process."
-        write_summary "$summary_file" "$summary_content" "NO_PATCHES"
+        log_rotate "INFO" "No patches found" "$summary_content"
         return 0
     fi
     
@@ -222,7 +224,7 @@ main() {
         status="PARTIAL_FAILURE"
     fi
     
-    write_summary "$summary_file" "$summary_content" "$status"
+    log_rotate "INFO" "Retry Scan Complete" "$summary_content"
     
     log "Retry scan completed:"
     log "  - Total patches: ${#patch_files[@]}"
@@ -230,7 +232,7 @@ main() {
     log "  - Successful retries: $successful_retries"
     log "  - Failed retries: $failed_retries"
     log "  - Escalated to GitHub: $escalated_patches"
-    log "  - Summary written to: $SUMMARIES_DIR/$summary_file"
+    log "  - Summary written to: $LOGS_DIR/.ghost-retry-watchdog"
 }
 
 # Run main function

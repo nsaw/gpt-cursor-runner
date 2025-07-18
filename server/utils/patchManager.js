@@ -11,27 +11,41 @@ class PatchManager {
   async getPatchLog() {
     try {
       const data = await fs.readFile(this.patchLogFile, 'utf8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      // Handle both old array format and new entries format
+      return Array.isArray(parsed) ? parsed : (parsed.entries || []);
     } catch (error) {
       return [];
     }
   }
 
   async savePatchLog(log) {
-    await fs.writeFile(this.patchLogFile, JSON.stringify(log, null, 2));
+    // Ensure we save in the correct format with entries array
+    const dataToSave = {
+      entries: Array.isArray(log) ? log : (log.entries || []),
+      last_updated: new Date().toISOString(),
+      total_entries: Array.isArray(log) ? log.length : (log.entries ? log.entries.length : 0)
+    };
+    await fs.writeFile(this.patchLogFile, JSON.stringify(dataToSave, null, 2));
   }
 
   async getCursorPatchLog() {
     try {
       const data = await fs.readFile(this.cursorPatchLogFile, 'utf8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : (parsed.entries || []);
     } catch (error) {
       return [];
     }
   }
 
   async saveCursorPatchLog(log) {
-    await fs.writeFile(this.cursorPatchLogFile, JSON.stringify(log, null, 2));
+    const dataToSave = {
+      entries: Array.isArray(log) ? log : (log.entries || []),
+      last_updated: new Date().toISOString(),
+      total_entries: Array.isArray(log) ? log.length : (log.entries ? log.entries.length : 0)
+    };
+    await fs.writeFile(this.cursorPatchLogFile, JSON.stringify(dataToSave, null, 2));
   }
 
   async getLastPatch() {
@@ -46,7 +60,7 @@ class PatchManager {
 
   async approvePatch(patchId) {
     const patchLog = await this.getPatchLog();
-    const patchIndex = patchLog.findIndex(patch => patch.id === patchId);
+    const patchIndex = patchLog.findIndex(patch => patch.patch_id === patchId || patch.id === patchId);
     
     if (patchIndex === -1) {
       return { success: false, message: 'Patch not found' };
@@ -62,7 +76,7 @@ class PatchManager {
 
   async revertPatch(patchId) {
     const patchLog = await this.getPatchLog();
-    const patchIndex = patchLog.findIndex(patch => patch.id === patchId);
+    const patchIndex = patchLog.findIndex(patch => patch.patch_id === patchId || patch.id === patchId);
     
     if (patchIndex === -1) {
       return { success: false, message: 'Patch not found' };
@@ -78,7 +92,7 @@ class PatchManager {
 
   async getPatchPreview(patchId) {
     const patchLog = await this.getPatchLog();
-    const patch = patchLog.find(patch => patch.id === patchId);
+    const patch = patchLog.find(patch => patch.patch_id === patchId || patch.id === patchId);
     
     if (!patch) {
       return { success: false, message: 'Patch not found' };
@@ -87,11 +101,11 @@ class PatchManager {
     return {
       success: true,
       patch: {
-        id: patch.id,
-        file: patch.file,
+        id: patch.patch_id || patch.id,
+        file: patch.target_file,
         changes: patch.changes,
         status: patch.status,
-        createdAt: patch.createdAt,
+        createdAt: patch.timestamp,
         description: patch.description
       }
     };
@@ -103,7 +117,7 @@ class PatchManager {
     const approved = patchLog.filter(p => p.status === 'approved').length;
     const reverted = patchLog.filter(p => p.status === 'reverted').length;
     const pending = patchLog.filter(p => p.status === 'pending').length;
-    const failed = patchLog.filter(p => p.status === 'failed').length;
+    const failed = patchLog.filter(p => p.status === 'failed' || !p.success).length;
 
     return {
       total,
@@ -122,18 +136,18 @@ class PatchManager {
 
   async getFailedPatches() {
     const patchLog = await this.getPatchLog();
-    return patchLog.filter(patch => patch.status === 'failed');
+    return patchLog.filter(patch => patch.status === 'failed' || !patch.success);
   }
 
   async retryFailedPatch(patchId) {
     const patchLog = await this.getPatchLog();
-    const patchIndex = patchLog.findIndex(patch => patch.id === patchId);
+    const patchIndex = patchLog.findIndex(patch => (patch.patch_id === patchId || patch.id === patchId));
     
     if (patchIndex === -1) {
       return { success: false, message: 'Patch not found' };
     }
 
-    if (patchLog[patchIndex].status !== 'failed') {
+    if (patchLog[patchIndex].status !== 'failed' && patchLog[patchIndex].success !== false) {
       return { success: false, message: 'Patch is not in failed status' };
     }
 

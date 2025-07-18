@@ -1,0 +1,10 @@
+{
+  "id": "test-correct-target",
+  "role": "ui_patch",
+  "description": "Test patch with correct target file",
+  "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal.tsx",
+  "patch": {
+    "pattern": "import React",
+    "replacement": "import React from 'react'"
+  }
+}
