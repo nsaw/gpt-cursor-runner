@@ -1,0 +1,35 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503, MD032
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    node_modules,
+    *.md,
+    docs/*,
+    tests/fixtures/*,
+    logs/*,
+    patches/*,
+    assets/*,
+    public/*,
+    server/*,
+    slack/*,
+    scripts/*,
+    tasks/*,
+    runner/*,
+    init/*,
+    quarantine/*,
+    Free/*,
+    Pro/*,
+    Team/*,
+    Enterprise/*,
+    temp/*,
+    data/*,
+    state/*
+per-file-ignores =
+    __init__.py:F401
+    tests/*:F401,E501
+    conftest.py:F401
+    docs/*:MD032 

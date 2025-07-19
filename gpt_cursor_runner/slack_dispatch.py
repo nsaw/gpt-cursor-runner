@@ -10,208 +10,205 @@ import os
 from typing import Dict, List, Optional, Any
 from .config_manager import ConfigManager
 
+
 class SlackDispatcher:
     """Handles Slack dispatch for GPT and Cursor."""
-    
+
     def __init__(self):
         self.config = ConfigManager()
-        self.runner_url = os.getenv('RUNNER_URL', 'https://gpt-cursor-runner.fly.dev')
-        self.slack_token = os.getenv('SLACK_BOT_TOKEN')
-        
-    def _make_dispatch_request(self, command: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        self.runner_url = os.getenv("RUNNER_URL", "https://gpt-cursor-runner.fly.dev")
+        self.slack_token = os.getenv("SLACK_BOT_TOKEN")
+
+    def _make_dispatch_request(
+        self, command: str, payload: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Make a dispatch request to the runner."""
         url = f"{self.runner_url}/slack/commands"
-        
+
         data = {
-            'command': command,
-            'text': json.dumps(payload),
-            'user_name': 'gpt-cursor-runner'
+            "command": command,
+            "text": json.dumps(payload),
+            "user_name": "gpt-cursor-runner",
         }
-        
+
         try:
             response = requests.post(url, json=data, timeout=10)
             response.raise_for_status()
-            return {'success': True, 'response': response.text}
+            return {"success": True, "response": response.text}
         except requests.exceptions.RequestException as e:
-            return {'success': False, 'error': str(e)}
-    
-    def gpt_post_message(self, channel: str, text: str, blocks: Optional[List[Dict]] = None) -> Dict[str, Any]:
+            return {"success": False, "error": str(e)}
+
+    def gpt_post_message(
+        self, channel: str, text: str, blocks: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
         """
         Post a message to Slack from GPT.
-        
+
         Args:
             channel: Slack channel (e.g., "#runner-control")
             text: Message text
             blocks: Optional Slack blocks for rich formatting
-            
+
         Returns:
             Dict with success status and response
         """
         if not self.config.is_gpt_slack_enabled():
-            return {'success': False, 'error': 'GPT Slack dispatch is disabled'}
-            
-        payload = {
-            'action': 'postMessage',
-            'channel': channel,
-            'text': text
-        }
-        
+            return {"success": False, "error": "GPT Slack dispatch is disabled"}
+
+        payload = {"action": "postMessage", "channel": channel, "text": text}
+
         if blocks:
-            payload['blocks'] = blocks
-            
-        return self._make_dispatch_request('/gpt-slack-dispatch', payload)
-    
-    def gpt_update_message(self, channel: str, ts: str, text: str, blocks: Optional[List[Dict]] = None) -> Dict[str, Any]:
+            payload["blocks"] = blocks
+
+        return self._make_dispatch_request("/gpt-slack-dispatch", payload)
+
+    def gpt_update_message(
+        self, channel: str, ts: str, text: str, blocks: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
         """
         Update a message in Slack from GPT.
-        
+
         Args:
             channel: Slack channel
             ts: Message timestamp
             text: Updated message text
             blocks: Optional Slack blocks
-            
+
         Returns:
             Dict with success status and response
         """
         if not self.config.is_gpt_slack_enabled():
-            return {'success': False, 'error': 'GPT Slack dispatch is disabled'}
-            
+            return {"success": False, "error": "GPT Slack dispatch is disabled"}
+
         payload = {
-            'action': 'updateMessage',
-            'channel': channel,
-            'ts': ts,
-            'text': text
+            "action": "updateMessage",
+            "channel": channel,
+            "ts": ts,
+            "text": text,
         }
-        
+
         if blocks:
-            payload['blocks'] = blocks
-            
-        return self._make_dispatch_request('/gpt-slack-dispatch', payload)
-    
+            payload["blocks"] = blocks
+
+        return self._make_dispatch_request("/gpt-slack-dispatch", payload)
+
     def gpt_delete_message(self, channel: str, ts: str) -> Dict[str, Any]:
         """
         Delete a message in Slack from GPT.
-        
+
         Args:
             channel: Slack channel
             ts: Message timestamp
-            
+
         Returns:
             Dict with success status and response
         """
         if not self.config.is_gpt_slack_enabled():
-            return {'success': False, 'error': 'GPT Slack dispatch is disabled'}
-            
-        payload = {
-            'action': 'deleteMessage',
-            'channel': channel,
-            'ts': ts
-        }
-        
-        return self._make_dispatch_request('/gpt-slack-dispatch', payload)
-    
-    def cursor_post_message(self, channel: str, text: str, blocks: Optional[List[Dict]] = None) -> Dict[str, Any]:
+            return {"success": False, "error": "GPT Slack dispatch is disabled"}
+
+        payload = {"action": "deleteMessage", "channel": channel, "ts": ts}
+
+        return self._make_dispatch_request("/gpt-slack-dispatch", payload)
+
+    def cursor_post_message(
+        self, channel: str, text: str, blocks: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
         """
         Post a message to Slack from Cursor.
-        
+
         Args:
             channel: Slack channel
             text: Message text
             blocks: Optional Slack blocks
-            
+
         Returns:
             Dict with success status and response
         """
-        payload = {
-            'action': 'postMessage',
-            'channel': channel,
-            'text': text
-        }
-        
+        payload = {"action": "postMessage", "channel": channel, "text": text}
+
         if blocks:
-            payload['blocks'] = blocks
-            
-        return self._make_dispatch_request('/cursor-slack-dispatch', payload)
-    
-    def cursor_post_code_block(self, channel: str, code: str, context: Optional[str] = None) -> Dict[str, Any]:
+            payload["blocks"] = blocks
+
+        return self._make_dispatch_request("/cursor-slack-dispatch", payload)
+
+    def cursor_post_code_block(
+        self, channel: str, code: str, context: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Post a code block to Slack from Cursor.
-        
+
         Args:
             channel: Slack channel
             code: Code to post
             context: Optional context for the code
-            
+
         Returns:
             Dict with success status and response
         """
         payload = {
-            'action': 'postCodeBlock',
-            'channel': channel,
-            'text': code,
-            'context': context
+            "action": "postCodeBlock",
+            "channel": channel,
+            "text": code,
+            "context": context,
         }
-        
-        return self._make_dispatch_request('/cursor-slack-dispatch', payload)
-    
-    def cursor_update_message(self, channel: str, ts: str, text: str, blocks: Optional[List[Dict]] = None) -> Dict[str, Any]:
+
+        return self._make_dispatch_request("/cursor-slack-dispatch", payload)
+
+    def cursor_update_message(
+        self, channel: str, ts: str, text: str, blocks: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
         """
         Update a message in Slack from Cursor.
-        
+
         Args:
             channel: Slack channel
             ts: Message timestamp
             text: Updated message text
             blocks: Optional Slack blocks
-            
+
         Returns:
             Dict with success status and response
         """
         payload = {
-            'action': 'updateMessage',
-            'channel': channel,
-            'ts': ts,
-            'text': text
+            "action": "updateMessage",
+            "channel": channel,
+            "ts": ts,
+            "text": text,
         }
-        
+
         if blocks:
-            payload['blocks'] = blocks
-            
-        return self._make_dispatch_request('/cursor-slack-dispatch', payload)
-    
+            payload["blocks"] = blocks
+
+        return self._make_dispatch_request("/cursor-slack-dispatch", payload)
+
     def cursor_delete_message(self, channel: str, ts: str) -> Dict[str, Any]:
         """
         Delete a message in Slack from Cursor.
-        
+
         Args:
             channel: Slack channel
             ts: Message timestamp
-            
+
         Returns:
             Dict with success status and response
         """
-        payload = {
-            'action': 'deleteMessage',
-            'channel': channel,
-            'ts': ts
-        }
-        
-        return self._make_dispatch_request('/cursor-slack-dispatch', payload)
-    
+        payload = {"action": "deleteMessage", "channel": channel, "ts": ts}
+
+        return self._make_dispatch_request("/cursor-slack-dispatch", payload)
+
     def post_cheatsheet(self, channel: Optional[str] = None) -> Dict[str, Any]:
         """
         Post a cheatsheet to Slack.
-        
+
         Args:
             channel: Optional channel override
-            
+
         Returns:
             Dict with success status and response
         """
         if not channel:
             channel = self.config.get_gpt_default_channel()
-            
+
         cheatsheet_text = """
 📎 *GPT-Cursor Runner Cheatsheet*
 
@@ -235,22 +232,22 @@ class SlackDispatcher:
 • `/gpt-slack-dispatch` - GPT posts to Slack
 • `/cursor-slack-dispatch` - Cursor posts to Slack
         """.strip()
-        
+
         return self.gpt_post_message(channel, cheatsheet_text)
-    
+
     def post_help(self, channel: Optional[str] = None) -> Dict[str, Any]:
         """
         Post help information to Slack.
-        
+
         Args:
             channel: Optional channel override
-            
+
         Returns:
             Dict with success status and response
         """
         if not channel:
             channel = self.config.get_gpt_default_channel()
-            
+
         help_text = """
 🆘 *GPT-Cursor Runner Help*
 
@@ -272,22 +269,22 @@ class SlackDispatcher:
 • Review recent patches with `/patch-preview`
 • Lock system with `/lock-runner` if needed
         """.strip()
-        
+
         return self.gpt_post_message(channel, help_text)
-    
+
     def post_dashboard_ping(self, channel: Optional[str] = None) -> Dict[str, Any]:
         """
         Post a dashboard ping to Slack.
-        
+
         Args:
             channel: Optional channel override
-            
+
         Returns:
             Dict with success status and response
         """
         if not channel:
             channel = self.config.get_gpt_default_channel()
-            
+
         ping_text = """
 📊 *Dashboard Ping*
 
@@ -302,21 +299,28 @@ class SlackDispatcher:
 
 *Next:* Monitor for new patches or issues
         """.strip()
-        
+
         return self.gpt_post_message(channel, ping_text)
 
+
 # Convenience functions for direct use
-def gpt_post(channel: str, text: str, blocks: Optional[List[Dict]] = None) -> Dict[str, Any]:
+def gpt_post(
+    channel: str, text: str, blocks: Optional[List[Dict]] = None
+) -> Dict[str, Any]:
     """Quick function for GPT to post to Slack."""
     dispatcher = SlackDispatcher()
     return dispatcher.gpt_post_message(channel, text, blocks)
 
-def cursor_post_code(channel: str, code: str, context: Optional[str] = None) -> Dict[str, Any]:
+
+def cursor_post_code(
+    channel: str, code: str, context: Optional[str] = None
+) -> Dict[str, Any]:
     """Quick function for Cursor to post code to Slack."""
     dispatcher = SlackDispatcher()
     return dispatcher.cursor_post_code_block(channel, code, context)
 
+
 def post_cheatsheet(channel: Optional[str] = None) -> Dict[str, Any]:
     """Quick function to post cheatsheet."""
     dispatcher = SlackDispatcher()
-    return dispatcher.post_cheatsheet(channel) 
+    return dispatcher.post_cheatsheet(channel)

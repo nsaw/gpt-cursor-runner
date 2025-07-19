@@ -2,13 +2,13 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleAgain(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /again triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /again triggered by:', user_name, 'with text:', text);
   
   try {
     const status = runnerController.getRunnerStatus();
     
     if (!status.isRunning) {
-      res.send(`❌ Runner is not currently running. Please start it first with \`/toggle-runner-on\`.`);
+      res.send('❌ Runner is not currently running. Please start it first with `/toggle-runner-on`.');
       return;
     }
     

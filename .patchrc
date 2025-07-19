@@ -1,0 +1,45 @@
+{
+  "defaults": {
+    "auto_confirm": false,
+    "dry_run": true,
+    "backup_files": true,
+    "target_directory": ".",
+    "preferred_editor": "code"
+  },
+  "slack": {
+    "rate_limit_per_minute": 10,
+    "enable_notifications": true,
+    "default_channel": "#general"
+  },
+  "patches": {
+    "max_patches_per_day": 100,
+    "auto_apply_safe_patches": false,
+    "require_author_approval": true,
+    "backup_retention_days": 30,
+    "patches_directory": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches"
+  },
+  "ui": {
+    "show_metrics": true,
+    "show_preview": true,
+    "color_output": true,
+    "verbose_logging": false
+  },
+  "integrations": {
+    "enable_git": true,
+    "enable_tests": true,
+    "enable_backup": true,
+    "enable_metrics": true
+  },
+  "gpt_slack": {
+    "allow_gpt_slack_posts": true,
+    "gpt_authorized_routes": [
+      "/slack/cheatblock",
+      "/slack/help",
+      "/slack/dashboard-ping"
+    ],
+    "default_channel": "#runner-control",
+    "rate_limit_per_minute": 5,
+    "require_approval": false,
+    "allowed_actions": ["postMessage", "updateMessage", "deleteMessage"]
+  }
+} 

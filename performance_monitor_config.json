@@ -1,0 +1,59 @@
+{
+  "monitoring": {
+    "system_metrics_interval": 30,
+    "component_metrics_interval": 60,
+    "alert_cleanup_interval": 3600,
+    "history_retention_hours": 24
+  },
+  "components": {
+    "python_runner": {
+      "port": 5051,
+      "health_endpoint": "/health",
+      "process_name": "python3.*gpt_cursor_runner"
+    },
+    "node_server": {
+      "port": 5555,
+      "health_endpoint": "/health",
+      "process_name": "node.*server/index.js"
+    },
+    "braun_daemon": {
+      "process_name": "python3.*enhanced_braun_daemon",
+      "log_file": "logs/enhanced-braun-daemon.log"
+    },
+    "cyops_daemon": {
+      "process_name": "python3.*enhanced_cyops_daemon",
+      "log_file": "logs/enhanced-cyops-daemon.log"
+    },
+    "system_monitor": {
+      "process_name": "python3.*system_monitor",
+      "log_file": "logs/system_monitor.log"
+    },
+    "performance_monitor": {
+      "process_name": "python3.*performance_monitor",
+      "log_file": "logs/performance_monitor.log"
+    }
+  },
+  "main_side_integration": {
+    "main_scripts_dir": "/Users/sawyer/gitSync/tm-mobile-cursor/scripts",
+    "mobile_scripts_dir": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/scripts",
+    "monitoring_system_js": "monitoring-system.js",
+    "super_autolinter_py": "super_autolinter.py",
+    "watchdog_runner_sh": "watchdog-runner.sh",
+    "boot_all_systems_sh": "boot-all-systems.sh"
+  },
+  "alerts": {
+    "slack_webhook": null,
+    "alert_levels": ["warning", "error", "critical"],
+    "cooldown_period": 300
+  },
+  "thresholds": {
+    "cpu_warning": 70.0,
+    "cpu_critical": 90.0,
+    "memory_warning": 80.0,
+    "memory_critical": 95.0,
+    "disk_warning": 85.0,
+    "disk_critical": 95.0,
+    "response_time_warning": 1000.0,
+    "response_time_critical": 5000.0
+  }
+} 

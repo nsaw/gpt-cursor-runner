@@ -2,13 +2,13 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleKill(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /kill triggered by:", user_name);
+  console.log('⚡️ /kill triggered by:', user_name);
   
   try {
     const status = runnerController.getRunnerStatus();
     
     if (!status.isRunning) {
-      res.send(`❌ Runner is not currently running.`);
+      res.send('❌ Runner is not currently running.');
       return;
     }
     

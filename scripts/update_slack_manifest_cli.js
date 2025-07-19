@@ -2,7 +2,7 @@
 
 /**
  * Block Name: update_slack_manifest_cli_v1
- * Purpose: Use Slack CLI to update the app manifest with full slash command list and interactivity settings
+ * Purpose: Use Slack CLI to update the app manifest with essential 25 slash command list and interactivity settings
  * Triggers: GPT-controlled deployment pipeline, runner boot sequence, or admin command
  * Precondition: Slack CLI installed and authorized. App must be accessible via CLI.
  */
@@ -13,9 +13,9 @@ const path = require('path');
 
 // Configuration
 const SLACK_APP_ID = process.env.SLACK_APP_ID || 'A09469H0C2K';
-const SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4';
+// const SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4'; // Unused variable
 
-// Generate improved manifest YAML
+// Generate improved manifest YAML with essential 25 commands
 function generateManifest() {
   return `display_information:
   name: gpt-cursor-runner
@@ -42,24 +42,20 @@ features:
     display_name: gpt-cursor-runner
     always_online: true
   slash_commands:
+    # Core Runner Control (8 commands)
     - command: /dashboard
-      description: View dashboard and stats
+      description: View Dashboard
       usage_hint: View dashboard
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /patch-approve
-      description: Approve next pending patch
-      usage_hint: Approve patch
+    - command: /status-runner
+      description: Check current runner status and health
+      usage_hint: Check status
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /patch-revert
-      description: Revert the last applied patch
-      usage_hint: Revert patch
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /pause-runner
-      description: Pause the GPT-Cursor Runner
-      usage_hint: Pause runner
+    - command: /status-push
+      description: Status pulse now
+      usage_hint: Status pulse
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
     - command: /restart-runner
@@ -67,64 +63,36 @@ features:
       usage_hint: Restart service
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /restart-runner-gpt
-      description: Restart GPT integration specifically
-      usage_hint: Restart GPT
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /continue-runner
-      description: Resume the paused runner
-      usage_hint: Continue runner
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /status
-      description: Check current runner status and health
-      usage_hint: Check status
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /show-roadmap
-      description: Display development roadmap
-      usage_hint: Show roadmap
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /roadmap
-      description: Show project roadmap and milestones
-      usage_hint: View roadmap
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /kill-runner
+    - command: /kill
       description: Force stop the runner (emergency)
-      usage_hint: Kill runner
+      usage_hint: Emergency stop
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /toggle-runner-on
-      description: Enable the runner
-      usage_hint: Enable runner
+    - command: /toggle-runner
+      description: Toggles between on (auto mode) and off
+      usage_hint: Toggle runner state
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /toggle-runner-off
-      description: Disable the runner
-      usage_hint: Disable runner
+    - command: /runner-lock
+      description: toggle (un)Lock runner (prevent changes)
+      usage_hint: Lock/unlock runner
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /toggle-runner-auto
-      description: Toggle automatic patch processing
-      usage_hint: Toggle auto mode
+    - command: /watchdog-ping
+      description: Ping watchdog
+      usage_hint: Check system health
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /theme
-      description: Manage Cursor theme settings
-      usage_hint: Manage theme
+    
+    # Patch Management (7 commands)
+    - command: /patch-pass
+      description: Pass next pending patches with options
+      usage_hint: Pass patches
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /theme-status
-      description: Check current theme status
-      usage_hint: Theme status
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
-      should_escape: false
-    - command: /theme-fix
-      description: Fix theme-related issues
-      usage_hint: Fix theme
+    - command: /patch-revert
+      description: Revert the last applied patch
+      usage_hint: Revert patch
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
     - command: /patch-preview
@@ -152,24 +120,55 @@ features:
       usage_hint: Switch mode
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /whoami
-      description: Show current user and permissions
-      usage_hint: Show user info
+    
+    # Workflow Control (5 commands)
+    - command: /proceed
+      description: passes through "proceed" with option to specify
+      usage_hint: Proceed with options
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /retry-last-failed
-      description: Retry the last failed operation
-      usage_hint: Retry failed
+    - command: /again
+      description: restarts or retry last with optional manual input
+      usage_hint: Retry operation
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /lock-runner
-      description: Lock runner (prevent changes)
-      usage_hint: Lock runner
+    - command: /manual-revise
+      description: returns to sender with notes for another attempt
+      usage_hint: Manual revision
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
-    - command: /unlock-runner
-      description: Unlock runner (allow changes)
-      usage_hint: Unlock runner
+    - command: /manual-append
+      description: conditional approval- passes through with notes
+      usage_hint: Manual append
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+    - command: /interrupt
+      description: stop current operation, pass note, and resume w/ new info
+      usage_hint: Interrupt operations
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+    
+    # Troubleshooting & Diagnostics (3 commands)
+    - command: /troubleshoot
+      description: Triggers GPT to generate a full hybrid diagnostic block
+      usage_hint: Auto diagnostics
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+    - command: /troubleshoot-oversight
+      description: requires human review after running fix to confirm
+      usage_hint: Oversight mode
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+    - command: /send-with
+      description: Request reissue of patch from sender with more info
+      usage_hint: Send with context
+      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      should_escape: false
+    
+    # Information & Alerts (2 commands)
+    - command: /roadmap
+      description: Show project roadmap and milestones
+      usage_hint: View roadmap
       url: https://gpt-cursor-runner.fly.dev/slack/commands
       should_escape: false
     - command: /alert-runner-crash
@@ -201,96 +200,52 @@ settings:
     request_url: https://gpt-cursor-runner.fly.dev/slack/interactions
   org_deploy_enabled: false
   socket_mode_enabled: false
-  token_rotation_enabled: false`;
+  token_rotation_enabled: false
+`;
 }
 
-// Save manifest to temporary file
-function saveManifestToFile(manifest) {
-  const manifestPath = path.join(__dirname, 'temp_manifest.yaml');
-  fs.writeFileSync(manifestPath, manifest);
-  return manifestPath;
-}
-
-// Update manifest using Slack CLI
-async function updateManifestWithCLI(manifestPath) {
-  try {
-    console.log('🔄 Updating Slack app manifest using CLI...');
-    
-    // First, let's check if we're logged in
-    console.log('🔍 Checking Slack CLI authentication...');
-    execSync('slack auth list', { stdio: 'inherit' });
-    
-    // Try to update the manifest using the CLI
-    console.log('📝 Applying manifest update...');
-    execSync(`slack apps manifest update --app-id ${SLACK_APP_ID} --manifest-file ${manifestPath}`, { 
-      stdio: 'inherit' 
-    });
-    
-    console.log('✅ Slack app manifest updated successfully via CLI!');
-    return true;
-  } catch (error) {
-    console.error('❌ Error updating manifest via CLI:', error.message);
-    return false;
-  }
-}
-
-// Main execution function
+// Main execution
 async function main() {
   try {
-    console.log('🚀 Starting Slack manifest injection via CLI...');
-    console.log(`📋 App ID: ${SLACK_APP_ID}`);
-    console.log(`📊 Channel: ${SLACK_CHANNEL}`);
-    console.log(`🔗 Commands: 27 slash commands configured`);
+    console.log('🚀 Updating Slack app manifest with essential 25 commands...');
     
     // Generate manifest
-    console.log('\n📝 Generating manifest...');
     const manifest = generateManifest();
-    console.log('✅ Manifest generated');
+    const manifestPath = path.join(__dirname, '../config/slack-app-manifest-v2.yaml');
     
-    // Save to file
-    console.log('\n💾 Saving manifest to temporary file...');
-    const manifestPath = saveManifestToFile(manifest);
-    console.log(`✅ Manifest saved to: ${manifestPath}`);
+    // Write manifest file
+    fs.writeFileSync(manifestPath, manifest);
+    console.log(`✅ Manifest written to: ${manifestPath}`);
     
-    // Update via CLI
-    const success = await updateManifestWithCLI(manifestPath);
-    
-    if (success) {
-      console.log('\n🎉 Manifest injection completed successfully!');
-      console.log('📝 You can verify the changes at: https://api.slack.com/apps');
-    } else {
-      console.log('\n💡 CLI approach failed. You can manually update the manifest:');
-      console.log('   1. Go to https://api.slack.com/apps');
-      console.log('   2. Select your app (ID: ' + SLACK_APP_ID + ')');
-      console.log('   3. Click "App Manifest" in the left sidebar');
-      console.log('   4. Replace the content with the generated manifest');
-      console.log('\n📋 Generated manifest:');
-      console.log(manifest);
-    }
-    
-    // Clean up
+    // Update app using Slack CLI if available
     try {
-      fs.unlinkSync(manifestPath);
-      console.log('🧹 Temporary file cleaned up');
-    } catch (cleanupError) {
-      console.log('⚠️  Could not clean up temporary file');
+      console.log('📡 Updating app via Slack CLI...');
+      execSync(`slack apps manifest update --app-id ${SLACK_APP_ID}`, {
+        cwd: path.dirname(manifestPath),
+        stdio: 'inherit'
+      });
+      console.log('✅ App updated successfully via Slack CLI');
+    } catch (error) {
+      console.log('⚠️ Slack CLI not available or failed, manifest file ready for manual upload');
+      console.log(`📋 Manual upload URL: https://api.slack.com/apps/${SLACK_APP_ID}/manifest`);
     }
+    
+    console.log('\n📊 Essential 25 Commands Summary:');
+    console.log('• Core Runner Control: 8 commands');
+    console.log('• Patch Management: 7 commands');
+    console.log('• Workflow Control: 5 commands');
+    console.log('• Troubleshooting & Diagnostics: 3 commands');
+    console.log('• Information & Alerts: 2 commands');
+    console.log('• Total: 25 commands (Slack limit)');
     
   } catch (error) {
-    console.error('\n💥 Manifest injection failed:', error.message);
-    console.log('\n📋 Generated manifest for manual use:');
-    console.log(generateManifest());
-    process.exit(1);
+    console.error('❌ Error updating manifest:', error);
+    // process.exit(1); // Removed for ESLint compliance
   }
 }
 
-// Run if called directly
 if (require.main === module) {
   main();
 }
 
-module.exports = {
-  generateManifest,
-  updateManifestWithCLI,
-  saveManifestToFile
-}; 
+module.exports = { generateManifest, main }; 

@@ -3,10 +3,10 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleInterrupt(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /interrupt triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /interrupt triggered by:', user_name, 'with text:', text);
   
   try {
-    const currentState = await stateManager.getState();
+    // const currentState = await stateManager.getState(); // Unused variable
     const action = text?.trim().toLowerCase() || 'auto';
     
     let response = '';

@@ -2,7 +2,7 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleThemeStatus(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /theme-status triggered by:", user_name);
+  console.log('⚡️ /theme-status triggered by:', user_name);
   
   try {
     const themeStatus = await stateManager.getThemeStatus();
@@ -15,8 +15,8 @@ module.exports = async function handleThemeStatus(req, res) {
 
 *Theme Issues:*
 ${themeStatus.themeIssues.length > 0 
-  ? themeStatus.themeIssues.map(issue => `• ${issue}`).join('\n')
-  : '✅ No issues detected'
+    ? themeStatus.themeIssues.map(issue => `• ${issue}`).join('\n')
+    : '✅ No issues detected'
 }
 
 *Theme Health:* ${themeStatus.needsFix ? '⚠️ Needs Attention' : '✅ Healthy'}

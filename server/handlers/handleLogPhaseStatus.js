@@ -1,73 +1,62 @@
-const patchManager = require('../utils/patchManager');
+const fs = require('fs');
+const path = require('path');
 
-module.exports = async function handleLogPhaseStatus(req, res) {
-  const { user_name, text } = req.body;
-  console.log("⚡️ /log-phase-status triggered by:", user_name);
-  
+module.exports = async (req, res) => {
   try {
-    const phaseId = text ? text.trim() : '';
+    const stateFile = path.join(__dirname, '../../runner.state.json');
+    const patchesDir = path.join(__dirname, '../../patches');
     
-    if (!phaseId) {
-      res.send(`❌ Please specify a phase ID.\n\nUsage: \`/log-phase-status <phase-id>\``);
-      return;
+    // Read current state
+    let currentState = { current_phase: 'unknown', phases: [] };
+    if (fs.existsSync(stateFile)) {
+      currentState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
     }
     
-    // Get patch statistics for the phase
-    const patchStats = await patchManager.getPatchStats();
+    // Get current phase info
+    const currentPhase = currentState.current_phase || 'Unknown';
+    const phases = currentState.phases || [];
+    const phaseCount = phases.length;
     
-    // Get recent patches to find phase-specific data
-    const recentPatches = await patchManager.listPatches(50);
-    const phasePatches = recentPatches.filter(patch => 
-      patch.phase === phaseId || patch.id.includes(phaseId)
-    );
+    // Count patches by status
+    let approvedCount = 0;
+    let pendingCount = 0;
+    let revertedCount = 0;
     
-    if (phasePatches.length === 0) {
-      res.send(`❌ No patches found for phase \`${phaseId}\`.`);
-      return;
+    if (fs.existsSync(patchesDir)) {
+      const files = fs.readdirSync(patchesDir);
+      
+      for (const file of files) {
+        if (file.endsWith('.json')) {
+          if (file.startsWith('approved_')) {
+            approvedCount++;
+          } else if (file.startsWith('reverted_')) {
+            revertedCount++;
+          } else {
+            pendingCount++;
+          }
+        }
+      }
     }
     
-    // Calculate phase-specific statistics
-    const phaseStats = {
-      total: phasePatches.length,
-      approved: phasePatches.filter(p => p.status === 'approved').length,
-      pending: phasePatches.filter(p => p.status === 'pending').length,
-      reverted: phasePatches.filter(p => p.status === 'reverted').length,
-      failed: phasePatches.filter(p => p.status === 'failed').length
-    };
-    
-    phaseStats.successRate = phaseStats.total > 0 ? 
-      ((phaseStats.approved / phaseStats.total) * 100).toFixed(1) : 0;
-    
-    // Build response
-    let response = `📊 *Phase Status Report*\n\n*Phase:* ${phaseId}\n*Requested by:* ${user_name}\n*Timestamp:* ${new Date().toLocaleString()}\n\n`;
-    
-    response += `📦 *Phase Statistics*\n`;
-    response += `• Total Patches: ${phaseStats.total}\n`;
-    response += `• Approved: ${phaseStats.approved}\n`;
-    response += `• Pending: ${phaseStats.pending}\n`;
-    response += `• Reverted: ${phaseStats.reverted}\n`;
-    response += `• Failed: ${phaseStats.failed}\n`;
-    response += `• Success Rate: ${phaseStats.successRate}%\n`;
-    
-    // Show recent patches in this phase
-    if (phasePatches.length > 0) {
-      response += `\n🕒 *Recent Patches in Phase*\n`;
-      phasePatches.slice(-5).forEach(patch => {
-        const status = patch.status === 'approved' ? '✅' : 
-                     patch.status === 'pending' ? '⏳' : 
-                     patch.status === 'reverted' ? '🔄' : '❌';
-        response += `• ${status} ${patch.id} (${patch.status})\n`;
-      });
+    // Get recent activity
+    const recentActivity = [];
+    if (currentState.last_activity) {
+      recentActivity.push(`Last Activity: ${currentState.last_activity}`);
+    }
+    if (currentState.phase_start_time) {
+      recentActivity.push(`Phase Start: ${new Date(currentState.phase_start_time).toLocaleString()}`);
     }
     
-    // Overall system status
-    response += `\n🌐 *Overall System Status*\n`;
-    response += `• Total Patches: ${patchStats.total}\n`;
-    response += `• System Success Rate: ${patchStats.successRate}%\n`;
+    res.json({
+      response_type: 'in_channel',
+      text: `📊 **Phase Status Log**\n\n**Current Phase:** ${currentPhase}\n**Total Phases:** ${phaseCount}\n\n**Patch Status:**\n• Approved: ${approvedCount}\n• Pending: ${pendingCount}\n• Reverted: ${revertedCount}\n\n**Recent Activity:**\n${recentActivity.length > 0 ? recentActivity.join('\n') : 'No recent activity'}\n\n**Timestamp:** ${new Date().toLocaleString()}`
+    });
     
-    res.send(response);
   } catch (error) {
-    console.error('Error getting phase status:', error);
-    res.send(`❌ Error getting phase status: ${error.message}`);
+    console.error('Error in handleLogPhaseStatus:', error);
+    res.json({
+      response_type: 'in_channel',
+      text: `❌ Error logging phase status: ${error.message}`
+    });
   }
 };

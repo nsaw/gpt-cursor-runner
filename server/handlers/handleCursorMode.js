@@ -1,45 +1,63 @@
-const stateManager = require('../utils/stateManager');
+const fs = require('fs');
+const path = require('path');
 
-module.exports = async function handleCursorMode(req, res) {
-  const { user_name } = req.body;
-  console.log("⚡️ /cursor-mode triggered by:", user_name);
-  
+module.exports = async (req, res) => {
   try {
-    const state = await stateManager.getState();
+    const { text } = req.body;
+    const stateFile = path.join(__dirname, '../../runner.state.json');
     
-    const modeText = `
-🎯 *Cursor Mode Status*
-
-*Current Mode:* ${state.autoMode ? '🤖 Auto Mode' : '👤 Manual Mode'}
-
-*Auto Mode Features:*
-• Automatic patch processing
-• Continuous monitoring
-• Self-healing capabilities
-• Background optimization
-
-*Manual Mode Features:*
-• Manual patch approval required
-• Step-by-step control
-• Detailed review process
-• Selective processing
-
-*Mode Controls:*
-• \`/toggle-runner-auto\` - Switch between modes
-• \`/pause-runner\` - Pause processing
-• \`/continue-runner\` - Resume processing
-• \`/lock-runner\` - Emergency lock
-
-*Current Settings:*
-• Auto Mode: ${state.autoMode ? 'Enabled' : 'Disabled'}
-• Paused: ${state.paused ? 'Yes' : 'No'}
-• Locked: ${state.lockdown ? 'Yes' : 'No'}
-• Crash Fence: ${state.crashFence ? 'Active' : 'Inactive'}
-    `.trim();
-
-    res.send(modeText);
+    // Read current state
+    let currentState = { cursor_mode: 'default' };
+    if (fs.existsSync(stateFile)) {
+      currentState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+    }
+    
+    const validModes = ['default', 'debug', 'verbose', 'silent', 'auto', 'manual'];
+    
+    if (!text) {
+      // Show current mode
+      return res.json({
+        response_type: 'in_channel',
+        text: `🎛️ **Cursor Mode**\n\n**Current Mode:** ${currentState.cursor_mode}\n**Valid Modes:** ${validModes.join(', ')}\n\n**Usage:** /cursor-mode <mode>`
+      });
+    }
+    
+    const newMode = text.trim().toLowerCase();
+    
+    if (!validModes.includes(newMode)) {
+      return res.json({
+        response_type: 'in_channel',
+        text: `❌ Invalid mode: ${newMode}\n\n**Valid Modes:** ${validModes.join(', ')}\n\n**Current Mode:** ${currentState.cursor_mode}`
+      });
+    }
+    
+    // Update state
+    const oldMode = currentState.cursor_mode;
+    currentState.cursor_mode = newMode;
+    currentState.mode_change_timestamp = new Date().toISOString();
+    currentState.mode_change_user = req.body.user_name || 'unknown';
+    
+    fs.writeFileSync(stateFile, JSON.stringify(currentState, null, 2));
+    
+    const modeDescriptions = {
+      'default': 'Standard operation mode',
+      'debug': 'Verbose logging and debugging',
+      'verbose': 'Detailed output and logging',
+      'silent': 'Minimal output and logging',
+      'auto': 'Automatic operation without prompts',
+      'manual': 'Manual operation with prompts'
+    };
+    
+    res.json({
+      response_type: 'in_channel',
+      text: `🎛️ **Cursor Mode Changed!**\n\n**From:** ${oldMode}\n**To:** ${newMode}\n**Description:** ${modeDescriptions[newMode]}\n**User:** ${req.body.user_name || 'Unknown'}\n**Timestamp:** ${new Date().toLocaleString()}`
+    });
+    
   } catch (error) {
-    console.error('Error getting cursor mode:', error);
-    res.send(`❌ Error getting cursor mode: ${error.message}`);
+    console.error('Error in handleCursorMode:', error);
+    res.json({
+      response_type: 'in_channel',
+      text: `❌ Error changing cursor mode: ${error.message}`
+    });
   }
 };

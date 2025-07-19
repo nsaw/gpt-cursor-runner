@@ -3,7 +3,7 @@
   "role": "ui_patch",
   "target_file": "tmp_test_target.tsx",
   "patch": {
-    "pattern": "<Text>.*?</Text>",
+    "pattern": "<Text>This text will be patched.</Text>",
     "replacement": "<Text>✅ PATCHED</Text>"
   }
 } 

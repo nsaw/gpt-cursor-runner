@@ -2,13 +2,13 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleLockRunner(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /lock-runner triggered by:", user_name);
+  console.log('⚡️ /lock-runner triggered by:', user_name);
   
   try {
     const currentState = await stateManager.getState();
     
     if (currentState.lockdown) {
-      res.send(`🔒 Runner is already locked. Use \`/unlock-runner\` to unlock.`);
+      res.send('🔒 Runner is already locked. Use `/unlock-runner` to unlock.');
       return;
     }
 

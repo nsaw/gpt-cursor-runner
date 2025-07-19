@@ -1,41 +1,57 @@
-const stateManager = require('../utils/stateManager');
+// const stateManager = require('../utils/stateManager'); // Unused import
 
-module.exports = async function handleRoadmap(req, res) {
-  const { user_name } = req.body;
-  console.log("⚡️ /roadmap triggered by:", user_name);
-  
+module.exports = async (req, res) => {
   try {
-    const roadmap = await stateManager.getRoadmap();
-    
-    const roadmapText = `
-🗺️ *GPT-Cursor Runner Roadmap*
+    const roadmap = `
+🗺️ **GPT-Cursor Runner Roadmap**
 
-*Current Phase:* ${roadmap.currentPhase}
-*Next Phase:* ${roadmap.nextPhase}
+**Phase 1: Core Infrastructure (✅ Complete)**
+• Slack integration and command system
+• Patch management and approval workflow
+• Basic runner control and monitoring
+• Health checks and status reporting
 
-*Completed Phases:*
-${roadmap.completedPhases.map(phase => `✅ ${phase}`).join('\n')}
+**Phase 2: Advanced Features (🔄 In Progress)**
+• Enhanced AI integration with context awareness
+• Automated troubleshooting and diagnostics
+• Phase-based workflow management
+• Screenshot-based patch approval
 
-*Milestones:*
-${roadmap.milestones.map(milestone => `• ${milestone}`).join('\n')}
+**Phase 3: Optimization (📋 Planned)**
+• Performance optimization and scaling
+• Advanced monitoring and alerting
+• Machine learning integration
+• Predictive maintenance
 
-*Timeline:*
-• Phase 1: ✅ Complete (Basic Runner)
-• Phase 2: 🔄 In Progress (Enhanced Automation)
-• Phase 3: ⏳ Planned (Advanced Analytics)
-• Phase 4: ⏳ Planned (AI-Powered Insights)
+**Phase 4: Expansion (📋 Future)**
+• Multi-project support
+• Advanced analytics and reporting
+• Integration with additional tools
+• Enterprise features
 
-*Recent Updates:*
-• Slack integration completed
-• 25+ slash commands implemented
-• State management system added
-• Patch approval workflow established
-• Real-time status monitoring active
+**Current Focus:**
+• Stabilizing core functionality
+• Improving user experience
+• Adding advanced workflow controls
+• Enhancing system reliability
+
+**Next Milestones:**
+• Complete Phase 2 features
+• Performance optimization
+• Enhanced monitoring
+• User feedback integration
     `.trim();
 
-    res.send(roadmapText);
+    res.json({
+      response_type: 'in_channel',
+      text: roadmap
+    });
+    
   } catch (error) {
-    console.error('Error getting roadmap:', error);
-    res.send(`❌ Error getting roadmap: ${error.message}`);
+    console.error('Error in handleRoadmap:', error);
+    res.json({
+      response_type: 'in_channel',
+      text: `❌ Error displaying roadmap: ${error.message}`
+    });
   }
 };

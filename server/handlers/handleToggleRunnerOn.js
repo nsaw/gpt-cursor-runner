@@ -3,14 +3,14 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleToggleRunnerOn(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /toggle-runner-on triggered by:", user_name);
+  console.log('⚡️ /toggle-runner-on triggered by:', user_name);
   
   try {
     const currentState = await stateManager.getState();
     const runnerStatus = runnerController.getRunnerStatus();
     
     if (runnerStatus.isRunning) {
-      res.send(`🟢 Runner is already running. Use \`/toggle-runner-off\` to stop it.`);
+      res.send('🟢 Runner is already running. Use `/toggle-runner-off` to stop it.');
       return;
     }
 

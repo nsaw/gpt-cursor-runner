@@ -2,13 +2,13 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handleRetryLastFailed(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /retry-last-failed triggered by:", user_name);
+  console.log('⚡️ /retry-last-failed triggered by:', user_name);
   
   try {
     const failedPatches = await patchManager.getFailedPatches();
     
     if (failedPatches.length === 0) {
-      res.send(`✅ No failed patches found. All patches are successful or pending.`);
+      res.send('✅ No failed patches found. All patches are successful or pending.');
       return;
     }
 

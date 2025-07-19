@@ -2,7 +2,7 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handlePatchApprove(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /patch-approve triggered by:", user_name);
+  console.log('⚡️ /patch-approve triggered by:', user_name);
   
   try {
     const patchId = text ? text.trim() : '';
@@ -11,7 +11,7 @@ module.exports = async function handlePatchApprove(req, res) {
       // Get the last pending patch if no ID specified
       const lastPatch = await patchManager.getLastPatch();
       if (!lastPatch || lastPatch.status !== 'pending') {
-        res.send(`❌ No pending patches to approve.`);
+        res.send('❌ No pending patches to approve.');
         return;
       }
       

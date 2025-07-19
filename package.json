@@ -8,18 +8,31 @@
     "dev": "PORT=5555 node server/index.js",
     "dev:python": "python3 -m gpt_cursor_runner.main",
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:python\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:scripts": "eslint scripts/",
+    "lint:server": "eslint server/"
   },
-  "keywords": ["gpt", "cursor", "automation", "slack", "webhooks"],
+  "keywords": [
+    "gpt",
+    "cursor",
+    "automation",
+    "slack",
+    "webhooks"
+  ],
   "author": "Sawyer",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "@slack/bolt": "^4.4.0",
+    "@slack/web-api": "^7.9.3",
     "axios": "^1.6.0",
+    "concurrently": "^8.2.2",
     "dotenv": "^16.3.1",
-    "concurrently": "^8.2.2"
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "eslint": "^8.57.0"
   }
 }

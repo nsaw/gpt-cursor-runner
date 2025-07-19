@@ -2,7 +2,7 @@ const patchManager = require('../utils/patchManager');
 
 module.exports = async function handlePatchRevert(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /patch-revert triggered by:", user_name);
+  console.log('⚡️ /patch-revert triggered by:', user_name);
   
   try {
     const patchId = text ? text.trim() : '';
@@ -11,7 +11,7 @@ module.exports = async function handlePatchRevert(req, res) {
       // Get the last approved patch if no ID specified
       const lastPatch = await patchManager.getLastPatch();
       if (!lastPatch || lastPatch.status !== 'approved') {
-        res.send(`❌ No approved patches to revert.`);
+        res.send('❌ No approved patches to revert.');
         return;
       }
       

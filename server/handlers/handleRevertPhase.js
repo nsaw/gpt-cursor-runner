@@ -1,50 +1,55 @@
-const patchManager = require('../utils/patchManager');
+const fs = require('fs');
+const path = require('path');
 
-module.exports = async function handleRevertPhase(req, res) {
-  const { user_name, text } = req.body;
-  console.log("⚡️ /revert-phase triggered by:", user_name);
-  
+module.exports = async (req, res) => {
   try {
-    const phaseId = text ? text.trim() : '';
+    const stateFile = path.join(__dirname, '../../runner.state.json');
+    // const patchesDir = path.join(__dirname, '../../patches'); // Unused variable
     
-    if (!phaseId) {
-      res.send(`❌ Please specify a phase ID to revert.\n\nUsage: \`/revert-phase <phase-id>\``);
-      return;
+    // Read current state
+    let currentState = { current_phase: 'unknown', phases: [] };
+    if (fs.existsSync(stateFile)) {
+      currentState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
     }
     
-    // Get recent patches to find the phase
-    const recentPatches = await patchManager.listPatches(20);
-    const phasePatches = recentPatches.filter(patch => 
-      patch.phase === phaseId || patch.id.includes(phaseId)
-    );
-    
-    if (phasePatches.length === 0) {
-      res.send(`❌ No patches found for phase \`${phaseId}\`.`);
-      return;
+    // Find the most recent phase to revert
+    const phases = currentState.phases || [];
+    if (phases.length === 0) {
+      return res.json({
+        response_type: 'in_channel',
+        text: `🔄 **Phase Revert**\n\nNo phases found to revert.\n\n**Current Phase:** ${currentState.current_phase || 'Unknown'}`
+      });
     }
     
-    // Revert all patches in the phase
-    let revertedCount = 0;
-    let failedCount = 0;
+    // Get the most recent phase
+    const currentPhase = phases[phases.length - 1];
+    const previousPhase = phases.length > 1 ? phases[phases.length - 2] : null;
     
-    for (const patch of phasePatches) {
-      if (patch.status === 'approved') {
-        const revertResult = await patchManager.revertPatch(patch.id);
-        if (revertResult.success) {
-          revertedCount++;
-        } else {
-          failedCount++;
-        }
-      }
-    }
-    
-    if (revertedCount > 0) {
-      res.send(`✅ *Phase Reverted*\n\nPhase \`${phaseId}\` has been reverted by ${user_name}.\n\n• Patches reverted: ${revertedCount}\n• Failed reverts: ${failedCount}\n• Total patches in phase: ${phasePatches.length}`);
+    // Revert to previous phase
+    if (previousPhase) {
+      currentState.current_phase = previousPhase.name;
+      currentState.phases = phases.slice(0, -1); // Remove current phase
+      currentState.revert_timestamp = new Date().toISOString();
+      currentState.reverted_phase = currentPhase.name;
+      
+      fs.writeFileSync(stateFile, JSON.stringify(currentState, null, 2));
+      
+      res.json({
+        response_type: 'in_channel',
+        text: `🔄 **Phase Reverted!**\n\n**From:** ${currentPhase.name}\n**To:** ${previousPhase.name}\n**Timestamp:** ${new Date().toLocaleString()}\n\n**Note:** Phase has been reverted to previous state.`
+      });
     } else {
-      res.send(`❌ No patches were reverted for phase \`${phaseId}\`.\n\n• Approved patches: ${phasePatches.filter(p => p.status === 'approved').length}\n• Total patches: ${phasePatches.length}`);
+      res.json({
+        response_type: 'in_channel',
+        text: `🔄 **Phase Revert**\n\nCannot revert further - this is the initial phase.\n\n**Current Phase:** ${currentPhase.name}`
+      });
     }
+    
   } catch (error) {
-    console.error('Error reverting phase:', error);
-    res.send(`❌ Error reverting phase: ${error.message}`);
+    console.error('Error in handleRevertPhase:', error);
+    res.json({
+      response_type: 'in_channel',
+      text: `❌ Error reverting phase: ${error.message}`
+    });
   }
 };

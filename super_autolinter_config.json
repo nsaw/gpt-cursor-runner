@@ -1,0 +1,63 @@
+{
+  "project_directories": [
+    ".",
+    "./gpt_cursor_runner",
+    "./server",
+    "./scripts"
+  ],
+  "ignore_patterns": [
+    ".git",
+    "__pycache__",
+    "node_modules",
+    ".venv",
+    "venv",
+    "*.egg-info",
+    "dist",
+    "build",
+    "logs",
+    "temp",
+    "*.log",
+    "*.md",
+    "*.json",
+    "*.lock",
+    "gpt_cursor_runner.egg-info"
+  ],
+  "linter_settings": {
+    "python": {
+      "line_length": 88,
+      "select_errors": [
+        "E501",
+        "F541",
+        "F821",
+        "F841",
+        "W291",
+        "W292",
+        "W293",
+        "W391"
+      ],
+      "use_black": true,
+      "use_autopep8": true,
+      "use_manual_fixes": true
+    },
+    "javascript": {
+      "eslint_config": "./.eslintrc.js",
+      "prettier_config": "./.prettierrc",
+      "select_errors": ["error", "warn"],
+      "use_eslint": true,
+      "use_prettier": true,
+      "use_manual_fixes": true,
+      "max_line_length": 100
+    }
+  },
+  "monitoring": {
+    "debounce_delay": 2.0,
+    "save_stats_interval": 300,
+    "log_level": "INFO",
+    "enable_notifications": true
+  },
+  "fixing_strategies": {
+    "max_retries": 3,
+    "backup_files": true,
+    "dry_run_first": false
+  }
+} 

@@ -1,19 +1,31 @@
-// HYBRID BLOCK
-// FILENAME: tasks/10_bulk_slack_command_registration.js
-// PURPOSE: Bulk register all Slack commands in efficient batches
+#!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+/**
+ * Bulk Slack Command Registration
+ * Registers all 25 essential Slack commands in batches
+ */
+
 const axios = require('axios');
-require('dotenv').config();
+const path = require('path');
 
+// Essential 25 Commands
 const ALL_COMMANDS = [
-  'dashboard', 'patch-approve', 'patch-revert', 'pause-runner', 'restart-runner',
-  'restart-runner-gpt', 'continue-runner', 'status', 'show-roadmap', 'roadmap',
-  'kill-runner', 'toggle-runner-on', 'toggle-runner-off', 'toggle-runner-auto',
-  'theme', 'theme-status', 'theme-fix', 'patch-preview', 'approve-screenshot',
-  'revert-phase', 'log-phase-status', 'cursor-mode', 'whoami', 'retry-last-failed',
-  'lock-runner', 'unlock-runner', 'alert-runner-crash'
+  // Core Runner Control (8 commands)
+  'dashboard', 'status-runner', 'status-push', 'restart-runner', 'kill', 
+  'toggle-runner', 'runner-lock', 'watchdog-ping',
+  
+  // Patch Management (7 commands)
+  'patch-pass', 'patch-revert', 'patch-preview', 'approve-screenshot',
+  'revert-phase', 'log-phase-status', 'cursor-mode',
+  
+  // Workflow Control (5 commands)
+  'proceed', 'again', 'manual-revise', 'manual-append', 'interrupt',
+  
+  // Troubleshooting & Diagnostics (3 commands)
+  'troubleshoot', 'troubleshoot-oversight', 'send-with',
+  
+  // Information & Alerts (2 commands)
+  'roadmap', 'alert-runner-crash'
 ];
 
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
@@ -62,11 +74,11 @@ async function bulkRegisterCommands() {
 
   for (let i = 0; i < commandDefinitions.length; i += batchSize) {
     const batch = commandDefinitions.slice(i, i + batchSize);
-    console.log(`\n🔄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(commandDefinitions.length / batchSize)}`);
+    console.log(`\n📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(commandDefinitions.length / batchSize)}`);
 
     for (const commandDef of batch) {
       try {
-        console.log(`📝 Registering ${commandDef.command}...`);
+        console.log(`   Registering ${commandDef.command}...`);
         
         const response = await axios.post(
           'https://slack.com/api/apps.commands.create',
@@ -80,134 +92,156 @@ async function bulkRegisterCommands() {
         );
 
         if (response.data.ok) {
-          console.log(`✅ ${commandDef.command} registered successfully`);
+          console.log(`   ✅ ${commandDef.command} registered successfully`);
           successCount++;
-          results.push({ 
-            command: commandDef.command, 
-            status: 'success', 
-            response: response.data 
-          });
+          results.push({ command: commandDef.command, status: 'success', response: response.data });
         } else {
-          console.log(`❌ ${commandDef.command} failed: ${response.data.error}`);
+          console.log(`   ❌ ${commandDef.command} failed: ${response.data.error}`);
           errorCount++;
-          results.push({ 
-            command: commandDef.command, 
-            status: 'error', 
-            error: response.data.error 
-          });
+          results.push({ command: commandDef.command, status: 'error', error: response.data.error });
         }
 
-        // Rate limiting
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Rate limiting - wait 1 second between requests
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
       } catch (error) {
-        console.log(`❌ ${commandDef.command} error: ${error.message}`);
+        console.log(`   ❌ ${commandDef.command} error: ${error.message}`);
         errorCount++;
-        results.push({ 
-          command: commandDef.command, 
-          status: 'error', 
-          error: error.message 
-        });
+        results.push({ command: commandDef.command, status: 'error', error: error.message });
       }
     }
 
     // Wait between batches
     if (i + batchSize < commandDefinitions.length) {
-      console.log('⏳ Waiting 2 seconds before next batch...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('   ⏳ Waiting 3 seconds between batches...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
   }
 
   // Summary
-  console.log('\n📊 Bulk Registration Summary:');
+  console.log('\n📊 Registration Summary:');
   console.log(`✅ Successfully registered: ${successCount}`);
   console.log(`❌ Failed: ${errorCount}`);
   console.log(`📝 Total attempted: ${ALL_COMMANDS.length}`);
 
-  // Save results
-  const resultsPath = path.join(__dirname, '../logs/bulk_slack_registration_results.json');
-  fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
+  // Save results to file
+  const resultsPath = path.join(__dirname, '../logs/slack_command_registration_results.json');
+  const fs = require('fs');
+  
+  // Ensure logs directory exists
+  const logsDir = path.dirname(resultsPath);
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+  
+  fs.writeFileSync(resultsPath, JSON.stringify({
+    timestamp: new Date().toISOString(),
+    summary: {
+      total: ALL_COMMANDS.length,
+      success: successCount,
+      failed: errorCount
+    },
+    results
+  }, null, 2));
+
   console.log(`📄 Results saved to: ${resultsPath}`);
 
-  // Generate command list for documentation
-  generateCommandList();
+  if (errorCount > 0) {
+    console.log('\n❌ Failed commands:');
+    results.filter(r => r.status === 'error').forEach(r => {
+      console.log(`   • ${r.command}: ${r.error}`);
+    });
+  }
+
+  return { successCount, errorCount, results };
 }
 
 function getCommandDescription(command) {
   const descriptions = {
-    'dashboard': 'View GPT-Cursor Runner dashboard and stats',
-    'patch-approve': 'Approve the next pending GPT patch',
-    'patch-revert': 'Revert the last applied patch',
-    'pause-runner': 'Pause the GPT-Cursor Runner',
+    // Core Runner Control
+    'dashboard': 'View Dashboard',
+    'status-runner': 'Check current runner status and health',
+    'status-push': 'Status pulse now',
     'restart-runner': 'Restart the GPT-Cursor Runner service',
-    'restart-runner-gpt': 'Restart GPT integration specifically',
-    'continue-runner': 'Resume the paused runner',
-    'status': 'Check current runner status and health',
-    'show-roadmap': 'Display development roadmap',
-    'roadmap': 'Show project roadmap and milestones',
-    'kill-runner': 'Force stop the runner (emergency)',
-    'toggle-runner-on': 'Enable the runner',
-    'toggle-runner-off': 'Disable the runner',
-    'toggle-runner-auto': 'Toggle automatic patch processing',
-    'theme': 'Manage Cursor theme settings',
-    'theme-status': 'Check current theme status',
-    'theme-fix': 'Fix theme-related issues',
+    'kill': 'Force stop the runner (emergency)',
+    'toggle-runner': 'Toggles between on (auto mode) and off',
+    'runner-lock': 'toggle (un)Lock runner (prevent changes)',
+    'watchdog-ping': 'Ping watchdog',
+    
+    // Patch Management
+    'patch-pass': 'Pass next pending patches with options',
+    'patch-revert': 'Revert the last applied patch',
     'patch-preview': 'Preview pending patches',
     'approve-screenshot': 'Approve screenshot-based patches',
     'revert-phase': 'Revert to previous phase',
     'log-phase-status': 'Log current phase status',
     'cursor-mode': 'Switch Cursor operation modes',
-    'whoami': 'Show current user and permissions',
-    'retry-last-failed': 'Retry the last failed operation',
-    'lock-runner': 'Lock runner (prevent changes)',
-    'unlock-runner': 'Unlock runner (allow changes)',
+    
+    // Workflow Control
+    'proceed': 'passes through "proceed" with option to specify',
+    'again': 'restarts or retry last with optional manual input',
+    'manual-revise': 'returns to sender with notes for another attempt',
+    'manual-append': 'conditional approval- passes through with notes',
+    'interrupt': 'stop current operation, pass note, and resume w/ new info',
+    
+    // Troubleshooting & Diagnostics
+    'troubleshoot': 'Triggers GPT to generate a full hybrid diagnostic block',
+    'troubleshoot-oversight': 'requires human review after running fix to confirm',
+    'send-with': 'Request reissue of patch from sender with more info',
+    
+    // Information & Alerts
+    'roadmap': 'Show project roadmap and milestones',
     'alert-runner-crash': 'Send crash alert notification'
   };
-  return descriptions[command] || `Execute ${command} command`;
+  
+  return descriptions[command] || `Handle ${command} command`;
 }
 
 function getUsageHint(command) {
   const hints = {
+    // Core Runner Control
     'dashboard': 'View dashboard',
-    'patch-approve': 'Approve patch',
-    'patch-revert': 'Revert patch',
-    'pause-runner': 'Pause runner',
+    'status-runner': 'Check status',
+    'status-push': 'Status pulse',
     'restart-runner': 'Restart service',
-    'status': 'Check status',
-    'roadmap': 'Show roadmap',
-    'theme': 'Manage theme',
-    'whoami': 'Show user info',
-    'lock-runner': 'Lock runner',
-    'unlock-runner': 'Unlock runner'
+    'kill': 'Emergency stop',
+    'toggle-runner': 'Toggle runner state',
+    'runner-lock': 'Lock/unlock runner',
+    'watchdog-ping': 'Check system health',
+    
+    // Patch Management
+    'patch-pass': 'Pass patches',
+    'patch-revert': 'Revert patch',
+    'patch-preview': 'Preview patch',
+    'approve-screenshot': 'Approve screenshot',
+    'revert-phase': 'Revert phase',
+    'log-phase-status': 'Log status',
+    'cursor-mode': 'Switch mode',
+    
+    // Workflow Control
+    'proceed': 'Proceed with options',
+    'again': 'Retry operation',
+    'manual-revise': 'Manual revision',
+    'manual-append': 'Manual append',
+    'interrupt': 'Interrupt operations',
+    
+    // Troubleshooting & Diagnostics
+    'troubleshoot': 'Auto diagnostics',
+    'troubleshoot-oversight': 'Oversight mode',
+    'send-with': 'Send with context',
+    
+    // Information & Alerts
+    'roadmap': 'View roadmap',
+    'alert-runner-crash': 'Alert crash'
   };
-  return hints[command] || '';
+  
+  return hints[command] || command;
 }
 
-function generateCommandList() {
-  const commandList = `# 📋 Registered Slack Commands
-
-## Available Commands (${ALL_COMMANDS.length} total)
-
-${ALL_COMMANDS.map(cmd => `- \`/${cmd}\` - ${getCommandDescription(cmd)}`).join('\n')}
-
-## Usage
-All commands use the webhook URL: \`${WEBHOOK_BASE_URL}/slack/commands\`
-
-## Categories
-- **Runner Control**: dashboard, status, pause-runner, restart-runner, continue-runner
-- **Patch Management**: patch-approve, patch-revert, patch-preview, approve-screenshot
-- **System Control**: kill-runner, lock-runner, unlock-runner, alert-runner-crash
-- **Theme Management**: theme, theme-status, theme-fix
-- **Development**: roadmap, show-roadmap, log-phase-status
-- **User**: whoami, cursor-mode
-- **Recovery**: retry-last-failed, revert-phase
-`;
-
-  const listPath = path.join(__dirname, '../docs/REGISTERED_SLACK_COMMANDS.md');
-  fs.mkdirSync(path.dirname(listPath), { recursive: true });
-  fs.writeFileSync(listPath, commandList);
-  console.log(`📋 Command list saved to: ${listPath}`);
+if (require.main === module) {
+  bulkRegisterCommands().then(result => {
+    process.exit(result.errorCount > 0 ? 1 : 0);
+  });
 }
 
-// Run the bulk registration
-bulkRegisterCommands().catch(console.error); 
+module.exports = { bulkRegisterCommands, ALL_COMMANDS }; 

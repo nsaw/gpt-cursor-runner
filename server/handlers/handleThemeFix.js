@@ -2,13 +2,13 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleThemeFix(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /theme-fix triggered by:", user_name);
+  console.log('⚡️ /theme-fix triggered by:', user_name);
   
   try {
     const themeStatus = await stateManager.getThemeStatus();
     
     if (!themeStatus.needsFix) {
-      res.send(`✅ Theme is already healthy. No fixes needed.`);
+      res.send('✅ Theme is already healthy. No fixes needed.');
       return;
     }
 

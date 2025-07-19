@@ -3,7 +3,7 @@ const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleTroubleshootOversight(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /troubleshoot-oversight triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /troubleshoot-oversight triggered by:', user_name, 'with text:', text);
   
   try {
     const currentState = await stateManager.getState();
@@ -19,7 +19,7 @@ module.exports = async function handleTroubleshootOversight(req, res) {
     if (action === 'approve' || action === 'confirm') {
       // Approve last automated fix
       if (!lastTroubleshoot) {
-        res.send(`❌ No recent automated troubleshooting to approve.`);
+        res.send('❌ No recent automated troubleshooting to approve.');
         return;
       }
       
@@ -44,7 +44,7 @@ module.exports = async function handleTroubleshootOversight(req, res) {
     } else if (action === 'reject' || action === 'rollback') {
       // Reject and rollback last automated fix
       if (!lastTroubleshoot) {
-        res.send(`❌ No recent automated troubleshooting to reject.`);
+        res.send('❌ No recent automated troubleshooting to reject.');
         return;
       }
       

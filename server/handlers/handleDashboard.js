@@ -2,7 +2,7 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleDashboard(req, res) {
   const { user_name } = req.body;
-  console.log("⚡️ /dashboard triggered by:", user_name);
+  console.log('⚡️ /dashboard triggered by:', user_name);
   
   try {
     const state = await stateManager.getState();

@@ -1,54 +1,86 @@
-const stateManager = require('../utils/stateManager');
-const runnerController = require('../utils/runnerController');
+const axios = require('axios');
 
-module.exports = async function handleAlertRunnerCrash(req, res) {
-  const { user_name } = req.body;
-  console.log("⚡️ /alert-runner-crash triggered by:", user_name);
-  
+module.exports = async (req, res) => {
   try {
-    // Check runner health
-    const healthCheck = await runnerController.checkRunnerHealth();
-    const runnerStatus = runnerController.getRunnerStatus();
+    const { text } = req.body;
+    const crashDetails = text || 'Manual crash alert triggered';
+    const timestamp = new Date().toISOString();
+    const user = req.body.user_name || 'Unknown';
     
-    if (healthCheck.healthy) {
-      res.send(`✅ *Runner Health Check*\n\nRunner is healthy and running normally.\n\nStatus: ${healthCheck.message}\nChecked by: ${user_name}`);
-      return;
+    // Send crash alert to Slack via webhook
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL || 'https://hooks.slack.com/services/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';
+    const channel = process.env.SLACK_CHANNEL || '#runner-control';
+    const username = process.env.SLACK_USERNAME || 'GPT-Cursor Runner';
+    
+    if (webhookUrl) {
+      try {
+        const webhookPayload = {
+          text: `🚨 **CRASH ALERT**\n\n**Triggered by:** ${user}\n**Details:** ${crashDetails}\n**Timestamp:** ${new Date().toLocaleString()}\n\n**Status:** Runner crash detected\n**Action Required:** Immediate attention needed`,
+          channel,
+          username,
+          icon_emoji: ':warning:'
+        };
+        
+        await axios.post(webhookUrl, webhookPayload, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('✅ Crash alert sent via webhook');
+      } catch (error) {
+        console.error('Error sending crash alert to Slack webhook:', error);
+      }
     }
-
-    // Activate crash fence
-    await stateManager.setCrashFence(true);
     
-    const alertText = `
-🚨 *Runner Crash Alert*
-
-*Status:* ⚠️ Runner issues detected
-*Alerted By:* ${user_name}
-*Timestamp:* ${new Date().toLocaleString()}
-
-*Health Check:*
-• Status: ${healthCheck.healthy ? '🟢 Healthy' : '🔴 Unhealthy'}
-• Message: ${healthCheck.message}
-• Last Error: ${runnerStatus.lastError || 'None'}
-
-*Crash Fence:* 🚧 Activated
-*Auto Recovery:* 🔄 Attempting...
-
-*Emergency Actions:*
-• \`/restart-runner\` - Restart the runner
-• \`/unlock-runner\` - Unlock if needed
-• \`/status\` - Check current status
-• \`/kill-runner\` - Force kill if necessary
-
-*Next Steps:*
-1. Monitor the restart process
-2. Check logs for errors
-3. Verify runner comes back online
-4. Deactivate crash fence when stable
-    `.trim();
-
-    res.send(alertText);
+    // Log crash alert
+    const crashLog = {
+      timestamp,
+      user,
+      details: crashDetails,
+      type: 'manual_alert'
+    };
+    
+    const fs = require('fs');
+    const path = require('path');
+    const logFile = path.join(__dirname, '../../logs/crash_alerts.json');
+    
+    // Ensure logs directory exists
+    const logsDir = path.dirname(logFile);
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    
+    // Read existing logs
+    let crashLogs = [];
+    if (fs.existsSync(logFile)) {
+      try {
+        crashLogs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+      } catch (error) {
+        console.error('Error reading crash logs:', error);
+      }
+    }
+    
+    // Add new crash log
+    crashLogs.push(crashLog);
+    
+    // Keep only last 100 entries
+    if (crashLogs.length > 100) {
+      crashLogs = crashLogs.slice(-100);
+    }
+    
+    fs.writeFileSync(logFile, JSON.stringify(crashLogs, null, 2));
+    
+    res.json({
+      response_type: 'in_channel',
+      text: `🚨 **Crash Alert Sent!**\n\n**Triggered by:** ${user}\n**Details:** ${crashDetails}\n**Timestamp:** ${new Date().toLocaleString()}\n\n**Status:** Alert has been logged and sent to channel\n**Log File:** crash_alerts.json\n**Webhook:** ${webhookUrl ? '✅ Connected' : '❌ Not configured'}`
+    });
+    
   } catch (error) {
-    console.error('Error handling crash alert:', error);
-    res.send(`❌ Error handling crash alert: ${error.message}`);
+    console.error('Error in handleAlertRunnerCrash:', error);
+    res.json({
+      response_type: 'in_channel',
+      text: `❌ Error sending crash alert: ${error.message}`
+    });
   }
 };

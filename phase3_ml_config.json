@@ -1,0 +1,37 @@
+{
+  "ml": {
+    "prediction_interval": 60,
+    "anomaly_detection_threshold": 0.8,
+    "confidence_threshold": 0.7,
+    "feature_window_hours": 24,
+    "model_retraining_interval": 168
+  },
+  "remediation": {
+    "auto_remediation": true,
+    "max_auto_actions_per_hour": 5,
+    "admin_alert_threshold": 0.9,
+    "cooldown_period": 300
+  },
+  "models": {
+    "failure_prediction": "models/failure_predictor.pkl",
+    "anomaly_detection": "models/anomaly_detector.pkl",
+    "performance_forecast": "models/performance_forecaster.pkl"
+  },
+  "features": {
+    "cpu_usage": true,
+    "memory_usage": true,
+    "disk_usage": true,
+    "response_time": true,
+    "error_rate": true,
+    "uptime": true,
+    "network_io": true
+  },
+  "alerts": {
+    "slack_webhook": null,
+    "alert_levels": ["warning", "error", "critical"],
+    "cooldown_period": 300
+  },
+  "performance_monitor": {
+    "config_path": "performance_monitor_config.json"
+  }
+} 

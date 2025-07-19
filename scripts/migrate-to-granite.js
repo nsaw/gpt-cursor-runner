@@ -13,7 +13,7 @@ const { execSync } = require('child_process');
 
 // Configuration
 const MANIFEST_V2_PATH = path.join(__dirname, '..', 'slack-app-manifest-v2.yaml');
-const MANIFEST_V1_PATH = path.join(__dirname, '..', 'slack-app-manifest.yaml');
+// const MANIFEST_V1_PATH = path.join(__dirname, '..', 'slack-app-manifest.yaml'); // Unused variable
 const ENV_FILE_PATH = path.join(__dirname, '..', '.env');
 
 class GraniteMigration {

@@ -23,11 +23,11 @@ class StateManager {
         retryQueue: [],
         lastThemeAudit: null,
         crashFence: false,
-        public_url: process.env.PUBLIC_URL || "https://runner-dev.thoughtmarks.app",
+        public_url: process.env.PUBLIC_URL || 'https://runner-dev.thoughtmarks.app',
         slack_tokens: {
-          access_token: process.env.SLACK_ACCESS_TOKEN || "",
-          refresh_token: process.env.SLACK_REFRESH_TOKEN || "",
-          public_url: process.env.PUBLIC_URL || "https://gpt-cursor-runner.fly.dev"
+          access_token: process.env.SLACK_ACCESS_TOKEN || '',
+          refresh_token: process.env.SLACK_REFRESH_TOKEN || '',
+          public_url: process.env.PUBLIC_URL || 'https://gpt-cursor-runner.fly.dev'
         }
       };
       await this.saveState();
@@ -135,15 +135,15 @@ class StateManager {
   async getRoadmap() {
     // This would typically fetch from a roadmap file or API
     return {
-      currentPhase: "Phase 2: Enhanced Automation",
-      nextPhase: "Phase 3: Advanced Analytics",
-      completedPhases: ["Phase 1: Basic Runner"],
+      currentPhase: 'Phase 2: Enhanced Automation',
+      nextPhase: 'Phase 3: Advanced Analytics',
+      completedPhases: ['Phase 1: Basic Runner'],
       milestones: [
-        "✅ Slack integration complete",
-        "✅ Basic patch processing",
-        "🔄 Advanced error handling",
-        "⏳ Real-time monitoring",
-        "⏳ Predictive analytics"
+        '✅ Slack integration complete',
+        '✅ Basic patch processing',
+        '🔄 Advanced error handling',
+        '⏳ Real-time monitoring',
+        '⏳ Predictive analytics'
       ]
     };
   }

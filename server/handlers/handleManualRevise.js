@@ -2,11 +2,11 @@ const stateManager = require('../utils/stateManager');
 
 module.exports = async function handleManualRevise(req, res) {
   const { user_name, text } = req.body;
-  console.log("⚡️ /manual-revise triggered by:", user_name, "with text:", text);
+  console.log('⚡️ /manual-revise triggered by:', user_name, 'with text:', text);
   
   try {
     if (!text || text.trim().length < 10) {
-      res.send(`❌ Please provide revision instructions (minimum 10 characters).\n\nUsage: \`/manual-revise <your revision instructions>\``);
+      res.send('❌ Please provide revision instructions (minimum 10 characters).\n\nUsage: `/manual-revise <your revision instructions>`');
       return;
     }
 

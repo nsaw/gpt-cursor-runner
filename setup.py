@@ -14,7 +14,8 @@ setup(
     version="0.2.0",
     author="GPT-Cursor Runner Team",
     author_email="team@gpt-cursor-runner.dev",
-    description="A production-ready CLI tool and webhook microservice for handling GPT-generated code patches",
+description="A production-ready CLI tool and webhook microservice for handling
+GPT-generated code patches",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nsaw/gpt-cursor-runner",
@@ -58,4 +59,4 @@ setup(
     },
     include_package_data=True,
     zip_safe=False,
-) 
+)
