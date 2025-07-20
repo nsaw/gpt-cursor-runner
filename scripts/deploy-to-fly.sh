@@ -38,7 +38,7 @@ fly secrets set SLACK_CLIENT_SECRET="$SLACK_CLIENT_SECRET"
 
 # Set Cloudflare tunnel URLs
 fly secrets set RUNNER_URL=https://runner.thoughtmarks.app
-fly secrets set RUNNER_DEV_URL=https://runner-dev.thoughtmarks.app
+fly secrets set RUNNER_DEV_URL=https://runner.thoughtmarks.app
 fly secrets set ENDPOINT_URL=https://runner.thoughtmarks.app/webhook
 fly secrets set DASHBOARD_URL=https://runner.thoughtmarks.app/dashboard
 fly secrets set PUBLIC_RUNNER_URL=https://runner.thoughtmarks.app
@@ -53,7 +53,7 @@ echo "✅ Deployment complete!"
 echo ""
 echo "📊 Your application is now live at:"
 echo "   - Production: https://runner.thoughtmarks.app"
-echo "   - Development: https://runner-dev.thoughtmarks.app"
+echo "   - Development: https://runner.thoughtmarks.app"
 echo ""
 echo "🔗 Health check: https://runner.thoughtmarks.app/health"
 echo "📊 Dashboard: https://runner.thoughtmarks.app/dashboard" 

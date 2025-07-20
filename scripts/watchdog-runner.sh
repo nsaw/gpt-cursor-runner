@@ -3,7 +3,7 @@
 # Auto-healing watchdog for ghost runner processes (cron-compatible)
 
 # Configuration
-PYTHON_PORT=5050
+PYTHON_PORT=5051
 CHECK_INTERVAL=30
 MAX_RESTARTS=5
 LOG_FILE="logs/watchdogs/runner-watchdog.log"
@@ -169,3 +169,13 @@ case "${1:-health}" in
         exit 1
         ;;
 esac 
+
+HEALTH=$(curl -s https://gpt-cursor-runner.fly.dev/health | grep 'OK')
+if [[ -z "$HEALTH" ]]; then
+  echo "[FAIL] GHOST runner health check failed. Initiating cold restart."
+  pkill -f ghost-bridge.js
+  sleep 3
+  nohup node scripts/ghost-bridge.js &
+else
+  echo "[PASS] GHOST runner OK."
+fi 

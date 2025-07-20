@@ -1,22 +1,21 @@
+#!/usr/bin/env python3
 """
 Event Logger for GPT-Cursor Runner.
 
-Captures patch results and Slack events for UI display and automation.
+Provides logging and event tracking capabilities.
 """
 
 import os
 import json
 import time
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional, List
 
 
 class EventLogger:
-    """Logs events for UI display and automation."""
-
+    """Centralized event logging system."""
+    
     def __init__(self, log_file: str = "data/event-log.json"):
-        # Ensure data directory exists
-        os.makedirs("data", exist_ok=True)
         self.log_file = log_file
         self.max_entries = 1000
         self.ensure_log_file()
@@ -34,7 +33,6 @@ class EventLogger:
     def _write_log(self, data: Dict[str, Any]):
         """Write log data to file."""
         try:
-            # Ensure directory exists
             os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
             with open(self.log_file, "w") as f:
                 json.dump(data, f, indent=2)
@@ -50,11 +48,8 @@ class EventLogger:
             print(f"Error reading log file: {e}")
             try:
                 from .slack_proxy import create_slack_proxy
-
                 slack_proxy = create_slack_proxy()
-                slack_proxy.notify_error(
-                    f"Error reading log file: {e}", context=self.log_file
-                )
+                slack_proxy.notify_error(f"Error reading log file: {e}", context=self.log_file)
             except Exception:
                 pass
             return {
@@ -63,12 +58,7 @@ class EventLogger:
                 "total_events": 0,
             }
 
-    def log_patch_event(
-        self,
-        event_type: str,
-        patch_data: Dict[str, Any],
-        result: Optional[Dict[str, Any]] = None,
-    ):
+    def log_patch_event(self, event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
         """Log patch-related events."""
         event = {
             "id": f"patch_{int(time.time() * 1000)}",
@@ -82,15 +72,9 @@ class EventLogger:
             "source": patch_data.get("metadata", {}).get("source", "unknown"),
             "result": result or {},
         }
-
         self._add_event(event)
 
-    def log_slack_event(
-        self,
-        event_type: str,
-        slack_data: Dict[str, Any],
-        result: Optional[Dict[str, Any]] = None,
-    ):
+    def log_slack_event(self, event_type: str, slack_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
         """Log Slack-related events."""
         event = {
             "id": f"slack_{int(time.time() * 1000)}",
@@ -103,7 +87,6 @@ class EventLogger:
             "text": slack_data.get("text", ""),
             "result": result or {},
         }
-
         self._add_event(event)
 
     def log_system_event(self, event_type: str, data: Optional[Dict[str, Any]] = None):
@@ -115,35 +98,44 @@ class EventLogger:
             "timestamp": datetime.now().isoformat(),
             "data": data or {},
         }
-
         self._add_event(event)
 
     def _add_event(self, event: Dict[str, Any]):
         """Add event to log."""
         log_data = self._read_log()
-
-        # Add event
         log_data["events"].append(event)
         log_data["last_updated"] = datetime.now().isoformat()
         log_data["total_events"] = len(log_data["events"])
-
-        # Trim old events
         if len(log_data["events"]) > self.max_entries:
-            log_data["events"] = log_data["events"][-self.max_entries :]
-
+            log_data["events"] = log_data["events"][-self.max_entries:]
         self._write_log(log_data)
 
-    def get_recent_events(
-        self, limit: int = 50, event_type: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    def get_recent_events(self, limit: int = 50, event_type: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get recent events, optionally filtered by type."""
         log_data = self._read_log()
         events = log_data.get("events", [])
-
+        
         if event_type:
-            events = [e for e in events if e.get("type") == event_type]
-
+            events = [e for e in events if e.get("event_type") == event_type]
+        
         return events[-limit:]
+
+    def get_event_summary(self) -> Dict[str, Any]:
+        """Get event summary statistics."""
+        log_data = self._read_log()
+        events = log_data.get("events", [])
+        
+        # Count events by type
+        event_counts = {}
+        for event in events:
+            event_type = event.get("type", "unknown")
+            event_counts[event_type] = event_counts.get(event_type, 0) + 1
+        
+        return {
+            "total_events": len(events),
+            "event_counts": event_counts,
+            "last_updated": log_data.get("last_updated", ""),
+        }
 
     def get_patch_events(self, limit: int = 20) -> List[Dict[str, Any]]:
         """Get recent patch events."""
@@ -153,65 +145,30 @@ class EventLogger:
         """Get recent Slack events."""
         return self.get_recent_events(limit, "slack_event")
 
-    def get_system_events(self, limit: int = 20) -> List[Dict[str, Any]]:
-        """Get recent system events."""
-        return self.get_recent_events(limit, "system_event")
-
-    def get_event_summary(self) -> Dict[str, Any]:
-        """Get summary of recent events."""
-        log_data = self._read_log()
-        events = log_data.get("events", [])
-
-        # Count by type
-        type_counts: Dict[str, int] = {}
-        for event in events:
-            event_type = event.get("type", "unknown")
-            type_counts[event_type] = type_counts.get(event_type, 0) + 1
-
-        # Get recent activity
-        recent_events = events[-10:] if events else []
-
-        return {
-            "total_events": len(events),
-            "type_counts": type_counts,
-            "recent_events": recent_events,
-            "last_updated": log_data.get("last_updated", ""),
-        }
-
     def clear_old_events(self, days: int = 30):
         """Clear events older than specified days."""
         cutoff_time = datetime.now().timestamp() - (days * 24 * 60 * 60)
-
         log_data = self._read_log()
         events = log_data.get("events", [])
-
-        # Filter out old events
         filtered_events = []
+        
         for event in events:
             try:
-                event_time = datetime.fromisoformat(
-                    event.get("timestamp", "")
-                ).timestamp()
+                event_time = datetime.fromisoformat(event.get("timestamp", "")).timestamp()
                 if event_time > cutoff_time:
                     filtered_events.append(event)
             except Exception as e:
-                # Keep events with invalid timestamps
                 filtered_events.append(event)
                 try:
                     from .slack_proxy import create_slack_proxy
-
                     slack_proxy = create_slack_proxy()
-                    slack_proxy.notify_error(
-                        f"Error parsing event timestamp: {e}", context=self.log_file
-                    )
+                    slack_proxy.notify_error(f"Error parsing event timestamp: {e}", context=self.log_file)
                 except Exception:
                     pass
-
-        # Update log with filtered events
+        
         log_data["events"] = filtered_events
         log_data["total_events"] = len(filtered_events)
         log_data["last_updated"] = datetime.now().isoformat()
-
         self._write_log(log_data)
 
 

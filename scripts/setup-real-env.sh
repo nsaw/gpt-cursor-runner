@@ -18,8 +18,8 @@ echo ""
 read -p "RUNNER_URL (default: https://runner.thoughtmarks.app): " RUNNER_URL
 RUNNER_URL=${RUNNER_URL:-https://runner.thoughtmarks.app}
 
-read -p "RUNNER_DEV_URL (default: https://runner-dev.thoughtmarks.app): " RUNNER_DEV_URL
-RUNNER_DEV_URL=${RUNNER_DEV_URL:-https://runner-dev.thoughtmarks.app}
+read -p "RUNNER_DEV_URL (default: https://runner.thoughtmarks.app): " RUNNER_DEV_URL
+RUNNER_DEV_URL=${RUNNER_DEV_URL:-https://runner.thoughtmarks.app}
 
 read -p "ENDPOINT_URL (default: https://runner.thoughtmarks.app/webhook): " ENDPOINT_URL
 ENDPOINT_URL=${ENDPOINT_URL:-https://runner.thoughtmarks.app/webhook}

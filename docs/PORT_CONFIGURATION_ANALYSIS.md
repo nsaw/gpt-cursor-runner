@@ -243,9 +243,9 @@ echo "🎉 CYOPS project started successfully!"
 ### **Production Environment**
 | Port | Service | Project | Status | URL |
 |------|---------|---------|--------|-----|
-| 4000 | Backend API | CYOPS | ❌ Stopped | https://api.thoughtmarks.app |
+| 4000 | Backend API | CYOPS | ❌ Stopped | https://runner.thoughtmarks.app |
 | 5051 | Python ghost runner | MAIN | ✅ Running | https://runner.thoughtmarks.app |
-| 5555 | Node.js server | MAIN | ✅ Running | https://dashboard.thoughtmarks.app |
+| 5555 | Node.js server | MAIN | ✅ Running | https://runner.thoughtmarks.app |
 
 ## 🔄 **Environment Configuration Files**
 

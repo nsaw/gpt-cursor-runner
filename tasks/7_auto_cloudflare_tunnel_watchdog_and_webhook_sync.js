@@ -61,7 +61,7 @@ const dockerInject = `
 # Injects dynamic tunnel detection into Docker
 ENV PUBLIC_RUNNER_URL=https://runner.thoughtmarks.app
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:5555/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://runner.thoughtmarks.app/health || exit 1
 `;
 const dockerPath = path.join(__dirname, '../Dockerfile');
 fs.appendFileSync(dockerPath, dockerInject);

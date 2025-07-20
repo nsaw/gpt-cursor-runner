@@ -6,9 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const DEV_TUNNEL = 'https://runner-dev.thoughtmarks.app';
+const DEV_TUNNEL = 'https://runner.thoughtmarks.app';
 const PROD_TUNNEL = 'https://runner.thoughtmarks.app';
-const fallbackRunnerURL = 'https://mobile.thoughtmarks.app';
+const fallbackRunnerURL = 'https://runner.thoughtmarks.app';
 
 const ENV = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const resolvedURL = ENV === 'production' ? PROD_TUNNEL : DEV_TUNNEL;

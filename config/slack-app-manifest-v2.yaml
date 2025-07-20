@@ -27,140 +27,140 @@ features:
     - command: /dashboard
       description: View Dashboard
       usage_hint: View dashboard
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /status-runner
       description: Check current runner status and health
       usage_hint: Check status
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /status-push
       description: Status pulse now
       usage_hint: Status pulse
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /restart-runner
       description: Restart the GPT-Cursor Runner service
       usage_hint: Restart service
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /kill
       description: Force stop the runner (emergency)
       usage_hint: Emergency stop
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /toggle-runner
       description: Toggles between on (auto mode) and off
       usage_hint: Toggle runner state
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /runner-lock
       description: toggle (un)Lock runner (prevent changes)
       usage_hint: Lock/unlock runner
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /watchdog-ping
       description: Ping watchdog
       usage_hint: Check system health
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     
     # Patch Management (7 commands)
     - command: /patch-pass
       description: Pass next pending patches with options
       usage_hint: Pass patches
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /patch-revert
       description: Revert the last applied patch
       usage_hint: Revert patch
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /patch-preview
       description: Preview pending patches
       usage_hint: Preview patch
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /approve-screenshot
       description: Approve screenshot-based patches
       usage_hint: Approve screenshot
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /revert-phase
       description: Revert to previous phase
       usage_hint: Revert phase
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /log-phase-status
       description: Log current phase status
       usage_hint: Log status
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /cursor-mode
       description: Switch Cursor operation modes
       usage_hint: Switch mode
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     
     # Workflow Control (5 commands)
     - command: /proceed
       description: passes through "proceed" with option to specify
       usage_hint: Proceed with options
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /again
       description: restarts or retry last with optional manual input
       usage_hint: Retry operation
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /manual-revise
       description: returns to sender with notes for another attempt
       usage_hint: Manual revision
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /manual-append
       description: conditional approval- passes through with notes
       usage_hint: Manual append
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /interrupt
       description: stop current operation, pass note, and resume w/ new info
       usage_hint: Interrupt operations
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     
     # Troubleshooting & Diagnostics (3 commands)
     - command: /troubleshoot
       description: Triggers GPT to generate a full hybrid diagnostic block
       usage_hint: Auto diagnostics
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /troubleshoot-oversight
       description: requires human review after running fix to confirm
       usage_hint: Oversight mode
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /send-with
       description: Request reissue of patch from sender with more info
       usage_hint: Send with context
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     
     # Information & Alerts (2 commands)
     - command: /roadmap
       description: Show project roadmap and milestones
       usage_hint: View roadmap
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /alert-runner-crash
       description: Send crash alert notification
       usage_hint: Alert crash
-      url: https://gpt-cursor-runner.fly.dev/slack/commands
+      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
 
 oauth_config:
   redirect_urls:
-    - https://gpt-cursor-runner.fly.dev/slack/oauth/callback
+    - https://runner.thoughtmarks.app/slack/oauth/callback
   scopes:
     bot:
       - commands
@@ -172,13 +172,13 @@ oauth_config:
 
 settings:
   event_subscriptions:
-    request_url: https://gpt-cursor-runner.fly.dev/slack/events
+    request_url: https://runner.thoughtmarks.app/slack/events
     bot_events:
       - app_mention
       - message.channels
   interactivity:
     is_enabled: true
-    request_url: https://gpt-cursor-runner.fly.dev/slack/interactions
+    request_url: https://runner.thoughtmarks.app/slack/interactions
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

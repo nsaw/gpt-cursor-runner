@@ -115,7 +115,7 @@
   "retryQueue": [],
   "lastThemeAudit": null,
   "crashFence": false,
-  "public_url": "https://runner-dev.thoughtmarks.app",
+  "public_url": "https://runner.thoughtmarks.app",
   "slack_tokens": {
     "access_token": "[REDACTED]",
     "refresh_token": "[REDACTED]",

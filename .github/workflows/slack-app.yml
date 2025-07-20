@@ -1,0 +1,67 @@
+name: Slack App Server
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Setup environment
+      run: |
+        echo "SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}" >> .env
+        echo "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}" >> .env
+        echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}" >> .env
+        echo "SLACK_APP_ID=${{ secrets.SLACK_APP_ID }}" >> .env
+        echo "NODE_ENV=production" >> .env
+        echo "PORT=5555" >> .env
+    
+    - name: Install ngrok
+      run: |
+        wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+        tar xvzf ngrok-v3-stable-linux-amd64.tgz
+        ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+    
+    - name: Start server and ngrok
+      run: |
+        npm start &
+        sleep 5
+        ./ngrok http 5555 --log=stdout > ngrok.log 2>&1 &
+        sleep 10
+        curl -s http://localhost:5555/health
+    
+    - name: Get ngrok URL
+      id: ngrok
+      run: |
+        NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+        echo "url=$NGROK_URL" >> $GITHUB_OUTPUT
+        echo "NGROK_URL: $NGROK_URL"
+        echo "Manual steps needed:"
+        echo "1. Go to https://api.slack.com/apps/A09469H0C2K"
+        echo "2. Update Request URL to: $NGROK_URL/slack/commands"
+        echo "3. Update Interactive Components URL to: $NGROK_URL/slack/interactive"
+        echo "4. Update Event Subscriptions URL to: $NGROK_URL/slack/events"
+        echo "5. Update OAuth Redirect URLs to: $NGROK_URL/oauth/callback"
+    
+    - name: Keep alive
+      run: |
+        while true; do
+          curl -s http://localhost:5555/health > /dev/null
+          sleep 60
+        done 

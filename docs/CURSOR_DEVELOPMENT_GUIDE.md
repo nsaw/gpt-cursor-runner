@@ -4,9 +4,9 @@
 
 ### Development Environment
 - **Production Runner**: `https://runner.thoughtmarks.app` (port 5555)
-- **Development Runner**: `https://runner-dev.thoughtmarks.app` (port 5051)
-- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
-- **Health check**: `https://runner-dev.thoughtmarks.app/health`
+- **Development Runner**: `https://runner.thoughtmarks.app` (port 5051)
+- **Dashboard**: `https://runner.thoughtmarks.app/dashboard`
+- **Health check**: `https://runner.thoughtmarks.app/health`
 
 ### Starting the Development Server
 
@@ -19,10 +19,10 @@ python3 -m gpt_cursor_runner.main
 ```
 
 ### Development URLs
-- **Slack Commands**: `https://runner-dev.thoughtmarks.app/slack/commands`
-- **Webhook Endpoint**: `https://runner-dev.thoughtmarks.app/webhook`
-- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
-- **Health Check**: `https://runner-dev.thoughtmarks.app/health`
+- **Slack Commands**: `https://runner.thoughtmarks.app/slack/commands`
+- **Webhook Endpoint**: `https://runner.thoughtmarks.app/webhook`
+- **Dashboard**: `https://runner.thoughtmarks.app/dashboard`
+- **Health Check**: `https://runner.thoughtmarks.app/health`
 
 ### Testing Commands
 
@@ -31,7 +31,7 @@ python3 -m gpt_cursor_runner.main
 node scripts/verify_slack_commands.js
 
 # Test webhook endpoint
-curl -X POST https://runner-dev.thoughtmarks.app/webhook \
+curl -X POST https://runner.thoughtmarks.app/webhook \
   -H "Content-Type: application/json" \
   -d '{"id": "test", "role": "system", "description": "Test"}'
 
@@ -43,7 +43,7 @@ python3 scripts/test_slack_ping.py
 
 ### Environment Variables
 - `RUNNER_URL`: Production runner URL (`https://runner.thoughtmarks.app`)
-- `RUNNER_DEV_URL`: Development runner URL (`https://runner-dev.thoughtmarks.app`)
+- `RUNNER_DEV_URL`: Development runner URL (`https://runner.thoughtmarks.app`)
 - `ENDPOINT_URL`: Webhook endpoint for GPT
 - `DASHBOARD_URL`: Dashboard URL for Slack commands
 
@@ -54,8 +54,8 @@ python3 scripts/test_slack_ping.py
 ## 📊 Monitoring
 
 ### Health Checks
-- **Health Check:** `https://runner-dev.thoughtmarks.app/health`
-- **Dashboard:** `https://runner-dev.thoughtmarks.app/dashboard`
+- **Health Check:** `https://runner.thoughtmarks.app/health`
+- **Dashboard:** `https://runner.thoughtmarks.app/dashboard`
 
 ### Logs
 - Event logs: `event-log.json`

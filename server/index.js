@@ -17,16 +17,92 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    env: process.env.NODE_ENV || 'development'
+    env: process.env.NODE_ENV || 'development',
+    slack: 'webhook mode'
   });
 });
 
 // Slack test endpoint
 app.get('/slack/test', (req, res) => {
   res.status(200).json({
-    message: 'Slack integration ready',
-    timestamp: new Date().toISOString()
+    message: 'Slack webhook integration ready',
+    timestamp: new Date().toISOString(),
+    tunnel: 'ngrok (temporary)',
+    url: 'https://2179f6fea5bc.ngrok-free.app'
   });
+});
+
+// Slack OAuth callback
+app.get('/oauth/callback', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>OAuth Callback</title>
+      </head>
+      <body>
+        <h1>OAuth Callback</h1>
+        <p>Authorization successful!</p>
+        <script>window.close();</script>
+      </body>
+    </html>
+  `);
+});
+
+// Slack interactive components endpoint
+app.post('/slack/interactive', async (req, res) => {
+  try {
+    const { payload } = req.body;
+    const parsedPayload = JSON.parse(payload);
+    
+    console.log('Received interactive component:', parsedPayload.type);
+    
+    // Handle different interactive components
+    switch (parsedPayload.type) {
+    case 'block_actions':
+      // Handle button clicks, dropdowns, etc.
+      res.json({ text: 'Action received' });
+      break;
+    case 'view_submission':
+      // Handle modal submissions
+      res.json({ text: 'Modal submitted' });
+      break;
+    default:
+      res.json({ text: 'Unknown interactive component' });
+    }
+  } catch (error) {
+    console.error('Error handling interactive component:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Slack events endpoint
+app.post('/slack/events', async (req, res) => {
+  try {
+    const { type, event } = req.body;
+    
+    console.log('Received Slack event:', type);
+    
+    // Handle different event types
+    switch (type) {
+      case 'url_verification':
+        // Slack URL verification
+        res.json({ challenge: req.body.challenge });
+        break;
+      case 'event_callback':
+        // Handle actual events
+        if (event.type === 'app_mention') {
+          console.log('App mentioned:', event.text);
+        }
+        res.json({ ok: true });
+        break;
+      default:
+        res.json({ ok: true });
+    }
+  } catch (error) {
+    console.error('Error handling Slack event:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Serve static files
@@ -35,6 +111,47 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 // Slack commands router
 const slackRouter = require('./routes/slack');
 app.use('/slack', slackRouter);
+
+// API endpoints for ghost bridge
+app.post('/api/patches', async (req, res) => {
+  try {
+    const patchData = req.body;
+    console.log('Received patch data:', patchData);
+    
+    // Process the patch data (placeholder for now)
+    const result = {
+      status: 'success',
+      message: 'Patch received and queued for processing',
+      patchId: patchData.id || 'unknown',
+      timestamp: new Date().toISOString()
+    };
+    
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error processing patch:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/summaries', async (req, res) => {
+  try {
+    const summaryData = req.body;
+    console.log('Received summary data:', summaryData);
+    
+    // Process the summary data (placeholder for now)
+    const result = {
+      status: 'success',
+      message: 'Summary received and stored',
+      summaryId: summaryData.id || 'unknown',
+      timestamp: new Date().toISOString()
+    };
+    
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error processing summary:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Dashboard endpoint
 app.get('/dashboard', (req, res) => {
@@ -66,6 +183,8 @@ app.get('/dashboard', (req, res) => {
             <li>Environment: ${process.env.NODE_ENV || 'development'}</li>
             <li>Port: ${PORT}</li>
             <li>Memory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB</li>
+            <li>Slack: Webhook mode</li>
+            <li>URL: https://runner.thoughtmarks.app</li>
           </ul>
         </div>
         <div class="status">
@@ -75,6 +194,16 @@ app.get('/dashboard', (req, res) => {
             <li><a href="/slack/test">Slack Test</a></li>
             <li><a href="/public/runner_fallback.html">Fallback Page</a></li>
           </ul>
+        </div>
+        <div class="status warning">
+          <h3>⚠️ Next Steps</h3>
+          <p>To complete Slack integration:</p>
+          <ol>
+            <li>Update your Slack app settings with the webhook URLs</li>
+            <li>Point slash commands to: <code>https://runner.thoughtmarks.app/slack/commands</code></li>
+            <li>Set interactive components URL to: <code>https://runner.thoughtmarks.app/slack/interactive</code></li>
+            <li>Set events subscription URL to: <code>https://runner.thoughtmarks.app/slack/events</code></li>
+          </ol>
         </div>
       </body>
     </html>
@@ -100,8 +229,9 @@ app.use((req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 GPT-Cursor Runner Server running on port ${PORT}`);
-  console.log(`📡 Slack commands: http://localhost:${PORT}/slack/commands`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`📡 Slack commands: https://runner.thoughtmarks.app/slack/commands`);
+  console.log(`🔗 Health check: https://runner.thoughtmarks.app/health`);
+  console.log(`⚠️ Slack integration configured for webhook mode`);
 });
 
 module.exports = app; 

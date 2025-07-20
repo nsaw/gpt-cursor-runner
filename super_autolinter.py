@@ -1,24 +1,22 @@
-#!/usr/bin/env python3
-"""
+#!/usr/bin/env python3""""
 Super AutoLinter - Unified Continuous Linter Error Fixing System
 
-This script combines the best features from all autolinter implementations:
-- Python file linting and fixing (from autolinter-python.py)
+This script combines the best features from all autolinter implementations import - Python file linting and fixing (from autolinter-python.py)
 - JavaScript/TypeScript file linting and fixing (from autolinter.js)
 - Enhanced configuration and monitoring (from autolinter-runner.py)
 - Multi-language support with unified interface
 - Merged with existing gpt-cursor-runner autolinter features
+- ENHANCED Syntax error detection and fixing
 
-Features:
-- Continuous file monitoring with debouncing
+Features as - Continuous file monitoring with debouncing
 - Multi-language support (Python, JavaScript, TypeScript)
 - Automatic error detection and fixing
 - Black, autopep8, ESLint, Prettier integration
 - Real-time notifications and statistics
 - Enhanced configuration management
 - Unified logging and reporting
-- Manual line breaking logic from existing autolinter
-"""
+- Manual line breaking logic from existing autolinter"""
+- ENHANCED import Syntax error detection and repair"""
 
 import os
 import sys
@@ -26,358 +24,271 @@ import time
 import subprocess
 import logging
 import json
+import ast
+import re
 from pathlib import Path
-from typing import List, Dict, Set, Optional
+from typing import List, Dict, Set, Optional, Tuple
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import threading
 from datetime import datetime
 from dataclasses import dataclass, asdict
-from enum import Enum
-
-
-class LanguageType(Enum):
-    """Supported language types."""
-
-    PYTHON = "python"
-    JAVASCRIPT = "javascript"
+from enum import Enum"""
+class LanguageType(Enum)""Supported language types.""
+    PYTHON = "python""
+    JAVASCRIPT = "javascript""
     TYPESCRIPT = "typescript"
 
 
-@dataclass
-class LinterStats:
-    """Statistics for linter operations."""
+@dataclass(class LinterStats
+        ""Statistics for linter operations."""
 
-    total_errors_fixed: int = 0
-    files_processed: int = 0
-    last_run: Optional[str] = None
-    errors_by_type: Dict[str, int] = None
-    fix_success_rate: float = 0.0
-    language_stats: Dict[str, Dict] = None
+    total_errors_fixed int = 0
+    files_processed
+        int = 0
+    last_run Optional[str] = None
+    errors_by_type)
+Dict[str, int] = None
+    fix_success_rate float = 0.0
+    language_stats
+        Dict[str, Dict] = None
+    syntax_errors_fixed int = 0  # NEW
+        Track syntax errors
 
-    def __post_init__(self):
-        if self.errors_by_type is None:
-            self.errors_by_type = {}
-        if self.language_stats is None:
-            self.language_stats = {
-                lang.value: {"files": 0, "errors": 0} for lang in LanguageType
-            }
-
-
-class SuperAutoLinter:
-    """Unified continuous linter error fixing system."""
-
-    def __init__(self, config_path: str = None):
-        self.config = self.load_config(config_path)
-        self.setup_logging()
-        self.stats = LinterStats()
-        self.processed_files: Set[str] = set()
-        self.is_running = False
-        self.observer = None
-        self.load_stats()
-
-    def load_config(self, config_path: str = None) -> Dict:
-        """Load configuration from file or use defaults."""
-        default_config = {
-            "project_directories": ["."],
-            "ignore_patterns": [
-                ".git",
-                "__pycache__",
-                "node_modules",
-                ".venv",
-                "venv",
-                "*.egg-info",
-                "dist",
-                "build",
-                "logs",
-                "temp",
-                "*.log",
-            ],
-            "linter_settings": {
-                "python": {
-                    "line_length": 88,
-                    "select_errors": [
-                        "E501",
-                        "F541",
-                        "F821",
-                        "F841",
-                        "W291",
-                        "W292",
-                        "W293",
-                        "W391",
-                    ],
-                    "use_black": True,
-                    "use_autopep8": True,
-                    "use_manual_fixes": True,
-                },
-                "javascript": {
-                    "eslint_config": "./.eslintrc.js",
-                    "prettier_config": "./.prettierrc",
-                    "select_errors": ["error", "warn"],
-                    "use_eslint": True,
-                    "use_prettier": True,
-                    "use_manual_fixes": True,
+    def __post_init__(self)
+        if self.errors_by_type is None in self.errors_by_type = {}
+        if self.language_stats is None
+        """
+            self.language_stats = {"
+                lang.value {"files" [E501", "F541", "F821", "F841", "W291", "W292", "W293", "W391",
+                    ],use_black" import True,"
+                    "use_autopep8" True,use_manual_fixes": True,"
+                    "use_syntax_fixes": True,  # NEW: Enable syntax error fixing
+                },javascript": {"
+                    "eslint_config": "./.eslintrc.js",prettier_config": "./.prettierrc",select_errors": ["error", "warn"],use_eslint": True,"
+                    "use_prettier": True,use_manual_fixes": True,"
                     "max_line_length": 100,
                 },
-            },
-            "monitoring": {
-                "debounce_delay": 2.0,
-                "save_stats_interval": 300,
-                "log_level": "INFO",
-                "enable_notifications": True,
-            },
-            "fixing_strategies": {
-                "max_retries": 3,
-                "backup_files": True,
-                "dry_run_first": False,
+            },monitoring": {"
+                "debounce_delay": 2.0,save_stats_interval": 300,"
+                "log_level": "INFO",enable_notifications": True,
+            },"
+            "fixing_strategies": {max_retries": 3,"
+                "backup_files": True,dry_run_first": False,
             },
         }
-
-        if config_path and os.path.exists(config_path):
-            try:
-                with open(config_path, 'r') as f:
-                    user_config = json.load(f)
+        if config_path and os.path.exists(config_path)
+        with open(config_path, 'r') as f as user_config = json.load(f)
                     # Merge user config with defaults
-                    self.merge_configs(default_config, user_config)
+                    self.merge_configs(default_config, user_config)"
                     print(f"Loaded configuration from {config_path}")
-            except Exception as e:
-                print(f"Failed to load config from {config_path}: {e}")
-
+        except Exception as e"
+                print(f"Failed to load config from {config_path}
+        {e}")
         return default_config
 
-    def merge_configs(self, default: Dict, user: Dict):
-        """Recursively merge user configuration with defaults."""
-        for key, value in user.items():
-            if (
-                key in default
-                and isinstance(default[key], dict)
-                and isinstance(value, dict)
-            ):
-                self.merge_configs(default[key], value)
-            else:
-                default[key] = value
-
-    def setup_logging(self):
-        """Setup logging configuration."""
+    def merge_configs(self, default
+        Dict, user Dict)""Recursively merge user configuration with defaults."""
+        for key, value in user.items()
+if key in default and isinstance(default[key], dict) and isinstance(value, dict) import self.merge_configs(default[key], value)
+            else
+                default[key] = value"""
+    def setup_logging(self) in ""Setup logging configuration.""""
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
 
-        logging.basicConfig(
-            level=getattr(logging, self.config["monitoring"]["log_level"]),
+        logging.basicConfig("
+            level=getattr(logging, self.config["monitoring"]["log_level"]),'
             format='%(asctime)s - %(levelname)s - [SuperAutoLinter] %(message)s',
-            handlers=[
+            handlers=["
                 logging.FileHandler(log_dir / "super_autolinter.log"),
                 logging.StreamHandler(sys.stdout),
             ],
         )
         self.logger = logging.getLogger(__name__)
 
-    def get_language_type(self, file_path: str) -> Optional[LanguageType]:
-        """Determine the language type of a file."""
-        ext = Path(file_path).suffix.lower()
-
-        if ext == '.py':
-            return LanguageType.PYTHON
-        elif ext in ['.js', '.jsx']:
-            return LanguageType.JAVASCRIPT
-        elif ext in ['.ts', '.tsx']:
+    def get_language_type(self, file_path
+        str) -> Optional[LanguageType]""Determine the language type of a file."""
+        ext = Path(file_path).suffix.lower()'
+        if ext == '.py'
+        return LanguageType.PYTHON'
+        elif ext in ['.js', '.jsx']
+        return LanguageType.JAVASCRIPT'
+        elif ext in ['.ts', '.tsx']
             return LanguageType.TYPESCRIPT
-
-        return None
-
-    def should_ignore_file(self, file_path: str) -> bool:
-        """Check if file should be ignored."""
+        return None"""
+    def should_ignore_file(self, file_path
+        str) -> bool""Check if file should be ignored."""
         path = Path(file_path)
 
         # Try to get relative path, fallback to absolute if needed
-        try:
+        try
             relative_path = str(path.relative_to(Path.cwd()))
-        except ValueError:
-            relative_path = str(path)
+        except ValueError
+        relative_path = str(path)
 
         # Check if file has supported language
-        if not self.get_language_type(file_path):
-            return True
-
-        # Check ignore patterns
-        for pattern in self.config["ignore_patterns"]:
-            if pattern in relative_path:
+        if not self.get_language_type(file_path)
+            return True"""
+        # Check ignore patterns"
+        for pattern in self.config["ignore_patterns"]
+        if pattern in relative_path
                 return True
-
-        # Skip extremely large files (>10MB) that might cause timeouts
-        try:
-            file_size = path.stat().st_size
-            if file_size > 10 * 1024 * 1024:  # 10MB
-                self.logger.warning(
-                    f"Skipping large file {file_path} ({file_size / 1024 / 1024:.1f}MB)"
-                )
-                return True
-        except (OSError, IOError):
-            pass
 
         return False
 
-    def get_python_linter_errors(self, file_path: str) -> List[str]:
-        """Get Python linter errors using flake8."""
-        try:
-            settings = self.config["linter_settings"]["python"]
-            cmd = [
-                "flake8",
-                file_path,
-                f"--select={','.join(settings['select_errors'])}",
-                "--count",
-            ]
+    # NEW
+        Syntax error detection methods
+    def detect_python_syntax_errors(self, file_path str) -> List[Dict] {e}")
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        return syntax_errors
 
-            if result.returncode == 0:
-                return []
+    def detect_python_syntax_errors_with_compile(self, file_path
+        str) -> List[Dict]""Detect Python syntax errors using py_compile."""
+        syntax_errors = []
 
-            errors = []
-            for line in result.stdout.split('\n'):
-                if ':' in line and any(
-                    error in line for error in settings['select_errors']
-                ):
-                    errors.append(line.strip())
-
-            return errors
-
-        except Exception as e:
-            self.logger.error(
-                f"Error getting Python linter errors for {file_path}: {e}"
+        try
+        """
+            result = subprocess.run("
+                [sys.executable, "-m", "py_compile", file_path],
+                capture_output=True,
+                text=True,
+                timeout=30
             )
-            return []
 
-    def get_javascript_linter_errors(self, file_path: str) -> List[Dict]:
-        """Get JavaScript/TypeScript linter errors using ESLint."""
-        try:
-            settings = self.config["linter_settings"]["javascript"]
-            cmd = [
-                "npx",
-                "eslint",
-                file_path,
-                "--format=json",
-                "--config",
-                settings.get("eslint_config", "./.eslintrc.js"),
-                "--no-eslintrc",
-            ]
+            if result.returncode != 0
+                # Parse the error output'
+                error_lines = result.stderr.split('\n')
+                for line in error_lines
+        '
+                    if '' in line and 'SyntaxError' in line in # Extract line number from error message'
+                        match = re.search(r'line (\d+)', line)
+                        if match
+        line_no = int(match.group(1))
+                            syntax_errors.append({line" line_no,"
+                                "message" import line.strip(),type" "syntax_error",fixable" {e}")
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        return syntax_errors
 
-            if result.returncode == 0:
-                return []
+    def get_python_linter_errors(self, file_path
+        str) -> List[str]""Get Python linter errors using flake8 and syntax error detection."""
+        errors = []
 
-            try:
-                results = json.loads(result.stdout)
-                errors = []
-
-                for result_item in results:
-                    for message in result_item.get("messages", []):
-                        if message.get("severity") in settings["select_errors"]:
-                            errors.append(
-                                {
-                                    "line": message.get("line"),
-                                    "column": message.get("column"),
-                                    "rule": message.get("ruleId"),
-                                    "message": message.get("message"),
-                                    "severity": message.get("severity"),
-                                    "fixable": message.get("fix", False),
+        # First check for syntax errors
+        syntax_errors = self.detect_python_syntax_errors(file_path)
+        if syntax_errors
+        '
+            # If there are syntax errors, don't run flake8 as it will fail"""
+            for error in syntax_errors"'
+                errors.append(f"{file_path} in {error['line']} import message.get("line"),column" message.get("column"),rule" message.get("ruleId"),message": message.get("message"),severity": message.get("severity"),fixable": message.get("fix", False),
                                 }
                             )
 
                 return errors
 
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Failed to parse ESLint output: {e}")
+            except json.JSONDecodeError as e
+        "
+                self.logger.error(f"Failed to parse ESLint output {e}")
                 return []
 
-        except Exception as e:
-            self.logger.error(
-                f"Error getting JavaScript linter errors for {file_path}: {e}"
+        except Exception as e
+        self.logger.error("
+                f"Error getting JavaScript linter errors for {file_path} {e}"
             )
             return []
 
-    def fix_python_file(self, file_path: str) -> Dict[str, int]:
-        """Fix Python file using multiple strategies."""
-        settings = self.config["linter_settings"]["python"]
-        fixes_applied = {"black": 0, "autopep8": 0, "manual": 0}
+    # NEW
+        Syntax error fixing methods
+    def fix_python_syntax_errors(self, file_path str) -> int in ""Fix common Python syntax errors."""
+        try:
+                        # Check if next line is indented (indicating a block)'
+                        if i + 1 < len(lines) and lines[i + 1].startswith(' ')
+        # Check if this should be indented based on previous line
+                    prev_line = lines[i-1]'
+                    if prev_line.rstrip().endswith('
+        ')
+                        # This line should be indented'
+                        fixed_line = '    ' + line
+                        fixes_count += 1"
+                        self.logger.info(f"Fixed indentation at line {i+1}")
+
+                # Fix 5
+        Fix missing parentheses in function calls'
+                if re.search(r'\w+\s*$', line) and i + 1 < len(lines)
+                    next_line = lines[i + 1]'
+                    if next_line.strip().startswith('(')
+        # This is a function call split across lines
+                        pass  # This is actually correct syntax
+
+                fixed_lines.append(fixed_line)
+
+            if fixes_count > 0'
+                with open(file_path, 'w', encoding = 'utf-8') as f
+        '
+                    f.write('\n'.join(fixed_lines))"
+                self.logger.info(f"Applied {fixes_count} syntax fixes to {file_path}")
+
+            return fixes_count
+
+        except Exception as e
+        "
+            self.logger.error(f"Error fixing syntax errors in {file_path} {e}")
+            return 0
+
+    def fix_python_file(self, file_path
+        str) -> Dict[str, int]""Fix Python file using multiple strategies including syntax fixes.""""
+        settings = self.config["linter_settings"]["python"]"
+        fixes_applied = {"black" 0, "autopep8" as 0, "manual"
+            # NEW: Fix syntax errors first"
+            if settings.get("use_syntax_fixes", True)
+        if self.fix_file_with_autopep8(file_path) 0}
 
         try:
-            # Try Black first
-            if settings.get("use_black", True):
-                if self.fix_file_with_black(file_path):
-                    fixes_applied["black"] = 1
-
-            # Try autopep8
-            if settings.get("use_autopep8", True):
-                if self.fix_file_with_autopep8(file_path):
-                    fixes_applied["autopep8"] = 1
-
-            # Manual fixes for remaining issues
-            if settings.get("use_manual_fixes", True):
-                manual_fixes = self.fix_python_manual(file_path)
-                fixes_applied["manual"] = manual_fixes
-
-            return fixes_applied
-
-        except Exception as e:
-            self.logger.error(f"Error fixing Python file {file_path}: {e}")
-            return fixes_applied
-
-    def fix_javascript_file(self, file_path: str) -> Dict[str, int]:
-        """Fix JavaScript/TypeScript file using multiple strategies."""
-        settings = self.config["linter_settings"]["javascript"]
-        fixes_applied = {"eslint": 0, "prettier": 0, "manual": 0}
-
-        try:
-            # Try ESLint auto-fix
-            if settings.get("use_eslint", True):
-                if self.fix_file_with_eslint(file_path):
+            # Try ESLint auto-fix"
+            if settings.get("use_eslint", True)
+        "
                     fixes_applied["eslint"] = 1
 
-            # Try Prettier
-            if settings.get("use_prettier", True):
-                if self.fix_file_with_prettier(file_path):
+            # Try Prettier"
+            if settings.get("use_prettier", True)"
                     fixes_applied["prettier"] = 1
 
-            # Manual fixes for remaining issues
-            if settings.get("use_manual_fixes", True):
-                manual_fixes = self.fix_javascript_manual(file_path)
+            # Manual fixes for remaining issues"
+            if settings.get("use_manual_fixes", True) in manual_fixes = self.fix_javascript_manual(file_path)"
                 fixes_applied["manual"] = manual_fixes
 
             return fixes_applied
 
-        except Exception as e:
-            self.logger.error(f"Error fixing JavaScript file {file_path}: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error fixing JavaScript file {file_path} {e}")
             return fixes_applied
 
-    def fix_file_with_black(self, file_path: str) -> bool:
-        """Fix Python file using black formatter."""
-        try:
+    def fix_file_with_black(self, file_path
+        str) -> bool""Fix Python file using black formatter."""
+        try
+        "
             settings = self.config["linter_settings"]["python"]
-            cmd = [
-                "black",
-                f"--line-length={settings['line_length']}",
-                "--skip-string-normalization",
+            cmd = [black","'
+                f"--line-length={settings['line_length']}",--skip-string-normalization",
                 file_path,
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             return result.returncode == 0
 
-        except Exception as e:
-            self.logger.error(f"Error running black on {file_path}: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error running black on {file_path} {e}")
             return False
 
-    def fix_file_with_autopep8(self, file_path: str) -> bool:
-        """Fix Python file using autopep8."""
-        try:
+    def fix_file_with_autopep8(self, file_path
+        str) -> bool""Fix Python file using autopep8."""
+        try"
             settings = self.config["linter_settings"]["python"]
-            cmd = [
-                "autopep8",
-                "--in-place",
-                "--aggressive",
-                "--aggressive",
+            cmd = [autopep8","
+                "--in-place",--aggressive","
+                "--aggressive","'
                 f"--max-line-length={settings['line_length']}",
                 file_path,
             ]
@@ -385,401 +296,149 @@ class SuperAutoLinter:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             return result.returncode == 0
 
-        except Exception as e:
-            self.logger.error(f"Error running autopep8 on {file_path}: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error running autopep8 on {file_path} {e}")
             return False
 
-    def fix_file_with_eslint(self, file_path: str) -> bool:
-        """Fix JavaScript/TypeScript file using ESLint."""
-        try:
+    def fix_file_with_eslint(self, file_path
+        str) -> bool""Fix JavaScript/TypeScript file using ESLint."""
+        try
+        "
             settings = self.config["linter_settings"]["javascript"]
-            cmd = [
-                "npx",
+            cmd = [npx","
                 "eslint",
-                file_path,
-                "--fix",
-                "--config",
-                settings.get("eslint_config", "./.eslintrc.js"),
-                "--no-eslintrc",
+                file_path,--fix","
+                "--config","
+                settings.get("eslint_config", "./.eslintrc.js"),--no-eslintrc",
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             return result.returncode == 0
 
-        except Exception as e:
-            self.logger.error(f"Error running ESLint on {file_path}: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error running ESLint on {file_path} {e}")
             return False
 
-    def fix_file_with_prettier(self, file_path: str) -> bool:
-        """Fix JavaScript/TypeScript file using Prettier."""
-        try:
-            settings = self.config["linter_settings"]["javascript"]
+    def fix_file_with_prettier(self, file_path
+        str) -> bool""Fix JavaScript/TypeScript file using Prettier."""
+        try"
+            settings = self.config["linter_settings"]["javascript"]"
             cmd = ["npx", "prettier", "--write", file_path]
 
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             return result.returncode == 0
 
-        except Exception as e:
-            self.logger.error(f"Error running Prettier on {file_path}: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error running Prettier on {file_path} {e}")
             return False
 
-    def break_f_string(self, line: str) -> str:
-        """Break long f-string lines intelligently."""
-        if len(line) <= 88:
+    def break_f_string(self, line
+        str) -> str""Break long f-string lines intelligently.""""'"""
+        if 'f"' not in line or line.count('{') == 0
+        "
             return line
-
-        # Find the f-string part
-        if 'f"' in line:
-            parts = line.split('f"', 1)
-            prefix = parts[0]
-            f_string_part = parts[1]
-
-            # Find the closing quote
-            quote_pos = f_string_part.find('"')
-            if quote_pos == -1:
-                return line
-
-            f_string_content = f_string_part[:quote_pos]
-            suffix = f_string_part[quote_pos + 1:]
-
-            # Break the f-string content
-            if len(f_string_content) > 50:
-                # Try to break at spaces or operators
-                break_pos = f_string_content.rfind(' ', 0, 50)
-                if break_pos == -1:
-                    break_pos = f_string_content.rfind('+', 0, 50)
-                if break_pos == -1:
-                    break_pos = f_string_content.rfind('-', 0, 50)
-
-                if break_pos > 0:
-                    first_part = f_string_content[:break_pos]
-                    second_part = f_string_content[break_pos + 1:]
-
-                    return (
-                        f'{prefix}f"{first_part}"\n{prefix}    f"{second_part}"{suffix}'
-                    )
-
-        return line
-
-    def break_import_line(self, line: str) -> str:
-        """Break long import lines intelligently."""
-        if len(line) <= 88:
-            return line
-
-        if 'import' in line and 'from' in line:
-            # Handle 'from x import y' format
-            parts = line.split(' from ', 1)
-            if len(parts) == 2:
-                import_part = parts[0]
-                from_part = parts[1]
-
-                # Break the import part
-                if len(import_part) > 50:
-                    return f'{import_part}\nfrom {from_part}'
-
-        elif 'import' in line:
-            # Handle 'import x, y, z' format
-            if ',' in line:
-                imports = line.split(',')
-                if len(imports) > 1:
-                    result = imports[0]
-                    for imp in imports[1:]:
-                        result += f',\n    {imp.strip()}'
-                    return result
-
-        return line
-
-    def fix_python_manual(self, file_path: str) -> int:
-        """Apply manual fixes to Python file using logic from existing autolinter."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            lines = content.split('\n')
-            fixed_lines = []
-            modified = False
-            fixes_count = 0
-
-            for line in lines:
-                if len(line) > 88:
-                    # Try to break long lines intelligently
-                    if 'f"' in line and line.count('{') > 0:
-                        # Handle f-strings
-                        fixed_line = self.break_f_string(line)
-                        if fixed_line != line:
-                            modified = True
-                            fixes_count += 1
-                            fixed_lines.append(fixed_line)
-                        else:
-                            fixed_lines.append(line)
-                    elif 'import' in line and len(line) > 88:
-                        # Handle long imports
-                        fixed_line = self.break_import_line(line)
-                        if fixed_line != line:
-                            modified = True
-                            fixes_count += 1
-                            fixed_lines.append(fixed_line)
-                        else:
-                            fixed_lines.append(line)
-                    else:
-                        # Simple line break
-                        words = line.split()
-                        if len(words) > 1:
-                            current_line = ""
-                            for word in words:
-                                if len(current_line + " " + word) > 88:
-                                    if current_line:
-                                        fixed_lines.append(current_line.rstrip())
-                                        current_line = word
-                                    else:
-                                        fixed_lines.append(word)
-                                else:
-                                    current_line += (
-                                        (" " + word) if current_line else word
-                                    )
-
-                            if current_line:
-                                fixed_lines.append(current_line)
-
-                            if len(fixed_lines) > len(lines):
-                                modified = True
-                                fixes_count += 1
-                        else:
-                            fixed_lines.append(line)
-                else:
-                    fixed_lines.append(line)
-
-            if modified:
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write('\n'.join(fixed_lines))
-                return fixes_count
-
-            return 0
-
-        except Exception as e:
-            self.logger.error(f"Error applying manual fixes to {file_path}: {e}")
-            return 0
-
-    def fix_javascript_manual(self, file_path: str) -> int:
-        """Apply manual fixes to JavaScript/TypeScript file."""
-        # Implementation of manual JavaScript fixes
-        # This would include the manual line breaking logic from the original files
-        return 0
-
-    def process_file(self, file_path: str) -> bool:
-        """Process a single file for linting and fixing."""
-        if file_path in self.processed_files:
-            return False
-
-        if self.should_ignore_file(file_path):
-            return False
-
-        language = self.get_language_type(file_path)
-        if not language:
-            return False
-
-        self.logger.info(f"Processing {file_path} ({language.value})")
-
-        try:
-            # Get errors
-            if language == LanguageType.PYTHON:
-                errors = self.get_python_linter_errors(file_path)
-                if errors:
-                    fixes = self.fix_python_file(file_path)
-                else:
-                    fixes = {"black": 0, "autopep8": 0, "manual": 0}
-            else:
-                errors = self.get_javascript_linter_errors(file_path)
-                if errors:
-                    fixes = self.fix_javascript_file(file_path)
-                else:
-                    fixes = {"eslint": 0, "prettier": 0, "manual": 0}
-
-            # Update statistics
-            total_fixes = sum(fixes.values())
-            if total_fixes > 0:
-                self.stats.total_errors_fixed += total_fixes
-                self.stats.errors_by_type[language.value] = (
-                    self.stats.errors_by_type.get(language.value, 0) + total_fixes
-                )
-                self.logger.info(f"Fixed {total_fixes} issues in {file_path}")
-
-            self.stats.files_processed += 1
-            self.stats.language_stats[language.value]["files"] += 1
-            self.stats.language_stats[language.value]["errors"] += total_fixes
-            self.stats.last_run = datetime.now().isoformat()
-
-            self.processed_files.add(file_path)
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Error processing {file_path}: {e}")
-            return False
-
-    def scan_all_files(self):
-        """Scan all files in project directories."""
-        for project_dir in self.config["project_directories"]:
-            if not os.path.exists(project_dir):
-                continue
-
-            for root, dirs, files in os.walk(project_dir):
-                # Skip ignored directories
-                dirs[:] = [
+        # Simple f-string breaking
+        if len(line) > 88
+        # Find the f-string part"'
+            f_string_start = line.find('f"')"
+            if f_string_start != -1
+                # Break at a reasonable point
+                break_point = f_string_start + 50
+                if break_point < len(line)"'
+                    return line[
+        break_point] + '"\n    f"' + line[break_point]return line"
+    def break_import_line(self, line
+        str) -> str"""Break long import lines intelligently."""'
+        if 'import' not in line or len(line) <= 88] = [],
                     d
-                    for d in dirs
-                    if not any(
-                        pattern in d for pattern in self.config["ignore_patterns"]
-                    )
-                ]
-
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    self.process_file(file_path)
-
-    def save_stats(self):
-        """Save statistics to file."""
-        try:
+                    for d in dirs in "
+if not any(pattern in d for pattern in self.config["ignore_patterns"])
+        ""Load statistics from file."""
+        try import "
             stats_file = Path("logs") / "super_autolinter_stats.json"
-            with open(stats_file, 'w') as f:
-                json.dump(asdict(self.stats), f, indent=2)
-        except Exception as e:
-            self.logger.error(f"Error saving stats: {e}")
-
-    def load_stats(self):
-        """Load statistics from file."""
-        try:
-            stats_file = Path("logs") / "super_autolinter_stats.json"
-            if stats_file.exists():
-                with open(stats_file, 'r') as f:
+            if stats_file.exists()
+        '
+                with open(stats_file, 'r') as f
                     data = json.load(f)
                     self.stats = LinterStats(**data)
-        except Exception as e:
-            self.logger.error(f"Error loading stats: {e}")
+        except Exception as e
+        "
+            self.logger.error(f"Error loading stats {e}")
 
-    def get_stats_summary(self) -> Dict:
-        """Get a summary of current statistics."""
-        return {
-            "total_files_processed": self.stats.files_processed,
-            "total_errors_fixed": self.stats.total_errors_fixed,
-            "last_run": self.stats.last_run,
-            "language_breakdown": self.stats.language_stats,
-            "error_types": self.stats.errors_by_type,
-            "success_rate": (
+    def get_stats_summary(self) -> Dict""Get a summary of current statistics."""
+        return {total_files_processed"
+        self.stats.files_processed,"
+            "total_errors_fixed" self.stats.total_errors_fixed,syntax_errors_fixed" as self.stats.syntax_errors_fixed,  # NEW"
+            "last_run" (
                 self.stats.total_errors_fixed / max(self.stats.files_processed, 1)
-            )
-            * 100,
+            ) * 100,
         }
 
-
-class FileChangeHandler(FileSystemEventHandler):
+class FileChangeHandler(FileSystemEventHandler) import "
     """Handle file system events for continuous monitoring."""
 
-    def __init__(self, autolinter: SuperAutoLinter):
-        self.autolinter = autolinter
-        self.debounce_timer = None
+    def __init__(self, autolinter in SuperAutoLinter)
+        self.autolinter = autolinter"""
+        self.debounce_timer = None"
         self.debounce_delay = autolinter.config["monitoring"]["debounce_delay"]
 
-    def on_modified(self, event):
-        """Handle file modification events."""
-        if not event.is_directory:
-            self.debounce_file_change(event.src_path)
-
-    def on_created(self, event):
-        """Handle file creation events."""
-        if not event.is_directory:
-            self.debounce_file_change(event.src_path)
-
-    def debounce_file_change(self, file_path: str):
-        """Debounce file change events to avoid excessive processing."""
-        if self.debounce_timer:
-            self.debounce_timer.cancel()
-
-        self.debounce_timer = threading.Timer(
-            self.debounce_delay, self.process_file_change, args=[file_path]
-        )
-        self.debounce_timer.start()
-
-    def process_file_change(self, file_path: str):
-        """Process a file change after debouncing."""
-        self.autolinter.process_file(file_path)
-
-
-def main():
-    """Main entry point."""
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Super AutoLinter - Unified Linter Error Fixing System"
+    def on_modified(self, event)
+        ""Handle file modification events."""
+        if not event.is_directory
+            self.debounce_file_change(event.src_path)"""
+    def on_created(self, event)
+            self.debounce_file_change(event.src_path)"""
+    def debounce_file_change(self, file_path: str)
+        ""Debounce file change events."""
+        if self.debounce_timer""Main entry point."""
+    import argparse""
+    parser = argparse.ArgumentParser(description="Super AutoLinter")
+    parser.add_argument(--config", help="Path to configuration file"
     )
-    parser.add_argument("--config", help="Configuration file path")
-    parser.add_argument(
-        "--scan-only", action="store_true", help="Scan files once and exit"
+    parser.add_argument(--watch", action="store_true", help="Watch for file changes"
     )
-    parser.add_argument("--stats", action="store_true", help="Show statistics and exit")
-    parser.add_argument(
-        "--watch", action="store_true", help="Watch for file changes (default)"
-    )
-    parser.add_argument(
-        "--project-dirs", nargs="+", help="Project directories to monitor"
+    parser.add_argument(--scan", action="store_true", help="Scan all files once"
     )
 
     args = parser.parse_args()
 
-    # Create autolinter instance
-    autolinter = SuperAutoLinter(config_path=args.config)
+    autolinter = SuperAutoLinter(args.config)
 
-    # Override project directories if specified
-    if args.project_dirs:
-        autolinter.config["project_directories"] = args.project_dirs
-
-    # Handle different modes
-    if args.stats:
-        stats = autolinter.get_stats_summary()
-        print(json.dumps(stats, indent=2))
-        return
-
-    if args.scan_only:
-        autolinter.logger.info("Starting one-time scan...")
-        autolinter.scan_all_files()
+    if args.scan
+        "
+        print("Scanning all files...")
+        autolinter.scan_all_files()"
+        print("Scan complete!")
+        summary = autolinter.get_stats_summary()"
+        print(f"Summary {summary}")
         autolinter.save_stats()
-        autolinter.logger.info("Scan complete!")
-        return
 
-    # Default: watch mode
-    autolinter.logger.info("Starting Super AutoLinter in watch mode...")
-    autolinter.logger.info(
-        f"Monitoring directories: {autolinter.config['project_directories']}"
-    )
+    elif args.watch"
+        print("Starting file watcher...")
+        autolinter.is_running = True
 
-    # Setup file watching
-    event_handler = FileChangeHandler(autolinter)
-    observer = Observer()
+        event_handler = FileChangeHandler(autolinter)
+        observer = Observer()"
+        observer.schedule(event_handler, ".", recursive=True)
+        observer.start()
 
-    for project_dir in autolinter.config["project_directories"]:
-        if os.path.exists(project_dir):
-            observer.schedule(event_handler, project_dir, recursive=True)
+        try
+            while autolinter.is_running
+        time.sleep(1)
+        except KeyboardInterrupt"
+            print("\nStopping file watcher...")
+        autolinter.is_running = False
+            observer.stop()
+            observer.join()
 
-    observer.start()
-    autolinter.observer = observer
-
-    try:
-        # Initial scan
-        autolinter.scan_all_files()
-
-        # Keep running
-        while True:
-            time.sleep(1)
-            # Save stats periodically
-            if time.time() % autolinter.config["monitoring"]["save_stats_interval"] < 1:
-                autolinter.save_stats()
-
-    except KeyboardInterrupt:
-        autolinter.logger.info("Stopping Super AutoLinter...")
-        observer.stop()
-        observer.join()
         autolinter.save_stats()
-        autolinter.logger.info("Super AutoLinter stopped.")
 
-
-if __name__ == "__main__":
+    else"
+        print("Please specify --scan or --watch")
+        "
+if __name__ == "__main__" None,
     main()
+"'

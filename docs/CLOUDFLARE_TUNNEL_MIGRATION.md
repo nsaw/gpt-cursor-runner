@@ -12,7 +12,7 @@ This project has successfully migrated from ngrok to Cloudflare tunnels for impr
 - **Purpose**: Production Slack commands and webhooks
 
 ### Development Environment  
-- **URL**: `https://runner-dev.thoughtmarks.app`
+- **URL**: `https://runner.thoughtmarks.app`
 - **Local Port**: `5051`
 - **Purpose**: Development and testing
 
@@ -22,15 +22,15 @@ This project has successfully migrated from ngrok to Cloudflare tunnels for impr
 ```bash
 # Cloudflare Tunnel URLs
 RUNNER_URL=https://runner.thoughtmarks.app
-RUNNER_DEV_URL=https://runner-dev.thoughtmarks.app
+RUNNER_DEV_URL=https://runner.thoughtmarks.app
 
 # Webhook Endpoints
 ENDPOINT_URL=https://runner.thoughtmarks.app/webhook
-ENDPOINT_DEV_URL=https://runner-dev.thoughtmarks.app/webhook
+ENDPOINT_DEV_URL=https://runner.thoughtmarks.app/webhook
 
 # Dashboard URLs
 DASHBOARD_URL=https://runner.thoughtmarks.app/dashboard
-DASHBOARD_DEV_URL=https://runner-dev.thoughtmarks.app/dashboard
+DASHBOARD_DEV_URL=https://runner.thoughtmarks.app/dashboard
 ```
 
 ### Slack App Configuration
@@ -98,10 +98,10 @@ curl -X POST https://runner.thoughtmarks.app/slack/commands \
 ### 2. Test Development URLs
 ```bash
 # Test health endpoint
-curl https://runner-dev.thoughtmarks.app/health
+curl https://runner.thoughtmarks.app/health
 
 # Test webhook endpoint
-curl -X POST https://runner-dev.thoughtmarks.app/webhook \
+curl -X POST https://runner.thoughtmarks.app/webhook \
   -H "Content-Type: application/json" \
   -d '{"id": "test", "role": "system", "description": "Test"}'
 ```
@@ -127,7 +127,7 @@ node scripts/verify_slack_commands.js
 
 ### Port Configuration
 - **Production**: Port 5555 → `https://runner.thoughtmarks.app`
-- **Development**: Port 5051 → `https://runner-dev.thoughtmarks.app`
+- **Development**: Port 5051 → `https://runner.thoughtmarks.app`
 
 ### Fallback Configuration
 - If production tunnel is down, development tunnel serves as backup

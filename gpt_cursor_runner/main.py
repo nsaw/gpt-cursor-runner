@@ -13,12 +13,12 @@ from dotenv import load_dotenv
 # Import handlers
 from gpt_cursor_runner.webhook_handler import process_hybrid_block, process_summary
 
-# # from gpt_cursor_runner.slack_handler import (
-#     verify_slack_signature,
-#     handle_slack_command,
-#     handle_slack_event,
-#     send_slack_response,
-# )
+from gpt_cursor_runner.slack_handler import (
+    verify_slack_signature,
+    handle_slack_command,
+    handle_slack_event,
+    send_slack_response,
+)
 from gpt_cursor_runner.event_logger import event_logger
 
 # Import dashboard
@@ -34,7 +34,6 @@ app = Flask(__name__)
 # Create dashboard routes if available
 if create_dashboard_routes:
     create_dashboard_routes(app)
-
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -124,7 +123,7 @@ def handle_slack_webhook():
 
         # Handle events
         if data.get("type") == "event_callback":
-            data.get("event", {})
+            event = data.get("event", {})
             response = handle_slack_event(data)
             return jsonify(response)
 
@@ -353,7 +352,6 @@ def api_summaries():
 
         # Process the summary data
         result = process_summary(data)
-
         return jsonify({"status": "success", "result": result})
 
     except Exception as e:
@@ -362,8 +360,7 @@ def api_summaries():
         # Log the error
         if event_logger:
             event_logger.log_system_event(
-                "api_summaries_error",
-                {"error": str(e), "headers": dict(request.headers)},
+                "api_summaries_error", {"error": str(e), "headers": dict(request.headers)}
             )
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
@@ -397,14 +394,12 @@ def api_status():
 def main():
     """Main entry point."""
     port = int(os.getenv("PYTHON_PORT", 5051))
-
     print(f"🚀 Starting GPT-Cursor Runner on port {port}")
     print(f"📡 Webhook endpoint: http://localhost:{port}/webhook")
     print(f"📊 Dashboard: http://localhost:{port}/dashboard")
     print(f"🧪 Test endpoint: http://localhost:{port}/slack/test")
     print(f"📊 Events endpoint: http://localhost:{port}/events")
     print("🔗 Supports: GPT hybrid blocks + Slack events")
-
     app.run(host="0.0.0.0", port=port, debug=True)
 
 

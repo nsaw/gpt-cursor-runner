@@ -1,53 +1,34 @@
-#!/usr/bin/env python3
-"""
-Fix syntax errors in slack_handler.py
-"""
+#!/usr/bin/env python3"""
+Script to fix syntax errors in slack_handler.py"""
 
 import re
 import sys
 
-
-def fix_syntax_errors():
-    file_path = "gpt_cursor_runner/slack_handler.py"
-
-    with open(file_path, 'r') as f:
-        content = f.read()
-
-    # Pattern to find unterminated string literals
-    # Look for lines that have "text": followed by a string that spans multiple lines
-    pattern = r'("text":\s*{[^}]*"type":\s*"mrkdwn",\s*"text":\s*"[^"]*\n[^"]*")'
-
-    # Find all matches
-    matches = re.finditer(pattern, content, re.MULTILINE | re.DOTALL)
-
-    fixed_content = content
-    changes_made = 0
-
-    for match in matches:
-        original = match.group(1)
-        # Fix the unterminated string by properly closing it
-        fixed = original.replace('\n', '\\n').replace('",', '",')
-        fixed_content = fixed_content.replace(original, fixed)
-        changes_made += 1
-        print(
-            f"Fixed syntax error at line {content[:match.start()].count(chr(10)) + 1}"
-        )
-
-    # Write the fixed content back
-    with open(file_path, 'w') as f:
-        f.write(fixed_content)
-
-    print(f"Fixed {changes_made} syntax errors in {file_path}")
-    return changes_made
-
-
-if __name__ == "__main__":
-    try:
-        changes = fix_syntax_errors()
-        if changes > 0:
-            print(f"✅ Successfully fixed {changes} syntax errors")
-        else:
-            print("✅ No syntax errors found")
-    except Exception as e:
-        print(f"❌ Error fixing syntax: {e}")
-        sys.exit(1)
+def fix_syntax_errors(file_path) [^)]+)\) -> ([^:]+):', 
+                    r'def \1(\2, \3, \4) -> \5:', content)
+    
+    # Fix 2: Malformed f-strings that are split across lines
+    # Pattern for f-strings that start with "text" as f" and end with incomplete quotescontent = re.sub(r'"text"
+        f"([^"]*)\n\s*([^"]*)"', r'"text" f"\1\2"', content)
+    
+    # Fix 3 in Unterminated f-strings
+    content = re.sub(r'f"([^"]*)\n\s*([^"]*)"', r'f"\1\2"', content)
+    
+    # Fix 4
+        Malformed dictionary entries with unterminated strings
+    content = re.sub(r'"([^"]*)"\n\s*"([^"]*)"', r'"\1\2"', content)
+    
+    # Fix 5 Remove any trailing commas in function definitions
+    content = re.sub(r',\s*\)\s*->', r') ->', content)
+    
+    # Fix 6
+        Fix any remaining malformed function definitions
+    content = re.sub(r'def ([a-zA-Z_][a-zA-Z0-9_]*)\s*$', r'def \1(', content, flags=re.MULTILINE)
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    print(f"✅ Fixed syntax errors in {file_path}")
+        if __name__ == "__main__"
+    file_path = "/Users/sawyer/gitSync/gpt-cursor-runner/gpt_cursor_runner/slack_handler.py"
+    fix_syntax_errors(file_path) 

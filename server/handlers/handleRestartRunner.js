@@ -1,53 +1,63 @@
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { spawn } = require('child_process');
 
-module.exports = async (req, res) => {
+module.exports = async ({ command, ack, respond }) => {
+  await ack();
+  
   try {
-    const stateFile = path.join(__dirname, '../../runner.state.json');
-    
-    // Update state to indicate restart
-    const currentState = fs.existsSync(stateFile) ? 
-      JSON.parse(fs.readFileSync(stateFile, 'utf8')) : 
-      { auto_mode: false, paused: false };
-    
-    const newState = {
-      ...currentState,
-      restart_requested: true,
-      restart_timestamp: new Date().toISOString()
-    };
-    
-    fs.writeFileSync(stateFile, JSON.stringify(newState, null, 2));
-    
-    // Send immediate response
-    res.json({
+    await respond({
       response_type: 'in_channel',
-      text: `🔄 **Runner Restart Initiated**\n\n**Status:** Restarting GPT-Cursor Runner service\n**Timestamp:** ${new Date().toLocaleString()}\n\n**Note:** Service will be temporarily unavailable during restart.`
+      text: `🔄 *Restarting GPT-Cursor Runner...*\n\n` +
+            `Attempting to restart the runner service. This may take a few moments.`
     });
     
-    // Execute restart in background
-    setTimeout(() => {
-      exec('pkill -f "python.*gpt_cursor_runner"', (error) => {
-        if (error) {
-          console.log('No existing runner processes to kill');
-        }
-        
-        // Start new runner process
-        exec('python3 -m gpt_cursor_runner.main', (error, _stdout, _stderr) => {
-          if (error) {
-            console.error('Restart error:', error);
-          } else {
-            console.log('Runner restarted successfully');
-          }
-        });
+    // Kill existing runner process
+    const killProcess = spawn('pkill', ['-f', 'python3 -m gpt_cursor_runner.main']);
+    
+    killProcess.on('close', (code) => {
+      console.log(`Killed existing runner process with code ${code}`);
+      
+      // Start new runner process
+      const startProcess = spawn('python3', ['-m', 'gpt_cursor_runner.main'], {
+        detached: true,
+        stdio: 'ignore'
       });
-    }, 1000);
+      
+      startProcess.unref();
+      
+      setTimeout(async () => {
+        try {
+          // Check if restart was successful
+          const axios = require('axios');
+          const healthCheck = await axios.get('http://runner.thoughtmarks.app/health', {
+            timeout: 5000
+          });
+          
+          await respond({
+            response_type: 'in_channel',
+            text: `✅ *Runner Restart Complete*\n\n` +
+                  `• Status: ${healthCheck.data.status}\n` +
+                  `• Uptime: ${Math.floor(healthCheck.data.uptime)} seconds\n` +
+                  `• Runner has been successfully restarted.`
+          });
+        } catch (error) {
+          await respond({
+            response_type: 'in_channel',
+            text: `⚠️ *Runner Restart Status*\n\n` +
+                  `• Status: Restart attempted\n` +
+                  `• Note: Runner may still be starting up\n` +
+                  `• Use \`/status-runner\` to check current status.`
+          });
+        }
+      }, 3000);
+    });
     
   } catch (error) {
-    console.error('Error in handleRestartRunner:', error);
-    res.json({
+    console.error('Restart failed:', error);
+    await respond({
       response_type: 'in_channel',
-      text: `❌ Error restarting runner: ${error.message}`
+      text: `❌ *Runner Restart Failed*\n\n` +
+            `• Error: ${error.message}\n` +
+            `• Please check the logs for more details.`
     });
   }
 }; 

@@ -20,15 +20,15 @@ A hybrid automation pipeline that enables GPT to control Cursor through structur
    ```bash
    # Cloudflare Tunnel Configuration
    RUNNER_URL=https://runner.thoughtmarks.app
-   RUNNER_DEV_URL=https://runner-dev.thoughtmarks.app
+   RUNNER_DEV_URL=https://runner.thoughtmarks.app
    
    # Webhook Endpoints
    ENDPOINT_URL=https://runner.thoughtmarks.app/webhook
-   ENDPOINT_DEV_URL=https://runner-dev.thoughtmarks.app/webhook
+   ENDPOINT_DEV_URL=https://runner.thoughtmarks.app/webhook
    
    # Dashboard URLs
    DASHBOARD_URL=https://runner.thoughtmarks.app/dashboard
-   DASHBOARD_DEV_URL=https://runner-dev.thoughtmarks.app/dashboard
+   DASHBOARD_DEV_URL=https://runner.thoughtmarks.app/dashboard
    ```
 
 3. **Install dependencies:**
@@ -39,9 +39,9 @@ A hybrid automation pipeline that enables GPT to control Cursor through structur
 
 ### Development URLs
 - **Production Runner**: `https://runner.thoughtmarks.app` (port 5555)
-- **Development Runner**: `https://runner-dev.thoughtmarks.app` (port 5051)
-- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
-- **Health Check**: `https://runner-dev.thoughtmarks.app/health`
+- **Development Runner**: `https://runner.thoughtmarks.app` (port 5051)
+- **Dashboard**: `https://runner.thoughtmarks.app/dashboard`
+- **Health Check**: `https://runner.thoughtmarks.app/health`
 
 ### Starting the Servers
 
@@ -62,17 +62,17 @@ python3 -m gpt_cursor_runner.main
 ### Slack App Configuration
 1. Configure your Slack app with Request URLs pointing to:
    - `https://runner.thoughtmarks.app/slack/commands` (production)
-   - `https://runner-dev.thoughtmarks.app/slack/commands` (development)
+   - `https://runner.thoughtmarks.app/slack/commands` (development)
 
 2. Set up OAuth redirect URLs:
    - `https://runner.thoughtmarks.app/slack/oauth/callback`
-   - `https://runner-dev.thoughtmarks.app/slack/oauth/callback`
+   - `https://runner.thoughtmarks.app/slack/oauth/callback`
 
 ## 📊 Monitoring
 
 ### Health Checks
 - **Production**: `https://runner.thoughtmarks.app/health`
-- **Development**: `https://runner-dev.thoughtmarks.app/health`
+- **Development**: `https://runner.thoughtmarks.app/health`
 
 ### Event Logging
 - Event logs: `event-log.json`
@@ -87,7 +87,7 @@ python3 -m gpt_cursor_runner.main
 node scripts/verify_slack_commands.js
 
 # Test webhook endpoint
-curl -X POST https://runner-dev.thoughtmarks.app/webhook \
+curl -X POST https://runner.thoughtmarks.app/webhook \
   -H "Content-Type: application/json" \
   -d '{"id": "test", "role": "system", "description": "Test"}'
 ```

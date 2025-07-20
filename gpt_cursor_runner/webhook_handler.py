@@ -2,7 +2,7 @@
 """
 Webhook Handler for GPT-Cursor Runner.
 
-Processes incoming GPT hybrid blocks and saves them as patches.
+Handles incoming webhook requests from GPT and other sources.
 """
 
 import os
@@ -13,7 +13,6 @@ from typing import Dict, Any
 # Import notification system
 try:
     from .slack_proxy import create_slack_proxy
-
     slack_proxy = create_slack_proxy()
 except ImportError:
     slack_proxy = None
@@ -29,21 +28,15 @@ def get_patches_directory() -> str:
     """Get the patches directory from environment or use default."""
     # Check for environment variable first
     patches_dir = os.getenv("PATCHES_DIRECTORY")
-
     if patches_dir:
         return patches_dir
-
     # Default to the tm-mobile-cursor location
-    default_dir = (
-        "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches"
-    )
-
+    default_dir = "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches"
     # If default doesn't exist, try relative patches directory
     if not os.path.exists(default_dir):
         relative_dir = "patches"
         if os.path.exists(relative_dir):
             return relative_dir
-
     return default_dir
 
 
@@ -95,11 +88,7 @@ def process_hybrid_block(block_data: Dict[str, Any]) -> Dict[str, Any]:
 
         # Notify Slack of patch creation
         if slack_proxy:
-            slack_proxy.notify_patch_created(
-                block_data["id"],
-                block_data.get("target_file", "Unknown"),
-                block_data.get("description", "No description"),
-            )
+            slack_proxy.notify_patch_created(block_data)
 
         return {
             "success": True,
@@ -110,23 +99,18 @@ def process_hybrid_block(block_data: Dict[str, Any]) -> Dict[str, Any]:
 
     except Exception as e:
         error_msg = f"Error processing hybrid block: {str(e)}"
-
-        # Log error
         if event_logger:
             event_logger.log_system_event(
-                "webhook_processing_error",
-                {"error": error_msg, "block_data": block_data},
+                "webhook_error", {"error": error_msg, "block_data": block_data}
             )
-
         # Notify Slack of error
         if slack_proxy:
             slack_proxy.notify_error(error_msg, context="process_hybrid_block")
-
         return {"success": False, "error": error_msg}
 
 
 def process_summary(summary_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Process a summary and save it to the correct directory."""
+    """Process a summary and save it to the summaries directory."""
     try:
         # Validate required fields
         if "content" not in summary_data:
@@ -146,9 +130,7 @@ def process_summary(summary_data: Dict[str, Any]) -> Dict[str, Any]:
         os.makedirs(summaries_dir, exist_ok=True)
 
         # Generate filename
-        summary_id = summary_data.get(
-            "id", f"summary-{int(datetime.now().timestamp())}"
-        )
+        summary_id = summary_data.get("id", f"summary-{int(datetime.now().timestamp())}")
         filename = f"{summary_id}.md"
         filepath = os.path.join(summaries_dir, filename)
 
@@ -175,12 +157,8 @@ def process_summary(summary_data: Dict[str, Any]) -> Dict[str, Any]:
 
     except Exception as e:
         error_msg = f"Error processing summary: {str(e)}"
-
-        # Log error
         if event_logger:
             event_logger.log_system_event(
-                "summary_processing_error",
-                {"error": error_msg, "summary_data": summary_data},
+                "summary_error", {"error": error_msg, "summary_data": summary_data}
             )
-
         return {"success": False, "error": error_msg}

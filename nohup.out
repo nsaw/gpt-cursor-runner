@@ -1,0 +1,17 @@
+👻 Enhanced Ghost Bridge
+=======================
+
+Usage:
+  node scripts/ghost-bridge.js test           - Test runner functionality
+  node scripts/ghost-bridge.js monitor        - Monitor summaries directory
+  node scripts/ghost-bridge.js send <file>    - Send specific file
+
+Configuration:
+  Ports to try: 5051, 5555, 5050
+  Endpoints: health, patches, summaries, webhook, status
+
+Features:
+  ✅ Automatic port detection
+  ✅ Fallback mechanisms
+  ✅ Real-time monitoring
+  ✅ Error handling

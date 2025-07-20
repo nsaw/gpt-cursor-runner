@@ -18,7 +18,7 @@ const ALL_COMMANDS = [
 
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
-const WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://gpt-cursor-runner.fly.dev';
+const WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://runner.thoughtmarks.app';
 
 if (!SLACK_BOT_TOKEN) {
   console.error('❌ SLACK_BOT_TOKEN not found in environment variables');

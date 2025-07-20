@@ -23,11 +23,11 @@ class StateManager {
         retryQueue: [],
         lastThemeAudit: null,
         crashFence: false,
-        public_url: process.env.PUBLIC_URL || 'https://runner-dev.thoughtmarks.app',
+        public_url: process.env.PUBLIC_URL || 'https://runner.thoughtmarks.app',
         slack_tokens: {
           access_token: process.env.SLACK_ACCESS_TOKEN || '',
           refresh_token: process.env.SLACK_REFRESH_TOKEN || '',
-          public_url: process.env.PUBLIC_URL || 'https://gpt-cursor-runner.fly.dev'
+          public_url: process.env.PUBLIC_URL || 'https://runner.thoughtmarks.app'
         }
       };
       await this.saveState();
