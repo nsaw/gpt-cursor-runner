@@ -2,6 +2,7 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const auth = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5555;
@@ -10,7 +11,7 @@ const PORT = process.env.PORT || 5555;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint for Fly.io
+// Health endpoints (no auth required)
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -21,6 +22,12 @@ app.get('/health', (req, res) => {
     slack: 'webhook mode'
   });
 });
+
+app.get('/healthz', (req, res) => res.json({ status: 'healthy' }));
+
+// Apply JWT auth to protected routes
+app.use('/api', auth, require('./routes/api'));
+app.use('/slack', auth, require('./routes/slack'));
 
 // Slack test endpoint
 app.get('/slack/test', (req, res) => {
@@ -107,51 +114,6 @@ app.post('/slack/events', async (req, res) => {
 
 // Serve static files
 app.use('/public', express.static(path.join(__dirname, '../public')));
-
-// Slack commands router
-const slackRouter = require('./routes/slack');
-app.use('/slack', slackRouter);
-
-// API endpoints for ghost bridge
-app.post('/api/patches', async (req, res) => {
-  try {
-    const patchData = req.body;
-    console.log('Received patch data:', patchData);
-    
-    // Process the patch data (placeholder for now)
-    const result = {
-      status: 'success',
-      message: 'Patch received and queued for processing',
-      patchId: patchData.id || 'unknown',
-      timestamp: new Date().toISOString()
-    };
-    
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error processing patch:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.post('/api/summaries', async (req, res) => {
-  try {
-    const summaryData = req.body;
-    console.log('Received summary data:', summaryData);
-    
-    // Process the summary data (placeholder for now)
-    const result = {
-      status: 'success',
-      message: 'Summary received and stored',
-      summaryId: summaryData.id || 'unknown',
-      timestamp: new Date().toISOString()
-    };
-    
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error processing summary:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // Dashboard endpoint
 app.get('/dashboard', (req, res) => {
