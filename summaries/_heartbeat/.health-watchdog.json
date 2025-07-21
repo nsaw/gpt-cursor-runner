@@ -1,0 +1,9 @@
+{
+    "service": "health-watchdog",
+    "status": "warning",
+    "timestamp": "2025-07-21T01:37:36Z",
+    "disk_usage": "2%",
+    "memory_usage": "102%",
+    "node_server": "2",
+    "flask_server": "0"
+}
