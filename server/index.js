@@ -3,16 +3,38 @@ const express = require('express');
 const path = require('path');
 require('dotenv').config();
 const auth = require('./middleware/auth');
+const { generalLimiter, apiLimiter, webhookLimiter, authLimiter } = require('./middleware/rate-limit');
+const { webhookValidations, apiValidations, slackValidations, validate } = require('./middleware/validation');
+const { cache, invalidateCache, getCacheStats, cacheHealth } = require('../utils/cache');
 
 const app = express();
 const PORT = process.env.PORT || 5555;
+
+// Security: Disable debug mode in production
+const isProduction = process.env.NODE_ENV === 'production';
+app.set('env', isProduction ? 'production' : 'development');
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Apply rate limiting
+app.use(generalLimiter);
+app.use('/api', apiLimiter);
+app.use('/webhook', webhookLimiter);
+app.use('/auth', authLimiter);
+
 // Health endpoints (no auth required)
-app.get('/health', (req, res) => {
+app.get('/health', cache(60), (req, res) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -23,7 +45,22 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get('/healthz', (req, res) => res.json({ status: 'healthy' }));
+app.get('/healthz', cache(60), (req, res) => res.json({ status: 'healthy' }));
+
+// Cache management endpoints
+app.get('/api/cache/stats', async (req, res) => {
+  const stats = await getCacheStats();
+  res.json(stats);
+});
+
+app.get('/api/cache/health', async (req, res) => {
+  const health = await cacheHealth();
+  res.json(health);
+});
+
+app.post('/api/cache/clear', invalidateCache('cache:*'), (req, res) => {
+  res.json({ message: 'Cache cleared successfully' });
+});
 
 // Apply JWT auth to protected routes
 app.use('/api', auth, require('./routes/api'));
@@ -57,7 +94,7 @@ app.get('/oauth/callback', (req, res) => {
 });
 
 // Slack interactive components endpoint
-app.post('/slack/interactive', async (req, res) => {
+app.post('/slack/interactive', slackValidations, validate, async (req, res) => {
   try {
     const { payload } = req.body;
     const parsedPayload = JSON.parse(payload);
@@ -84,7 +121,7 @@ app.post('/slack/interactive', async (req, res) => {
 });
 
 // Slack events endpoint
-app.post('/slack/events', async (req, res) => {
+app.post('/slack/events', slackValidations, validate, async (req, res) => {
   try {
     const { type, event } = req.body;
     
