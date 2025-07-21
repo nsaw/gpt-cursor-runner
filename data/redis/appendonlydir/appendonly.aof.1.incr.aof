@@ -37,3 +37,13 @@ $4
 PXAT
 $13
 1753065701576
+*2
+$3
+del
+$19
+patch:test-patch.js
+*2
+$3
+del
+$34
+ghost:session:SD-Studio-3497.local
