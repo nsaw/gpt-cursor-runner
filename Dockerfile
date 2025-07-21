@@ -1,27 +1,26 @@
-FROM node:18
+FROM node:18-alpine
 
-# Install Python and pip
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    && rm -rf /var/lib/apt/lists/*
-
+# Set working directory
 WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy application code
 COPY . .
 
-# Install Node.js dependencies
-RUN npm install
+# Create logs directory
+RUN mkdir -p logs
 
-# Create Python virtual environment and install dependencies
-RUN python3 -m venv /app/venv
-ENV PATH="/app/venv/bin:$PATH"
-RUN pip install -r requirements.txt
+# Expose port
+EXPOSE 5555
 
-# Run both Node.js and Python services
-CMD ["npm", "run", "dev:both"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:5555/health || exit 1
 
-# Injects dynamic tunnel detection into Docker
-ENV PUBLIC_RUNNER_URL=https://runner.thoughtmarks.app
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:5555/health || exit 1
+# Start the application
+CMD ["node", "server/index.js"]

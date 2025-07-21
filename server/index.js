@@ -6,6 +6,9 @@ const auth = require('./middleware/auth');
 const { generalLimiter, apiLimiter, webhookLimiter, authLimiter } = require('./middleware/rate-limit');
 const { webhookValidations, apiValidations, slackValidations, validate } = require('./middleware/validation');
 const { cache, invalidateCache, getCacheStats, cacheHealth } = require('../utils/cache');
+const { getBreakerStatus } = require('./middleware/circuit-breaker');
+const { requestLogger, errorLogger, logger } = require('./middleware/logging');
+const dbManager = require('./database/connection-pool');
 
 const app = express();
 const PORT = process.env.PORT || 5555;
@@ -26,6 +29,9 @@ app.use((req, res, next) => {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Apply logging middleware
+app.use(requestLogger);
 
 // Apply rate limiting
 app.use(generalLimiter);
@@ -60,6 +66,40 @@ app.get('/api/cache/health', async (req, res) => {
 
 app.post('/api/cache/clear', invalidateCache('cache:*'), (req, res) => {
   res.json({ message: 'Cache cleared successfully' });
+});
+
+// Circuit breaker status endpoint
+app.get('/api/circuit-breakers', (req, res) => {
+  const status = getBreakerStatus();
+  res.json(status);
+});
+
+// Database endpoints
+app.get('/api/database/stats', async (req, res) => {
+  try {
+    const stats = await dbManager.getStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/database/health', async (req, res) => {
+  try {
+    const health = await dbManager.healthCheck();
+    res.json(health);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/database/cache/clear', (req, res) => {
+  try {
+    const result = dbManager.clearCache();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Apply JWT auth to protected routes
@@ -226,11 +266,14 @@ app.use((req, res) => {
 });
 
 // Start server
+// Error handling middleware (must be last)
+app.use(errorLogger);
+
 app.listen(PORT, () => {
-  console.log(`🚀 GPT-Cursor Runner Server running on port ${PORT}`);
-  console.log(`📡 Slack commands: https://runner.thoughtmarks.app/slack/commands`);
-  console.log(`🔗 Health check: https://runner.thoughtmarks.app/health`);
-  console.log(`⚠️ Slack integration configured for webhook mode`);
+  logger.info(`🚀 GPT-Cursor Runner Server running on port ${PORT}`);
+  logger.info(`📡 Slack commands: https://runner.thoughtmarks.app/slack/commands`);
+  logger.info(`🔗 Health check: https://runner.thoughtmarks.app/health`);
+  logger.info(`⚠️ Slack integration configured for webhook mode`);
 });
 
 module.exports = app; 

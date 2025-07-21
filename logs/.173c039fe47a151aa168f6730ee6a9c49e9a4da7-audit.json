@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/.173c039fe47a151aa168f6730ee6a9c49e9a4da7-audit.json",
+    "files": [
+        {
+            "date": 1753118195337,
+            "name": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/error-2025-07-21.log",
+            "hash": "b5f574bd89f8615786640005d7fb59e369f7804c66f0e2c771fe64360f9be132"
+        }
+    ],
+    "hashType": "sha256"
+}
