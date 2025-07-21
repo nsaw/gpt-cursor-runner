@@ -15,3 +15,14 @@ $3
 del
 $10
 ghost:test
+*5
+$3
+SET
+$19
+patch:test-patch.js
+$1
+1
+$4
+PXAT
+$13
+1753068433315
