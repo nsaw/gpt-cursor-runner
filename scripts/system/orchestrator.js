@@ -1,9 +1,13 @@
-// Hardened Orchestrator (backported MAIN fix) — With Restart Dampening
+// Hardened Orchestrator (backported MAIN fix) — With Restart Dampening + Ghost Relay
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const registryFile = path.join(__dirname, '../registry/process-registry.json');
 const diagFile = path.join(__dirname, '../registry/orchestrator.diagnostic.json');
+
+// Ghost relay integration
+const PATCH_DIR = path.resolve(__dirname, '../../tasks/patches');
+const LOG = path.resolve(__dirname, '../../summaries/_heartbeat/.ghost-relay.log');
 
 const MAX_RESTARTS = 3;
 const WINDOW_MS = 15000;
@@ -52,9 +56,25 @@ function updateDiag(name) {
   fs.writeFileSync(diagFile, JSON.stringify(diag, null, 2));
 }
 
+function ghostRelay(filename, content, attempt = 1) {
+  const fullPath = path.join(PATCH_DIR, filename);
+  try {
+    fs.writeFileSync(fullPath, content);
+    if (!fs.existsSync(fullPath)) throw new Error('write failed');
+    fs.appendFileSync(LOG, `[✅ ghost-relay] ${filename} written at attempt ${attempt}\n`);
+  } catch (e) {
+    fs.appendFileSync(LOG, `[❌ ghost-relay fail] ${filename} attempt ${attempt}: ${e.message}\n`);
+    if (attempt < 3) {
+      setTimeout(() => ghostRelay(filename, content, attempt + 1), attempt * 1500);
+    }
+  }
+}
+
 function main() {
   processes.forEach(p => launchProcess(p));
   console.log('[Orchestrator] Resilience patch applied. Processes under supervision.');
 }
 
-main(); 
+main();
+
+module.exports = { ghostRelay }; 
