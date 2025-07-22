@@ -4,12 +4,12 @@ alwaysApply: true
 ---
 
 - All patches must include:
-  - "enforceValidationGate": true
-  - "strictRuntimeAudit": true
-  - "runDryCheck": true
-  - "forceRuntimeTrace": true
-  - "requireMutationProof": true
-  - "requireServiceUptime": true
+  - `"enforceValidationGate": true`
+  - `"strictRuntimeAudit": true`
+  - `"runDryCheck": true`
+  - `"forceRuntimeTrace": true`
+  - `"requireMutationProof": true`
+  - `"requireServiceUptime": true`
 
 - Patch runners must:
   - Confirm dry runs and diffs

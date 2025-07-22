@@ -6,9 +6,18 @@ Flask server for handling webhooks and providing API endpoints.
 """
 
 import os
+import sys
 from datetime import datetime
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+
+# PATCHED: Expo conflict guard
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'utils'))
+try:
+    from expoGuard import detect_expo_processes
+    detect_expo_processes()
+except ImportError:
+    pass  # Continue if guard not available
 
 # Import handlers
 from gpt_cursor_runner.webhook_handler import process_hybrid_block, process_summary

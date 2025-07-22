@@ -11,6 +11,9 @@
  *   node scripts/ghost-bridge.js send <file>
  */
 
+// PATCHED: Expo conflict guard
+require('./utils/expoGuard').detectExpoProcesses();
+
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');

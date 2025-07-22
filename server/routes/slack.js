@@ -1,5 +1,33 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
+
+// HMAC verification middleware
+function verifySlackSignature(req, res, buf) {
+  const signature = req.headers['x-slack-signature'];
+  const timestamp = req.headers['x-slack-request-timestamp'];
+  
+  if (!signature || !timestamp) {
+    return res.status(400).send('Missing Slack signature headers');
+  }
+  
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
+  if (!signingSecret) {
+    console.warn('[WARNING] SLACK_SIGNING_SECRET not configured');
+    return; // Allow in development
+  }
+  
+  const baseString = `v0:${timestamp}:${buf}`;
+  const hmac = crypto.createHmac('sha256', signingSecret);
+  const expectedSignature = `v0=${hmac.update(baseString).digest('hex')}`;
+  
+  if (!crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature))) {
+    return res.status(400).send('Invalid Slack signature');
+  }
+}
+
+// Apply HMAC verification to all POST requests
+router.use(express.json({ verify: verifySlackSignature }));
 
 // Core Runner Control Handlers
 const handleDashboard = require('../handlers/handleDashboard');

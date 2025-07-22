@@ -1,0 +1,7 @@
+{
+  "ghost-bridge": { "alive": false },
+  "patch-executor": { "alive": false },
+  "summary-monitor": { "alive": false },
+  "realtime-monitor": { "alive": false },
+  "heartbeat-loop": { "alive": false }
+} 

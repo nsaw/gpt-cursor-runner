@@ -1,4 +1,7 @@
 {
+  "timestamp": "2025-07-21T20:08:13.264Z",
+  "source": "ghost2-async-health-aggregator",
+  "status": "aggregating",
   "runner": {
     "status": "healthy",
     "timestamp": "2025-07-20T18:45:00Z",

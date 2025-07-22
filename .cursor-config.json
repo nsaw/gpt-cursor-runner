@@ -1,0 +1,15 @@
+{
+  "summaryPath": "/Users/sawyer/gitSync/.cursor-cache/summaries/CYOPS",
+  "execution": {
+    "autoReleaseTimeoutMs": 30000,
+    "onReloadHang": "Move to background and resume automatically"
+  },
+  "blockCommitOnError": true,
+  "watchConsole": true,
+  "enforceValidationGate": true,
+  "strictRuntimeAudit": true,
+  "runDryCheck": true,
+  "forceRuntimeTrace": true,
+  "requireMutationProof": true,
+  "requireServiceUptime": true
+} 

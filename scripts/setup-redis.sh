@@ -36,10 +36,10 @@ else
 fi
 
 # Create Redis configuration directory
-mkdir -p ./config/redis
+mkdir -p /usr/local/etc/redis
 
 # Create Redis configuration file
-cat > ./config/redis/redis.conf << EOF
+cat > /usr/local/etc/redis/redis.conf << EOF
 # GHOST 2.0 Redis Configuration
 bind 127.0.0.1
 port 6379
@@ -53,7 +53,7 @@ stop-writes-on-bgsave-error yes
 rdbcompression yes
 rdbchecksum yes
 dbfilename dump.rdb
-dir ./data/redis/
+dir /usr/local/var/db/redis/
 maxmemory 256mb
 maxmemory-policy allkeys-lru
 appendonly yes
@@ -82,11 +82,11 @@ aof-rewrite-incremental-fsync yes
 EOF
 
 # Create data directory
-mkdir -p ./data/redis
+mkdir -p /usr/local/var/db/redis
 
 # Start Redis server
 echo '[REDIS SETUP] Starting Redis server...'
-redis-server ./config/redis/redis.conf --daemonize yes
+redis-server /usr/local/etc/redis/redis.conf --daemonize yes
 
 # Wait for Redis to start
 sleep 3

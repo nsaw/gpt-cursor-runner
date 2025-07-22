@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+case "$1" in
+  status)
+    echo "Ghost Runner Status:"
+    if [ -f .watchdog-cooldown.lock ]; then
+      echo '⏸ Cooldown active'
+      cat .watchdog-cooldown.lock
+    else
+      echo '✅ No cooldown. Watchdog running.'
+    fi
+    ;;
+  unjam)
+    rm -f .watchdog-cooldown.lock && echo '✅ Cooldown lifted. Watchdog resumed.'
+    ;;
+  backoff)
+    echo '⏳ Manually triggering cooldown...'
+    echo 'Manual cooldown triggered' > .watchdog-cooldown.lock
+    ;;
+  registry)
+    cat scripts/registry/process-registry.json | jq .
+    ;;
+  restart)
+    pkill -f orchestrator.js || true
+    node scripts/system/orchestrator.js &
+    echo '✅ Orchestrator restarted'
+    ;;
+  *)
+    echo "Ghost CLI commands: status | unjam | backoff | registry | restart"
+    ;;
+esac 

@@ -10,8 +10,21 @@ const { getBreakerStatus } = require('./middleware/circuit-breaker');
 const { requestLogger, errorLogger, logger } = require('./middleware/logging');
 const dbManager = require('./database/connection-pool');
 
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5555;
+
+// CORS configuration with whitelist
+const whitelist = ['http://localhost:4000', 'https://ghost.fly.dev', 'https://runner.thoughtmarks.app'];
+app.use(cors({ 
+  origin: (origin, cb) => {
+    if (!origin || whitelist.includes(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 
 // Security: Disable debug mode in production
 const isProduction = process.env.NODE_ENV === 'production';
@@ -26,9 +39,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middleware with timeout and size limits
+app.use(express.json({ limit: '512kb' }));
+app.use(express.urlencoded({ extended: true, limit: '512kb' }));
+
+// Timeout middleware (10 seconds)
+app.use((req, res, next) => {
+  req.setTimeout(10000, () => {
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  next();
+});
 
 // Apply logging middleware
 app.use(requestLogger);
@@ -51,7 +72,15 @@ app.get('/health', cache(60), (req, res) => {
   });
 });
 
-app.get('/healthz', cache(60), (req, res) => res.json({ status: 'healthy' }));
+app.get('/healthz', (_, res) => res.status(200).send('ok'));
+app.get('/status', (_, res) => {
+  try {
+    const data = require('../summaries/_heartbeat/.resource.json');
+    res.status(200).json(data);
+  } catch {
+    res.status(503).json({ status: 'unavailable' });
+  }
+});
 
 // Cache management endpoints
 app.get('/api/cache/stats', async (req, res) => {
@@ -256,8 +285,12 @@ app.get('/', (req, res) => {
 
 // Error handling
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('[GHOST ERROR]', err);
+  res.status(500).json({ 
+    status: 'error', 
+    message: err.message || 'Internal server error',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // 404 handler

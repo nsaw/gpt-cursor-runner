@@ -278,3 +278,4 @@ ml_data/
 cache/
 __pycache__/
 *.pyc
+!.cursor/rules/
