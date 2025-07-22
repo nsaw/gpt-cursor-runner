@@ -99,6 +99,14 @@ function main() {
   processes.forEach(p => launchProcess(p));
   console.log('[Orchestrator] Resilience patch applied. Processes under supervision.');
   
+  // Launch viewer tunnel
+  try {
+    require('../tunnel/launch-viewer-tunnel');
+    console.log('[Tunnel] Viewer tunnel launch initiated');
+  } catch (e) {
+    console.error(`[TUNNEL ERROR] ${e.message}`);
+  }
+  
   // Periodic status updates every 15 seconds
   setInterval(() => {
     try {
