@@ -1,7 +1,22 @@
 {
-  "ghost-bridge": { "alive": false },
-  "patch-executor": { "alive": false },
-  "summary-monitor": { "alive": false },
-  "realtime-monitor": { "alive": false },
-  "heartbeat-loop": { "alive": false }
-} 
+  "ghost-bridge": {
+    "alive": false,
+    "timestamp": "2025-07-22T04:31:52.157Z"
+  },
+  "patch-executor": {
+    "alive": false,
+    "timestamp": "2025-07-22T04:31:52.002Z"
+  },
+  "summary-monitor": {
+    "alive": true,
+    "timestamp": "2025-07-22T04:31:49.888Z"
+  },
+  "realtime-monitor": {
+    "alive": false,
+    "timestamp": "2025-07-22T04:31:52.001Z"
+  },
+  "heartbeat-loop": {
+    "alive": true,
+    "timestamp": "2025-07-22T04:31:49.890Z"
+  }
+}

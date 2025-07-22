@@ -9,6 +9,9 @@ const diagFile = path.join(__dirname, '../registry/orchestrator.diagnostic.json'
 const PATCH_DIR = path.resolve(__dirname, '../../tasks/patches');
 const LOG = path.resolve(__dirname, '../../summaries/_heartbeat/.ghost-relay.log');
 
+// Live status endpoint
+const statusPath = path.resolve(__dirname, '../../.cursor-cache/CYOPS/ghost/status.json');
+
 const MAX_RESTARTS = 3;
 const WINDOW_MS = 15000;
 const processes = [
@@ -48,12 +51,34 @@ function updateRegistry(name, alive) {
   const reg = fs.existsSync(registryFile) ? JSON.parse(fs.readFileSync(registryFile)) : {};
   reg[name] = { alive, timestamp: new Date().toISOString() };
   fs.writeFileSync(registryFile, JSON.stringify(reg, null, 2));
+  
+  // Update live status endpoint
+  writeStatus(reg);
 }
 
 function updateDiag(name) {
   const diag = fs.existsSync(diagFile) ? JSON.parse(fs.readFileSync(diagFile)) : {};
   diag[name] = restarts[name];
   fs.writeFileSync(diagFile, JSON.stringify(diag, null, 2));
+}
+
+// Live status endpoint writer
+function writeStatus(daemonRegistry) {
+  try {
+    const state = {
+      updatedAt: new Date().toISOString(),
+      daemons: daemonRegistry,
+      host: require('os').hostname(),
+      uptime: process.uptime(),
+      summaryHeartbeat: fs.existsSync(path.resolve(__dirname, '../../.cursor-cache/CYOPS/.heartbeat/.last-md-write.log'))
+    };
+    
+    // Ensure directory exists
+    fs.mkdirSync(path.dirname(statusPath), { recursive: true });
+    fs.writeFileSync(statusPath, JSON.stringify(state, null, 2));
+  } catch (e) {
+    console.error(`[STATUS WRITE ERROR] ${e.message}`);
+  }
 }
 
 function ghostRelay(filename, content, attempt = 1) {
@@ -73,6 +98,16 @@ function ghostRelay(filename, content, attempt = 1) {
 function main() {
   processes.forEach(p => launchProcess(p));
   console.log('[Orchestrator] Resilience patch applied. Processes under supervision.');
+  
+  // Periodic status updates every 15 seconds
+  setInterval(() => {
+    try {
+      const reg = fs.existsSync(registryFile) ? JSON.parse(fs.readFileSync(registryFile)) : {};
+      writeStatus(reg);
+    } catch (e) {
+      console.error(`[STATUS UPDATE ERROR] ${e.message}`);
+    }
+  }, 15000);
 }
 
 main();
