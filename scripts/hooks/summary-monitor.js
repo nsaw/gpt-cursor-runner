@@ -1,24 +1,22 @@
-// Summary Monitor — with file existence check and debounce
+// Rewrite of summary-monitor with debounce + validation
 const fs = require('fs');
 const path = require('path');
-const chokidar = require('chokidar');
 const debounce = require('lodash.debounce');
+const chalk = require('chalk');
 
-const summariesDir = path.join(__dirname, '../../summaries');
+const summariesDir = path.resolve(__dirname, '../../.cursor-cache/CYOPS/summaries');
+const debounceDelay = 250;
 
-const watcher = chokidar.watch(`${summariesDir}/*.md`, {
-  ignoreInitial: true,
-  awaitWriteFinish: true
-});
-
-function validateSummary(filePath) {
+const onFileChange = debounce((filename) => {
+  const filePath = path.join(summariesDir, filename);
   if (!fs.existsSync(filePath)) return;
-  console.log(`[📄 SUMMARY DETECTED] ${filePath}`);
   const content = fs.readFileSync(filePath, 'utf-8');
-  if (!content.includes('✅') && !content.includes('❌')) {
-    console.warn('[⚠️ SUMMARY MISSING STATUS]', filePath);
-  }
-}
+  const status = content.includes('✅') ? 'PASS' : content.includes('❌') ? 'FAIL' : 'UNKNOWN';
+  console.log(chalk.blue(`[SUMMARY] ${filename} → ${status}`));
+}, debounceDelay);
 
-watcher.on('add', debounce(validateSummary, 250));
-watcher.on('change', debounce(validateSummary, 250)); 
+fs.watch(summariesDir, (event, filename) => {
+  if (filename && filename.endsWith('.md')) {
+    onFileChange(filename);
+  }
+}); 
