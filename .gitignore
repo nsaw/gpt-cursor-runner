@@ -280,3 +280,9 @@ cache/
 __pycache__/
 *.pyc
 !.cursor/rules/
+
+# Ghost shadow watcher output files
+.ghost-md-status.json
+.last-md-write.log
+.route-error.log
+.log-audit-warnings.log
