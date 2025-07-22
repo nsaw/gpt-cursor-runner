@@ -1,15 +1,10 @@
 {
-  "summaryPath": "/Users/sawyer/gitSync/.cursor-cache/summaries/CYOPS",
-  "execution": {
-    "autoReleaseTimeoutMs": 30000,
-    "onReloadHang": "Move to background and resume automatically"
-  },
-  "blockCommitOnError": true,
-  "watchConsole": true,
+  "MAIN_ROOT": "/Users/sawyer/gitSync/.cursor-cache/MAIN",
+  "CYOPS_ROOT": "/Users/sawyer/gitSync/.cursor-cache/CYOPS",
   "enforceValidationGate": true,
   "strictRuntimeAudit": true,
+  "requireMutationProof": true,
   "runDryCheck": true,
   "forceRuntimeTrace": true,
-  "requireMutationProof": true,
   "requireServiceUptime": true
 } 

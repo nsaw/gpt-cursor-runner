@@ -27,11 +27,11 @@ function main() {
   }
 
   // Simulate patch
-  fs.writeFileSync('tasks/patches/test-validation.json', '{"test":"ok"}');
-  console.log('✅ Dummy patch written to tasks/patches/');
+                fs.writeFileSync('.cursor-cache/CYOPS/patches/test-validation.json', '{"test":"ok"}');
+              console.log('✅ Dummy patch written to .cursor-cache/CYOPS/patches/');
 
   setTimeout(() => {
-    if (!fs.existsSync('summaries/test-validation.summary.md')) {
+                  if (!fs.existsSync('.cursor-cache/CYOPS/summaries/test-validation.summary.md')) {
       throw new Error('❌ Summary write did not occur');
     }
     console.log('✅ Summary file written');

@@ -2,8 +2,8 @@ const fs = require('fs');
 const os = require('os');
 
 // Ensure heartbeat directory exists
-if (!fs.existsSync('summaries/_heartbeat')) {
-  fs.mkdirSync('summaries/_heartbeat', { recursive: true });
+if (!fs.existsSync('.cursor-cache/CYOPS/.heartbeat')) {
+  fs.mkdirSync('.cursor-cache/CYOPS/.heartbeat', { recursive: true });
 }
 
 const snapshot = {
@@ -17,5 +17,5 @@ const snapshot = {
   cpus: os.cpus().length
 };
 
-fs.writeFileSync('summaries/_heartbeat/.resource.json', JSON.stringify(snapshot, null, 2));
+fs.writeFileSync('.cursor-cache/CYOPS/.heartbeat/.resource.json', JSON.stringify(snapshot, null, 2));
 console.log('[GHOST2] Resource metrics written.'); 

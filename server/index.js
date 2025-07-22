@@ -75,7 +75,7 @@ app.get('/health', cache(60), (req, res) => {
 app.get('/healthz', (_, res) => res.status(200).send('ok'));
 app.get('/status', (_, res) => {
   try {
-    const data = require('../summaries/_heartbeat/.resource.json');
+    const data = require('../.cursor-cache/CYOPS/.heartbeat/.resource.json');
     res.status(200).json(data);
   } catch {
     res.status(503).json({ status: 'unavailable' });

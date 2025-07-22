@@ -143,7 +143,7 @@ class ConsolidatedDaemon {
       timestamp: new Date().toISOString()
     };
     
-    const healthFile = 'summaries/_heartbeat/.consolidated-daemon-health.json';
+    const healthFile = '.cursor-cache/CYOPS/.heartbeat/.consolidated-daemon-health.json';
     const healthDir = path.dirname(healthFile);
     
     if (!fs.existsSync(healthDir)) {

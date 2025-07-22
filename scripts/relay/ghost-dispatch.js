@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-const targetPath = path.resolve(__dirname, '../../tasks/patches');
-const logFile = path.resolve(__dirname, '../../summaries/_heartbeat/.ghost-relay.log');
+const targetPath = path.resolve(__dirname, '../../.cursor-cache/CYOPS/patches');
+const logFile = path.resolve(__dirname, '../../.cursor-cache/CYOPS/.logs/ghost-relay.log');
 
 function writePatchWithRetry(filename, content, attempt = 1) {
   const fullPath = path.join(targetPath, filename);

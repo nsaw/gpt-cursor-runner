@@ -5,9 +5,9 @@ const path = require('path');
 const registryFile = path.join(__dirname, '../registry/process-registry.json');
 const diagFile = path.join(__dirname, '../registry/orchestrator.diagnostic.json');
 
-// Ghost relay integration
-const PATCH_DIR = path.resolve(__dirname, '../../tasks/patches');
-const LOG = path.resolve(__dirname, '../../summaries/_heartbeat/.ghost-relay.log');
+// Ghost relay integration - Unified paths
+const PATCH_DIR = path.resolve(__dirname, '../../.cursor-cache/CYOPS/patches');
+const LOG = path.resolve(__dirname, '../../.cursor-cache/CYOPS/.logs/ghost-relay.log');
 
 // Live status endpoint
 const statusPath = path.resolve(__dirname, '../../.cursor-cache/CYOPS/ghost/status.json');

@@ -4,15 +4,15 @@ const fs = require('fs/promises');
   try {
     // Ensure heartbeat directory exists
     try {
-      await fs.access('summaries/_heartbeat');
+      await fs.access('.cursor-cache/CYOPS/.heartbeat');
     } catch {
-      await fs.mkdir('summaries/_heartbeat', { recursive: true });
+      await fs.mkdir('.cursor-cache/CYOPS/.heartbeat', { recursive: true });
     }
 
     const paths = [
-      'summaries/_heartbeat/.runner-health.json',
-      'summaries/_heartbeat/.tunnel-health.json',
-      'summaries/_heartbeat/.daemon-health.json'
+      '.cursor-cache/CYOPS/.heartbeat/.runner-health.json',
+      '.cursor-cache/CYOPS/.heartbeat/.tunnel-health.json',
+      '.cursor-cache/CYOPS/.heartbeat/.daemon-health.json'
     ];
 
     const health = {
@@ -31,7 +31,7 @@ const fs = require('fs/promises');
       }
     }));
 
-    await fs.writeFile('summaries/_heartbeat/.async-health.json', JSON.stringify(health, null, 2));
+    await fs.writeFile('.cursor-cache/CYOPS/.heartbeat/.async-health.json', JSON.stringify(health, null, 2));
     console.log('[GHOST2] Async aggregated health written.');
   } catch (error) {
     console.error('[GHOST2] Error in async health aggregation:', error.message);
