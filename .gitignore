@@ -166,6 +166,7 @@ node_modules/
 
 # Cursor
 .cursor/
+.cursor-cache/
 .env
 .env.*
 
