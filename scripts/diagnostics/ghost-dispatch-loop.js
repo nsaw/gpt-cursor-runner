@@ -1,3 +1,4 @@
+/* ⬅️ PATCHED: dispatch queue monitored at .cursor-cache/CYOPS/patches/*.json */
 // Monitor patch dispatch and summary state
 const fs = require('fs');
 const path = require('path');

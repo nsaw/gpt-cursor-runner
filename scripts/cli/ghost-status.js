@@ -1,3 +1,4 @@
+/* ⬅️ PATCHED: path default moved to .cursor-cache/CYOPS/.heartbeat */
 // CLI tool to display current .heartbeat/ state
 const fs = require('fs');
 const path = require('path');

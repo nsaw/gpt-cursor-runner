@@ -1,3 +1,4 @@
+/* ⬅️ PATCHED: Now targets /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries */
 const fs = require('fs');
 const path = require('path');
 const roots = [
