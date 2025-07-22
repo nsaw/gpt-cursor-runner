@@ -34,6 +34,7 @@
     "express-validator": "^7.2.1",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash.debounce": "^4.0.8",
     "node-fetch": "^3.3.2",
     "opossum": "^9.0.0",
     "pg": "^8.16.3",
