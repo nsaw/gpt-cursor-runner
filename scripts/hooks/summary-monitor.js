@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const debounce = require('lodash.debounce');
 const chalk = require('chalk');
+const { GHOST_STATUS_PATH } = require('../constants/paths');
 
 const summariesDir = path.resolve(__dirname, '../../.cursor-cache/CYOPS/summaries');
 const debounceDelay = 250;

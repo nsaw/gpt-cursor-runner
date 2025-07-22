@@ -1,0 +1,1 @@
+export const GHOST_STATUS_PATH = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/ghost/status.json'; 
