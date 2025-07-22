@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2025-07-22T04:46:34.961Z",
+  "updatedAt": "2025-07-22T06:11:20.509Z",
   "daemons": {
     "ghost-bridge": {
       "alive": false,
@@ -23,6 +23,6 @@
     }
   },
   "host": "SD-Studio-3497.local",
-  "uptime": 885.08931175,
+  "uptime": 5970.688969666,
   "summaryHeartbeat": false
 }

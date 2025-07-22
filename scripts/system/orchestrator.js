@@ -1,5 +1,5 @@
 // Hardened Orchestrator (backported MAIN fix) — With Restart Dampening + Ghost Relay
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const registryFile = path.join(__dirname, '../registry/process-registry.json');
@@ -105,6 +105,14 @@ function main() {
     console.log('[Tunnel] Viewer tunnel launch initiated');
   } catch (e) {
     console.error(`[TUNNEL ERROR] ${e.message}`);
+  }
+  
+  // Launch doc daemon attached
+  try {
+    spawn('node', ['scripts/daemons/doc-daemon.js'], { stdio: 'ignore', detached: true }).unref();
+    console.log('[Doc Daemon] Documentation daemon launched');
+  } catch (e) {
+    console.error(`[DOC DAEMON ERROR] ${e.message}`);
   }
   
   // Periodic status updates every 15 seconds
