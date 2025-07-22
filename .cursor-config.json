@@ -1,14 +1,5 @@
 {
-  "patchRoot": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches",
-  "summaryRoot": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
-  "logRoot": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs",
-  "heartbeatRoot": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat",
-  "MAIN_ROOT": "/Users/sawyer/gitSync/.cursor-cache/MAIN",
-  "CYOPS_ROOT": "/Users/sawyer/gitSync/.cursor-cache/CYOPS",
-  "enforceValidationGate": true,
-  "strictRuntimeAudit": true,
-  "requireMutationProof": true,
-  "runDryCheck": true,
-  "forceRuntimeTrace": true,
-  "requireServiceUptime": true
+  "summaryWriteDir": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
+  "summaryArchiveDir": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/.archive",
+  "patchWriteDir": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches"
 } 

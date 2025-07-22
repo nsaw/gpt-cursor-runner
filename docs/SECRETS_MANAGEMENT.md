@@ -34,23 +34,23 @@ nano .env
 
 ```bash
 # Sync .env to 1Password (creates items with real values)
-cd ~/gitSync/dev-tools && ./sync-to-1pw.js --force
+cd /Users/sawyer/gitSync/dev-tools && ./sync-to-1pw.js --force
 
 # Test 1Password injection
-cd ~/gitSync/gpt-cursor-runner && ./prestart.sh
+cd /Users/sawyer/gitSync/gpt-cursor-runner && ./prestart.sh
 ```
 
 ### 3. Sync to Vault (Optional Backup)
 
 ```bash
 # Start Vault
-cd ~/gitSync/dev-tools && ./vault.sh
+cd /Users/sawyer/gitSync/dev-tools && ./vault.sh
 
 # Sync .env to Vault
 ./vault-sync-env.js
 
 # Test Vault injection
-cd ~/gitSync/gpt-cursor-runner && ./vault-to-env.sh
+cd /Users/sawyer/gitSync/gpt-cursor-runner && ./vault-to-env.sh
 ```
 
 ## 📋 Workflows
@@ -65,7 +65,7 @@ cd ~/gitSync/gpt-cursor-runner && ./vault-to-env.sh
 **Runtime:**
 ```bash
 # Manual injection
-op inject -i ~/gitSync/_global/.op.env -o .env
+op inject -i /Users/sawyer/gitSync/_global/.op.env -o .env
 
 # Automated injection (via npm scripts)
 npm run inject-secrets
@@ -75,7 +75,7 @@ npm run dev  # Automatically runs predev script
 ### 🔐 Vault Workflow (Backup)
 
 **Setup:**
-1. Start Vault: `cd ~/gitSync/dev-tools && ./vault.sh`
+1. Start Vault: `cd /Users/sawyer/gitSync/dev-tools && ./vault.sh`
 2. Run `./vault-sync-env.js` to import secrets
 3. Use `vault-to-env.sh` for runtime injection
 
@@ -92,7 +92,7 @@ export VAULT_ADDR=http://localhost:8200 && ./vault-to-env.sh
 
 **Start:**
 ```bash
-cd ~/gitSync/dev-tools
+cd /Users/sawyer/gitSync/dev-tools
 ./sync-env-daemon.js --watch
 ```
 
@@ -133,7 +133,7 @@ cd ~/gitSync/dev-tools
 ### 1Password Configuration
 
 **Vault:** `SawyerSecrets`  
-**Template:** `~/gitSync/_global/.op.env`  
+**Template:** `/Users/sawyer/gitSync/_global/.op.env`  
 **Field Mapping:** `${VAR_NAME:password}`
 
 ### Vault Configuration
@@ -146,9 +146,9 @@ cd ~/gitSync/dev-tools
 
 | File | Purpose | Location |
 |------|---------|----------|
-| `.op.env` | 1Password template | `~/gitSync/_global/.op.env` |
+| `.op.env` | 1Password template | `/Users/sawyer/gitSync/_global/.op.env` |
 | `vault-to-env.sh` | Vault injection | Project root |
-| `secrets.store.json` | Human-readable store | `~/gitSync/dev-tools/` |
+| `secrets.store.json` | Human-readable store | `/Users/sawyer/gitSync/dev-tools/` |
 
 ## 🚨 Troubleshooting
 
@@ -160,7 +160,7 @@ cd ~/gitSync/dev-tools
 op item get SLACK_BOT_TOKEN --vault SawyerSecrets --format=json
 
 # Re-sync with real values
-cd ~/gitSync/dev-tools && ./sync-to-1pw.js --force
+cd /Users/sawyer/gitSync/dev-tools && ./sync-to-1pw.js --force
 ```
 
 **Problem:** Duplicate items
@@ -177,7 +177,7 @@ op item delete [ITEM_ID] --vault SawyerSecrets
 **Problem:** Vault not accessible
 ```bash
 # Start Vault
-cd ~/gitSync/dev-tools && ./vault.sh
+cd /Users/sawyer/gitSync/dev-tools && ./vault.sh
 
 # Set environment
 export VAULT_ADDR=http://localhost:8200
@@ -186,7 +186,7 @@ export VAULT_ADDR=http://localhost:8200
 **Problem:** No secrets in Vault
 ```bash
 # Import secrets
-cd ~/gitSync/dev-tools && ./vault-sync-env.js
+cd /Users/sawyer/gitSync/dev-tools && ./vault-sync-env.js
 
 # Check secrets
 vault kv get secret/data/sawyer-dev
@@ -203,7 +203,7 @@ vault kv get secret/data/sawyer-dev
 nano .env
 
 # Re-sync to secret stores
-cd ~/gitSync/dev-tools && ./sync-to-1pw.js --force
+cd /Users/sawyer/gitSync/dev-tools && ./sync-to-1pw.js --force
 ```
 
 ## 🔒 Security Best Practices

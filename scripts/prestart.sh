@@ -17,12 +17,12 @@ if ! op account list &> /dev/null; then
 fi
 
 # Create .env from 1Password template
-if [ -f ~/gitSync/_global/.op.env ]; then
+if [ -f /Users/sawyer/gitSync/_global/.op.env ]; then
     echo "📝 Generating .env from 1Password template..."
-    op inject -i ~/gitSync/_global/.op.env -o .env
+    op inject -i /Users/sawyer/gitSync/_global/.op.env -o .env
     echo "✅ .env generated from 1Password"
 else
-    echo "⚠️  No .op.env template found at ~/gitSync/_global/.op.env"
+    echo "⚠️  No .op.env template found at /Users/sawyer/gitSync/_global/.op.env"
     echo "   Creating basic .env from 1Password items..."
     
     # Fallback: create basic .env with common secrets

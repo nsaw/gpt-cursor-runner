@@ -19,7 +19,7 @@ fi
 # Check if vault is running and accessible
 if ! vault status &> /dev/null; then
     echo "❌ Vault not accessible. Please start vault with:"
-    echo "   cd ~/gitSync/dev-tools && ./vault.sh"
+    echo "   cd /Users/sawyer/gitSync/dev-tools && ./vault.sh"
     exit 1
 fi
 
@@ -39,12 +39,12 @@ SECRET_COUNT=$(echo "$SECRETS" | jq -r '.data.data | keys | length')
 if [ "$SECRET_COUNT" -eq 0 ]; then
     echo "⚠️  No secrets found in Vault at secret/data/sawyer-dev"
     echo "   To populate Vault, run:"
-    echo "   cd ~/gitSync/dev-tools && ./vault-sync-env.js"
+    echo "   cd /Users/sawyer/gitSync/dev-tools && ./vault-sync-env.js"
     echo ""
     echo "📝 Creating empty .env template..."
     echo "# Generated from HashiCorp Vault - $(date)" > .env
     echo "# No secrets found in Vault" >> .env
-    echo "# To populate: cd ~/gitSync/dev-tools && ./vault-sync-env.js" >> .env
+    echo "# To populate: cd /Users/sawyer/gitSync/dev-tools && ./vault-sync-env.js" >> .env
     echo "✅ Empty .env template created"
 else
     # Extract and format secrets

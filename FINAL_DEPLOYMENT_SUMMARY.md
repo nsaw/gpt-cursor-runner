@@ -69,7 +69,7 @@ node    96710 sawyer   15u  IPv6 0xaac58749e8677d62      0t0  TCP *:personal-age
 
 ### **📦 BACKUP CREATED**
 
-**Backup Location:** `~/gitSync/_backups/gpt-cursor-runner/`
+**Backup Location:** `/Users/sawyer/gitSync/_backups/gpt-cursor-runner/`
 **Backup File:** `gpt-cursor-runner-20250719-101723.tar.gz` (140MB)
 **Backup Contents:** Complete system excluding node_modules, .git, logs, __pycache__
 
@@ -250,6 +250,6 @@ This represents a complete transformation from basic monitoring to an intelligen
 **Deployment Date:** 2025-07-19 10:17:23 UTC  
 **Version:** v3.0.0-complete-system  
 **Branch:** final-complete-system  
-**Backup:** ~/gitSync/_backups/gpt-cursor-runner/gpt-cursor-runner-20250719-101723.tar.gz  
+**Backup:** /Users/sawyer/gitSync/_backups/gpt-cursor-runner/gpt-cursor-runner-20250719-101723.tar.gz  
 **Fly.io App:** gpt-cursor-runner.fly.dev  
 **Status:** ✅ **DEPLOYMENT SUCCESSFUL** 
