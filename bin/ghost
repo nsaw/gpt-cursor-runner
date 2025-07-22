@@ -25,7 +25,10 @@ case "$1" in
     node scripts/system/orchestrator.js &
     echo '✅ Orchestrator restarted'
     ;;
+  fly-repair)
+    node scripts/cli/fly-repair.js
+    ;;
   *)
-    echo "Ghost CLI commands: status | unjam | backoff | registry | restart"
+    echo "Ghost CLI commands: status | unjam | backoff | registry | restart | fly-repair"
     ;;
 esac 
