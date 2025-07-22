@@ -1,31 +1,39 @@
-// ghost-bridge.js — Slack patch listener
+// ghost-bridge.js: Express server with viewer route support
 const express = require('express');
-const { createEventAdapter } = require('@slack/events-api');
-const { WebClient } = require('@slack/web-api');
 const bodyParser = require('body-parser');
-require('dotenv').config();
-
+const fs = require('fs');
+const path = require('path');
 const app = express();
-const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
-const web = new WebClient(process.env.SLACK_BOT_TOKEN);
 
-app.use('/slack/events', slackEvents.expressMiddleware());
+const PORT = process.env.SLACK_PORT || 3000;
+const ROOT = '/Users/sawyer/gitSync/.cursor-cache/';
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.post('/slack/commands', (req, res) => {
-  const { command, text, user_id } = req.body;
-  if (command === '/patch') {
-    console.log(`[Slack] Patch requested: ${text}`);
-    res.send(`🛠️ Patch command received: ${text}`);
-  } else {
-    res.send('Command not recognized');
-  }
+app.get('/', (req, res) => {
+  res.send('Ghost Bridge Server Running');
 });
 
-app.get('/slack/oauth/callback', (req, res) => {
-  res.send('OAuth callback received');
+app.get('/viewer', (req, res) => {
+  const folder = req.query.zone || 'CYOPS';
+  const summariesPath = path.join(ROOT, folder, 'summaries');
+  fs.readdir(summariesPath, (err, files) => {
+    if (err) return res.status(500).send('Error reading summaries.');
+    const html = `<html><body><h2>${folder} Summaries</h2><ul>` +
+      files.map(f => `<li><a href='/viewer/file?zone=${folder}&file=${f}'>${f}</a></li>`).join('') + '</ul></body></html>';
+    res.send(html);
+  });
 });
 
-const port = process.env.SLACK_PORT || 3000;
-app.listen(port, () => console.log(`[ghost-bridge] Listening on port ${port}`)); 
+app.get('/viewer/file', (req, res) => {
+  const filePath = path.join(ROOT, req.query.zone, 'summaries', req.query.file);
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) return res.status(500).send('Error reading file');
+    res.send(`<pre>${data}</pre>`);
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`[GHOST-BRIDGE] Viewer server running on port ${PORT}`);
+}); 
