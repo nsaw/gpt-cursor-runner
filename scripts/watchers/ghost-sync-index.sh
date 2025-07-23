@@ -1,8 +1,17 @@
 #!/bin/bash
-# ghost-sync-index: regenerate manifest from real summaries if needed
+# ghost-sync-index: regenerate manifest-auto.json from real .md summaries
 summary_path='/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries'
 index_out='/Users/sawyer/gitSync/.cursor-cache/MAIN/manifest-auto.json'
-echo '[' > "$index_out"
-find "$summary_path" -name '*.md' | while read f; do echo "  { \"file\": \"$f\" }," >> "$index_out"; done
-echo '  { "end": true }' >> "$index_out"
-echo ']' >> "$index_out" 
+
+# Use Python to create the manifest
+python3 -c "
+import json
+import os
+import glob
+
+files = sorted(glob.glob(os.path.join('$summary_path', '*.md')))
+manifest = [{'file': f} for f in files]
+
+with open('$index_out', 'w') as f:
+    json.dump(manifest, f, indent=2)
+" 
