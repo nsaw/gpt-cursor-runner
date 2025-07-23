@@ -286,3 +286,4 @@ __pycache__/
 .last-md-write.log
 .route-error.log
 .log-audit-warnings.log
+.ghost-relay.log

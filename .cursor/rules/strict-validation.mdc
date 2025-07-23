@@ -3,20 +3,34 @@ description: Enforce runtime audit, validation gate, and mutation proof checks f
 alwaysApply: true
 ---
 
-- All patches must include:
-  - `"enforceValidationGate": true`
-  - `"strictRuntimeAudit": true`
-  - `"runDryCheck": true`
-  - `"forceRuntimeTrace": true`
-  - `"requireMutationProof": true`
-  - `"requireServiceUptime": true`
+## **PATCH VALIDATION REQUIREMENTS**
 
-- Patch runners must:
-  - Confirm dry runs and diffs
-  - Confirm `.md` summary written to disk
-  - Confirm runtime logs and mutation trace
-  - Reject false positive completions
+### **Mandatory Patch Properties**
+All patches must include:
+- `"enforceValidationGate": true`
+- `"strictRuntimeAudit": true`
+- `"runDryCheck": true`
+- `"forceRuntimeTrace": true`
+- `"requireMutationProof": true`
+- `"requireServiceUptime": true`
 
-- Agent must pause between phases unless:
-  - Summary + logs + diff are verified
-  - Runtime validation passed
+## **PATCH RUNNER REQUIREMENTS**
+
+### **Validation Steps**
+Patch runners must:
+- Confirm dry runs and diffs
+- Confirm `.md` summary written to disk
+- Confirm runtime logs and mutation trace
+- Reject false positive completions
+
+## **AGENT EXECUTION RULES**
+
+### **Phase Transition Requirements**
+Agent must pause between phases unless:
+- Summary + logs + diff are verified
+- Runtime validation passed
+
+---
+
+**Status**: ✅ **ENFORCED - STRICT VALIDATION REQUIRED**
+**Compliance**: Mandatory for all patches and hybrid blocks
