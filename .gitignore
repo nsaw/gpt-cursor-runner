@@ -287,3 +287,4 @@ __pycache__/
 .route-error.log
 .log-audit-warnings.log
 .ghost-relay.log
+.patch-runner.log
