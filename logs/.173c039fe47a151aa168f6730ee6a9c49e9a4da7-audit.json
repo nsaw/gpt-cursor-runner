@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/.173c039fe47a151aa168f6730ee6a9c49e9a4da7-audit.json",
+    "files": [
+        {
+            "date": 1753118195337,
+            "name": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/error-2025-07-21.log",
+            "hash": "b5f574bd89f8615786640005d7fb59e369f7804c66f0e2c771fe64360f9be132"
+        },
+        {
+            "date": 1753288896505,
+            "name": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/error-2025-07-23.log",
+            "hash": "6c5d6d2f2c3b9aa852f235265920041adb1d5068f79fd69942b09b4e3f0ae1a8"
+        },
+        {
+            "date": 1753650899711,
+            "name": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/error-2025-07-27.log",
+            "hash": "ca05b274b95658c1dd4c78f3b7e71bd24e6ff79a7c9197c0c6fbd7c3bf178049"
+        }
+    ],
+    "hashType": "sha256"
+}

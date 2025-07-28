@@ -1,0 +1,17 @@
+{
+  "enforceValidationGate": true,
+  "strictRuntimeAudit": true,
+  "runDryCheck": true,
+  "forceRuntimeTrace": true,
+  "requireMutationProof": true,
+  "requireServiceUptime": true,
+  "blockCommitOnError": true,
+  "watchConsole": true,
+  "execution": {
+    "autoReleaseTimeoutMs": 30000,
+    "onReloadHang": "Move to background and resume automatically"
+  },
+  "shellWrapDefaults": true,
+  "autoDisown": true,
+  "nonBlockingAlways": true
+} 

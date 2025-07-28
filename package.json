@@ -1,0 +1,56 @@
+{
+  "name": "gpt-cursor-runner",
+  "version": "1.0.0",
+  "description": "GPT-Cursor Runner - Hybrid automation pipeline",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "PORT=5555 node server/index.js",
+    "dev:python": "python3 -m gpt_cursor_runner.main",
+    "dev:both": "concurrently \"npm run dev\" \"npm run dev:python\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:scripts": "eslint scripts/",
+    "lint:server": "eslint server/"
+  },
+  "keywords": [
+    "gpt",
+    "cursor",
+    "automation",
+    "slack",
+    "webhooks"
+  ],
+  "author": "Sawyer",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^4.4.0",
+    "@slack/web-api": "^7.9.3",
+    "axios": "^1.10.0",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
+    "express-validator": "^7.2.1",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash.debounce": "^4.0.8",
+    "node-fetch": "^3.3.2",
+    "opossum": "^9.0.0",
+    "pg": "^8.16.3",
+    "ps-node": "^0.1.6",
+    "sqlite3": "^5.1.7",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@slack/cli-hooks": "^1.2.1",
+    "@types/node": "^24.1.0",
+    "@types/ps-node": "^0.1.3",
+    "eslint": "^8.57.0",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.8.3"
+  }
+}

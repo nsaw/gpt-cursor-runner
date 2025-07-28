@@ -1,0 +1,27 @@
+👻 Enhanced Ghost Bridge
+=======================
+
+Usage:
+  node scripts/ghost-bridge.js test           - Test runner functionality
+  node scripts/ghost-bridge.js monitor        - Monitor summaries directory
+  node scripts/ghost-bridge.js send <file>    - Send specific file
+
+Configuration:
+  Ports to try: 5051, 5555, 5050
+  Endpoints: health, patches, summaries, webhook, status
+
+Features:
+  ✅ Automatic port detection
+  ✅ Fallback mechanisms
+  ✅ Real-time monitoring
+  ✅ Error handling
+nohup: ./scripts/watchdog-health.sh: No such file or directory
+Usage: ./scripts/watchdog-runner.sh {health|monitor|start}
+  health  - Run health check (for cron)
+  monitor - Run continuous monitoring
+  start   - Start the runner
+2025-07-20 17:30:57 - 🛡️ Starting Tunnel Watchdog
+2025-07-20 17:30:57 - 📊 Monitoring ngrok tunnels for Python (5051) and Node.js (5555)
+2025-07-20 17:30:57 - ⚠️ Python tunnel is down
+2025-07-20 17:30:57 - 🔄 Restarting python tunnel (attempt 1/3)...
+2025-07-20 17:30:57 - 🌐 Starting ngrok tunnel for python on port 5051...

@@ -1,0 +1,37 @@
+---
+description: Enforce comprehensive validation chain for all operations
+globs:
+  - "**/patch-*.json"
+  - "**/validation-*.log"
+alwaysApply: true
+---
+
+## **PATCH VALIDATION REQUIREMENTS**
+
+### **Mandatory Patch Properties**
+All patches must include:
+- `"enforceValidationGate": true`
+- `"strictRuntimeAudit": true`
+- `"runDryCheck": true`
+- `"forceRuntimeTrace": true`
+- `"requireMutationProof": true`
+- `"requireServiceUptime": true`
+
+## **PATCH RUNNER REQUIREMENTS**
+
+### **Validation Steps**
+Patch runners must:
+- Confirm dry runs and diffs
+- Confirm `.md` summary written to disk
+- Confirm runtime logs and mutation trace
+- Reject false positive completions
+
+## **AGENT EXECUTION RULES**
+
+### **Phase Transition Requirements**
+Agent must pause between phases unless:
+- Summary + logs + diff are verified
+- Runtime validation passed
+
+**Status**: ✅ **ENFORCED - STRICT VALIDATION REQUIRED**
+**Compliance**: Mandatory for all patches and hybrid blocks

@@ -1,0 +1,5 @@
+{
+  "relayPort": 5555,
+  "flyEnabled": false,
+  "emergencyKey": "supersecret"
+} 

@@ -1,0 +1,12 @@
+# P7.02 Multi-region
+apiVersion: v1
+kind: Service
+metadata:
+  name: region-west-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: api
+  ports:
+    - port: 80
+      targetPort: 5555 

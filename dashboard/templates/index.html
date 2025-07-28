@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <title>GHOST RUNNER DASH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1a1a;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #00ff88;
+        }
+
+        .status-dot.offline {
+            background: #ff4444;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.1);
+        }
+
+        .card h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 1.2em;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #ccc;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .metric-value.error {
+            color: #ff4444;
+        }
+
+        .metric-value.warning {
+            color: #ffaa00;
+        }
+
+        .process-list {
+            list-style: none;
+        }
+
+        .process-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .process-item:last-child {
+            border-bottom: none;
+        }
+
+        .process-name {
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .process-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .process-status.healthy {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .process-status.stopped {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .process-status.error {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .tunnel-list {
+            list-style: none;
+        }
+
+        .tunnel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .tunnel-item:last-child {
+            border-bottom: none;
+        }
+
+        .tunnel-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .tunnel-name {
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .tunnel-type {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .tunnel-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .tunnel-status.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .tunnel-status.inactive {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .tunnel-status.down {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #0a0a0a;
+            border-radius: 5px;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .log-level {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .log-level.info {
+            background: #00ccff;
+            color: #000;
+        }
+
+        .log-level.warn {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .log-level.error {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .log-level.debug {
+            background: #888;
+            color: #fff;
+        }
+
+        .log-message {
+            color: #ccc;
+        }
+
+        .patch-section {
+            margin-bottom: 15px;
+        }
+
+        .patch-section h3 {
+            color: #00ccff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .patch-list {
+            list-style: none;
+            margin-left: 15px;
+        }
+
+        /* Ghost Monitor Status Styles */
+        .ghost-monitor-section {
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .status-card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #444;
+            text-align: center;
+        }
+
+        .status-card h3 {
+            margin-bottom: 10px;
+            color: #ccc;
+            font-size: 1em;
+        }
+
+        .status-indicator {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.status-ok {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .status-indicator.status-error {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .status-indicator.status-unknown {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .patch-item {
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            padding: 2px 0;
+        }
+
+        .dual-agent-status {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .agent-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #444;
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            color: #00ccff;
+            font-size: 1.1em;
+        }
+
+        .agent-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .agent-status.healthy {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .agent-status.pending {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .agent-status.stopped {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .agent-metrics {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .agent-metric {
+            text-align: center;
+            padding: 8px;
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        .agent-metric-label {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .agent-metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .recent-summaries {
+            margin-top: 10px;
+        }
+
+        .summary-item {
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            padding: 2px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-timestamp {
+            color: #888;
+            font-size: 0.7em;
+        }
+
+        .refresh-button {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .refresh-button:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+
+        .error-message {
+            background: #ff4444;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .card h2 {
+                font-size: 1.2em;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .agent-metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .log-container {
+                max-height: 200px;
+            }
+            
+            .log-entry {
+                font-size: 0.8em;
+            }
+            
+            .refresh-button {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .status-bar {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👻 GHOST RUNNER DASH</h1>
+            <p>Real-time monitoring and system status</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Loading...</span>
+            </div>
+            <div>
+                <span id="last-update">Last update: Never</span>
+            </div>
+            <button type="button" class="refresh-button" onclick="refreshData()">🔄 Refresh</button>
+        </div>
+
+        <!-- Priority 1: Ghost/Summary Monitor Status -->
+        <div class="card ghost-monitor-section">
+            <h2><span class="card-icon">👻</span> Ghost Monitor Status</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>MAIN Summary Monitor</h3>
+                    <div id="main-summary-monitor-status" class="status-indicator">⏳ Loading...</div>
+                </div>
+                <div class="status-card">
+                    <h3>MAIN Patch Executor</h3>
+                    <div id="main-patch-executor-status" class="status-indicator">⏳ Loading...</div>
+                </div>
+                <div class="status-card">
+                    <h3>CYOPS Summary Monitor</h3>
+                    <div id="cyops-summary-monitor-status" class="status-indicator">⏳ Loading...</div>
+                </div>
+                <div class="status-card">
+                    <h3>CYOPS Patch Executor</h3>
+                    <div id="cyops-patch-executor-status" class="status-indicator">⏳ Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Dual Agent Status -->
+            <div class="card">
+                <h2><span class="card-icon">🤖</span> Dual Agent Status</h2>
+                <div class="dual-agent-status" id="dual-agent-status">
+                    <div class="loading">Loading agent status...</div>
+                </div>
+            </div>
+
+            <!-- System Overview -->
+            <div class="card">
+                <h2><span class="card-icon">📊</span> System Overview</h2>
+                <div class="metric">
+                    <span class="metric-label">Unified Monitor Status</span>
+                    <span class="metric-value" id="monitor-status">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime</span>
+                    <span class="metric-value" id="uptime">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Memory Usage</span>
+                    <span class="metric-value" id="memory-usage">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">CPU Usage</span>
+                    <span class="metric-value" id="cpu-usage">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Disk Usage</span>
+                    <span class="metric-value" id="disk-usage">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Recent Logs (Priority 1: moved to top for mobile priority) -->
+            <div class="card">
+                <h2><span class="card-icon">📝</span> Recent Logs</h2>
+                <div class="log-container" id="log-container">
+                    <div class="loading">Loading logs...</div>
+                </div>
+            </div>
+
+            <!-- Patch Queue (Priority 2: renamed from Patch Status) -->
+            <div class="card">
+                <h2><span class="card-icon">📦</span> Patch Queue</h2>
+                <div class="patch-section">
+                    <h3>CYOPS</h3>
+                    <div class="metric">
+                        <span class="metric-label">Pending</span>
+                        <span class="metric-value" id="cyops-pending">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Completed</span>
+                        <span class="metric-value" id="cyops-completed">Loading...</span>
+                    </div>
+                </div>
+                <div class="patch-section">
+                    <h3>MAIN</h3>
+                    <div class="metric">
+                        <span class="metric-label">Pending</span>
+                        <span class="metric-value" id="main-pending">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Completed</span>
+                        <span class="metric-value" id="main-completed">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ghost Health Status (Priority 3: renamed from Process Health) -->
+            <div class="card">
+                <h2><span class="card-icon">👻</span> Ghost Health Status</h2>
+                <ul class="process-list" id="process-list">
+                    <li class="loading">Loading processes...</li>
+                </ul>
+            </div>
+
+            <!-- Tunnel Status (Priority 4: moved down) -->
+            <div class="card">
+                <h2><span class="card-icon">🌐</span> Tunnel Status</h2>
+                <ul class="tunnel-list" id="tunnel-list">
+                    <li class="loading">Loading tunnels...</li>
+                </ul>
+            </div>
+
+            <!-- System Overview (Priority 5: new section) -->
+            <div class="card">
+                <h2><span class="card-icon">💻</span> System Overview</h2>
+                <div class="system-overview" id="system-overview">
+                    <div class="loading">Loading system overview...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {};
+        let updateInterval;
+        let ws = null;
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'Never';
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function formatUptime(seconds) {
+            if (!seconds) return 'Unknown';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+
+        function updateStatusDot(healthy) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            
+            if (healthy) {
+                dot.className = 'status-dot online';
+                text.textContent = 'Online';
+            } else {
+                dot.className = 'status-dot offline';
+                text.textContent = 'Offline';
+            }
+        }
+
+        function updateSystemOverview() {
+            const monitor = data.unified_monitor;
+            if (!monitor) return;
+
+            document.getElementById('monitor-status').textContent = monitor.status || 'Unknown';
+            document.getElementById('uptime').textContent = formatUptime(monitor.uptime);
+
+            const resources = monitor.systems?.resources;
+            if (resources) {
+                document.getElementById('memory-usage').textContent = `${resources.memory || 0}%`;
+                document.getElementById('cpu-usage').textContent = `${resources.cpu || 0}%`;
+                document.getElementById('disk-usage').textContent = `${resources.disk || 0}%`;
+            }
+
+            updateStatusDot(monitor.status === 'running');
+        }
+
+        function updateSystemOverviewSection() {
+            const monitor = data.unified_monitor;
+            if (!monitor) return;
+
+            const container = document.getElementById('system-overview');
+            if (!container) return;
+
+            const resources = monitor.systems?.resources || {};
+            const memory = resources.memory || 0;
+            const cpu = resources.cpu || 0;
+            const disk = resources.disk || 0;
+
+            container.innerHTML = `
+                <div class="system-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Memory Usage</span>
+                        <span class="metric-value ${memory > 80 ? 'warning' : 'normal'}">${memory}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">CPU Usage</span>
+                        <span class="metric-value ${cpu > 80 ? 'warning' : 'normal'}">${cpu}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Disk Usage</span>
+                        <span class="metric-value ${disk > 80 ? 'warning' : 'normal'}">${disk}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">System Status</span>
+                        <span class="metric-value ${monitor.status === 'running' ? 'normal' : 'warning'}">${monitor.status || 'Unknown'}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value normal">${formatUptime(monitor.uptime)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateProcessHealth() {
+            const processes = data.process_health;
+            if (!processes) return;
+
+            const list = document.getElementById('process-list');
+            list.innerHTML = '';
+
+            Object.entries(processes).forEach(([name, info]) => {
+                const li = document.createElement('li');
+                li.className = 'process-item';
+                
+                li.innerHTML = `
+                    <span class="process-name">${name}</span>
+                    <span class="process-status ${info.status.toLowerCase()}">${info.status}</span>
+                `;
+                
+                list.appendChild(li);
+            });
+        }
+
+        function updateTunnelStatus() {
+            const tunnels = data.tunnels;
+            if (!tunnels) return;
+
+            const list = document.getElementById('tunnel-list');
+            list.innerHTML = '';
+
+            tunnels.forEach(tunnel => {
+                const li = document.createElement('li');
+                li.className = 'tunnel-item';
+                
+                li.innerHTML = `
+                    <div class="tunnel-info">
+                        <span class="tunnel-name">${tunnel.name}</span>
+                        <span class="tunnel-type">${tunnel.type}</span>
+                    </div>
+                    <span class="tunnel-status ${tunnel.status.toLowerCase()}">${tunnel.status}</span>
+                `;
+                
+                list.appendChild(li);
+            });
+        }
+
+        function updatePatchStatus() {
+            const patches = data.patch_status;
+            if (!patches) return;
+
+            if (patches.CYOPS) {
+                document.getElementById('cyops-pending').textContent = patches.CYOPS.pending;
+                document.getElementById('cyops-completed').textContent = patches.CYOPS.completed;
+            }
+
+            if (patches.MAIN) {
+                document.getElementById('main-pending').textContent = patches.MAIN.pending;
+                document.getElementById('main-completed').textContent = patches.MAIN.completed;
+            }
+        }
+
+        function updateRecentLogs() {
+            const logs = data.recent_logs;
+            if (!logs || !logs.log_files || !Array.isArray(logs.log_files)) {
+                const container = document.getElementById('log-container');
+                container.innerHTML = '<div class="log-entry">No recent logs available</div>';
+                return;
+            }
+
+            const container = document.getElementById('log-container');
+            container.innerHTML = '';
+
+            // Get the first available log file with lines (prioritizes fresh logs)
+            const logFile = logs.log_files.find(file => file.lines && Array.isArray(file.lines) && file.lines.length > 0);
+            if (!logFile || !logFile.lines) {
+                container.innerHTML = '<div class="log-entry">No recent logs available</div>';
+                return;
+            }
+
+            // Take the last 10 log entries and reverse them
+            const recentLines = logFile.lines.slice(-10).reverse();
+            
+            recentLines.forEach(line => {
+                try {
+                    const logData = JSON.parse(line);
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    
+                    const timestamp = formatTimestamp(logData.timestamp);
+                    const level = logData.level || 'INFO';
+                    const message = logData.message || 'No message';
+                    
+                    entry.innerHTML = `
+                        <span class="log-timestamp">${timestamp}</span>
+                        <span class="log-level ${level.toLowerCase()}">${level.toUpperCase()}</span>
+                        <span class="log-message">${message}</span>
+                    `;
+                    
+                    container.appendChild(entry);
+                } catch (error) {
+                    // Handle non-JSON lines
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    entry.innerHTML = `
+                        <span class="log-timestamp">${formatTimestamp(new Date().toISOString())}</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">${line}</span>
+                    `;
+                    container.appendChild(entry);
+                }
+            });
+            
+            // Add log source info for debugging
+            if (logFile.file) {
+                const sourceInfo = document.createElement('div');
+                sourceInfo.className = 'log-entry';
+                sourceInfo.style.fontSize = '0.8em';
+                sourceInfo.style.color = '#888';
+                sourceInfo.innerHTML = `<span>Source: ${logFile.file} (${logFile.lines.length} entries)</span>`;
+                container.appendChild(sourceInfo);
+            }
+        }
+
+        function updateLastUpdate() {
+            const timestamp = data.timestamp || data.last_update || new Date().toISOString();
+            document.getElementById('last-update').textContent = `Last update: ${formatTimestamp(timestamp)}`;
+        }
+
+        function updateGhostStatus() {
+            // Update ghost monitor status with dual-agent data
+            const mainSummaryEl = document.getElementById('main-summary-monitor-status');
+            const mainPatchEl = document.getElementById('main-patch-executor-status');
+            const cyopsSummaryEl = document.getElementById('cyops-summary-monitor-status');
+            const cyopsPatchEl = document.getElementById('cyops-patch-executor-status');
+            
+            if (data.agent_status) {
+                // MAIN Agent Status
+                if (data.agent_status.MAIN) {
+                    const mainAgent = data.agent_status.MAIN;
+                    
+                    // MAIN Summary Monitor Status
+                    if (mainSummaryEl) {
+                        const status = mainAgent.processes['summary-monitor'] || 'unknown';
+                        const isHealthy = status === 'HEALTHY' || status === 'running';
+                        mainSummaryEl.className = `status-indicator ${isHealthy ? 'status-ok' : 'status-error'}`;
+                        mainSummaryEl.textContent = isHealthy ? '✅ Running' : '❌ Stopped';
+                    }
+
+                    // MAIN Patch Executor Status
+                    if (mainPatchEl) {
+                        const status = mainAgent.processes['patch-executor'] || 'unknown';
+                        const isHealthy = status === 'HEALTHY' || status === 'running';
+                        mainPatchEl.className = `status-indicator ${isHealthy ? 'status-ok' : 'status-error'}`;
+                        mainPatchEl.textContent = isHealthy ? '✅ Running' : '❌ Stopped';
+                    }
+                }
+
+                // CYOPS Agent Status
+                if (data.agent_status.CYOPS) {
+                    const cyopsAgent = data.agent_status.CYOPS;
+                    
+                    // CYOPS Summary Monitor Status
+                    if (cyopsSummaryEl) {
+                        const status = cyopsAgent.processes['summary-monitor'] || 'unknown';
+                        const isHealthy = status === 'HEALTHY' || status === 'running';
+                        cyopsSummaryEl.className = `status-indicator ${isHealthy ? 'status-ok' : 'status-error'}`;
+                        cyopsSummaryEl.textContent = isHealthy ? '✅ Running' : '❌ Stopped';
+                    }
+
+                    // CYOPS Patch Executor Status
+                    if (cyopsPatchEl) {
+                        const status = cyopsAgent.processes['patch-executor'] || 'unknown';
+                        const isHealthy = status === 'HEALTHY' || status === 'running';
+                        cyopsPatchEl.className = `status-indicator ${isHealthy ? 'status-ok' : 'status-error'}`;
+                        cyopsPatchEl.textContent = isHealthy ? '✅ Running' : '❌ Stopped';
+                    }
+                }
+            }
+        }
+
+        function updateDualAgentStatus() {
+            const agentStatus = data.agent_status;
+            if (!agentStatus) return;
+
+            const container = document.getElementById('dual-agent-status');
+            container.innerHTML = '';
+
+            // MAIN Agent
+            const mainAgent = agentStatus.MAIN;
+            if (mainAgent) {
+                const mainSection = document.createElement('div');
+                mainSection.className = 'agent-section';
+                
+                const mainStatusClass = mainAgent.pending > 0 ? 'pending' : 'healthy';
+                const mainStatusText = mainAgent.pending > 0 ? `${mainAgent.pending} Pending` : 'Healthy';
+                
+                mainSection.innerHTML = `
+                    <div class="agent-header">
+                        <span class="agent-name">MAIN Agent</span>
+                        <span class="agent-status ${mainStatusClass}">${mainStatusText}</span>
+                    </div>
+                    <div class="agent-metrics">
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Pending</div>
+                            <div class="agent-metric-value">${mainAgent.pending}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Completed</div>
+                            <div class="agent-metric-value">${mainAgent.completed}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Summary Monitor</div>
+                            <div class="agent-metric-value">${mainAgent.processes['summary-monitor']}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Patch Executor</div>
+                            <div class="agent-metric-value">${mainAgent.processes['patch-executor']}</div>
+                        </div>
+                    </div>
+                    <div class="recent-summaries">
+                        <div class="agent-metric-label">Recent Summaries:</div>
+                        ${mainAgent.summaries.slice(0, 3).map(summary => 
+                            `<div class="summary-item">${summary}</div>`
+                        ).join('')}
+                    </div>
+                `;
+                container.appendChild(mainSection);
+            }
+
+            // CYOPS Agent
+            const cyopsAgent = agentStatus.CYOPS;
+            if (cyopsAgent) {
+                const cyopsSection = document.createElement('div');
+                cyopsSection.className = 'agent-section';
+                
+                const cyopsStatusClass = cyopsAgent.pending > 0 ? 'pending' : 'healthy';
+                const cyopsStatusText = cyopsAgent.pending > 0 ? `${cyopsAgent.pending} Pending` : 'Healthy';
+                
+                cyopsSection.innerHTML = `
+                    <div class="agent-header">
+                        <span class="agent-name">CYOPS Agent</span>
+                        <span class="agent-status ${cyopsStatusClass}">${cyopsStatusText}</span>
+                    </div>
+                    <div class="agent-metrics">
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Pending</div>
+                            <div class="agent-metric-value">${cyopsAgent.pending}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Completed</div>
+                            <div class="agent-metric-value">${cyopsAgent.completed}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Summary Monitor</div>
+                            <div class="agent-metric-value">${cyopsAgent.processes['summary-monitor']}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-label">Patch Executor</div>
+                            <div class="agent-metric-value">${cyopsAgent.processes['patch-executor']}</div>
+                        </div>
+                    </div>
+                    <div class="recent-summaries">
+                        <div class="agent-metric-label">Recent Summaries:</div>
+                        ${cyopsAgent.summaries.slice(0, 3).map(summary => 
+                            `<div class="summary-item">${summary}</div>`
+                        ).join('')}
+                    </div>
+                `;
+                container.appendChild(cyopsSection);
+            }
+        }
+
+        function updateDashboard() {
+            updateDualAgentStatus();
+            updateGhostStatus();
+            updateSystemOverview();
+            updateSystemOverviewSection();
+            updateProcessHealth();
+            updateTunnelStatus();
+            updatePatchStatus();
+            updateRecentLogs();
+            updateLastUpdate();
+        }
+
+        async function fetchData() {
+            try {
+                // Fetch both status and daemon status
+                const [statusResponse, daemonResponse] = await Promise.all([
+                    fetch('/api/status'),
+                    fetch('/api/daemon-status')
+                ]);
+                
+                if (!statusResponse.ok) {
+                    throw new Error(`HTTP ${statusResponse.status}`);
+                }
+                
+                data = await statusResponse.json();
+                
+                // Add daemon status to data
+                if (daemonResponse.ok) {
+                    const daemonData = await daemonResponse.json();
+                    data.daemon_status = daemonData.daemon_status;
+                }
+                
+                updateDashboard();
+                
+                // Show error if update failed
+                if (data.update_success === false) {
+                    console.warn('Dashboard update failed');
+                }
+            } catch (error) {
+                console.error('Failed to fetch dashboard data:', error);
+                updateStatusDot(false);
+                document.getElementById('status-text').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function refreshData() {
+            fetchData();
+        }
+
+        // WebSocket connection
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                console.log('🔌 WebSocket connected');
+                document.getElementById('status-text').textContent = 'Live Updates Active';
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'status') {
+                        data = message.data;
+                        updateDashboard();
+                        document.getElementById('last-update').textContent = `Last update: ${formatTimestamp(data.timestamp)}`;
+                    }
+                } catch (error) {
+                    console.error('Error parsing WebSocket message:', error);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('🔌 WebSocket disconnected, falling back to polling');
+                document.getElementById('status-text').textContent = 'Polling Mode';
+                // Fall back to polling
+                updateInterval = setInterval(fetchData, 30000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                document.getElementById('status-text').textContent = 'Connection Error';
+            };
+        }
+
+        // Initial load
+        fetchData();
+
+        // Try WebSocket first, fall back to polling
+        try {
+            connectWebSocket();
+        } catch (error) {
+            console.log('WebSocket not available, using polling');
+            updateInterval = setInterval(fetchData, 30000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        });
+    </script>
+</body>
+</html> 

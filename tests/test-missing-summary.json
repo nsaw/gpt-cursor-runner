@@ -1,0 +1,15 @@
+{
+  "blockId": "test-missing-summary",
+  "version": "test-missing-summary",
+  "description": "test patch with missing summary file",
+  "target": "MAIN",
+  "mutations": [
+    {
+      "path": "test.js",
+      "contents": "console.log('test')"
+    }
+  ],
+  "final": {
+    "summaryFile": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/test-missing-summary.md"
+  }
+} 
