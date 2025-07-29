@@ -149,6 +149,60 @@
             color: #ffaa00;
         }
 
+        .metric-value.normal {
+            color: #00ff88;
+        }
+
+        .telemetry-status,
+        .telemetry-metrics,
+        .telemetry-alerts,
+        .telemetry-components,
+        .telemetry-trends,
+        .telemetry-anomalies,
+        .telemetry-api-stats {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .telemetry-item {
+            background: #2a2a2a;
+            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid #444;
+            text-align: center;
+        }
+
+        .telemetry-item-label {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .telemetry-item-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .telemetry-item-value.healthy {
+            color: #00ff88;
+        }
+
+        .telemetry-item-value.error {
+            color: #ff4444;
+        }
+
+        .telemetry-item-value.warning {
+            color: #ffaa00;
+        }
+
         .process-list {
             list-style: none;
         }
@@ -610,7 +664,63 @@
             </div>
         </div>
 
+        <!-- Telemetry API Status -->
+        <div class="card">
+            <h2><span class="card-icon">📡</span> Telemetry API Status</h2>
+            <div class="telemetry-status" id="telemetry-status">
+                <div class="loading">Loading telemetry status...</div>
+            </div>
+        </div>
+
         <div class="grid">
+            <!-- Telemetry Metrics Panel -->
+            <div class="card">
+                <h2><span class="card-icon">📊</span> Telemetry Metrics</h2>
+                <div class="telemetry-metrics" id="telemetry-metrics">
+                    <div class="loading">Loading metrics...</div>
+                </div>
+            </div>
+
+            <!-- Telemetry Alerts Panel -->
+            <div class="card">
+                <h2><span class="card-icon">🚨</span> Telemetry Alerts</h2>
+                <div class="telemetry-alerts" id="telemetry-alerts">
+                    <div class="loading">Loading alerts...</div>
+                </div>
+            </div>
+
+            <!-- Telemetry Components Panel -->
+            <div class="card">
+                <h2><span class="card-icon">🔧</span> Telemetry Components</h2>
+                <div class="telemetry-components" id="telemetry-components">
+                    <div class="loading">Loading components...</div>
+                </div>
+            </div>
+
+            <!-- Telemetry Trends Panel -->
+            <div class="card">
+                <h2><span class="card-icon">📈</span> Telemetry Trends</h2>
+                <div class="telemetry-trends" id="telemetry-trends">
+                    <div class="loading">Loading trends...</div>
+                </div>
+            </div>
+
+            <!-- Telemetry Anomalies Panel -->
+            <div class="card">
+                <h2><span class="card-icon">⚠️</span> Telemetry Anomalies</h2>
+                <div class="telemetry-anomalies" id="telemetry-anomalies">
+                    <div class="loading">Loading anomalies...</div>
+                </div>
+            </div>
+
+            <!-- Telemetry API Stats Panel -->
+            <div class="card">
+                <h2><span class="card-icon">📈</span> API Statistics</h2>
+                <div class="telemetry-api-stats" id="telemetry-api-stats">
+                    <div class="loading">Loading API stats...</div>
+                </div>
+            </div>
+
             <!-- Dual Agent Status -->
             <div class="card">
                 <h2><span class="card-icon">🤖</span> Dual Agent Status</h2>
@@ -1060,7 +1170,308 @@
             }
         }
 
+        function updateTelemetryStatus() {
+            const telemetry = data.telemetry;
+            const container = document.getElementById('telemetry-status');
+            if (!container) return;
+
+            if (!telemetry) {
+                container.innerHTML = '<div class="error-message">No telemetry data available</div>';
+                return;
+            }
+
+            if (telemetry.error) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        Telemetry API Error: ${telemetry.error}
+                    </div>
+                `;
+                return;
+            }
+
+            const health = telemetry.health;
+            if (health && health.success && health.data) {
+                const healthData = health.data;
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">API Status</span>
+                        <span class="metric-value ${healthData.status === 'healthy' ? 'normal' : 'error'}">${healthData.status}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value">${formatUptime(healthData.uptime)}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Last Update</span>
+                        <span class="metric-value">${formatTimestamp(healthData.timestamp)}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="error-message">No telemetry health data available</div>';
+            }
+        }
+
+        function updateTelemetryMetrics() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-metrics');
+            if (!container) return;
+
+            const metrics = telemetry.metrics;
+            if (metrics && metrics.success && metrics.data) {
+                const metricsData = metrics.data;
+                if (metricsData.metrics && Array.isArray(metricsData.metrics)) {
+                    const metricsList = metricsData.metrics.slice(-5); // Show last 5 metrics
+                    container.innerHTML = `
+                        <div class="metric">
+                            <span class="metric-label">Health Score</span>
+                            <span class="metric-value">${metricsData.healthScore || 'N/A'}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Metrics</span>
+                            <span class="metric-value">${metricsData.metrics.length}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Recent Metrics</span>
+                        </div>
+                        ${metricsList.map(metric => `
+                            <div class="metric">
+                                <span class="metric-label">${metric.name || 'Unknown'}</span>
+                                <span class="metric-value">${metric.value || 'N/A'}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div class="loading">No metrics data available</div>';
+                }
+            } else {
+                container.innerHTML = '<div class="loading">No metrics data available</div>';
+            }
+        }
+
+        function updateTelemetryAlerts() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-alerts');
+            if (!container) return;
+
+            const alerts = telemetry.alerts;
+            if (alerts && alerts.success && alerts.data) {
+                const alertsData = alerts.data;
+                if (alertsData.alerts && Array.isArray(alertsData.alerts)) {
+                    const activeAlerts = alertsData.alerts.filter(alert => alert.status === 'active');
+                    container.innerHTML = `
+                        <div class="metric">
+                            <span class="metric-label">Active Alerts</span>
+                            <span class="metric-value ${activeAlerts.length > 0 ? 'error' : 'normal'}">${activeAlerts.length}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Alerts</span>
+                            <span class="metric-value">${alertsData.total || 0}</span>
+                        </div>
+                        ${activeAlerts.slice(0, 3).map(alert => `
+                            <div class="metric">
+                                <span class="metric-label">${alert.name || 'Unknown Alert'}</span>
+                                <span class="metric-value error">${alert.severity || 'Unknown'}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div class="loading">No alerts data available</div>';
+                }
+            } else if (alerts && !alerts.success) {
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Alert Engine Status</span>
+                        <span class="metric-value warning">Not Available</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Error</span>
+                        <span class="metric-value error">${alerts.error || 'Unknown Error'}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="loading">No alerts data available</div>';
+            }
+        }
+
+        function updateTelemetryComponents() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-components');
+            if (!container) return;
+
+            const components = telemetry.components;
+            if (components && components.success && components.data) {
+                const componentsData = components.data;
+                if (componentsData.components && Array.isArray(componentsData.components)) {
+                    container.innerHTML = `
+                        <div class="metric">
+                            <span class="metric-label">System Health</span>
+                            <span class="metric-value ${componentsData.systemHealth === 'healthy' ? 'normal' : 'error'}">${componentsData.systemHealth || 'Unknown'}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Components</span>
+                            <span class="metric-value">${componentsData.components.length}</span>
+                        </div>
+                        ${componentsData.components.slice(0, 5).map(component => `
+                            <div class="metric">
+                                <span class="metric-label">${component.name || 'Unknown'}</span>
+                                <span class="metric-value ${component.status === 'healthy' ? 'normal' : 'error'}">${component.status || 'Unknown'}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div class="loading">No components data available</div>';
+                }
+            } else if (components && !components.success) {
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Orchestrator Status</span>
+                        <span class="metric-value warning">Not Available</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Error</span>
+                        <span class="metric-value error">${components.error || 'Unknown Error'}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="loading">No components data available</div>';
+            }
+        }
+
+        function updateTelemetryTrends() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-trends');
+            if (!container) return;
+
+            const trends = telemetry.trends;
+            if (trends && trends.success && trends.data) {
+                const trendsData = trends.data;
+                if (trendsData.trends && Array.isArray(trendsData.trends)) {
+                    container.innerHTML = `
+                        <div class="metric">
+                            <span class="metric-label">Total Trends</span>
+                            <span class="metric-value">${trendsData.trends.length}</span>
+                        </div>
+                        ${trendsData.trends.slice(0, 5).map(trend => `
+                            <div class="metric">
+                                <span class="metric-label">${trend.name || 'Unknown Trend'}</span>
+                                <span class="metric-value">${trend.direction || 'Unknown'}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div class="loading">No trends data available</div>';
+                }
+            } else if (trends && !trends.success) {
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Trends Status</span>
+                        <span class="metric-value warning">Not Available</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Error</span>
+                        <span class="metric-value error">${trends.error || 'Unknown Error'}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="loading">No trends data available</div>';
+            }
+        }
+
+        function updateTelemetryAnomalies() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-anomalies');
+            if (!container) return;
+
+            const anomalies = telemetry.anomalies;
+            if (anomalies && anomalies.success && anomalies.data) {
+                const anomaliesData = anomalies.data;
+                if (anomaliesData.anomalies && Array.isArray(anomaliesData.anomalies)) {
+                    container.innerHTML = `
+                        <div class="metric">
+                            <span class="metric-label">Total Anomalies</span>
+                            <span class="metric-value ${anomaliesData.anomalies.length > 0 ? 'error' : 'normal'}">${anomaliesData.anomalies.length}</span>
+                        </div>
+                        ${anomaliesData.anomalies.slice(0, 5).map(anomaly => `
+                            <div class="metric">
+                                <span class="metric-label">${anomaly.name || 'Unknown Anomaly'}</span>
+                                <span class="metric-value error">${anomaly.severity || 'Unknown'}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div class="loading">No anomalies data available</div>';
+                }
+            } else if (anomalies && !anomalies.success) {
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Anomalies Status</span>
+                        <span class="metric-value warning">Not Available</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Error</span>
+                        <span class="metric-value error">${anomalies.error || 'Unknown Error'}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="loading">No anomalies data available</div>';
+            }
+        }
+
+        function updateTelemetryApiStats() {
+            const telemetry = data.telemetry;
+            if (!telemetry) return;
+
+            const container = document.getElementById('telemetry-api-stats');
+            if (!container) return;
+
+            const stats = telemetry.api_stats;
+            if (stats && stats.success && stats.data) {
+                const statsData = stats.data;
+                container.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Total Requests</span>
+                        <span class="metric-value">${statsData.totalRequests || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Successful Requests</span>
+                        <span class="metric-value">${statsData.successfulRequests || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Failed Requests</span>
+                        <span class="metric-value ${statsData.failedRequests > 0 ? 'error' : 'normal'}">${statsData.failedRequests || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Response Time</span>
+                        <span class="metric-value">${statsData.averageResponseTime ? Math.round(statsData.averageResponseTime) + 'ms' : 'N/A'}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">API Uptime</span>
+                        <span class="metric-value">${formatUptime(statsData.uptime)}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="loading">No API stats available</div>';
+            }
+        }
+
         function updateDashboard() {
+            updateTelemetryStatus();
+            updateTelemetryMetrics();
+            updateTelemetryAlerts();
+            updateTelemetryComponents();
+            updateTelemetryTrends();
+            updateTelemetryAnomalies();
+            updateTelemetryApiStats();
             updateDualAgentStatus();
             updateGhostStatus();
             updateSystemOverview();
@@ -1072,34 +1483,61 @@
             updateLastUpdate();
         }
 
+        // Timeout-safe fetch utility
+        const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+        
+        async function fetchWithTimeout(resource, options = {}, ms = 5000) {
+            try {
+                const response = await Promise.race([
+                    fetch(resource, options),
+                    timeout(ms)
+                ]);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (err) {
+                console.error(`[telemetry] fetch failed: ${resource}`, err);
+                return null;
+            }
+        }
+
         async function fetchData() {
             try {
-                // Fetch both status and daemon status
-                const [statusResponse, daemonResponse] = await Promise.all([
-                    fetch('/api/status'),
-                    fetch('/api/daemon-status')
+                console.log('[telemetry] Fetching dashboard data...');
+                
+                // Fetch both status and daemon status with timeout protection
+                const [statusData, daemonData] = await Promise.allSettled([
+                    fetchWithTimeout('/api/status', {}, 5000),
+                    fetchWithTimeout('/api/daemon-status', {}, 5000)
                 ]);
                 
-                if (!statusResponse.ok) {
-                    throw new Error(`HTTP ${statusResponse.status}`);
+                // Handle status data
+                if (statusData.status === 'fulfilled' && statusData.value) {
+                    data = statusData.value;
+                    console.log('[telemetry] Status data loaded successfully');
+                } else {
+                    console.error('[telemetry] Failed to load status data:', statusData.reason);
+                    data = { error: 'Failed to load dashboard data' };
                 }
                 
-                data = await statusResponse.json();
-                
-                // Add daemon status to data
-                if (daemonResponse.ok) {
-                    const daemonData = await daemonResponse.json();
-                    data.daemon_status = daemonData.daemon_status;
+                // Handle daemon status data
+                if (daemonData.status === 'fulfilled' && daemonData.value) {
+                    data.daemon_status = daemonData.value.daemon_status;
+                    console.log('[telemetry] Daemon status loaded successfully');
+                } else {
+                    console.error('[telemetry] Failed to load daemon status:', daemonData.reason);
+                    data.daemon_status = { error: 'Failed to load daemon status' };
                 }
                 
                 updateDashboard();
                 
                 // Show error if update failed
                 if (data.update_success === false) {
-                    console.warn('Dashboard update failed');
+                    console.warn('[telemetry] Dashboard update failed');
                 }
             } catch (error) {
-                console.error('Failed to fetch dashboard data:', error);
+                console.error('[telemetry] Failed to fetch dashboard data:', error);
                 updateStatusDot(false);
                 document.getElementById('status-text').textContent = 'Error: ' + error.message;
             }

@@ -9,6 +9,7 @@ from flask import Flask, render_template, jsonify
 import json
 import os
 import time
+import requests
 from datetime import datetime
 import subprocess
 import threading
@@ -23,7 +24,8 @@ CONFIG = {
     'CYOPS_PATCHES': '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches',
     'CYOPS_SUMMARIES': '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries',
     'MAIN_PATCHES': '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches',
-    'MAIN_SUMMARIES': '/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries'
+    'MAIN_SUMMARIES': '/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries',
+    'TELEMETRY_API_URL': 'http://localhost:8788'
 }
 
 class DashboardData:
@@ -31,6 +33,7 @@ class DashboardData:
         self.last_update = None
         self.data = {}
         self.update_interval = 30  # seconds
+        self.telemetry_data = {}
         
     def load_unified_monitor_data(self):
         """Load data from unified system monitor"""
@@ -168,6 +171,68 @@ class DashboardData:
             print(f"Error checking process health: {e}")
         return False
     
+    def load_telemetry_data(self):
+        """Load data from telemetry API"""
+        try:
+            # Health check
+            health_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/health", timeout=5
+            )
+            if health_response.status_code == 200:
+                self.telemetry_data['health'] = health_response.json()
+            
+            # Metrics
+            metrics_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/metrics", timeout=5
+            )
+            if metrics_response.status_code == 200:
+                self.telemetry_data['metrics'] = metrics_response.json()
+            
+            # Alerts
+            alerts_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/alerts", timeout=5
+            )
+            if alerts_response.status_code == 200:
+                self.telemetry_data['alerts'] = alerts_response.json()
+            
+            # Components
+            components_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/components", timeout=5
+            )
+            if components_response.status_code == 200:
+                self.telemetry_data['components'] = components_response.json()
+            
+            # Trends
+            trends_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/trends", timeout=5
+            )
+            if trends_response.status_code == 200:
+                self.telemetry_data['trends'] = trends_response.json()
+            
+            # Anomalies
+            anomalies_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/anomalies", timeout=5
+            )
+            if anomalies_response.status_code == 200:
+                self.telemetry_data['anomalies'] = anomalies_response.json()
+            
+            # API Stats
+            stats_response = requests.get(
+                f"{CONFIG['TELEMETRY_API_URL']}/stats", timeout=5
+            )
+            if stats_response.status_code == 200:
+                self.telemetry_data['api_stats'] = stats_response.json()
+            
+            self.data['telemetry'] = self.telemetry_data
+            return True
+        except requests.exceptions.RequestException as e:
+            print(f"Error loading telemetry data: {e}")
+            self.data['telemetry'] = {'error': str(e)}
+        except Exception as e:
+            print(f"Error loading telemetry data: {e}")
+            self.data['telemetry'] = {'error': str(e)}
+        return False
+
     def update_data(self):
         """Update all dashboard data"""
         success = True
@@ -176,6 +241,7 @@ class DashboardData:
         success &= self.load_patch_status()
         success &= self.load_tunnel_status()
         success &= self.check_process_health()
+        success &= self.load_telemetry_data()
         
         self.last_update = datetime.now()
         self.data['last_update'] = self.last_update.isoformat()
@@ -361,6 +427,165 @@ def get_recent_logs():
             'status': 'success',
             'timestamp': datetime.now().isoformat(),
             'recentLogs': dashboard_data.data.get('recent_logs', [])
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/health')
+def get_telemetry_health():
+    """Get telemetry API health status"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        health = telemetry.get('health', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryHealth': health
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/metrics')
+def get_telemetry_metrics():
+    """Get telemetry metrics data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        metrics = telemetry.get('metrics', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryMetrics': metrics
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/alerts')
+def get_telemetry_alerts():
+    """Get telemetry alerts data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        alerts = telemetry.get('alerts', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryAlerts': alerts
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/components')
+def get_telemetry_components():
+    """Get telemetry components data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        components = telemetry.get('components', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryComponents': components
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/trends')
+def get_telemetry_trends():
+    """Get telemetry trends data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        trends = telemetry.get('trends', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryTrends': trends
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/anomalies')
+def get_telemetry_anomalies():
+    """Get telemetry anomalies data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        anomalies = telemetry.get('anomalies', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryAnomalies': anomalies
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/stats')
+def get_telemetry_stats():
+    """Get telemetry API statistics"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        stats = telemetry.get('api_stats', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetryStats': stats
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/api/telemetry/all')
+def get_all_telemetry():
+    """Get all telemetry data"""
+    try:
+        dashboard_data.load_telemetry_data()
+        telemetry = dashboard_data.data.get('telemetry', {})
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'telemetry': telemetry
         })
     except Exception as e:
         return jsonify({
