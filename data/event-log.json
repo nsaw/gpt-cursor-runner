@@ -2378,8 +2378,312 @@
         "target_file": "test.ts",
         "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch_20250728_011303.json"
       }
+    },
+    {
+      "id": "system_1753766338217",
+      "type": "system_event",
+      "event_type": "api_summaries_received",
+      "timestamp": "2025-07-28T22:18:58.217629",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753766338227",
+      "type": "system_event",
+      "event_type": "summary_created",
+      "timestamp": "2025-07-28T22:18:58.227642",
+      "data": {
+        "summary_id": "ghost-bridge-test",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/ghost-bridge-test.md"
+      }
+    },
+    {
+      "id": "system_1753766338250",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:18:58.250075",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753766338258",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:18:58.258098",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185675",
+      "type": "system_event",
+      "event_type": "api_summaries_received",
+      "timestamp": "2025-07-28T22:49:45.675765",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185685",
+      "type": "system_event",
+      "event_type": "summary_created",
+      "timestamp": "2025-07-28T22:49:45.685350",
+      "data": {
+        "summary_id": "ghost-bridge-test",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/ghost-bridge-test.md"
+      }
+    },
+    {
+      "id": "system_1753768185707",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:49:45.707071",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185713",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:49:45.713518",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768293763",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:51:33.763090",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-patch-gpt-interface",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": [
+              "test",
+              "gpt",
+              "interface"
+            ],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768293774",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:51:33.774754",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test-patch-gpt-interface",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": [
+              "test",
+              "gpt",
+              "interface"
+            ],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768325148",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:52:05.148595",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-patch-gpt-interface",
+          "role": "ghost-system",
+          "target_file": "/tmp/gpt-interface-test.log",
+          "patch": "echo 'GPT interface test completed successfully at $(date)' >> /tmp/gpt-interface-test.log",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": [
+              "test",
+              "gpt",
+              "interface"
+            ],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768325155",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-28T22:52:05.155412",
+      "data": {
+        "patch_id": "test-patch-gpt-interface",
+        "target_file": "/tmp/gpt-interface-test.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-gpt-interface_20250728_225205.json"
+      }
     }
   ],
-  "last_updated": "2025-07-28T01:13:03.984578",
-  "total_events": 138
+  "last_updated": "2025-07-28T22:52:05.156421",
+  "total_events": 150
 }

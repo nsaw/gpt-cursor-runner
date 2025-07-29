@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST System Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .header .status {
+            text-align: center;
+            font-size: 1.2em;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .status-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        
+        .status-item.healthy {
+            border-left-color: #27ae60;
+            background: #d5f4e6;
+        }
+        
+        .status-item.warning {
+            border-left-color: #f39c12;
+            background: #fef9e7;
+        }
+        
+        .status-item.error {
+            border-left-color: #e74c3c;
+            background: #fadbd8;
+        }
+        
+        .status-item h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .status-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        .alerts {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            border-left-color: #e74c3c;
+        }
+        
+        .alert.critical {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            border-left-color: #c0392b;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .metric {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .metric h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .metric .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.danger {
+            background: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn.success {
+            background: #27ae60;
+        }
+        
+        .btn.success:hover {
+            background: #229954;
+        }
+        
+        .refresh-time {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        
+        .websocket-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .websocket-status.connected {
+            background: rgba(39, 174, 96, 0.8);
+        }
+        
+        .websocket-status.disconnected {
+            background: rgba(231, 76, 60, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="websocket-status" id="wsStatus">Connecting...</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GHOST System Dashboard</h1>
+            <div class="status" id="systemStatus">System Status: Loading...</div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>🔧 System Components</h2>
+                <div class="status-grid" id="componentStatus">
+                    <div class="status-item">
+                        <h3>Loading...</h3>
+                        <div class="value">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📊 System Metrics</h2>
+                <div class="metrics" id="systemMetrics">
+                    <div class="metric">
+                        <h3>CPU Usage</h3>
+                        <div class="value" id="cpuUsage">-</div>
+                    </div>
+                    <div class="metric">
+                        <h3>Memory Usage</h3>
+                        <div class="value" id="memoryUsage">-</div>
+                    </div>
+                    <div class="metric">
+                        <h3>Active Patches</h3>
+                        <div class="value" id="activePatches">-</div>
+                    </div>
+                    <div class="metric">
+                        <h3>Uptime</h3>
+                        <div class="value" id="uptime">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>🚨 Active Alerts</h2>
+                <div class="alerts" id="alerts">
+                    <div class="alert">
+                        <strong>System Initializing...</strong>
+                        <p>Loading dashboard data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎛️ System Controls</h2>
+                <div class="controls">
+                    <button class="btn" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="btn success" onclick="triggerHealthCheck()">🏥 Health Check</button>
+                    <button class="btn" onclick="viewLogs()">📋 View Logs</button>
+                    <button class="btn danger" onclick="emergencyStop()">🛑 Emergency Stop</button>
+                </div>
+                <div class="refresh-time" id="lastRefresh">
+                    Last updated: Never
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let refreshInterval = null;
+        
+        // Initialize WebSocket connection
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                document.getElementById('wsStatus').textContent = '🟢 Connected';
+                document.getElementById('wsStatus').className = 'websocket-status connected';
+                console.log('WebSocket connected');
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                document.getElementById('wsStatus').textContent = '🔴 Disconnected';
+                document.getElementById('wsStatus').className = 'websocket-status disconnected';
+                console.log('WebSocket disconnected');
+                
+                // Reconnect after 5 seconds
+                setTimeout(initWebSocket, 5000);
+            };
+            
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+        }
+        
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'system_overview':
+                    updateSystemOverview(data.data);
+                    break;
+                case 'component_status':
+                    updateComponentStatus(data.data);
+                    break;
+                case 'alert':
+                    addAlert(data.data);
+                    break;
+                case 'metrics':
+                    updateMetrics(data.data);
+                    break;
+            }
+        }
+        
+        // Update system overview
+        function updateSystemOverview(data) {
+            document.getElementById('systemStatus').textContent = `System Status: ${data.status}`;
+            document.getElementById('activePatches').textContent = data.activePatches || 0;
+            document.getElementById('uptime').textContent = formatUptime(data.uptime || 0);
+        }
+        
+        // Update component status
+        function updateComponentStatus(components) {
+            const container = document.getElementById('componentStatus');
+            container.innerHTML = '';
+            
+            Object.entries(components).forEach(([name, status]) => {
+                const item = document.createElement('div');
+                item.className = `status-item ${status.healthy ? 'healthy' : status.warning ? 'warning' : 'error'}`;
+                
+                item.innerHTML = `
+                    <h3>${name}</h3>
+                    <div class="value">${status.healthy ? '🟢' : status.warning ? '🟡' : '🔴'}</div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // Update metrics
+        function updateMetrics(metrics) {
+            document.getElementById('cpuUsage').textContent = `${metrics.cpu || 0}%`;
+            document.getElementById('memoryUsage').textContent = `${metrics.memory || 0}%`;
+        }
+        
+        // Add alert
+        function addAlert(alert) {
+            const container = document.getElementById('alerts');
+            const alertElement = document.createElement('div');
+            alertElement.className = `alert ${alert.level}`;
+            
+            alertElement.innerHTML = `
+                <strong>${alert.title}</strong>
+                <p>${alert.message}</p>
+                <small>${new Date(alert.timestamp).toLocaleString()}</small>
+            `;
+            
+            container.insertBefore(alertElement, container.firstChild);
+            
+            // Keep only last 10 alerts
+            while (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
+        // Format uptime
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+        
+        // Refresh data
+        function refreshData() {
+            fetch('/api/overview')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateSystemOverview(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing data:', error);
+                });
+                
+            document.getElementById('lastRefresh').textContent = `Last updated: ${new Date().toLocaleString()}`;
+        }
+        
+        // Trigger health check
+        function triggerHealthCheck() {
+            fetch('/api/components/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateComponentStatus(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error triggering health check:', error);
+                });
+        }
+        
+        // View logs
+        function viewLogs() {
+            alert('Log viewer functionality would be implemented here');
+        }
+        
+        // Emergency stop
+        function emergencyStop() {
+            if (confirm('Are you sure you want to perform an emergency stop? This will halt all patch execution.')) {
+                fetch('/api/emergency-stop', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message || 'Emergency stop initiated');
+                    })
+                    .catch(error => {
+                        console.error('Error during emergency stop:', error);
+                        alert('Error during emergency stop');
+                    });
+            }
+        }
+        
+        // Initialize dashboard
+        function initDashboard() {
+            initWebSocket();
+            refreshData();
+            
+            // Set up periodic refresh
+            refreshInterval = setInterval(refreshData, 30000); // Refresh every 30 seconds
+        }
+        
+        // Start dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html> 

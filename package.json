@@ -38,6 +38,7 @@
     "lodash.debounce": "^4.0.8",
     "node-fetch": "^3.3.2",
     "opossum": "^9.0.0",
+    "path-to-regexp": "^8.2.0",
     "pg": "^8.16.3",
     "ps-node": "^0.1.6",
     "sqlite3": "^5.1.7",

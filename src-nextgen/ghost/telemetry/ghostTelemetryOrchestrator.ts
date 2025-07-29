@@ -510,10 +510,10 @@ class GhostTelemetryOrchestrator {
   private async startDashboard(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start dashboard
-      const { startGhostTelemetryDashboard } = await import('./ghostTelemetryDashboard');
+      const { startGhostTelemetryDashboard } = await import('./ghostTelemetryDashboard.ts');
       await startGhostTelemetryDashboard();
       
-      const dashboard = await import('./ghostTelemetryDashboard');
+      const dashboard = await import('./ghostTelemetryDashboard.ts');
       const dashboardInstance = dashboard.getGhostTelemetryDashboard();
       this.componentInstances.set(component.id, dashboardInstance);
       
@@ -526,10 +526,10 @@ class GhostTelemetryOrchestrator {
   private async startRelay(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start relay telemetry
-      const { startGhostRelayTelemetryCore } = await import('./ghostRelayTelemetryCore');
+      const { startGhostRelayTelemetryCore } = await import('./ghostRelayTelemetryCore.ts');
       await startGhostRelayTelemetryCore();
       
-      const relay = await import('./ghostRelayTelemetryCore');
+      const relay = await import('./ghostRelayTelemetryCore.ts');
       const relayInstance = relay.getGhostRelayTelemetryCore();
       this.componentInstances.set(component.id, relayInstance);
       
@@ -542,10 +542,10 @@ class GhostTelemetryOrchestrator {
   private async startHeartbeat(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start heartbeat visualizer
-      const { startGhostHeartbeatVisualizer } = await import('./ghostHeartbeatVisualizer');
+      const { startGhostHeartbeatVisualizer } = await import('./ghostHeartbeatVisualizer.ts');
       await startGhostHeartbeatVisualizer();
       
-      const heartbeat = await import('./ghostHeartbeatVisualizer');
+      const heartbeat = await import('./ghostHeartbeatVisualizer.ts');
       const heartbeatInstance = heartbeat.getGhostHeartbeatVisualizer();
       this.componentInstances.set(component.id, heartbeatInstance);
       
@@ -558,10 +558,10 @@ class GhostTelemetryOrchestrator {
   private async startAggregator(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start metrics aggregator
-      const { startGhostMetricsAggregator } = await import('./ghostMetricsAggregator');
+      const { startGhostMetricsAggregator } = await import('./ghostMetricsAggregator.ts');
       await startGhostMetricsAggregator();
       
-      const aggregator = await import('./ghostMetricsAggregator');
+      const aggregator = await import('./ghostMetricsAggregator.ts');
       const aggregatorInstance = aggregator.getGhostMetricsAggregator();
       this.componentInstances.set(component.id, aggregatorInstance);
       
@@ -574,10 +574,10 @@ class GhostTelemetryOrchestrator {
   private async startAlertEngine(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start alert engine
-      const { startGhostAlertEngine } = await import('./ghostAlertEngine');
+      const { startGhostAlertEngine } = await import('./ghostAlertEngine.ts');
       await startGhostAlertEngine();
       
-      const alertEngine = await import('./ghostAlertEngine');
+      const alertEngine = await import('./ghostAlertEngine.ts');
       const alertEngineInstance = alertEngine.getGhostAlertEngine();
       this.componentInstances.set(component.id, alertEngineInstance);
       

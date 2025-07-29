@@ -42,7 +42,7 @@ function log(message) {
 function testEndpoint(baseUrl, endpoint) {
   return new Promise((resolve) => {
     const url = `${baseUrl}${endpoint}`;
-    const command = `{ curl -s -o /dev/null -w "%{http_code}" "${url}" & } >/dev/null 2>&1 & disown`;
+    const command = `curl -s -o /dev/null -w "%{http_code}" "${url}"`;
         
     exec(command, (error, stdout) => {
       if (error) {
@@ -106,7 +106,7 @@ async function sendToRunner(runner, endpoint, data) {
   const url = `${runner.baseUrl}${endpoint}`;
   const jsonData = JSON.stringify(data);
     
-  const command = `{ curl -s -X POST "${url}" -H "Content-Type: application/json" -d '${jsonData}' & } >/dev/null 2>&1 & disown`;
+  const command = `curl -s -X POST "${url}" -H "Content-Type: application/json" -d '${jsonData}'`;
     
   return new Promise((resolve) => {
     exec(command, (error, stdout, _stderr) => {
@@ -281,10 +281,16 @@ async function main() {
       log(`✅ Connected to runner on port ${runner.port}`);
       monitorSummaries(runner);
                 
+      // Keep running with heartbeat
+      log('💓 Ghost Bridge Monitor is running...');
+      setInterval(() => {
+        log('💓 Ghost Bridge heartbeat');
+      }, 30000); // Heartbeat every 30 seconds
+                
       // Keep running
       process.on('SIGINT', () => {
         log('🛑 Ghost Bridge Monitor stopped by user');
-        // process.exit(0); // Removed for ESLint compliance
+        process.exit(0);
       });
     } else {
       log('❌ No runner available for monitoring');
