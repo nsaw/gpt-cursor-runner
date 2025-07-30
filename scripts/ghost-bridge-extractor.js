@@ -21,4 +21,5 @@ console.log('[BRIDGE] extractor started');setInterval(async () => {
     } catch(e) { console.error('[BRIDGE] folder poll', fid, e.message); }
   }
   ids.forEach(poll);
+}, POLL_MS);(poll);
 }, POLL_MS);(poll);},POLL_MS);
