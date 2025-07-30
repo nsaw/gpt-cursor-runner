@@ -66,7 +66,8 @@ monitor_cyops_services() {
     
     # Critical CYOPS services
     local services=(
-        "ghost-bridge:node scripts/ghost-bridge.js:$CYOPS_LOG_DIR/ghost-bridge.log"
+        "ghost-bridge-watchdog:bash scripts/watchdogs/ghost-bridge-watchdog.sh:$CYOPS_LOG_DIR/ghost-bridge-watchdog.log"
+        "ghost-bridge:node scripts/ghost-bridge-extractor.js:$CYOPS_LOG_DIR/ghost-bridge.log"
         "patch-executor:node scripts/patch-executor.js:$CYOPS_LOG_DIR/patch-executor.log"
         "consolidated-daemon:node scripts/consolidated-daemon.js:$CYOPS_LOG_DIR/consolidated-daemon.log"
         "dual-monitor:node scripts/monitor/dualMonitor.js:$CYOPS_LOG_DIR/dual-monitor.log"

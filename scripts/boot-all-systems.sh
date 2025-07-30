@@ -18,4 +18,10 @@ mkdir -p summaries/_heartbeat
 echo '[BOOT] Launching core stack...'
 nohup node scripts/patch-executor.js &
 nohup node scripts/live-patch-status.js &
-nohup node scripts/ghost-bridge.js & 
+
+echo '[BOOT] Launching ghost-bridge with watchdog...'
+# Start bridge watchdog (which will start the bridge)
+nohup bash scripts/watchdogs/ghost-bridge-watchdog.sh > logs/ghost-bridge-watchdog.log 2>&1 &
+echo $! > pids/ghost-bridge-watchdog.pid
+
+echo '[BOOT] All systems launched successfully' 
