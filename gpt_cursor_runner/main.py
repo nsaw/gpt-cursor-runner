@@ -23,7 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'utils'
 #     pass  # Continue if guard not available
 
 # Import handlers
-from gpt_cursor_runner.webhook_handler import process_hybrid_block, process_summary
+from gpt_cursor_runner.webhook_handler import process_hybrid_block, process_summary, handle_webhook_post
 
 from gpt_cursor_runner.slack_handler import (
     verify_slack_signature,
@@ -63,39 +63,12 @@ if create_dashboard_routes:
 @app.route("/webhook", methods=["POST"])
 def webhook():
     """Handle incoming webhook requests."""
-    try:
-        # Check if it's a Slack request
-        if request.headers.get("X-Slack-Signature"):
-            return handle_slack_webhook()
-
-        # Otherwise, treat as GPT hybrid block
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
-
-        # Log the incoming request
-        if event_logger:
-            event_logger.log_system_event(
-                "webhook_received", {"source": "gpt_hybrid_block", "data": data}
-            )
-
-        result = process_hybrid_block(data)
-        return jsonify({"status": "success", "result": result})
-
-    except Exception as e:
-        error_msg = f"Error processing webhook: {str(e)}"
-
-        # Log the error
-        if event_logger:
-            event_logger.log_system_event(
-                "webhook_error", {"error": str(e), "headers": dict(request.headers)}
-            )
-        try:
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(error_msg, context="/webhook endpoint")
-        except Exception:
-            pass
-        return jsonify({"error": error_msg}), 500
+    # Check if it's a Slack request
+    if request.headers.get("X-Slack-Signature"):
+        return handle_slack_webhook()
+    
+    # Otherwise, use enhanced webhook handler for GPT requests
+    return handle_webhook_post()
 
 
 def handle_slack_webhook():

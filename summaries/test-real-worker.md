@@ -1,0 +1,1 @@
+✅ Real worker test completed successfully

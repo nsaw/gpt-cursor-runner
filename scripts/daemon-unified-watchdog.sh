@@ -6,29 +6,155 @@ WEBHOOK_LOG="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-del
 
 PORT_FLASK=5555
 PORT_GHOST=5053
-PID_TUNNEL=$(pgrep -f cloudflared || echo "")
+MAX_RESTART_ATTEMPTS=5
+SLEEP_INTERVAL=60
 
-{
-  echo "[🚀 WATCHDOG INITIATED] $(date)"
+# Ensure log directory exists
+mkdir -p "$(dirname "$LOG_FILE")"
 
-  if [[ -z "$PID_TUNNEL" ]]; then
-    echo "[❌ TUNNEL MISSING] No Cloudflare process detected"
-    exit 1
+function log_message() {
+  echo "[$(date)] $1" >> "$LOG_FILE"
+}
+
+function check_flask_health() {
+  curl -s --max-time 5 http://localhost:$PORT_FLASK/health >/dev/null 2>&1
+}
+
+function check_ghost_health() {
+  curl -s --max-time 5 http://localhost:$PORT_GHOST/health >/dev/null 2>&1
+}
+
+function check_tunnel() {
+  pgrep -f cloudflared >/dev/null
+}
+
+function restart_flask() {
+  log_message "[🔄 RESTARTING FLASK] Flask app health check failed"
+  
+  # Kill existing Flask process
+  lsof -ti:$PORT_FLASK | xargs kill -9 2>/dev/null || true
+  sleep 2
+  
+  # Start Flask app
+  cd /Users/sawyer/gitSync/gpt-cursor-runner
+  nohup python3 -m gpt_cursor_runner.main > logs/python-runner.log 2>&1 &
+  echo $! > pids/python-runner.pid
+  
+  log_message "[✅ FLASK RESTARTED] PID: $(cat pids/python-runner.pid)"
+}
+
+function restart_ghost() {
+  log_message "[🔄 RESTARTING GHOST] Ghost Runner health check failed"
+  
+  # Kill existing Ghost process
+  lsof -ti:$PORT_GHOST | xargs kill -9 2>/dev/null || true
+  sleep 2
+  
+  # Start Ghost Runner
+  cd /Users/sawyer/gitSync/gpt-cursor-runner
+  nohup node scripts/ghost-runner.js > logs/ghost-runner.log 2>&1 &
+  echo $! > pids/ghost-runner.pid
+  
+  log_message "[✅ GHOST RESTARTED] PID: $(cat pids/ghost-runner.pid)"
+}
+
+function restart_tunnel() {
+  log_message "[🔄 RESTARTING TUNNEL] Cloudflare tunnel not found"
+  
+  # Kill existing tunnel
+  pkill -f cloudflared 2>/dev/null || true
+  sleep 2
+  
+  # Start tunnel
+  cd /Users/sawyer/gitSync/gpt-cursor-runner
+  nohup cloudflared tunnel run webhook-tunnel --config config/webhook-tunnel-config.yml > logs/cloudflared.log 2>&1 &
+  echo $! > pids/cloudflared.pid
+  
+  log_message "[✅ TUNNEL RESTARTED] PID: $(cat pids/cloudflared.pid)"
+}
+
+function monitor_services() {
+  log_message "[🚀 UNIFIED WATCHDOG STARTED] Monitoring all services"
+  
+  flask_attempts=0
+  ghost_attempts=0
+  tunnel_attempts=0
+  
+  while true; do
+    # Check Flask health
+    if ! check_flask_health; then
+      ((flask_attempts++))
+      if [ $flask_attempts -le $MAX_RESTART_ATTEMPTS ]; then
+        restart_flask
+      else
+        log_message "[❌ FLASK MAX ATTEMPTS] Reached $MAX_RESTART_ATTEMPTS restarts"
+      fi
+    else
+      if [ $flask_attempts -gt 0 ]; then
+        log_message "[✅ FLASK RECOVERED] Reset attempt counter"
+        flask_attempts=0
+      fi
+    fi
+    
+    # Check Ghost health
+    if ! check_ghost_health; then
+      ((ghost_attempts++))
+      if [ $ghost_attempts -le $MAX_RESTART_ATTEMPTS ]; then
+        restart_ghost
+      else
+        log_message "[❌ GHOST MAX ATTEMPTS] Reached $MAX_RESTART_ATTEMPTS restarts"
+      fi
+    else
+      if [ $ghost_attempts -gt 0 ]; then
+        log_message "[✅ GHOST RECOVERED] Reset attempt counter"
+        ghost_attempts=0
+      fi
+    fi
+    
+    # Check tunnel
+    if ! check_tunnel; then
+      ((tunnel_attempts++))
+      if [ $tunnel_attempts -le $MAX_RESTART_ATTEMPTS ]; then
+        restart_tunnel
+      else
+        log_message "[❌ TUNNEL MAX ATTEMPTS] Reached $MAX_RESTART_ATTEMPTS restarts"
+      fi
+    else
+      if [ $tunnel_attempts -gt 0 ]; then
+        log_message "[✅ TUNNEL RECOVERED] Reset attempt counter"
+        tunnel_attempts=0
+      fi
+    fi
+    
+    # Log status
+    if [ $flask_attempts -eq 0 ] && [ $ghost_attempts -eq 0 ] && [ $tunnel_attempts -eq 0 ]; then
+      log_message "[✅ ALL SERVICES HEALTHY] Flask: $(check_flask_health && echo "OK" || echo "FAIL"), Ghost: $(check_ghost_health && echo "OK" || echo "FAIL"), Tunnel: $(check_tunnel && echo "OK" || echo "FAIL")"
+    fi
+    
+    sleep $SLEEP_INTERVAL
+  done
+}
+
+function status() {
+  echo "Unified Watchdog Status at $(date):"
+  echo "Flask Health: $(check_flask_health && echo "✅ OK" || echo "❌ FAIL")"
+  echo "Ghost Health: $(check_ghost_health && echo "✅ OK" || echo "❌ FAIL")"
+  echo "Tunnel Status: $(check_tunnel && echo "✅ OK" || echo "❌ FAIL")"
+  
+  # Show PIDs
+  if [ -f pids/python-runner.pid ]; then
+    echo "Flask PID: $(cat pids/python-runner.pid)"
   fi
+  if [ -f pids/ghost-runner.pid ]; then
+    echo "Ghost PID: $(cat pids/ghost-runner.pid)"
+  fi
+  if [ -f pids/cloudflared.pid ]; then
+    echo "Tunnel PID: $(cat pids/cloudflared.pid)"
+  fi
+}
 
-  curl -s --max-time 5 http://localhost:$PORT_FLASK/health >/dev/null || {
-    echo "[❌ FLASK DOWN] Health check failed"
-    exit 1
-  }
-
-  lsof -i :$PORT_GHOST >/dev/null || {
-    echo "[❌ GHOST PORT DOWN] Nothing listening on $PORT_GHOST"
-    exit 1
-  }
-
-  grep -q "DELIVERY OPS ACTIVE" "$WEBHOOK_LOG" && echo "[✅ DELIVERY FLAG OK]"
-  grep -q "MONITOR PASS" "$WEBHOOK_LOG" && echo "[✅ MONITOR FLAG OK]"
-  grep -q "ALERT WATCH ACTIVE" "$WEBHOOK_LOG" && echo "[✅ ALERT FLAG OK]"
-
-  echo "[✅ UNIFIED MONITOR PASSED] $(date)"
-} >> "$LOG_FILE" 2>&1 
+case "$1" in
+  monitor) monitor_services ;;
+  status) status ;;
+  *) echo "Usage: $0 {monitor|status}" ;;
+esac 

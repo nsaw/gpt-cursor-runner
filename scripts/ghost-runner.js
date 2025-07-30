@@ -273,8 +273,23 @@ app.get('/heartbeat', (req, res) => {
   res.json(heartbeat);
 });
 
+/* NEW /patch HANDLER */
+app.post('/patch', async (req, res) => {
+  try {
+    const data = JSON.stringify(req.body, null, 2);
+    const id   = req.body.id || `patch_${Date.now()}`;
+    const file = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/${id}.json`;
+    await require('fs').promises.writeFile(file, data);
+    console.log(`[GHOST] Saved ${id} to CYOPS patches dir`);
+    res.status(200).json({ ok: true, saved: true, id });
+  } catch (e) {
+    console.error('[GHOST] Save failed:', e);
+    res.status(500).json({ ok: false, error: String(e) });
+  }
+});
+
 // Start server
-app.listen(PORT, () => {
+/* NEW /patch HANDLER */\napp.post('/patch', async (req, res) => {\n  try {\n    const data = JSON.stringify(req.body, null, 2);\n    const id   = req.body.id || `patch_${Date.now()}`;\n    const file = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/${id}.json`;\n    await require('fs').promises.writeFile(file, data);\n    console.log(`[GHOST] Saved ${id} to CYOPS patches dir`);\n    res.status(200).json({ ok: true, saved: true, id });\n  } catch (e) {\n    console.error('[GHOST] Save failed:', e);\n    res.status(500).json({ ok: false, error: String(e) });\n  }\n});\n\napp.listen(PORT, () => {
   log(`Ghost Runner started on port ${PORT} for environment ${ENV}`);
   log(`Patches directory: ${PATCHES_DIR}`);
   log(`Summaries directory: ${SUMMARIES_DIR}`);

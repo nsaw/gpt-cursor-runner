@@ -10,6 +10,7 @@ const { exec } = require('child_process');
 const POLL_INTERVAL = 5000; // 5 seconds
 const PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
 const MAIN_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches';
+const CYOPS_SUMMARIES_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
 
 console.log('🔄 [LOOP-EXECUTOR] Starting continuous patch processor...');
 console.log(`📁 [LOOP-EXECUTOR] Monitoring CYOPS: ${PATCH_DIR}`);
@@ -49,9 +50,12 @@ async function processPatches(patchDir, agentName) {
         
         const patchData = JSON.parse(await fs.readFile(patchFile, 'utf8'));
 
+        // Handle GPT's nested patch structure
+        const actualPatch = patchData.patch && typeof patchData.patch === 'object' ? patchData.patch : patchData;
+
         // Execute patch mutations
-        if (patchData.mutations) {
-          for (const mutation of patchData.mutations) {
+        if (actualPatch.mutations) {
+          for (const mutation of actualPatch.mutations) {
             console.log(`🔧 [LOOP-EXECUTOR] Applying mutation to: ${mutation.path}`);
 
             // Create directory if needed
@@ -62,16 +66,58 @@ async function processPatches(patchDir, agentName) {
               await fs.mkdir(dir, { recursive: true });
             }
 
-            // Write file
-            await fs.writeFile(mutation.path, mutation.contents);
+            // Handle different mutation types
+            if (mutation.contents) {
+              // Write new file contents
+              await fs.writeFile(mutation.path, mutation.contents);
+            } else if (mutation.pattern && mutation.replacement) {
+              // Pattern-based replacement
+              const txt = await fs.readFile(mutation.path, 'utf-8');
+              const mod = txt.replace(new RegExp(mutation.pattern, 'm'), mutation.replacement);
+              await fs.writeFile(mutation.path, mod);
+            }
           }
         }
 
         // Execute post-mutation build commands
-        if (patchData.postMutationBuild && patchData.postMutationBuild.shell) {
-          for (const command of patchData.postMutationBuild.shell) {
+        if (actualPatch.postMutationBuild && actualPatch.postMutationBuild.shell) {
+          for (const command of actualPatch.postMutationBuild.shell) {
             console.log(`⚡ [LOOP-EXECUTOR] Running: ${command}`);
             await runCommand(command);
+          }
+        }
+
+        // Execute validation commands
+        if (actualPatch.validate && actualPatch.validate.shell) {
+          for (const command of actualPatch.validate.shell) {
+            console.log(`🔍 [LOOP-EXECUTOR] Validating: ${command}`);
+            await runCommand(command);
+          }
+        }
+
+        // Generate final summary and git operations
+        if (actualPatch.final) {
+          if (actualPatch.final.git) {
+            console.log(`🏷️ [LOOP-EXECUTOR] Git operations: ${actualPatch.final.git.commit}`);
+            await runCommand(`git add -A`);
+            await runCommand(`git commit -m "${actualPatch.final.git.commit}"`);
+            await runCommand(`git tag ${actualPatch.final.git.tag}`);
+          }
+          if (actualPatch.final.summaryFile) {
+            // Write to the unified CYOPS summaries directory as primary location
+            const summaryFileName = path.basename(actualPatch.final.summaryFile);
+            const cyopsSummaryPath = path.join(CYOPS_SUMMARIES_DIR, summaryFileName);
+            console.log(`📝 [LOOP-EXECUTOR] Writing summary to unified location: ${cyopsSummaryPath}`);
+            await fs.mkdir(CYOPS_SUMMARIES_DIR, { recursive: true });
+            await fs.writeFile(cyopsSummaryPath, actualPatch.final.summary);
+            
+            // Also write to the original location if it's different from the unified location
+            if (actualPatch.final.summaryFile !== cyopsSummaryPath) {
+              console.log(`📝 [LOOP-EXECUTOR] Also writing to original location: ${actualPatch.final.summaryFile}`);
+              const sumDir = path.dirname(actualPatch.final.summaryFile);
+              await fs.mkdir(sumDir, { recursive: true });
+              await fs.writeFile(actualPatch.final.summaryFile, actualPatch.final.summary);
+            }
           }
         }
 
@@ -87,7 +133,7 @@ async function processPatches(patchDir, agentName) {
           console.error(`❌ [LOOP-EXECUTOR] Failed to move ${file} to .completed:`, moveError.message);
         }
 
-      } catch (_error) {
+      } catch (error) {
         console.error(`❌ [LOOP-EXECUTOR] Error processing ${agentName} patch ${file}:`, error.message);
         
         // Move failed patch to .failed directory
@@ -102,7 +148,7 @@ async function processPatches(patchDir, agentName) {
       }
     }
 
-  } catch (_error) {
+  } catch (error) {
     console.error(`❌ [LOOP-EXECUTOR] Error processing ${agentName} patches:`, error.message);
   }
 }
@@ -116,7 +162,7 @@ async function processLoop() {
     // Process MAIN patches
     await processPatches(MAIN_PATCH_DIR, 'MAIN');
     
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ [LOOP-EXECUTOR] Processing loop error:', error.message);
   }
 }
@@ -138,7 +184,7 @@ async function runCommand(command) {
   try {
     const result = await executeCommand(command);
     return result;
-  } catch (_error) {
+  } catch (error) {
     console.error(`Command execution failed: ${error.message}`);
     throw error;
   }

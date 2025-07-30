@@ -5,7 +5,7 @@ const app = express();
 const PORT = 3222;
 
 app.get('/status.json', (req, res) => {
-  const logPath = 'summaries/_ghost-tunnel-health.log';
+  const logPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/_ghost-tunnel-health.log';
   const tunnel = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8').split('\n').slice(-3).join('\n') : '❌ Log missing';
   const status = {
     tunnel: tunnel.includes('✅') ? '✅' : '❌',
@@ -19,7 +19,7 @@ app.get('/status.json', (req, res) => {
 });
 
 app.get('/ghost-status.json', (req, res) => {
-  const logPath = 'summaries/_ghost-tunnel-health.log';
+  const logPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/_ghost-tunnel-health.log';
   const tunnel = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8').split('\n').slice(-3).join('\n') : '❌ Log missing';
   const status = {
     tunnel: tunnel.includes('✅') ? '✅' : '❌',
