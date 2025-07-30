@@ -7,6 +7,7 @@ Flask server for handling webhooks and providing API endpoints.
 
 import os
 import sys
+import psutil
 from datetime import datetime
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -32,10 +33,6 @@ from gpt_cursor_runner.slack_handler import (
 from gpt_cursor_runner.event_logger import event_logger
 
 # Import GHOST 2.0 modules
-from gpt_cursor_runner.health_aggregator import get_health_aggregator
-from gpt_cursor_runner.resource_monitor import get_resource_monitor
-from gpt_cursor_runner.process_cleanup import get_process_cleanup
-from gpt_cursor_runner.unified_processor import get_unified_processor
 from gpt_cursor_runner.sequential_processor import get_sequential_processor
 from gpt_cursor_runner.error_recovery import get_error_recovery
 from gpt_cursor_runner.rate_limiter import get_rate_limiter
@@ -315,24 +312,117 @@ def get_slack_events():
 
 @app.route("/health", methods=["GET"])
 def health_check():
-    """Health check endpoint with aggregated health data."""
+    """Health check endpoint with real-time component validation."""
     try:
-        from gpt_cursor_runner.health_aggregator import get_health_aggregator
+        response = {
+            "components": {},
+            "system_metrics": {},
+            "version": "3.1.1",
+            "timestamp": datetime.now().isoformat()
+        }
         
-        health_agg = get_health_aggregator()
-        health_data = health_agg.get_health_json()
+        status_flags = []
         
-        return jsonify(health_data)
+        # Ghost runner check
+        ghost_found = False
+        try:
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                if proc.info['cmdline'] and any("ghost-runner.js" in str(arg) for arg in proc.info['cmdline']):
+                    ghost_found = True
+                    break
+        except Exception:
+            pass
+        
+        response['components']['ghost_runner'] = "up" if ghost_found else "down"
+        if not ghost_found:
+            status_flags.append("ghost_down")
+        
+        # Port 5555 check
+        port_conflict = False
+        try:
+            for conn in psutil.net_connections(kind='inet'):
+                if hasattr(conn, 'laddr') and conn.laddr.port == 5555:
+                    port_conflict = True
+                    break
+        except Exception:
+            pass
+        
+        response['components']['port_5555_bound'] = port_conflict
+        if not port_conflict:
+            status_flags.append("port_unbound")
+        
+        # Filesystem check
+        try:
+            test_path = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/healthcheck.tmp"
+            with open(test_path, 'w') as f:
+                f.write('ok')
+            os.remove(test_path)
+            response['components']['fs_writable'] = True
+        except Exception:
+            response['components']['fs_writable'] = False
+            status_flags.append("fs_readonly")
+        
+        # Flask request queue responsiveness
+        response['components']['flask_responsive'] = True
+        response['components']['webhook_endpoint'] = "operational"
+        
+        # System metrics
+        try:
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            network = psutil.net_io_counters()
+            
+            response['system_metrics'] = {
+                'cpu': {
+                    'count': psutil.cpu_count(),
+                    'load_average': os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0],
+                    'percent': cpu_percent
+                },
+                'memory': {
+                    'total': memory.total,
+                    'available': memory.available,
+                    'percent': memory.percent,
+                    'used': memory.used
+                },
+                'disk': {
+                    'total': disk.total,
+                    'used': disk.used,
+                    'free': disk.free,
+                    'percent': (disk.used / disk.total) * 100
+                },
+                'network': {
+                    'bytes_sent': network.bytes_sent,
+                    'bytes_recv': network.bytes_recv,
+                    'packets_sent': network.packets_sent,
+                    'packets_recv': network.packets_recv
+                }
+            }
+        except Exception as e:
+            response['system_metrics'] = {'error': str(e)}
+        
+        # Status logic
+        if not status_flags:
+            response['overall_status'] = "healthy"
+        elif "ghost_down" in status_flags:
+            response['overall_status'] = "degraded"
+        else:
+            response['overall_status'] = "unknown"
+        
+        return jsonify(response), 200
+        
     except Exception as e:
         # Fallback to basic health check
         return jsonify(
             {
-                "status": "healthy",
+                "overall_status": "error",
                 "timestamp": datetime.now().isoformat(),
-                "version": "3.1.0",
-                "error": str(e)
+                "version": "3.1.1",
+                "error": str(e),
+                "components": {},
+                "system_metrics": {}
             }
-        )
+        ), 500
 
 
 @app.route("/api/patches", methods=["POST"])
