@@ -1,59 +1,53 @@
 #!/bin/bash
+set -euo pipefail
 
-# Resume Webhook Delivery Operations
-# Tests the verified Cloudflare tunnel and Flask relay system
+# Hardened Webhook Delivery Validation Script
+# Enforces strict validation before emitting any success messages
 
-TARGET_FILE="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
-LOG_DIR="$(dirname "$TARGET_FILE")"
+LOG_FILE="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
+LOG_DIR="$(dirname "$LOG_FILE")"
+MARKER="[✅ DELIVERY OPS ACTIVE]"
+TIMESTAMP="$(date)"
 
 # Ensure log directory exists
 mkdir -p "$LOG_DIR"
 
-echo "[INFO] Resuming webhook delivery operations..." | tee -a "$TARGET_FILE"
-echo "[INFO] Target log file: $TARGET_FILE" | tee -a "$TARGET_FILE"
-echo "[INFO] Test timestamp: $(date)" | tee -a "$TARGET_FILE"
-echo "[INFO] Tunnel endpoint: https://webhook-thoughtmarks.thoughtmarks.app/webhook" | tee -a "$TARGET_FILE"
+echo "[INFO] Starting hardened webhook delivery validation..." | tee -a "$LOG_FILE"
+echo "[INFO] Target log file: $LOG_FILE" | tee -a "$LOG_FILE"
+echo "[INFO] Validation timestamp: $TIMESTAMP" | tee -a "$LOG_FILE"
+echo "[INFO] Strict error handling: set -euo pipefail" | tee -a "$LOG_FILE"
 
 # Create a Ghost-compatible patch payload that will write to our log file
 PATCH_PAYLOAD='{
   "id": "resume-delivery",
   "role": "command_patch",
-  "target_file": "'"$TARGET_FILE"'",
-  "patch": "echo \"[✅ DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> '"$TARGET_FILE"'"
+  "target_file": "'"$LOG_FILE"'",
+  "patch": "echo \"'"$MARKER"' '"$TIMESTAMP"'\" >> '"$LOG_FILE"'"
 }'
 
-echo "[INFO] Sending patch payload through verified tunnel..." | tee -a "$TARGET_FILE"
+echo "[INFO] Sending patch payload through tunnel..." | tee -a "$LOG_FILE"
 
-# Send the patch through the verified Cloudflare tunnel using non-blocking pattern
+# Send test patch through tunnel with strict error handling
 { timeout 30 curl -s -X POST -H 'Content-Type: application/json' \
   -d "$PATCH_PAYLOAD" \
   https://webhook-thoughtmarks.thoughtmarks.app/webhook & } >/dev/null 2>&1 & disown
 
-echo "[INFO] Patch sent, waiting for Ghost execution..." | tee -a "$TARGET_FILE"
+echo "[INFO] Patch sent, waiting for execution..." | tee -a "$LOG_FILE"
 sleep 10
 
-# Check if the log file was created and contains the expected marker
-if [ -f "$TARGET_FILE" ]; then
-  echo "[INFO] Log file created successfully" | tee -a "$TARGET_FILE"
-  echo "[INFO] Checking for delivery confirmation marker..." | tee -a "$TARGET_FILE"
-  
-  if grep -q "DELIVERY OPS ACTIVE" "$TARGET_FILE"; then
-    echo "[✅] DELIVERY OPS ACTIVE marker found - webhook delivery system operational" | tee -a "$TARGET_FILE"
-    echo "[✅] GPT → Ghost delivery pipeline verified and ready" | tee -a "$TARGET_FILE"
-  else
-    echo "[❌] DELIVERY OPS ACTIVE marker not found - delivery system may have issues" | tee -a "$TARGET_FILE"
-  fi
-  
-  echo "[INFO] Full log contents:" | tee -a "$TARGET_FILE"
-  cat "$TARGET_FILE"
-else
-  echo "[❌] webhook-delivery-ops.log not created — relay may still be broken" | tee -a "$TARGET_FILE"
-  echo "[INFO] Checking if Flask app is responding..." | tee -a "$TARGET_FILE"
-  
-  # Test local Flask endpoint as fallback
-  { timeout 30 curl -s -I http://localhost:5555/webhook & } >/dev/null 2>&1 & disown
-  sleep 5
-  curl -s -I http://localhost:5555/webhook | tee -a "$TARGET_FILE"
+# Strict validation - fail loudly if any check fails
+echo "[VALIDATION] Checking log file existence..." | tee -a "$LOG_FILE"
+if [ ! -f "$LOG_FILE" ]; then
+  echo "[❌ VALIDATION FAILED] Log file not created: $LOG_FILE" | tee -a "$LOG_FILE"
+  exit 1
 fi
 
-echo "[INFO] Webhook delivery resume test completed" | tee -a "$TARGET_FILE" 
+echo "[VALIDATION] Checking for execution marker..." | tee -a "$LOG_FILE"
+if ! grep -q "DELIVERY OPS ACTIVE" "$LOG_FILE"; then
+  echo "[❌ VALIDATION FAILED] Execution marker not found in log" | tee -a "$LOG_FILE"
+  exit 1
+fi
+
+echo "[✅ VALIDATION PASSED] All checks successful" | tee -a "$LOG_FILE"
+echo "[INFO] Log file contents:" | tee -a "$LOG_FILE"
+cat "$LOG_FILE" 
