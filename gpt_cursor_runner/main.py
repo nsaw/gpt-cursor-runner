@@ -8,6 +8,7 @@ Flask server for handling webhooks and providing API endpoints.
 import os
 import sys
 import psutil
+import socket
 from datetime import datetime
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -32,8 +33,10 @@ from gpt_cursor_runner.slack_handler import (
 )
 from gpt_cursor_runner.event_logger import event_logger
 
+# Import slack proxy for error handling
+from gpt_cursor_runner.slack_proxy import create_slack_proxy
+
 # Import GHOST 2.0 modules
-from gpt_cursor_runner.sequential_processor import get_sequential_processor
 from gpt_cursor_runner.error_recovery import get_error_recovery
 from gpt_cursor_runner.rate_limiter import get_rate_limiter
 from gpt_cursor_runner.request_validator import get_request_validator
@@ -88,8 +91,6 @@ def webhook():
                 "webhook_error", {"error": str(e), "headers": dict(request.headers)}
             )
         try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
             slack_proxy = create_slack_proxy()
             slack_proxy.notify_error(error_msg, context="/webhook endpoint")
         except Exception:
@@ -161,8 +162,6 @@ def handle_slack_webhook():
                 {"error": str(e), "headers": dict(request.headers)},
             )
         try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
             slack_proxy = create_slack_proxy()
             slack_proxy.notify_error(error_msg, context="/webhook Slack handler")
         except Exception:
@@ -338,17 +337,17 @@ def health_check():
             status_flags.append("ghost_down")
         
         # Port 5555 check
-        port_conflict = False
+        port_bound = False
         try:
-            for conn in psutil.net_connections(kind='inet'):
-                if hasattr(conn, 'laddr') and conn.laddr.port == 5555:
-                    port_conflict = True
-                    break
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex(('localhost', 5555))
+            sock.close()
+            port_bound = (result == 0)
         except Exception:
             pass
         
-        response['components']['port_5555_bound'] = port_conflict
-        if not port_conflict:
+        response['components']['port_5555_bound'] = port_bound
+        if not port_bound:
             status_flags.append("port_unbound")
         
         # Filesystem check
