@@ -67,7 +67,7 @@ function updateIndex(root) {
     
     fs.writeFileSync(`${root}/INDEX.md`, index);
     fs.writeFileSync(`${root}/README.md`, `# GHOST ROOT — ${path.basename(root)}\n\nUnified scaffolding structure maintained by doc-daemon.js\n\n## Directory Structure\n- patches/ - Active patches\n- patches/.archive/ - Archived patches\n- patches/.failed/ - Failed patches\n- summaries/ - Active summaries\n- summaries/.completed/ - Completed summaries\n- summaries/.archive/ - Archived summaries\n- summaries/.failed/ - Failed summaries\n- summaries/.logs/ - Summary logs\n- summaries/.heartbeat/ - Heartbeat files`);
-  } catch (error) {
+  } catch (_error) {
     console.error(`Error updating index for ${root}:`, error.message);
   }
 }
@@ -96,11 +96,11 @@ function moveStalePatches(root) {
           fs.renameSync(full, `${archiveDir}/${file}`);
           console.log(`[DOC-DAEMON] Archived stale patch: ${file}`);
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(`Error processing file ${file}:`, error.message);
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error(`Error moving stale patches for ${root}:`, error.message);
   }
 }

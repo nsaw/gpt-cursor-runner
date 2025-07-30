@@ -9,7 +9,7 @@ const writeHeartbeat = debounce(() => {
   try {
     fs.mkdirSync(path.dirname(heartbeatFile), { recursive: true });
     fs.writeFileSync(heartbeatFile, `heartbeat:${new Date().toISOString()}\n`, { flag: 'a' });
-  } catch (err) {
+  } catch (_err) {
     console.error('[Heartbeat Write Error]', err);
   }
 }, 250);

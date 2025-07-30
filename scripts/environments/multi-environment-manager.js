@@ -266,23 +266,23 @@ class MultiEnvironmentManager {
         
         // Start service based on type
         switch (service.name) {
-          case 'ghost':
-            await this.startGhostService(serviceConfig, env);
-            break;
-          case 'api':
-            await this.startApiService(serviceConfig, env);
-            break;
-          case 'dashboard':
-            await this.startDashboardService(serviceConfig, env);
-            break;
-          case 'status':
-            await this.startStatusService(serviceConfig, env);
-            break;
-          case 'autonomous':
-            await this.startAutonomousService(serviceConfig, env);
-            break;
-          default:
-            console.warn(`⚠️ Unknown service: ${service.name}`);
+        case 'ghost':
+          await this.startGhostService(serviceConfig, env);
+          break;
+        case 'api':
+          await this.startApiService(serviceConfig, env);
+          break;
+        case 'dashboard':
+          await this.startDashboardService(serviceConfig, env);
+          break;
+        case 'status':
+          await this.startStatusService(serviceConfig, env);
+          break;
+        case 'autonomous':
+          await this.startAutonomousService(serviceConfig, env);
+          break;
+        default:
+          console.warn(`⚠️ Unknown service: ${service.name}`);
         }
       },
       
@@ -297,7 +297,7 @@ class MultiEnvironmentManager {
             await this.execAsync(`kill -9 ${stdout.trim()}`);
             console.log(`✅ Stopped ${service.name} service`);
           }
-        } catch (error) {
+        } catch (_error) {
           console.log(`ℹ️ ${service.name} service was not running`);
         }
       },
@@ -364,7 +364,7 @@ class MultiEnvironmentManager {
           try {
             const { stdout } = await this.execAsync(`lsof -ti:${port}`);
             services[serviceName] = stdout.trim() ? 'running' : 'stopped';
-          } catch (error) {
+          } catch (_error) {
             services[serviceName] = 'stopped';
           }
         }
@@ -377,7 +377,7 @@ class MultiEnvironmentManager {
         try {
           const { stdout } = await this.execAsync(`lsof -ti:${port}`);
           return !stdout.trim();
-        } catch (error) {
+        } catch (_error) {
           return true; // Port is available if lsof fails
         }
       }
@@ -419,7 +419,7 @@ class MultiEnvironmentManager {
           
           console.log(`✅ Deployment to ${targetEnv} completed successfully`);
           
-        } catch (error) {
+        } catch (_error) {
           deployment.status = 'failed';
           deployment.error = error.message;
           await this.deploymentManager.saveDeployment(deployment);
@@ -459,17 +459,17 @@ class MultiEnvironmentManager {
         const { targetEnvironment, strategy } = deployment;
         
         switch (strategy) {
-          case 'blue-green':
-            await this.deploymentManager.blueGreenDeployment(targetEnvironment);
-            break;
-          case 'rolling':
-            await this.deploymentManager.rollingDeployment(targetEnvironment);
-            break;
-          case 'canary':
-            await this.deploymentManager.canaryDeployment(targetEnvironment);
-            break;
-          default:
-            throw new Error(`Unknown deployment strategy: ${strategy}`);
+        case 'blue-green':
+          await this.deploymentManager.blueGreenDeployment(targetEnvironment);
+          break;
+        case 'rolling':
+          await this.deploymentManager.rollingDeployment(targetEnvironment);
+          break;
+        case 'canary':
+          await this.deploymentManager.canaryDeployment(targetEnvironment);
+          break;
+        default:
+          throw new Error(`Unknown deployment strategy: ${strategy}`);
         }
       },
       
@@ -656,7 +656,7 @@ class MultiEnvironmentManager {
             if (!healthStatus.healthy) {
               await this.monitoringManager.triggerHealthAlert(envName, healthStatus);
             }
-          } catch (error) {
+          } catch (_error) {
             console.error(`❌ Health check error for ${envName}:`, error.message);
           }
         }, this.config.monitoring.healthCheckInterval);
@@ -686,7 +686,7 @@ class MultiEnvironmentManager {
               healthStatus.healthy = false;
               healthStatus.errors.push(`${serviceName}: ${serviceHealth.error}`);
             }
-          } catch (error) {
+          } catch (_error) {
             healthStatus.services[serviceName] = {
               healthy: false,
               error: error.message
@@ -711,7 +711,7 @@ class MultiEnvironmentManager {
             status: response.status,
             responseTime: response.headers['x-response-time'] || 'unknown'
           };
-        } catch (error) {
+        } catch (_error) {
           return {
             healthy: false,
             error: error.message
@@ -737,7 +737,7 @@ class MultiEnvironmentManager {
             healthStatus,
             timestamp: new Date().toISOString()
           });
-        } catch (error) {
+        } catch (_error) {
           console.warn('⚠️ Could not send health alert to status API');
         }
       },

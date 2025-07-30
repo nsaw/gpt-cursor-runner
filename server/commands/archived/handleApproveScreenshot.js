@@ -1,11 +1,11 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
-module.exports = async function handleApproveScreenshot(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleApproveScreenshot(_req, _res) {
+  const { _user_name } = req.body;
   console.log('⚡️ /approve-screenshot triggered by:', user_name);
   
   try {
-    const themeStatus = await stateManager.getThemeStatus();
+    const _themeStatus = await stateManager.getThemeStatus();
     
     if (!themeStatus.lastThemeAudit) {
       res.send('❌ No recent theme changes found to approve.');
@@ -13,7 +13,7 @@ module.exports = async function handleApproveScreenshot(req, res) {
     }
 
     // Simulate screenshot approval process
-    const approvalResult = {
+    const _approvalResult = {
       success: true,
       approvedBy: user_name,
       timestamp: new Date().toISOString(),
@@ -28,7 +28,7 @@ module.exports = async function handleApproveScreenshot(req, res) {
       approvedAt: new Date().toISOString()
     });
 
-    const approvalText = `
+    const _approvalText = `
 📸 *Screenshot Approved*
 
 *Status:* ✅ Approved by ${user_name}
@@ -48,7 +48,7 @@ ${approvalResult.changes.length > 0
     `.trim();
 
     res.send(approvalText);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error approving screenshot:', error);
     res.send(`❌ Error approving screenshot: ${error.message}`);
   }

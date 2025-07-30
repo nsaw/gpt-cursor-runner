@@ -20,7 +20,7 @@ Object.keys(commandHandlers).forEach(command => {
 
 // Handle app mentions
 app.event('app_mention', async ({ event, say }) => {
-  await say(`Hello! I'm the GPT-Cursor Runner. Use /status-runner to check my current status.`);
+  await say('Hello! I\'m the GPT-Cursor Runner. Use /status-runner to check my current status.');
 });
 
 // Handle messages

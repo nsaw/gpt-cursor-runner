@@ -37,7 +37,7 @@ class ValidationRunner {
       await this.generateValidationReport();
       
       return this.validationResults;
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Validation failed:', error.message);
       this.validationResults.overallStatus = 'FAILED';
       throw error;
@@ -64,7 +64,7 @@ class ValidationRunner {
         } else {
           results.failed++;
         }
-      } catch (error) {
+      } catch (_error) {
         results.failed++;
         results.details.push({
           name: check.name,
@@ -123,7 +123,7 @@ class ValidationRunner {
         } else {
           results.failed++;
         }
-      } catch (error) {
+      } catch (_error) {
         results.failed++;
         results.details.push({
           name: rule.name,
@@ -152,7 +152,7 @@ class ValidationRunner {
         if (content.includes('execSync')) {
           return false;
         }
-      } catch (error) {
+      } catch (_error) {
         return false;
       }
     }
@@ -169,7 +169,7 @@ class ValidationRunner {
     for (const file of configFiles) {
       try {
         await fs.access(file);
-      } catch (error) {
+      } catch (_error) {
         return false;
       }
     }
@@ -197,7 +197,7 @@ class ValidationRunner {
     try {
       const content = await fs.readFile('./scripts/patch-executor.js', 'utf8');
       return errorPatterns.some(pattern => pattern.test(content));
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

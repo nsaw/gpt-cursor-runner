@@ -72,7 +72,7 @@ class PostSummaryAutofill {
       console.log('✅ [AUTOFILL] Post Summary Autofill Hook initialized');
       this.log('AUTOFILL_INIT', 'Post Summary Autofill Hook initialized successfully');
       
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [AUTOFILL] Initialization failed:', error.message);
       this.log('AUTOFILL_ERROR', `Initialization failed: ${error.message}`);
     }
@@ -102,7 +102,7 @@ class PostSummaryAutofill {
         timestamp: new Date().toISOString()
       };
       
-    } catch (error) {
+    } catch (_error) {
       return {
         file: path.basename(filePath),
         path: filePath,
@@ -373,7 +373,7 @@ class PostSummaryAutofill {
         filePath
       };
 
-    } catch (error) {
+    } catch (_error) {
       return {
         applied: false,
         error: error.message,
@@ -429,7 +429,7 @@ class PostSummaryAutofill {
           });
         }
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ [AUTOFILL] Error processing directory ${summaryDir}:`, error.message);
         this.log('AUTOFILL_ERROR', `Directory processing failed: ${error.message}`);
       }
@@ -501,7 +501,7 @@ class PostSummaryAutofill {
       const timestamp = new Date().toISOString();
       const logEntry = `[${timestamp}] [${level}] ${message}\n`;
       fs.appendFileSync(CONFIG.LOG_FILE, logEntry);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [AUTOFILL] Failed to write to log:', error.message);
     }
   }
@@ -523,7 +523,7 @@ class PostSummaryAutofill {
       
       console.log(`📄 [AUTOFILL] Results exported to: ${exportPath}`);
       return exportPath;
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [AUTOFILL] Export failed:', error.message);
       return null;
     }

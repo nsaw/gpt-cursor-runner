@@ -1,11 +1,11 @@
-const { WebClient } = require('@slack/web-api');
-const stateManager = require('../utils/stateManager');
+const { _WebClient } = require('@slack/web-api');
+const _stateManager = require('../utils/stateManager');
 
 // Initialize Slack Web API client
-const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
+const _slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 
-module.exports = async function handleGPTSlackDispatch(req, res) {
-  const { user_name, text } = req.body;
+module.exports = async function handleGPTSlackDispatch(_req, _res) {
+  const { _user_name, _text } = req.body;
   console.log('⚡️ /gpt-slack-dispatch triggered by:', user_name, 'with text:', text);
   
   try {
@@ -13,12 +13,12 @@ module.exports = async function handleGPTSlackDispatch(req, res) {
     let dispatchRequest;
     try {
       dispatchRequest = JSON.parse(text);
-    } catch (error) {
+    } catch (_error) {
       res.send('❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}');
       return;
     }
 
-    const { action, channel, blocks, text, ts } = dispatchRequest;
+    const { _action, _channel, _blocks, _text, _ts } = dispatchRequest;
     
     // Validate required fields
     if (!action || !channel) {
@@ -27,7 +27,7 @@ module.exports = async function handleGPTSlackDispatch(req, res) {
     }
 
     // Check if action is allowed
-    const allowedActions = ['postMessage', 'updateMessage', 'deleteMessage'];
+    const _allowedActions = ['postMessage', 'updateMessage', 'deleteMessage'];
     if (!allowedActions.includes(action)) {
       res.send(`❌ Action '${action}' not allowed. Allowed: ${allowedActions.join(', ')}`);
       return;
@@ -102,7 +102,7 @@ module.exports = async function handleGPTSlackDispatch(req, res) {
       }
     });
 
-    const response = `
+    const _response = `
 ✅ *GPT Slack Dispatch Successful*
 
 *Action:* ${action}
@@ -118,7 +118,7 @@ ${result.channel ? `*Channel ID:* ${result.channel}` : ''}
     `.trim();
 
     res.send(response);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error in GPT Slack dispatch:', error);
     
     // Log the failed dispatch

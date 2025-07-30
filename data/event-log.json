@@ -2682,8 +2682,1732 @@
         "target_file": "/tmp/gpt-interface-test.log",
         "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-gpt-interface_20250728_225205.json"
       }
+    },
+    {
+      "id": "system_1753838320856",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:18:40.856494",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "verify-hotpatch-final",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+          "patch": "echo \"[\u2705 HOTPATCH EXECUTION TEST FINAL] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753838320888",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:18:40.888249",
+      "data": {
+        "patch_id": "verify-hotpatch-final",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/verify-hotpatch-final_20250729_181840.json"
+      }
+    },
+    {
+      "id": "system_1753838321212",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T18:18:41.212820",
+      "data": {
+        "patch_id": "verify-hotpatch-final",
+        "error": "All Ghost Runner endpoints failed for patch verify-hotpatch-final"
+      }
+    },
+    {
+      "id": "system_1753838365925",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:19:25.925470",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-final",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+          "patch": "echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753838365934",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:19:25.934838",
+      "data": {
+        "patch_id": "test-final",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-final_20250729_181925.json"
+      }
+    },
+    {
+      "id": "system_1753838366183",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T18:19:26.183144",
+      "data": {
+        "patch_id": "test-final",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-final",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 3 patch files to process.\n[EXECUTOR] Processing patch: test-final.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: test-final.json\n[EXECUTOR] \ud83d\udcc1 Moved test-final.json to .completed\n[EXECUTOR] Processing patch: test-final_20250729_181925.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: test-final_20250729_181925.json\n[EXECUTOR] \ud83d\udcc1 Moved test-final_20250729_181925.json to .completed\n[EXECUTOR] Processing patch: verify-hotpatch-final_20250729_181840.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 HOTPATCH EXECUTION TEST FINAL] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: verify-hotpatch-final_20250729_181840.json\n[EXECUTOR] \ud83d\udcc1 Moved verify-hotpatch-final_20250729_181840.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753839976239",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:46:16.239229",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log",
+          "patch": "echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753839976281",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:46:16.281491",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_184616.json"
+      }
+    },
+    {
+      "id": "system_1753839976655",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T18:46:16.655140",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_184616.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_184616.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_184616.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753847299448",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T20:48:19.448474",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "final-tunnel-confirm",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log",
+          "patch": "echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753847299493",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T20:48:19.493136",
+      "data": {
+        "patch_id": "final-tunnel-confirm",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/final-tunnel-confirm_20250729_204819.json"
+      }
+    },
+    {
+      "id": "system_1753847299880",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T20:48:19.880872",
+      "data": {
+        "patch_id": "final-tunnel-confirm",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "final-tunnel-confirm",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: final-tunnel-confirm.json\n[EXECUTOR] Running GPT patch command: echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log\n[EXECUTOR] \u2705 Patch execution successful: final-tunnel-confirm.json\n[EXECUTOR] \ud83d\udcc1 Moved final-tunnel-confirm.json to .completed\n[EXECUTOR] Processing patch: final-tunnel-confirm_20250729_204819.json\n[EXECUTOR] Running GPT patch command: echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log\n[EXECUTOR] \u2705 Patch execution successful: final-tunnel-confirm_20250729_204819.json\n[EXECUTOR] \ud83d\udcc1 Moved final-tunnel-confirm_20250729_204819.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848141014",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:02:21.014422",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "monitor-cycle",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log",
+          "patch": "echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848141067",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:02:21.067205",
+      "data": {
+        "patch_id": "monitor-cycle",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/monitor-cycle_20250729_210221.json"
+      }
+    },
+    {
+      "id": "system_1753848141437",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:02:21.437565",
+      "data": {
+        "patch_id": "monitor-cycle",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "monitor-cycle",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: monitor-cycle.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log\n[EXECUTOR] \u2705 Patch execution successful: monitor-cycle.json\n[EXECUTOR] \ud83d\udcc1 Moved monitor-cycle.json to .completed\n[EXECUTOR] Processing patch: monitor-cycle_20250729_210221.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log\n[EXECUTOR] \u2705 Patch execution successful: monitor-cycle_20250729_210221.json\n[EXECUTOR] \ud83d\udcc1 Moved monitor-cycle_20250729_210221.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848278305",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:38.305687",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848278317",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:04:38.317229",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283315",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:43.315585",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283330",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:04:43.330221",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283571",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:43.571114",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "tunnel-trace-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283580",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:43.580503",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/tunnel-trace-test_20250729_210443.json"
+      }
+    },
+    {
+      "id": "system_1753848283814",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:43.814837",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "tunnel-trace-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: tunnel-trace-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test.json to .completed\n[EXECUTOR] Processing patch: tunnel-trace-test_20250729_210443.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test_20250729_210443.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test_20250729_210443.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288575",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:48.575845",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "tunnel-trace-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288585",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:48.585695",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/tunnel-trace-test_20250729_210448.json"
+      }
+    },
+    {
+      "id": "system_1753848288809",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:48.809308",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "tunnel-trace-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: tunnel-trace-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test.json to .completed\n[EXECUTOR] Processing patch: tunnel-trace-test_20250729_210448.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test_20250729_210448.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test_20250729_210448.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288861",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:48.861187",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288872",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:48.872635",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_210448.json"
+      }
+    },
+    {
+      "id": "system_1753848289114",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:49.114435",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_210448.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_210448.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_210448.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848293866",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:53.866512",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848293881",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:53.881994",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_210453.json"
+      }
+    },
+    {
+      "id": "system_1753848294112",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:54.112039",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_210453.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_210453.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_210453.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848520359",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:08:40.359714",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "resume-delivery",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+          "patch": "echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848520375",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:08:40.375693",
+      "data": {
+        "patch_id": "resume-delivery",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/resume-delivery_20250729_210840.json"
+      }
+    },
+    {
+      "id": "system_1753848520737",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:08:40.737790",
+      "data": {
+        "patch_id": "resume-delivery",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "resume-delivery",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: resume-delivery.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery.json to .completed\n[EXECUTOR] Processing patch: resume-delivery_20250729_210840.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery_20250729_210840.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery_20250729_210840.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753849202157",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:20:02.157774",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "resume-delivery",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+          "patch": "echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753849202176",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:20:02.176273",
+      "data": {
+        "patch_id": "resume-delivery",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/resume-delivery_20250729_212002.json"
+      }
+    },
+    {
+      "id": "system_1753849202543",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:20:02.543352",
+      "data": {
+        "patch_id": "resume-delivery",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "resume-delivery",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: resume-delivery.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery.json to .completed\n[EXECUTOR] Processing patch: resume-delivery_20250729_212002.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery_20250729_212002.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery_20250729_212002.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753850745317",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:45:45.317580",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753850745329",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:45:45.329381",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753851635476",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:00:35.476501",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.20",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.28(P8.13.20)_system-state-log-health-audit.json",
+          "patch": "test"
+        }
+      }
+    },
+    {
+      "id": "system_1753851635697",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:00:35.697751",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.20",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.28(P8.13.20)_system-state-log-health-audit.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.20_20250729_220035.json"
+      }
+    },
+    {
+      "id": "system_1753851636119",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:00:36.119803",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.20",
+        "error": "All Ghost Runner endpoints failed for patch ghost-dispatch-P8.13.20"
+      }
+    },
+    {
+      "id": "system_1753852088139",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:08.140020",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852088159",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:08.159920",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix_20250729_220808.json"
+      }
+    },
+    {
+      "id": "system_1753852088612",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:08.612840",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix"
+      }
+    },
+    {
+      "id": "system_1753852115017",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:35.017214",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-2",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852115028",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:35.028265",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-2",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-2_20250729_220835.json"
+      }
+    },
+    {
+      "id": "system_1753852115328",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:35.328667",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-2",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix-2"
+      }
+    },
+    {
+      "id": "system_1753852132870",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:52.870913",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-3",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852132885",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:52.885796",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-3",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-3_20250729_220852.json"
+      }
+    },
+    {
+      "id": "system_1753852133160",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:53.160249",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-3",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix-3"
+      }
+    },
+    {
+      "id": "system_1753852154475",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:09:14.475054",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-4",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852154487",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:09:14.487524",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-4",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-4_20250729_220914.json"
+      }
+    },
+    {
+      "id": "system_1753852154710",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:09:14.710143",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-patch-timestamp-fix-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 10 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.20.json\n[EXECUTOR] Running GPT patch command: test\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.20.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.20_20250729_220035.json\n[EXECUTOR] Running GPT patch command: test\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.20_20250729_220035.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-2.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-2.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-2_20250729_220835.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-2_20250729_220835.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-3.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-3.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-3_20250729_220852.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-3_20250729_220852.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-4.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-4.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-4_20250729_220914.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-4_20250729_220914.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix_20250729_220808.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix_20250729_220808.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852159282",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:09:19.282747",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852159294",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:09:19.294919",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook_20250729_220919.json"
+      }
+    },
+    {
+      "id": "system_1753852159499",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:09:19.499653",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook.json to .failed\n[EXECUTOR] Processing patch: test-external-webhook_20250729_220919.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook_20250729_220919.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852439268",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:13:59.268698",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852439280",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:13:59.280392",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21_20250729_221359.json"
+      }
+    },
+    {
+      "id": "system_1753852439569",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:13:59.569724",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21_20250729_221359.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21_20250729_221359.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852446303",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:14:06.303802",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook-2",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852446316",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:14:06.316647",
+      "data": {
+        "patch_id": "test-external-webhook-2",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook-2_20250729_221406.json"
+      }
+    },
+    {
+      "id": "system_1753852446522",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:14:06.522608",
+      "data": {
+        "patch_id": "test-external-webhook-2",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook-2",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook-2.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook-2.json to .failed\n[EXECUTOR] Processing patch: test-external-webhook-2_20250729_221406.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook-2_20250729_221406.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753853262554",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:27:42.554326",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+          "patch": {
+            "showInUI": true,
+            "blockId": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "description": "Live test patch to confirm webhook and Ghost delivery path post-timestamp fix",
+            "target": "DEV",
+            "version": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts",
+                "contents": "export const confirmationPatch = \"\u2705 TEST PATCH RECEIVED\";"
+              }
+            ],
+            "postMutationBuild": {
+              "shell": [
+                "echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "validate": {
+              "shell": [
+                "test -f /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log",
+                "grep -q \"\\[\u2705 TEST PATCH RECEIVED\\]\" /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "final": {
+              "git": {
+                "commit": "[PATCH P8.13.21] webhook-dispatch-confirmation-test \u2014 Confirm Ghost delivery pipeline",
+                "tag": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test"
+              },
+              "summary": "\u2705 patch-v3.3.29(P8.13.21): Confirmed successful dispatch to Ghost.",
+              "summaryFile": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.md"
+            },
+            "blockCommitOnError": true,
+            "watchConsole": true,
+            "execution": {
+              "autoReleaseTimeoutMs": 30000,
+              "onReloadHang": "Move to background and resume automatically"
+            },
+            "enforceValidationGate": true,
+            "strictRuntimeAudit": true,
+            "runDryCheck": true,
+            "forceRuntimeTrace": true,
+            "requireMutationProof": true,
+            "requireServiceUptime": true
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753853262572",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:27:42.572193",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21_20250729_222742.json"
+      }
+    },
+    {
+      "id": "system_1753853262982",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:27:42.982805",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21_20250729_222742.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21_20250729_222742.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753853309910",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:28:29.910144",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21-fixed",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+          "patch": {
+            "showInUI": true,
+            "blockId": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "description": "Live test patch to confirm webhook and Ghost delivery path post-timestamp fix",
+            "target": "DEV",
+            "version": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts",
+                "contents": "export const confirmationPatch = \"\u2705 TEST PATCH RECEIVED\";"
+              }
+            ],
+            "postMutationBuild": {
+              "shell": [
+                "echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "validate": {
+              "shell": [
+                "test -f /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log",
+                "grep -q \"\\[\u2705 TEST PATCH RECEIVED\\]\" /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "final": {
+              "git": {
+                "commit": "[PATCH P8.13.21] webhook-dispatch-confirmation-test \u2014 Confirm Ghost delivery pipeline",
+                "tag": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test"
+              },
+              "summary": "\u2705 patch-v3.3.29(P8.13.21): Confirmed successful dispatch to Ghost.",
+              "summaryFile": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.md"
+            },
+            "blockCommitOnError": true,
+            "watchConsole": true,
+            "execution": {
+              "autoReleaseTimeoutMs": 30000,
+              "onReloadHang": "Move to background and resume automatically"
+            },
+            "enforceValidationGate": true,
+            "strictRuntimeAudit": true,
+            "runDryCheck": true,
+            "forceRuntimeTrace": true,
+            "requireMutationProof": true,
+            "requireServiceUptime": true
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753853309942",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:28:29.942402",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21-fixed",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21-fixed_20250729_222829.json"
+      }
+    },
+    {
+      "id": "system_1753853310184",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:28:30.184755",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21-fixed",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21-fixed",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21-fixed.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts\n[EXECUTOR] Running: echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-P8.13.21-fixed.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21-fixed.json to .completed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21-fixed_20250729_222829.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts\n[EXECUTOR] Running: echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-P8.13.21-fixed_20250729_222829.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21-fixed_20250729_222829.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753854163890",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:42:43.890195",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854163903",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:42:43.903570",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854510096",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:48:30.096175",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854510113",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:48:30.113890",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test",
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855135503",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:58:55.503318",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855135515",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:58:55.515201",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855138511",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:58:58.511121",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855138523",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:58:58.523804",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855979918",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-29T23:12:59.918381",
+      "data": {
+        "error": "400 Bad Request: Failed to decode JSON object: Expecting ',' delimiter: line 1 column 718 (char 717)",
+        "headers": {
+          "Host": "localhost:5555",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/json",
+          "Content-Length": "2220"
+        }
+      }
+    },
+    {
+      "id": "system_1753857492042",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:38:12.042439",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "patch-v3.3.33(P8.13.25)_ghost-confirmation-hotpatch-3"
+        }
+      }
+    },
+    {
+      "id": "system_1753857492061",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T23:38:12.061778",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "patch-v3.3.33(P8.13.25)_ghost-confirmation-hotpatch-3"
+        }
+      }
+    },
+    {
+      "id": "system_1753857768509",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:42:48.509376",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857768518",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T23:42:48.518905",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test-patch",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857794478",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:43:14.478672",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+          "role": "test",
+          "target_file": "/tmp/test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857794491",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T23:43:14.491709",
+      "data": {
+        "patch_id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+        "target_file": "/tmp/test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json"
+      }
+    },
+    {
+      "id": "system_1753857794702",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T23:43:14.702294",
+      "data": {
+        "patch_id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] Applying mutation to: /tmp/test.txt\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json\n[EXECUTOR] Applying mutation to: /tmp/test.txt\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753858600153",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:56:40.153182",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-test",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "value"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753858600166",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T23:56:40.166413",
+      "data": {
+        "patch_id": "ghost-dispatch-test",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-test_20250729_235640.json"
+      }
+    },
+    {
+      "id": "system_1753858600584",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T23:56:40.585001",
+      "data": {
+        "patch_id": "ghost-dispatch-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-test.json\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-test.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-test.json to .completed\n[EXECUTOR] Processing patch: ghost-dispatch-test_20250729_235640.json\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-test_20250729_235640.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-test_20250729_235640.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753859591576",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:13:11.576794",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook",
+          "role": "test",
+          "target_file": "/tmp/external-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/external-test.txt",
+                "contents": "external test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753859591588",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:13:11.588720",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "target_file": "/tmp/external-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook_20250730_001311.json"
+      }
+    },
+    {
+      "id": "system_1753859591928",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:13:11.928500",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: test-external-webhook.json\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook.json to .completed\n[EXECUTOR] Processing patch: test-external-webhook_20250730_001311.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: test-external-webhook_20250730_001311.json\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook_20250730_001311.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753859693330",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:14:53.330080",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts",
+                "contents": "export const confirmationPatch4 = \"\u2705 TEST PATCH RECEIVED \u2014 GHOST RELAY #4\";"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753859693341",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:14:53.341642",
+      "data": {
+        "patch_id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json"
+      }
+    },
+    {
+      "id": "system_1753859693601",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:14:53.601310",
+      "data": {
+        "patch_id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860174822",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:22:54.822654",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+                "contents": "export const confirmationPatch5 = \"\u2705 TEST PATCH RECEIVED \u2014 GHOST RELAY #5\";"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860174845",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:22:54.845083",
+      "data": {
+        "patch_id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+        "target_file": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json"
+      }
+    },
+    {
+      "id": "system_1753860175226",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:22:55.226281",
+      "data": {
+        "patch_id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860679965",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:31:19.965567",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-test-patch",
+          "role": "test",
+          "target_file": "/tmp/secure-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-test.txt",
+                "contents": "secure test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860679983",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:31:19.983525",
+      "data": {
+        "patch_id": "secure-test-patch",
+        "target_file": "/tmp/secure-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-test-patch_20250730_003119.json"
+      }
+    },
+    {
+      "id": "system_1753860680306",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-30T00:31:20.306283",
+      "data": {
+        "patch_id": "secure-test-patch",
+        "error": "All Ghost Runner endpoints failed for patch secure-test-patch"
+      }
+    },
+    {
+      "id": "system_1753860701585",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:31:41.585792",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-test-patch-2",
+          "role": "test",
+          "target_file": "/tmp/secure-test-2.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-test-2.txt",
+                "contents": "secure test 2"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860701600",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:31:41.600832",
+      "data": {
+        "patch_id": "secure-test-patch-2",
+        "target_file": "/tmp/secure-test-2.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-test-patch-2_20250730_003141.json"
+      }
+    },
+    {
+      "id": "system_1753860701830",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:31:41.830879",
+      "data": {
+        "patch_id": "secure-test-patch-2",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "secure-test-patch-2",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 3 patch files to process.\n[EXECUTOR] Processing patch: secure-test-patch-2.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test-2.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch-2.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch-2.json to .completed\n[EXECUTOR] Processing patch: secure-test-patch-2_20250730_003141.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test-2.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch-2_20250730_003141.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch-2_20250730_003141.json to .completed\n[EXECUTOR] Processing patch: secure-test-patch_20250730_003119.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch_20250730_003119.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch_20250730_003119.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860817646",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:33:37.646840",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-cors-test",
+          "role": "test",
+          "target_file": "/tmp/secure-cors-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-cors-test.txt",
+                "contents": "secure CORS test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860817659",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:33:37.659180",
+      "data": {
+        "patch_id": "secure-cors-test",
+        "target_file": "/tmp/secure-cors-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-cors-test_20250730_003337.json"
+      }
+    },
+    {
+      "id": "system_1753860817905",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:33:37.905299",
+      "data": {
+        "patch_id": "secure-cors-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "secure-cors-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: secure-cors-test.json\n[EXECUTOR] Applying mutation to: /tmp/secure-cors-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-cors-test.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-cors-test.json to .completed\n[EXECUTOR] Processing patch: secure-cors-test_20250730_003337.json\n[EXECUTOR] Applying mutation to: /tmp/secure-cors-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-cors-test_20250730_003337.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-cors-test_20250730_003337.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860865625",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:34:25.625999",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "external-origin-test",
+          "role": "test",
+          "target_file": "/tmp/external-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/external-test.txt",
+                "contents": "external origin test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860865644",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:34:25.644150",
+      "data": {
+        "patch_id": "external-origin-test",
+        "target_file": "/tmp/external-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/external-origin-test_20250730_003425.json"
+      }
+    },
+    {
+      "id": "system_1753860865887",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:34:25.887308",
+      "data": {
+        "patch_id": "external-origin-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "external-origin-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: external-origin-test.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: external-origin-test.json\n[EXECUTOR] \ud83d\udcc1 Moved external-origin-test.json to .completed\n[EXECUTOR] Processing patch: external-origin-test_20250730_003425.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: external-origin-test_20250730_003425.json\n[EXECUTOR] \ud83d\udcc1 Moved external-origin-test_20250730_003425.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753861264173",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:41:04.173894",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "watchdog-test",
+          "role": "test",
+          "target_file": "/tmp/watchdog-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/watchdog-test.txt",
+                "contents": "watchdog auto-healing test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753861264194",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:41:04.194742",
+      "data": {
+        "patch_id": "watchdog-test",
+        "target_file": "/tmp/watchdog-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/watchdog-test_20250730_004104.json"
+      }
+    },
+    {
+      "id": "system_1753861264554",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:41:04.554838",
+      "data": {
+        "patch_id": "watchdog-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "watchdog-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: watchdog-test.json\n[EXECUTOR] Applying mutation to: /tmp/watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: watchdog-test.json\n[EXECUTOR] \ud83d\udcc1 Moved watchdog-test.json to .completed\n[EXECUTOR] Processing patch: watchdog-test_20250730_004104.json\n[EXECUTOR] Applying mutation to: /tmp/watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: watchdog-test_20250730_004104.json\n[EXECUTOR] \ud83d\udcc1 Moved watchdog-test_20250730_004104.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753862216274",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-30T00:56:56.274457",
+      "data": {
+        "error": "400 Bad Request: Failed to decode JSON object: Expecting ',' delimiter: line 1 column 678 (char 677)",
+        "headers": {
+          "Host": "localhost:5555",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/json",
+          "Content-Length": "691"
+        }
+      }
+    },
+    {
+      "id": "system_1753862404608",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T01:00:04.608743",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-runner-watchdog-test",
+          "role": "test",
+          "target_file": "/tmp/ghost-runner-watchdog-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/ghost-runner-watchdog-test.txt",
+                "contents": "watchdog validation"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753862404625",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T01:00:04.625102",
+      "data": {
+        "patch_id": "ghost-runner-watchdog-test",
+        "target_file": "/tmp/ghost-runner-watchdog-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-runner-watchdog-test_20250730_010004.json"
+      }
+    },
+    {
+      "id": "system_1753862404895",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T01:00:04.895686",
+      "data": {
+        "patch_id": "ghost-runner-watchdog-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-runner-watchdog-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-runner-watchdog-test.json\n[EXECUTOR] Applying mutation to: /tmp/ghost-runner-watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: ghost-runner-watchdog-test.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-runner-watchdog-test.json to .completed\n[EXECUTOR] Processing patch: ghost-runner-watchdog-test_20250730_010004.json\n[EXECUTOR] Applying mutation to: /tmp/ghost-runner-watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: ghost-runner-watchdog-test_20250730_010004.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-runner-watchdog-test_20250730_010004.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
     }
   ],
-  "last_updated": "2025-07-28T22:52:05.156421",
-  "total_events": 150
+  "last_updated": "2025-07-30T01:00:04.898928",
+  "total_events": 266
 }

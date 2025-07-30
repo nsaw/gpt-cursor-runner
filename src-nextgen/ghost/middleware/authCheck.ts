@@ -111,7 +111,7 @@ class AuthCheckMiddleware {
     try {
       fs.appendFileSync(authLogPath, JSON.stringify(logEntry) + '\n');
     } catch (error) {
-      console.error('Failed to write to auth log:', error);
+      console.error('Failed to writerror to auth log:', error);
     }
   }
 
@@ -355,7 +355,7 @@ export function authCheck(): (req: any, res: any, next: any) => Promise<void> {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         error: 'Authentication error',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
       }));
     }

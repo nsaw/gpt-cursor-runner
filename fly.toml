@@ -12,6 +12,8 @@ primary_region = 'sea'
 [env]
   NODE_ENV = 'production'
   PUBLIC_RUNNER_URL = 'https://runner.thoughtmarks.app'
+  FLY_APP_NAME = 'gpt-cursor-runner'
+  PATCHES_DIRECTORY = '/tmp/patches'
 
 [http_service]
   internal_port = 5555

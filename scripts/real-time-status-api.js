@@ -77,7 +77,7 @@ class RealTimeStatusAPI extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: status
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -103,7 +103,7 @@ class RealTimeStatusAPI extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: status
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -120,7 +120,7 @@ class RealTimeStatusAPI extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: status
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -140,7 +140,7 @@ class RealTimeStatusAPI extends EventEmitter {
           status: 'success',
           message: 'Patch status updated'
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -159,7 +159,7 @@ class RealTimeStatusAPI extends EventEmitter {
           status: 'success',
           message: 'Event processed'
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -176,7 +176,7 @@ class RealTimeStatusAPI extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: status
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -203,8 +203,8 @@ class RealTimeStatusAPI extends EventEmitter {
         try {
           const data = JSON.parse(message);
           this.handleWebSocketMessage(clientId, data);
-        } catch (error) {
-          console.error(`❌ [STATUS-API] WebSocket message error:`, error.message);
+        } catch (_error) {
+          console.error('❌ [STATUS-API] WebSocket message error:', error.message);
         }
       });
 
@@ -214,7 +214,7 @@ class RealTimeStatusAPI extends EventEmitter {
       });
 
       ws.on('error', (error) => {
-        console.error(`❌ [STATUS-API] WebSocket error:`, error.message);
+        console.error('❌ [STATUS-API] WebSocket error:', error.message);
         this.connectionStatus.delete(clientId);
       });
     });
@@ -234,7 +234,7 @@ class RealTimeStatusAPI extends EventEmitter {
     for (const [system, patchDir] of Object.entries(this.patchDirectories)) {
       try {
         await this.monitorPatchDirectory(system, patchDir);
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ [STATUS-API] Failed to monitor ${system} directory:`, error.message);
       }
     }
@@ -259,11 +259,11 @@ class RealTimeStatusAPI extends EventEmitter {
             timestamp: new Date().toISOString(),
             data: patchData
           });
-        } catch (error) {
+        } catch (_error) {
           console.error(`❌ [STATUS-API] Error reading patch ${file}:`, error.message);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ [STATUS-API] Error monitoring directory ${patchDir}:`, error.message);
     }
   }
@@ -318,7 +318,7 @@ class RealTimeStatusAPI extends EventEmitter {
           healthy: isHealthy,
           lastChecked: new Date().toISOString()
         };
-      } catch (error) {
+      } catch (_error) {
         status[service.name] = {
           port: service.port,
           healthy: false,
@@ -361,23 +361,23 @@ class RealTimeStatusAPI extends EventEmitter {
     console.log(`📊 [STATUS-API] Processing patch event: ${patchId} - ${event}`);
     
     switch (event) {
-      case 'created':
-        await this.updatePatchStatus(patchId, 'created', data);
-        break;
-      case 'executing':
-        await this.updatePatchStatus(patchId, 'executing', data);
-        break;
-      case 'completed':
-        await this.updatePatchStatus(patchId, 'completed', data);
-        break;
-      case 'failed':
-        await this.updatePatchStatus(patchId, 'failed', data);
-        break;
-      case 'validating':
-        await this.updatePatchStatus(patchId, 'validating', data);
-        break;
-      default:
-        console.warn(`⚠️ [STATUS-API] Unknown patch event: ${event}`);
+    case 'created':
+      await this.updatePatchStatus(patchId, 'created', data);
+      break;
+    case 'executing':
+      await this.updatePatchStatus(patchId, 'executing', data);
+      break;
+    case 'completed':
+      await this.updatePatchStatus(patchId, 'completed', data);
+      break;
+    case 'failed':
+      await this.updatePatchStatus(patchId, 'failed', data);
+      break;
+    case 'validating':
+      await this.updatePatchStatus(patchId, 'validating', data);
+      break;
+    default:
+      console.warn(`⚠️ [STATUS-API] Unknown patch event: ${event}`);
     }
   }
 
@@ -407,8 +407,8 @@ class RealTimeStatusAPI extends EventEmitter {
         type: 'initial_status',
         data: status
       }));
-    } catch (error) {
-      console.error(`❌ [STATUS-API] Error sending initial status:`, error.message);
+    } catch (_error) {
+      console.error('❌ [STATUS-API] Error sending initial status:', error.message);
     }
   }
 
@@ -419,17 +419,17 @@ class RealTimeStatusAPI extends EventEmitter {
     }
     
     switch (data.type) {
-      case 'subscribe_patch':
-        this.handlePatchSubscription(clientId, data.patchId);
-        break;
-      case 'unsubscribe_patch':
-        this.handlePatchUnsubscription(clientId, data.patchId);
-        break;
-      case 'ping':
-        this.sendToClient(clientId, { type: 'pong', timestamp: new Date().toISOString() });
-        break;
-      default:
-        console.warn(`⚠️ [STATUS-API] Unknown WebSocket message type: ${data.type}`);
+    case 'subscribe_patch':
+      this.handlePatchSubscription(clientId, data.patchId);
+      break;
+    case 'unsubscribe_patch':
+      this.handlePatchUnsubscription(clientId, data.patchId);
+      break;
+    case 'ping':
+      this.sendToClient(clientId, { type: 'pong', timestamp: new Date().toISOString() });
+      break;
+    default:
+      console.warn(`⚠️ [STATUS-API] Unknown WebSocket message type: ${data.type}`);
     }
   }
 
@@ -508,7 +508,7 @@ class RealTimeStatusAPI extends EventEmitter {
   start() {
     this.server.listen(this.port, () => {
       console.log(`🚀 [STATUS-API] Real-time status API started on port ${this.port}`);
-      console.log(`📊 [STATUS-API] WebSocket server ready for connections`);
+      console.log('📊 [STATUS-API] WebSocket server ready for connections');
     });
     
     // Listen for patch status updates
@@ -519,7 +519,7 @@ class RealTimeStatusAPI extends EventEmitter {
 
   stop() {
     this.server.close(() => {
-      console.log(`🛑 [STATUS-API] Real-time status API stopped`);
+      console.log('🛑 [STATUS-API] Real-time status API stopped');
     });
   }
 }

@@ -2,7 +2,7 @@
 // React-based dashboard SPA for comprehensive system monitoring
 
 import React, { useState, useEffect, useCallback } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './ghostDashboardUI.css';
 
 interface DashboardData {
@@ -132,6 +132,8 @@ const GhostDashboardUI: React.FC = () => {
 
       return () => clearInterval(interval);
     }
+    
+    return undefined;
   }, [fetchDashboardData, autoRefresh, refreshInterval]);
 
   const getHealthColor = (status: string) => {
@@ -213,13 +215,13 @@ const GhostDashboardUI: React.FC = () => {
               <input
                 type="checkbox"
                 checked={autoRefresh}
-                onChange={(e) => setAutoRefresh(e.target.checked)}
+                onChange={(e) => setAutoRefresh((e.target as HTMLInputElement).checked)}
               />
               Auto Refresh
             </label>
             <select
               value={refreshInterval}
-              onChange={(e) => setRefreshInterval(Number(e.target.value))}
+              onChange={(e) => setRefreshInterval(Number((e.target as HTMLSelectElement).value))}
             >
               <option value={5000}>5s</option>
               <option value={10000}>10s</option>
@@ -412,7 +414,8 @@ const GhostDashboardUI: React.FC = () => {
 const mountDashboard = () => {
   const container = document.getElementById('ghost-dashboard-root');
   if (container) {
-    ReactDOM.render(<GhostDashboardUI />, container);
+    const root = createRoot(container);
+    root.render(<GhostDashboardUI />);
   } else {
     console.error('Dashboard container not found');
   }

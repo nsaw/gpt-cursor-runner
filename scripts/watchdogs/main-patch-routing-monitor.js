@@ -28,7 +28,7 @@ function log(message) {
   // Write to log file
   try {
     fs.appendFileSync(LOG_FILE, logMessage);
-  } catch (e) {
+  } catch (_e) {
     console.error(`[LOG ERROR] ${e.message}`);
   }
 }
@@ -38,7 +38,7 @@ function isProcessRunning(processName) {
   try {
     const result = execSync(`ps aux | grep "${processName}" | grep -v grep | wc -l`, { encoding: 'utf8' });
     return parseInt(result.trim()) > 0;
-  } catch (e) {
+  } catch (_e) {
     return false;
   }
 }
@@ -87,7 +87,7 @@ function checkPatchRoutingHealth() {
       completedCount: completedFiles.length,
       lastActivity: getLastActivity()
     };
-  } catch (e) {
+  } catch (_e) {
     health.routing = { error: e.message };
   }
 
@@ -99,7 +99,7 @@ function getLastActivity() {
   try {
     const stats = fs.statSync(PATHS.MAIN_PATCHES);
     return stats.mtime.toISOString();
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

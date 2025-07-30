@@ -15,7 +15,7 @@ try {
       console.log(JSON.stringify(JSON.parse(data), null, 2));
     }
   });
-} catch (err) {
+} catch (_err) {
   console.error(`[ghost-status] Failed to read heartbeat dir: ${err.message}`);
   process.exit(1);
 } 

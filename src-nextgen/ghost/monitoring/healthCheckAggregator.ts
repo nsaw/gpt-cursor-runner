@@ -430,7 +430,7 @@ class HealthCheckAggregator {
         };
       }
       return { cpu: 0, memory: 0, pid: 'unknown', command: 'unknown' };
-    } catch (error) {
+    } catch (_error) {
       return { cpu: 0, memory: 0, pid: 'unknown', command: 'unknown' };
     }
   }
@@ -548,7 +548,7 @@ class HealthCheckAggregator {
       let prediction: 'stable' | 'degrading' | 'failing' | 'recovering';
       let confidence = 0.5;
       let timeToFailure: number | undefined;
-      let factors: string[] = [];
+      const factors: string[] = [];
 
       if (trend > 0.1) {
         prediction = 'recovering';

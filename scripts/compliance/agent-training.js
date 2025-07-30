@@ -190,7 +190,7 @@ All patches must include:
       const statusFile = path.join(trainingDir, `agent-${agentId}-training.json`);
       const content = await fs.readFile(statusFile, 'utf8');
       return JSON.parse(content);
-    } catch (error) {
+    } catch (_error) {
       return { completed: false, error: 'Training status not found' };
     }
   }
@@ -225,7 +225,7 @@ All patches must include:
         } else {
           report.untrainedAgents.push(status.agentId || file);
         }
-      } catch (error) {
+      } catch (_error) {
         report.untrainedAgents.push(file);
       }
     }

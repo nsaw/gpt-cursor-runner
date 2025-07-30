@@ -1,4 +1,4 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
 module.exports = async function handleToggleRunnerAuto(req, res) {
   const { user_name } = req.body;

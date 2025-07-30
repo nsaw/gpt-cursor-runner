@@ -80,7 +80,7 @@ class PredictiveFailureDetection {
           const { stdout } = await this.execAsync('top -l 1 -n 0 | grep "CPU usage"');
           const cpuMatch = stdout.match(/(\d+\.\d+)%/);
           features.cpuUsage = cpuMatch ? parseFloat(cpuMatch[1]) : 0;
-        } catch (error) {
+        } catch (_error) {
           features.cpuUsage = 0;
         }
         
@@ -89,7 +89,7 @@ class PredictiveFailureDetection {
           const { stdout } = await this.execAsync('vm_stat | grep "Pages free"');
           const memMatch = stdout.match(/(\d+)/);
           features.memoryFree = memMatch ? parseInt(memMatch[1]) : 0;
-        } catch (error) {
+        } catch (_error) {
           features.memoryFree = 0;
         }
         
@@ -98,7 +98,7 @@ class PredictiveFailureDetection {
           const { stdout } = await this.execAsync('df /Users/sawyer/gitSync | tail -1');
           const diskMatch = stdout.match(/(\d+)%/);
           features.diskUsage = diskMatch ? parseInt(diskMatch[1]) : 0;
-        } catch (error) {
+        } catch (_error) {
           features.diskUsage = 0;
         }
         
@@ -115,7 +115,7 @@ class PredictiveFailureDetection {
           try {
             const { stdout } = await this.execAsync(`pgrep -f "${process}" | wc -l`);
             features[`${process}_running`] = parseInt(stdout.trim()) > 0 ? 1 : 0;
-          } catch (error) {
+          } catch (_error) {
             features[`${process}_running`] = 0;
           }
         }
@@ -126,7 +126,7 @@ class PredictiveFailureDetection {
           try {
             const { stdout } = await this.execAsync(`lsof -i :${port} | wc -l`);
             features[`port_${port}_active`] = parseInt(stdout.trim()) > 0 ? 1 : 0;
-          } catch (error) {
+          } catch (_error) {
             features[`port_${port}_active`] = 0;
           }
         }
@@ -162,7 +162,7 @@ class PredictiveFailureDetection {
           // Patch execution time
           features.avgExecutionTime = this.calculateAverageExecutionTime();
           
-        } catch (error) {
+        } catch (_error) {
           features.pendingPatches = 0;
           features.recentSuccessRate = 1;
           features.avgExecutionTime = 0;
@@ -204,7 +204,7 @@ class PredictiveFailureDetection {
           features.validationErrors = validationErrors;
           features.errorRate = totalErrors / 100; // Normalize
           
-        } catch (error) {
+        } catch (_error) {
           features.totalErrors = 0;
           features.timeoutErrors = 0;
           features.connectionErrors = 0;
@@ -341,17 +341,17 @@ class PredictiveFailureDetection {
         
         // Calculate weighted score based on model type
         switch (model.type) {
-          case 'statistical':
-            score = this.predictionEngine.statisticalPrediction(model, features);
-            break;
-          case 'ensemble':
-            score = this.predictionEngine.ensemblePrediction(model, features);
-            break;
-          case 'neural':
-            score = this.predictionEngine.neuralPrediction(model, features);
-            break;
-          default:
-            score = this.predictionEngine.statisticalPrediction(model, features);
+        case 'statistical':
+          score = this.predictionEngine.statisticalPrediction(model, features);
+          break;
+        case 'ensemble':
+          score = this.predictionEngine.ensemblePrediction(model, features);
+          break;
+        case 'neural':
+          score = this.predictionEngine.neuralPrediction(model, features);
+          break;
+        default:
+          score = this.predictionEngine.statisticalPrediction(model, features);
         }
         
         return {
@@ -486,7 +486,7 @@ class PredictiveFailureDetection {
       // Update status
       this.updateStatus(predictions);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Prediction error:', error.message);
     }
   }
@@ -545,7 +545,7 @@ class PredictiveFailureDetection {
         alerts,
         timestamp: new Date().toISOString()
       });
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️ Could not send alerts to status API');
     }
   }
@@ -570,7 +570,7 @@ class PredictiveFailureDetection {
       try {
         const featureData = JSON.parse(fs.readFileSync(path.join(this.featuresDir, file), 'utf8'));
         data.push(featureData);
-      } catch (error) {
+      } catch (_error) {
         console.warn(`⚠️ Could not load feature file: ${file}`);
       }
     }
@@ -619,7 +619,7 @@ class PredictiveFailureDetection {
       }
       
       return count > 0 ? totalTime / count : 0;
-    } catch (error) {
+    } catch (_error) {
       return 0;
     }
   }
@@ -636,7 +636,7 @@ class PredictiveFailureDetection {
           fs.unlinkSync(file.path);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`⚠️ Could not cleanup old files in ${directory}:`, error.message);
     }
   }

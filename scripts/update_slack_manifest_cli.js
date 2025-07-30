@@ -7,13 +7,13 @@
  * Precondition: Slack CLI installed and authorized. App must be accessible via CLI.
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { _execSync } = require('child_process');
+const _fs = require('fs');
+const _path = require('path');
 
 // Configuration
-const SLACK_APP_ID = process.env.SLACK_APP_ID || 'A09469H0C2K';
-// const SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4'; // Unused variable
+const _SLACK_APP_ID = process.env.SLACK_APP_ID || 'A09469H0C2K';
+// const _SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4'; // Unused variable
 
 // Generate improved manifest YAML with essential 25 commands
 function generateManifest() {
@@ -210,8 +210,8 @@ async function main() {
     console.log('🚀 Updating Slack app manifest with essential 25 commands...');
     
     // Generate manifest
-    const manifest = generateManifest();
-    const manifestPath = path.join(__dirname, '../config/slack-app-manifest-v2.yaml');
+    const _manifest = generateManifest();
+    const _manifestPath = path.join(__dirname, '../config/slack-app-manifest-v2.yaml');
     
     // Write manifest file
     fs.writeFileSync(manifestPath, manifest);
@@ -225,7 +225,7 @@ async function main() {
         stdio: 'inherit'
       });
       console.log('✅ App updated successfully via Slack CLI');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️ Slack CLI not available or failed, manifest file ready for manual upload');
       console.log(`📋 Manual upload URL: https://api.slack.com/apps/${SLACK_APP_ID}/manifest`);
     }
@@ -238,7 +238,7 @@ async function main() {
     console.log('• Information & Alerts: 2 commands');
     console.log('• Total: 25 commands (Slack limit)');
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error updating manifest:', error);
     // process.exit(1); // Removed for ESLint compliance
   }

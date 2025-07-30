@@ -32,8 +32,8 @@ export function startDiffMonitor() {
       } else {
         console.log(`[DiffMonitor] ✅ Summary/patch match: ${patchId}`);
       }
-    } catch (e) {
-      console.warn('[DiffMonitor] error:', e);
+    } catch (error) {
+      console.warn('[DiffMonitor] error:', error);
     }
   }
 

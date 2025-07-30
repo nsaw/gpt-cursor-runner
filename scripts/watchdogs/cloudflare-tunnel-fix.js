@@ -4,7 +4,7 @@ const fs = require('fs');
 function safeLog(message) {
   try {
     console.log(message);
-  } catch (error) {
+  } catch (_error) {
     // Silent fail for EPIPE or other stream errors
     try {
       fs.appendFileSync('/Users/sawyer/gitSync/gpt-cursor-runner/logs/cloudflare-tunnel.log', 

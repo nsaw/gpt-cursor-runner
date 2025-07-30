@@ -25,7 +25,7 @@ function startPatchExecutorIfMissing() {
     } else {
       log('Patch executor already running.');
     }
-  } catch (error) {
+  } catch (_error) {
     // If grep doesn't find anything, it returns non-zero exit code
     if (error.status === 1) {
       log('Patch executor not running. Restarting...');
@@ -69,7 +69,7 @@ function checkForNewFiles() {
             log(`Relayed patch ${filename} to MAIN patch queue and removed from inbox.`);
             processedFiles.add(filename);
             startPatchExecutorIfMissing();
-          } catch (error) {
+          } catch (_error) {
             log(`Error copying file ${filename}: ${error.message}`);
             // Don't mark as processed if copy failed
           }
@@ -80,7 +80,7 @@ function checkForNewFiles() {
         log(`File already processed: ${filename}`);
       }
     }
-  } catch (error) {
+  } catch (_error) {
     log(`Error checking directory: ${error.message}`);
   }
 }

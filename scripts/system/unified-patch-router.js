@@ -41,7 +41,7 @@ function log(message, zone = 'SYSTEM') {
   const logFile = path.join(PATHS.CYOPS.logs, 'unified-patch-router.log');
   try {
     fs.appendFileSync(logFile, logMessage);
-  } catch (e) {
+  } catch (_e) {
     console.error(`[LOG ERROR] ${e.message}`);
   }
 }
@@ -76,7 +76,7 @@ function routePatch(patchData, target = 'CYOPS') {
       timestamp: new Date().toISOString()
     };
     
-  } catch (error) {
+  } catch (_error) {
     log(`❌ Patch routing failed: ${error.message}`, target);
     return {
       success: false,
@@ -104,7 +104,7 @@ function startPatchExecutorIfNeeded(target) {
     } else {
       log(`✅ Patch executor already running (${count} instances)`, target);
     }
-  } catch (error) {
+  } catch (_error) {
     log(`⚠️ Could not check patch executor status: ${error.message}`, target);
   }
 }
@@ -136,7 +136,7 @@ function healthCheck() {
       patchExecutor: parseInt(patchExecutor.trim()),
       orchestrator: parseInt(orchestrator.trim())
     };
-  } catch (error) {
+  } catch (_error) {
     health.processes = { error: error.message };
   }
   
@@ -206,7 +206,7 @@ app.get('/patches/:zone', (req, res) => {
       count: files.length,
       patches: files
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });

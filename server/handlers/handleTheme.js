@@ -1,13 +1,13 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
-module.exports = async function handleTheme(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleTheme(_req, _res) {
+  const { _user_name } = req.body;
   console.log('⚡️ /theme triggered by:', user_name);
   
   try {
-    const themeStatus = await stateManager.getThemeStatus();
+    const _themeStatus = await stateManager.getThemeStatus();
     
-    const themeText = `
+    const _themeText = `
 🎨 *Current Theme Information*
 
 *Theme Status:* ${themeStatus.needsFix ? '⚠️ Needs Fix' : '✅ Healthy'}
@@ -31,7 +31,7 @@ ${themeStatus.themeIssues.length > 0
     `.trim();
 
     res.send(themeText);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting theme info:', error);
     res.send(`❌ Error getting theme info: ${error.message}`);
   }

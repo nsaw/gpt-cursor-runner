@@ -5,16 +5,16 @@
  * Monitors patch queue and executes patches
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const _fs = require('fs');
+const _path = require('path');
+const { _execSync } = require('child_process');
 
 console.log('🔧 Simple Patch Executor starting...');
 
 // Create necessary directories
-const queueDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
-const patchesDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
-const heartbeatDir = path.join(__dirname, '..', 'summaries', '_heartbeat');
+const _queueDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
+const _patchesDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
+const _heartbeatDir = path.join(__dirname, '..', 'summaries', '_heartbeat');
 
 [queueDir, patchesDir, heartbeatDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
@@ -23,8 +23,8 @@ const heartbeatDir = path.join(__dirname, '..', 'summaries', '_heartbeat');
 });
 
 // Update last MD write log
-const lastWriteLog = path.join(heartbeatDir, '.last-md-write.log');
-const timestamp = new Date().toISOString();
+const _lastWriteLog = path.join(heartbeatDir, '.last-md-write.log');
+const _timestamp = new Date().toISOString();
 fs.appendFileSync(lastWriteLog, `${timestamp} - Simple patch executor started\n`);
 
 console.log('✅ Simple Patch Executor started');
@@ -32,8 +32,8 @@ console.log('✅ Simple Patch Executor started');
 // Function to process patches
 function processPatches() {
   try {
-    const files = fs.readdirSync(queueDir);
-    const patchFiles = files.filter(file => file.endsWith('.json'));
+    const _files = fs.readdirSync(queueDir);
+    const _patchFiles = files.filter(file => file.endsWith('.json'));
 
     if (patchFiles.length === 0) {
       console.log('[EXECUTOR] No patch files found in queue.');
@@ -46,8 +46,8 @@ function processPatches() {
       try {
         console.log(`[EXECUTOR] Processing patch: ${file}`);
                 
-        const patchFile = path.join(queueDir, file);
-        const patchData = JSON.parse(fs.readFileSync(patchFile, 'utf8'));
+        const _patchFile = path.join(queueDir, file);
+        const _patchData = JSON.parse(fs.readFileSync(patchFile, 'utf8'));
 
         // Execute patch mutations
         if (patchData.mutations) {
@@ -55,7 +55,7 @@ function processPatches() {
             console.log(`[EXECUTOR] Applying mutation to: ${mutation.path}`);
 
             // Create directory if needed
-            const dir = path.dirname(mutation.path);
+            const _dir = path.dirname(mutation.path);
             if (!fs.existsSync(dir)) {
               fs.mkdirSync(dir, { recursive: true });
             }
@@ -67,26 +67,26 @@ function processPatches() {
 
         console.log(`[EXECUTOR] ✅ Patch completed: ${file}`);
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`[EXECUTOR] ❌ Error processing ${file}:`, error.message);
       }
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('[EXECUTOR] ❌ Patch processing failed:', error.message);
   }
 }
 
 // Process patches every 30 seconds
-setInterval(() => {
-  const timestamp = new Date().toISOString();
+setInterval(_() => {
+  const _timestamp = new Date().toISOString();
   fs.appendFileSync(lastWriteLog, `${timestamp} - Patch executor heartbeat\n`);
   console.log('💓 Patch executor heartbeat');
   processPatches();
 }, 30000); // Every 30 seconds
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+process.on(_'SIGINT', _() => {
   console.log('🔧 Simple Patch Executor shutting down...');
   process.exit(0);
 }); 

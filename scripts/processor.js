@@ -22,7 +22,7 @@ module.exports = async function processPatch(filePath) {
     await fs.access('.patch-lock');
     console.log('[SKIP] Lock held - another patch is running');
     return;
-  } catch {
+  } catch (_error) {
     // Lock file doesn't exist, continue
   }
   
@@ -33,7 +33,7 @@ module.exports = async function processPatch(filePath) {
       console.log('[CACHE] Skipped duplicate');
       return;
     }
-  } catch (error) {
+  } catch (_error) {
     console.log('[CACHE] Redis not available, continuing without cache');
   }
   
@@ -49,7 +49,7 @@ module.exports = async function processPatch(filePath) {
     // Cache patch execution in Redis
     try {
       await redis.set(`patch:${id}`, 1, 'EX', 3600);
-    } catch (error) {
+    } catch (_error) {
       console.log('[CACHE] Failed to cache patch, continuing');
     }
     
@@ -58,7 +58,7 @@ module.exports = async function processPatch(filePath) {
     
     console.log('[LOCK] Patch completed successfully');
     
-  } catch (error) {
+  } catch (_error) {
     console.error('[ASYNC ERROR] Patch processing failed:', error.message);
     
     // Log failed patch execution
@@ -70,7 +70,7 @@ module.exports = async function processPatch(filePath) {
     try {
       await fs.unlink('.patch-lock');
       console.log('[LOCK] Patch lock released');
-    } catch {
+    } catch (_error) {
       // Lock file may not exist, ignore error
     }
   }

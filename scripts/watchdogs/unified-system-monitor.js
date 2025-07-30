@@ -112,7 +112,7 @@ function loadTunnels() {
 
       return tunnels;
     }
-  } catch (error) {
+  } catch (_error) {
     this.log('error', 'Failed to load tunnels from TUNNELS.json', error.message);
   }
   
@@ -168,7 +168,7 @@ class UnifiedSystemMonitor {
     try {
       const { stdout } = await execAsync(`ps aux | grep "${pattern}" | grep -v grep`);
       return stdout.trim().length > 0;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -183,7 +183,7 @@ class UnifiedSystemMonitor {
         response: stdout.substring(0, 100), // First 100 chars
         error: null
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         healthy: false,
         response: '',
@@ -216,7 +216,7 @@ class UnifiedSystemMonitor {
                 diskUsage < CONFIG.DISK_THRESHOLD && 
                 cpuUsage < CONFIG.CPU_THRESHOLD
       };
-    } catch (error) {
+    } catch (_error) {
       this.log('error', 'Failed to check resource usage', error.message);
       return { memory: 0, disk: 0, cpu: 0, healthy: false };
     }
@@ -273,7 +273,7 @@ class UnifiedSystemMonitor {
       });
       
       return true;
-    } catch (error) {
+    } catch (_error) {
       this.log('error', `Failed to restart process ${processName}`, {
         processName,
         error: error.message
@@ -390,7 +390,7 @@ class UnifiedSystemMonitor {
     
     try {
       fs.writeFileSync(CONFIG.HEARTBEAT_FILE, JSON.stringify(heartbeat, null, 2));
-    } catch (error) {
+    } catch (_error) {
       this.log('error', 'Failed to write heartbeat file', error.message);
     }
   }

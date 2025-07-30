@@ -1,25 +1,25 @@
 // ✅ RecentLogs.js - Real-time log tailing component
-import React, { useState, useEffect } from 'react';
+import { _{ _React, _{ useState, _useEffect } } } from 'react';
 
 export default function RecentLogs() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  useEffect(_() => {
     fetchLogs();
-    const interval = setInterval(fetchLogs, 5000); // Refresh every 5 seconds
+    const _interval = setInterval(fetchLogs, 5000); // Refresh every 5 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const fetchLogs = async () => {
+  const _fetchLogs = async () => {
     try {
-      const response = await fetch('/api/recent-logs');
+      const _response = await fetch('/api/recent-logs');
       if (!response.ok) throw new Error('Failed to fetch logs');
-      const data = await response.json();
+      const _data = await response.json();
       setLogs(data.logs || []);
       setIsLoading(false);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
       setIsLoading(false);
     }
@@ -49,8 +49,7 @@ export default function RecentLogs() {
       <div className="logs-container">
         {logs.length === 0 ? (
           <div className="no-logs">No recent log activity</div>
-        ) : (
-          logs.map((log, index) => (
+        ) : (_logs.map((log, _index) => (
             <div key={index} className={`log-entry ${log.level}`}>
               <span className="log-timestamp">{log.timestamp}</span>
               <span className="log-level">{log.level}</span>

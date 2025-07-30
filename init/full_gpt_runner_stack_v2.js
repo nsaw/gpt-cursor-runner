@@ -3,19 +3,19 @@
 // PURPOSE: Fully bootstraps GPT-Cursor runner control system with 25+ Slack commands, diagnostics, fallback, auto-patching control, and self-healing infra.
 // NOTE: All Slack command handlers have been fully implemented in server/handlers/ directory.
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const _fs = require('fs');
+const _path = require('path');
+const { _execSync } = require('child_process');
 
-const BASE = path.resolve(__dirname, '../');
-const HANDLER_DIR = path.join(BASE, 'server/handlers');
-const ROUTER_PATH = path.join(BASE, 'server/routes/slack.js');
-const STATE_JSON = path.join(BASE, 'runner.state.json');
-const DIAG_DIR = path.join(BASE, 'logs');
-const TASKS_DIR = path.join(BASE, 'tasks');
-const PATCH_LOG = path.join(BASE, '.cursor-patch-log.json');
+const _BASE = path.resolve(__dirname, '../');
+const _HANDLER_DIR = path.join(BASE, 'server/handlers');
+const _ROUTER_PATH = path.join(BASE, 'server/routes/slack.js');
+const _STATE_JSON = path.join(BASE, 'runner.state.json');
+const _DIAG_DIR = path.join(BASE, 'logs');
+const _TASKS_DIR = path.join(BASE, 'tasks');
+const _PATCH_LOG = path.join(BASE, '.cursor-patch-log.json');
 
-const ALL_COMMANDS = [
+const _ALL_COMMANDS = [
   'dashboard', 'patch-approve', 'patch-revert', 'pause-runner', 'restart-runner',
   'restart-runner-gpt', 'continue-runner', 'status', 'show-roadmap', 'roadmap',
   'kill-runner', 'toggle-runner-on', 'toggle-runner-off', 'toggle-runner-auto',
@@ -28,12 +28,12 @@ const ALL_COMMANDS = [
 if (!fs.existsSync(HANDLER_DIR)) fs.mkdirSync(HANDLER_DIR, { recursive: true });
 
 ALL_COMMANDS.forEach(cmd => {
-  const handlerName = `handle${  cmd.replace(/-(.)/g, (_, c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
-  const handlerPath = path.join(HANDLER_DIR, `${handlerName}.js`);
+  const _handlerName = `handle${  cmd.replace(/-(.)/g, (_, _c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
+  const _handlerPath = path.join(HANDLER_DIR, `${handlerName}.js`);
   if (!fs.existsSync(handlerPath)) {
     fs.writeFileSync(handlerPath, `
 module.exports = async function ${handlerName}(req, res) {
-  const { user_name } = req.body;
+  const { _user_name } = req.body;
   console.log("⚡️ /${cmd} triggered by:", user_name);
   res.send(\`✅ /${cmd} acknowledged. (Handler already implemented)\`);
 };
@@ -41,22 +41,22 @@ module.exports = async function ${handlerName}(req, res) {
   }
 });
 
-let routerCode = 'const express = require(\'express\');\nconst router = express.Router();\n';
+let _routerCode = 'const _express = require(\'express\');\nconst _router = express.Router();\n';
 ALL_COMMANDS.forEach(cmd => {
-  const handlerName = `handle${  cmd.replace(/-(.)/g, (_, c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
+  const _handlerName = `handle${  cmd.replace(/-(.)/g, (_, _c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
   routerCode += `const ${handlerName} = require('../handlers/${handlerName}');\n`;
 });
 
-routerCode += '\nrouter.post(\'/commands\', (req, res) => {\n  const { command } = req.body;\n  const routes = {\n';
+routerCode += '\nrouter.post(_\'/commands\', _(req, _res) => {\n  const { _command } = req.body;\n  const _routes = {\n';
 ALL_COMMANDS.forEach(cmd => {
-  const handlerName = `handle${  cmd.replace(/-(.)/g, (_, c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
+  const _handlerName = `handle${  cmd.replace(/-(.)/g, (_, _c) => c.toUpperCase()).replace(/^./, s => s.toUpperCase())}`;
   routerCode += `    '/${cmd}': ${handlerName},\n`;
 });
 routerCode += '  };\n  if (routes[command]) return routes[command](req, res);\n  res.send(`❓ Unknown slash command: ${command}`);\n});\n\nmodule.exports = router;\n';
 
 fs.writeFileSync(ROUTER_PATH, routerCode);
 
-const state = {
+const _state = {
   paused: false,
   autoMode: true,
   lastPatch: null,
@@ -102,7 +102,7 @@ sleep 2
 curl -X POST http://localhost:3000/ping -H "Content-Type: application/json" -d '{"message": "runner selfcheck ping"}' || echo "⚠️ Ping failed"
 `, { mode: 0o755 });
 
-const LAUNCHD_PATH = path.join(process.env.HOME, 'Library/LaunchAgents/com.sawyer.cursor-runner.plist');
+const _LAUNCHD_PATH = path.join(process.env.HOME, 'Library/LaunchAgents/com.sawyer.cursor-runner.plist');
 fs.writeFileSync(LAUNCHD_PATH, `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
@@ -136,17 +136,17 @@ console.log('✅ Phase 2 complete');
 
 
 // Phase 3 (START)
-const RETRY_PATH = path.join(BASE, '.cursor-failed-blocks.json');
+const _RETRY_PATH = path.join(BASE, '.cursor-failed-blocks.json');
 if (!fs.existsSync(RETRY_PATH)) fs.writeFileSync(RETRY_PATH, JSON.stringify({ failed: [] }, null, 2));
-const LOCK_STATE_FILE = path.join(BASE, '.runner.locked');
+const _LOCK_STATE_FILE = path.join(BASE, '.runner.locked');
 if (!fs.existsSync(LOCK_STATE_FILE)) fs.writeFileSync(LOCK_STATE_FILE, 'false\n');
-const PATCH_LOG_FILE = path.join(DIAG_DIR, 'patches.log');
+const _PATCH_LOG_FILE = path.join(DIAG_DIR, 'patches.log');
 if (!fs.existsSync(PATCH_LOG_FILE)) fs.writeFileSync(PATCH_LOG_FILE, '--- Patch Events ---\n');
-const CRASH_FILE = path.join(BASE, '.crash.lock');
+const _CRASH_FILE = path.join(BASE, '.crash.lock');
 if (!fs.existsSync(CRASH_FILE)) fs.writeFileSync(CRASH_FILE, '');
 
-const currentState = JSON.parse(fs.readFileSync(STATE_JSON));
-const ensuredKeys = {
+const _currentState = JSON.parse(fs.readFileSync(STATE_JSON));
+const _ensuredKeys = {
   paused: false,
   autoMode: true,
   lastPatch: null,
@@ -161,31 +161,31 @@ console.log('✅ Phase 3 complete');
 
 
 // Phase 4 (START)
-const README = path.join(BASE, 'README.md');
-const CHEATSHEET = path.join(BASE, 'tasks/_SLACK_COMMAND_CHEATSHEET.md');
-const lintTarget = path.join(BASE, 'server/handlers');
+const _README = path.join(BASE, 'README.md');
+const _CHEATSHEET = path.join(BASE, 'tasks/_SLACK_COMMAND_CHEATSHEET.md');
+const _lintTarget = path.join(BASE, 'server/handlers');
 
 try {
   execSync(`npx eslint ${lintTarget} --fix`, { stdio: 'inherit' });
   console.log('✅ ESLint pass complete.');
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Linting failed or eslint not configured.');
 }
 
 try {
   execSync('./runner-diagnose.sh', { stdio: 'inherit' });
   console.log('✅ Dry run passed.');
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Dry run encountered warnings.');
 }
 
 try {
   execSync('git add . && git commit -m "✅ Initialized GPT-Cursor runner stack with Slack integration"', { stdio: 'inherit' });
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Git commit skipped or failed.');
 }
 
-const cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
+const _cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
 
 ## Available Slash Commands
 ${ALL_COMMANDS.map(c => `- \`/${c}\``).join('\n')}

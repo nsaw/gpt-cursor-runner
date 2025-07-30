@@ -5,7 +5,7 @@ const path = require('path');
 function safeLog(message) {
   try {
     console.log(message);
-  } catch (error) {
+  } catch (_error) {
     // Silent fail for EPIPE or other stream errors
     try {
       fs.appendFileSync('/Users/sawyer/gitSync/gpt-cursor-runner/logs/cloudflare-watchdog.log', 
@@ -21,7 +21,7 @@ function log(message) {
   const entry = `[${time}] ${message}\n`;
   try {
     fs.appendFileSync(logPath, entry);
-  } catch (error) {
+  } catch (_error) {
     safeLog(`[WATCHDOG_LOG_ERROR] ${error.message}`);
   }
   safeLog(entry.trim());

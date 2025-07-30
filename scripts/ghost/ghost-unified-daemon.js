@@ -105,7 +105,7 @@ class AlertManager {
       await axios.post(ALERT_CONFIG.slackWebhook, payload, {
         timeout: 5000
       });
-    } catch (error) {
+    } catch (_error) {
       console.error('[ALERT] Failed to send Slack alert:', error.message);
     }
   }
@@ -155,7 +155,7 @@ class HealthMonitor {
       }
       
       return healthy;
-    } catch (error) {
+    } catch (_error) {
       console.error(`[HEALTH] Error checking ${componentName}:`, error.message);
       return false;
     }
@@ -172,7 +172,7 @@ class HealthMonitor {
       // Check HTTP health
       const response = await axios.get(url, { timeout: 5000 });
       return response.status === 200;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -196,7 +196,7 @@ class HealthMonitor {
         })
       });
       return response.status === 200;
-    } catch (error) {
+    } catch (_error) {
       // Try alternative DNS resolution method
       try {
         const { exec } = require('child_process');
@@ -271,7 +271,7 @@ class HealthMonitor {
         this.restartCounts.set(componentName, 0);
       }, 60000); // Reset after 1 minute
       
-    } catch (error) {
+    } catch (_error) {
       console.error(`[DAEMON] Failed to restart ${componentName}:`, error.message);
       await this.alertManager.sendAlert(componentName, `Restart failed: ${error.message}`, 'critical');
     }
@@ -326,7 +326,7 @@ class GhostUnifiedDaemon {
       if (component.pm2Name) {
         try {
           await this.healthMonitor.execCommand(`pm2 describe ${component.pm2Name}`);
-        } catch (error) {
+        } catch (_error) {
           console.log(`[DAEMON] Starting ${name} via PM2...`);
           await this.healthMonitor.execCommand(`pm2 start ecosystem.config.js --only ${component.pm2Name}`);
         }
@@ -379,7 +379,7 @@ class GhostUnifiedDaemon {
         const heartbeatFile = path.join(ROOT, 'ROOT', 'summaries', '.heartbeat', 'ghost-unified-daemon.json');
         fs.writeFileSync(heartbeatFile, JSON.stringify(heartbeat, null, 2));
         
-      } catch (error) {
+      } catch (_error) {
         console.error('[DAEMON] Error updating status:', error.message);
       }
     }, 60000); // Every minute

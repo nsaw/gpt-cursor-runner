@@ -1,4 +1,4 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 const runnerController = require('../utils/runnerController');
 
 module.exports = async function handleToggleRunnerOn(req, res) {

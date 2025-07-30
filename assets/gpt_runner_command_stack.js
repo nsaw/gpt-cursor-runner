@@ -26,32 +26,32 @@
 // === END PHASE 3 ===
 
 // Phase 4 (START)
-const README = path.join(BASE, 'README.md');
-const CHEATSHEET = path.join(BASE, 'tasks/_SLACK_COMMAND_CHEATSHEET.md');
-const lintTarget = path.join(BASE, 'server/handlers');
+const _README = path.join(BASE, 'README.md');
+const _CHEATSHEET = path.join(BASE, 'tasks/_SLACK_COMMAND_CHEATSHEET.md');
+const _lintTarget = path.join(BASE, 'server/handlers');
 
 try {
   execSync(`npx eslint ${lintTarget} --fix`, { stdio: 'inherit' });
   console.log('✅ ESLint pass complete.');
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Linting failed or eslint not configured.');
 }
 
 try {
   execSync('./runner-diagnose.sh', { stdio: 'inherit' });
   console.log('✅ Dry run passed.');
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Dry run encountered warnings.');
 }
 
 try {
   execSync('git add . && git commit -m "✅ Initialized GPT-Cursor runner stack with Slack integration"', { stdio: 'inherit' });
-} catch (e) {
+} catch (_e) {
   console.warn('⚠️ Git commit skipped or failed.');
 }
 
 // Generate Markdown cheatsheet
-const cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
+const _cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
 
 ## Available Slash Commands
 ${ALL_COMMANDS.map(c => `- \`/${c}\``).join('\n')}

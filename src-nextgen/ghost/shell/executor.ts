@@ -12,8 +12,8 @@ function loadNextPatch(): any {
     const patchPath = path.join(patchDir, latestPatch!);
     const content = fs.readFileSync(patchPath, 'utf8');
     return JSON.parse(content);
-  } catch (e) {
-    console.error('[Executor] Failed to load patch:', e);
+  } catch (error) {
+    console.error('[Executor] Failed to load patch:', error);
     return null;
   }
 }
@@ -31,7 +31,7 @@ export async function runExecutor() {
     return;
   }
   if (!verifyPatchRoles(patch)) {
-    console.log('[Executor] Patch blocked by role verifier');
+    console.log('[Executor] Patch blocked by rolerror verifier');
     return;
   }
   applyPatch(patch);

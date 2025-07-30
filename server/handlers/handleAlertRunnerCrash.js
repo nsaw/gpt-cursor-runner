@@ -13,6 +13,6 @@ module.exports = async ({ command, ack, respond }) => {
           `• Function: Alert Runner Crash
 
 ` +
-          `This command will be fully implemented to handle its specific functionality.`
+          'This command will be fully implemented to handle its specific functionality.'
   });
 };

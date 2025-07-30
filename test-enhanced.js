@@ -1,1 +1,1 @@
-console.log("enhanced test")
+console.log('enhanced test');

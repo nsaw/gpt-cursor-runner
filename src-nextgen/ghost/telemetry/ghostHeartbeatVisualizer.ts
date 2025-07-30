@@ -140,7 +140,7 @@ class GhostHeartbeatVisualizer {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Heartbeat visualizer initialized', 'info');
+    this.logEvent('system_startup', 'Heartbeat visualizer started', 'info');
   }
 
   private loadConfig(): void {
@@ -153,7 +153,7 @@ class GhostHeartbeatVisualizer {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -206,7 +206,7 @@ class GhostHeartbeatVisualizer {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -219,7 +219,7 @@ class GhostHeartbeatVisualizer {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -485,7 +485,7 @@ class GhostHeartbeatVisualizer {
         memoryUsage: 0,
         cpuUsage: 0,
         responseTime: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error'
       };
     }
   }
@@ -539,7 +539,7 @@ class GhostHeartbeatVisualizer {
       const { stdout } = await execAsync('date -u +%s');
       const timestamp = parseInt(stdout.trim()) * 1000;
       return new Date(timestamp);
-    } catch (error) {
+    } catch (_error) {
       // Fallback to system time
       return new Date();
     }
@@ -550,7 +550,7 @@ class GhostHeartbeatVisualizer {
       const startTime = Date.now();
       await execAsync('ping -c 1 8.8.8.8');
       return Date.now() - startTime;
-    } catch (error) {
+    } catch (_error) {
       return 0;
     }
   }
@@ -629,21 +629,17 @@ class GhostHeartbeatVisualizer {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(heartbeatStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to save state: ${error}`);
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Heartbeat data sent to dashboard', 'info', {
-          heartbeatStatus: this.state.heartbeatStatus,
-          daemonCount: this.state.daemonHeartbeats.length,
-          clockSyncStatus: this.state.clockSyncStatus
-        });
+        this.logEvent('error', 'Component error detected', 'error');
       }
     } catch (error) {
-      this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
     }
   }
 
@@ -665,15 +661,11 @@ class GhostHeartbeatVisualizer {
         await this.sendToDashboard();
         
         // Log heartbeat event
-        this.logEvent('heartbeat', 'Heartbeat check completed', 'info', {
-          daemonCount: this.state.daemonHeartbeats.length,
-          healthyDaemons: this.state.heartbeatStatus.healthyDaemons,
-          clockDrift: this.state.heartbeatStatus.clockDrift
-        });
+        this.logEvent('heartbeat', 'Heartbeat check completed', 'info');
         
         await new Promise(resolve => setTimeout(resolve, this.config.monitoring.intervalMs));
       } catch (error) {
-        this.logEvent('monitoring_error', `Monitoring loop error: ${error}`, 'error');
+        this.logEvent('component_error', `Monitoring loop error: ${error}`, 'error');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -686,13 +678,13 @@ class GhostHeartbeatVisualizer {
     this.logEvent('system_startup', 'Heartbeat visualizer started', 'info');
 
     this.monitoringLoop().catch(error => {
-      this.logEvent('system_error', `Monitoring loop failed: ${error}`, 'critical');
+      this.logEvent('component_error', `Monitoring loop failed: ${error}`, 'critical');
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Heartbeat visualizer stopped', 'info');
+    this.logEvent('system_shutdown', 'info', 'info');
     await this.saveState();
   }
 
@@ -707,7 +699,7 @@ class GhostHeartbeatVisualizer {
   public updateConfig(newConfig: Partial<HeartbeatConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig', 'info');
   }
 
   public getHeartbeatStatus(): HeartbeatStatus {
@@ -732,7 +724,7 @@ class GhostHeartbeatVisualizer {
 
   public clearHistory(): void {
     this.state.events = [];
-    this.logEvent('system_maintenance', 'Heartbeat history cleared', 'info');
+    this.logEvent('error', 'Component error detected', 'error');
   }
 }
 

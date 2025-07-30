@@ -50,7 +50,7 @@ class ConsolidatedDaemon {
       
       try {
         await this.processPatchQueue();
-      } catch (error) {
+      } catch (_error) {
         console.error('[CONSOLIDATED] Patch processing error:', error);
       }
     }, 5000); // Every 5 seconds
@@ -114,7 +114,7 @@ class ConsolidatedDaemon {
       
       console.log(`[CONSOLIDATED] Patch processed successfully: ${filePath}`);
       
-    } catch (error) {
+    } catch (_error) {
       console.error(`[CONSOLIDATED] Patch processing failed: ${filePath}`, error);
       throw error;
     }
@@ -175,7 +175,7 @@ async function runDaemonCommand(command) {
   try {
     const result = await executeCommand(command);
     return result;
-  } catch (error) {
+  } catch (_error) {
     console.error(`Daemon command execution failed: ${error.message}`);
     throw error;
   }

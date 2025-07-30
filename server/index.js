@@ -7,7 +7,7 @@ const patchRouter = require('./patchRouter');
 
 const app = express();
 app.use(bodyParser.json());
-const PORT = 5555;
+const PORT = process.env.NODE_PORT || 5052;
 const GPT_KEY = process.env.GPT_EMERGENCY_KEY || 'supersecret';
 
 // Use patch router

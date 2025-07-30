@@ -118,7 +118,7 @@ async function sendToRunner(runner, endpoint, data) {
           const response = JSON.parse(stdout);
           log(`✅ ACKNOWLEDGED: Sent to ${endpoint}: ${response.status || 'success'}`);
           resolve(true);
-        } catch (e) {
+        } catch (_e) {
           log(`⚠️ Unexpected response from ${endpoint}: ${stdout}`);
           resolve(false);
         }
@@ -179,7 +179,7 @@ function monitorSummaries(runner) {
           }
         });
       }
-    } catch (error) {
+    } catch (_error) {
       log(`❌ Error monitoring summaries: ${error.message}`);
     }
   }, 5000);

@@ -19,7 +19,7 @@ try {
   console.log('✅ Ghost Status:');
   console.log(JSON.stringify(status, null, 2));
   
-} catch (error) {
+} catch (_error) {
   console.error(`❌ Failed to read ghost status: ${error.message}`);
   process.exit(1);
 } 

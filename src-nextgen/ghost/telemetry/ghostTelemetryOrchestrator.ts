@@ -166,7 +166,7 @@ class GhostTelemetryOrchestrator {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -229,7 +229,7 @@ class GhostTelemetryOrchestrator {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -242,7 +242,7 @@ class GhostTelemetryOrchestrator {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -253,7 +253,7 @@ class GhostTelemetryOrchestrator {
       components: this.initializeComponents(),
       events: [],
       systemHealth: {
-        overall: 'unknown',
+        overall: "unhealthy",
         components: {
           total: 0,
           healthy: 0,
@@ -284,7 +284,7 @@ class GhostTelemetryOrchestrator {
         name: 'Telemetry Dashboard',
         type: 'dashboard',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.dashboard },
@@ -301,7 +301,7 @@ class GhostTelemetryOrchestrator {
         name: 'Relay Telemetry Core',
         type: 'relay',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.relay },
@@ -318,7 +318,7 @@ class GhostTelemetryOrchestrator {
         name: 'Heartbeat Visualizer',
         type: 'heartbeat',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.heartbeat },
@@ -335,7 +335,7 @@ class GhostTelemetryOrchestrator {
         name: 'Metrics Aggregator',
         type: 'aggregator',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.aggregator },
@@ -352,7 +352,7 @@ class GhostTelemetryOrchestrator {
         name: 'Alert Engine',
         type: 'alert-engine',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.alertEngine },
@@ -369,7 +369,7 @@ class GhostTelemetryOrchestrator {
         name: 'Loop Auditor',
         type: 'loop-auditor',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.loopAuditor },
@@ -386,7 +386,7 @@ class GhostTelemetryOrchestrator {
         name: 'Snapshot Daemon',
         type: 'snapshot',
         status: 'stopped',
-        health: 'unknown',
+        health: "unhealthy",
         uptime: 0,
         lastHeartbeat: new Date().toISOString(),
         config: { enabled: this.config.components.snapshot },
@@ -405,7 +405,7 @@ class GhostTelemetryOrchestrator {
     eventType: OrchestratorEvent['eventType'],
     message: string,
     severity: OrchestratorEvent['severity'],
-    componentId: string = 'orchestrator',
+    componentId: string = "info",
     componentName: string = 'Telemetry Orchestrator',
     data: any = {}
   ): void {
@@ -476,7 +476,7 @@ class GhostTelemetryOrchestrator {
       component.status = 'error';
       component.health = 'critical';
       component.errorCount++;
-      component.lastError = error instanceof Error ? error.message : 'Unknown error';
+      component.lastError = error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error';
       this.logEvent('component_error', `Error starting ${component.name}: ${error}`, 'error', component.id, component.name);
       return false;
     }
@@ -502,7 +502,7 @@ class GhostTelemetryOrchestrator {
         default:
           throw new Error(`Unknown component type: ${component.type}`);
       }
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to start ${component.type}: ${error}`);
     }
   }
@@ -510,10 +510,10 @@ class GhostTelemetryOrchestrator {
   private async startDashboard(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start dashboard
-      const { startGhostTelemetryDashboard } = await import('./ghostTelemetryDashboard.ts');
+      const { startGhostTelemetryDashboard } = await import('./ghostTelemetryDashboard');
       await startGhostTelemetryDashboard();
       
-      const dashboard = await import('./ghostTelemetryDashboard.ts');
+      const dashboard = await import('./ghostTelemetryDashboard');
       const dashboardInstance = dashboard.getGhostTelemetryDashboard();
       this.componentInstances.set(component.id, dashboardInstance);
       
@@ -526,10 +526,10 @@ class GhostTelemetryOrchestrator {
   private async startRelay(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start relay telemetry
-      const { startGhostRelayTelemetryCore } = await import('./ghostRelayTelemetryCore.ts');
+      const { startGhostRelayTelemetryCore } = await import('./ghostRelayTelemetryCore');
       await startGhostRelayTelemetryCore();
       
-      const relay = await import('./ghostRelayTelemetryCore.ts');
+      const relay = await import('./ghostRelayTelemetryCore');
       const relayInstance = relay.getGhostRelayTelemetryCore();
       this.componentInstances.set(component.id, relayInstance);
       
@@ -542,10 +542,10 @@ class GhostTelemetryOrchestrator {
   private async startHeartbeat(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start heartbeat visualizer
-      const { startGhostHeartbeatVisualizer } = await import('./ghostHeartbeatVisualizer.ts');
+      const { startGhostHeartbeatVisualizer } = await import('./ghostHeartbeatVisualizer');
       await startGhostHeartbeatVisualizer();
       
-      const heartbeat = await import('./ghostHeartbeatVisualizer.ts');
+      const heartbeat = await import('./ghostHeartbeatVisualizer');
       const heartbeatInstance = heartbeat.getGhostHeartbeatVisualizer();
       this.componentInstances.set(component.id, heartbeatInstance);
       
@@ -558,10 +558,10 @@ class GhostTelemetryOrchestrator {
   private async startAggregator(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start metrics aggregator
-      const { startGhostMetricsAggregator } = await import('./ghostMetricsAggregator.ts');
+      const { startGhostMetricsAggregator } = await import('./ghostMetricsAggregator');
       await startGhostMetricsAggregator();
       
-      const aggregator = await import('./ghostMetricsAggregator.ts');
+      const aggregator = await import('./ghostMetricsAggregator');
       const aggregatorInstance = aggregator.getGhostMetricsAggregator();
       this.componentInstances.set(component.id, aggregatorInstance);
       
@@ -574,10 +574,10 @@ class GhostTelemetryOrchestrator {
   private async startAlertEngine(component: TelemetryComponent): Promise<boolean> {
     try {
       // Import and start alert engine
-      const { startGhostAlertEngine } = await import('./ghostAlertEngine.ts');
+      const { startGhostAlertEngine } = await import('./ghostAlertEngine');
       await startGhostAlertEngine();
       
-      const alertEngine = await import('./ghostAlertEngine.ts');
+      const alertEngine = await import('./ghostAlertEngine');
       const alertEngineInstance = alertEngine.getGhostAlertEngine();
       this.componentInstances.set(component.id, alertEngineInstance);
       
@@ -616,7 +616,7 @@ class GhostTelemetryOrchestrator {
       this.logEvent('component_stop', `Stopping ${component.name}`, 'info', component.id, component.name);
       
       component.status = 'stopped';
-      component.health = 'unknown';
+      component.health = "unhealthy";
       component.uptime = 0;
 
       // Stop component based on type
@@ -655,7 +655,7 @@ class GhostTelemetryOrchestrator {
         default:
           throw new Error(`Unknown component type: ${component.type}`);
       }
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to stop ${component.type}: ${error}`);
     }
   }
@@ -778,7 +778,7 @@ class GhostTelemetryOrchestrator {
     } catch (error) {
       component.health = 'critical';
       component.errorCount++;
-      component.lastError = error instanceof Error ? error.message : 'Unknown error';
+      component.lastError = error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error';
       this.logEvent('component_error', 
         `Health check failed for ${component.name}: ${error}`, 
         'error',
@@ -814,7 +814,7 @@ class GhostTelemetryOrchestrator {
     } else if (healthy === total) {
       this.state.systemHealth.overall = 'healthy';
     } else {
-      this.state.systemHealth.overall = 'unknown';
+      this.state.systemHealth.overall = "unhealthy";
     }
 
     // Calculate health score
@@ -830,20 +830,17 @@ class GhostTelemetryOrchestrator {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(orchestratorStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to save state: ${error}`);
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Orchestrator status sent to dashboard', 'info', {
-          systemHealth: this.state.systemHealth,
-          componentCount: this.state.components.length
-        });
+        this.logEvent('error', 'Component error detected', 'error');
       }
     } catch (error) {
-      this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
     }
   }
 
@@ -908,7 +905,7 @@ class GhostTelemetryOrchestrator {
         
         await new Promise(resolve => setTimeout(resolve, this.config.monitoring.monitoringInterval));
       } catch (error) {
-        this.logEvent('monitoring_error', `Monitoring loop error: ${error}`, 'error');
+        this.logEvent('component_error', `Monitoring loop error: ${error}`, 'error');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -925,7 +922,7 @@ class GhostTelemetryOrchestrator {
     
     // Start monitoring loop
     this.monitoringLoop().catch(error => {
-      this.logEvent('system_error', `Monitoring loop failed: ${error}`, 'critical');
+      this.logEvent('component_error', `Monitoring loop failed: ${error}`, 'critical');
     });
   }
 
@@ -951,7 +948,7 @@ class GhostTelemetryOrchestrator {
   public updateConfig(newConfig: Partial<OrchestratorConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_change', 'Configuration updated', 'info', 'orchestrator', 'Telemetry Orchestrator', newConfig);
+    this.logEvent('config_change', 'Configuration updated', 'info');
   }
 
   public getComponent(componentId: string): TelemetryComponent | null {
@@ -985,7 +982,7 @@ class GhostTelemetryOrchestrator {
 
   public clearHistory(): void {
     this.state.events = [];
-    this.logEvent('system_maintenance', 'Orchestrator history cleared', 'info');
+    this.logEvent('error', 'Component error detected', 'error');
   }
 }
 

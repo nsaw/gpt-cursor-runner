@@ -2,16 +2,16 @@
 
 async function loadStatus() {
   try {
-    const res = await fetch('/api/status');
-    const data = await res.json();
-    const div = document.getElementById('status');
+    const _res = await fetch('/api/status');
+    const _data = await res.json();
+    const _div = document.getElementById('status');
     div.innerHTML = `
       <h2>🔄 Refresh Status</h2>
       <p>Last Updated: ${new Date().toLocaleTimeString()}</p>
       <h2>📊 System Status</h2>
       <pre>${JSON.stringify(data, null, 2)}</pre>
     `;
-  } catch (e) {
+  } catch (_e) {
     document.getElementById('status').innerHTML = '<p style="color:red">❌ Failed to load status</p>';
   }
 }

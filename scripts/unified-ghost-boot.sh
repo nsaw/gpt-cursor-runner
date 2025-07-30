@@ -21,5 +21,12 @@ mkdir -p $(dirname "$LOG")
   echo "Launching unified daemon watchdog..."
   nohup bash /Users/sawyer/gitSync/gpt-cursor-runner/scripts/daemon-unified-watchdog.sh &
 
+  # 🔐 NEW: Start ghost-runner watchdog if not running
+  echo "Launching ghost-runner watchdog..."
+  chmod +x scripts/watchdogs/ghost-runner-watchdog.sh
+  pgrep -f ghost-runner-watchdog.sh >/dev/null || {
+    nohup scripts/watchdogs/ghost-runner-watchdog.sh monitor >/dev/null 2>&1 &
+  }
+
   echo "[✅ UNIFIED BOOT COMPLETE] $(date)"
 } >> "$LOG" 2>&1 

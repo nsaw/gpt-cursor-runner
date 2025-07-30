@@ -164,23 +164,23 @@ class LoadBalancerSystem {
         let selectedTrigger = null;
         
         switch (algorithm) {
-          case 'round-robin':
-            selectedTrigger = this.loadBalancer.roundRobin();
-            break;
-          case 'least-connections':
-            selectedTrigger = this.loadBalancer.leastConnections();
-            break;
-          case 'weighted-round-robin':
-            selectedTrigger = this.loadBalancer.weightedRoundRobin();
-            break;
-          case 'ip-hash':
-            selectedTrigger = this.loadBalancer.ipHash(request.clientIP);
-            break;
-          case 'least-response-time':
-            selectedTrigger = this.loadBalancer.leastResponseTime();
-            break;
-          default:
-            selectedTrigger = this.loadBalancer.roundRobin();
+        case 'round-robin':
+          selectedTrigger = this.loadBalancer.roundRobin();
+          break;
+        case 'least-connections':
+          selectedTrigger = this.loadBalancer.leastConnections();
+          break;
+        case 'weighted-round-robin':
+          selectedTrigger = this.loadBalancer.weightedRoundRobin();
+          break;
+        case 'ip-hash':
+          selectedTrigger = this.loadBalancer.ipHash(request.clientIP);
+          break;
+        case 'least-response-time':
+          selectedTrigger = this.loadBalancer.leastResponseTime();
+          break;
+        default:
+          selectedTrigger = this.loadBalancer.roundRobin();
         }
         
         if (!selectedTrigger) {
@@ -296,25 +296,25 @@ class LoadBalancerSystem {
         }
         
         switch (type) {
-          case 'request':
-            stats.activeConnections++;
-            stats.totalRequests++;
-            break;
-          case 'response':
-            stats.activeConnections--;
-            if (data) {
-              stats.lastResponseTime = data;
-              stats.averageResponseTime = (stats.averageResponseTime + data) / 2;
-            }
-            break;
-          case 'failure':
-            stats.failedRequests++;
-            stats.activeConnections--;
-            break;
-          case 'health':
-            stats.healthStatus = data;
-            stats.lastHealthCheck = new Date().toISOString();
-            break;
+        case 'request':
+          stats.activeConnections++;
+          stats.totalRequests++;
+          break;
+        case 'response':
+          stats.activeConnections--;
+          if (data) {
+            stats.lastResponseTime = data;
+            stats.averageResponseTime = (stats.averageResponseTime + data) / 2;
+          }
+          break;
+        case 'failure':
+          stats.failedRequests++;
+          stats.activeConnections--;
+          break;
+        case 'health':
+          stats.healthStatus = data;
+          stats.lastHealthCheck = new Date().toISOString();
+          break;
         }
       },
       
@@ -340,7 +340,7 @@ class LoadBalancerSystem {
             triggerId: trigger.id
           };
           
-        } catch (error) {
+        } catch (_error) {
           const responseTime = Date.now() - startTime;
           
           // Update failure statistics
@@ -426,7 +426,7 @@ class LoadBalancerSystem {
           
           console.log(`✅ Trigger ${trigger.id} health check: ${isHealthy ? 'healthy' : 'unhealthy'}`);
           
-        } catch (error) {
+        } catch (_error) {
           this.healthChecker.updateTriggerHealth(trigger.id, false);
           console.log(`❌ Trigger ${trigger.id} health check failed: ${error.message}`);
         }
@@ -529,7 +529,7 @@ class LoadBalancerSystem {
           }
           
           return triggerCount > 0 ? totalLoad / triggerCount : 0;
-        } catch (error) {
+        } catch (_error) {
           console.error('❌ Error calculating current load:', error.message);
           return 0;
         }
@@ -671,16 +671,16 @@ class LoadBalancerSystem {
       // Evaluate condition
       evaluateCondition: (request, condition) => {
         switch (condition.type) {
-          case 'path':
-            return request.path === condition.value;
-          case 'method':
-            return request.method === condition.value;
-          case 'header':
-            return request.headers[condition.name] === condition.value;
-          case 'ip':
-            return request.clientIP === condition.value;
-          default:
-            return false;
+        case 'path':
+          return request.path === condition.value;
+        case 'method':
+          return request.method === condition.value;
+        case 'header':
+          return request.headers[condition.name] === condition.value;
+        case 'ip':
+          return request.clientIP === condition.value;
+        default:
+          return false;
         }
       },
       
@@ -689,14 +689,14 @@ class LoadBalancerSystem {
         console.log(`🛣️ Applying routing rule: ${rule.name}`);
         
         switch (rule.action.type) {
-          case 'redirect':
-            return await this.routingEngine.redirect(request, rule.action);
-          case 'rewrite':
-            return await this.routingEngine.rewrite(request, rule.action);
-          case 'forward':
-            return await this.routingEngine.forward(request, rule.action);
-          default:
-            return await this.loadBalancer.routeRequest(request);
+        case 'redirect':
+          return await this.routingEngine.redirect(request, rule.action);
+        case 'rewrite':
+          return await this.routingEngine.rewrite(request, rule.action);
+        case 'forward':
+          return await this.routingEngine.forward(request, rule.action);
+        default:
+          return await this.loadBalancer.routeRequest(request);
         }
       },
       
@@ -803,7 +803,7 @@ class LoadBalancerSystem {
             uptime: process.uptime(),
             memoryUsage: process.memoryUsage()
           };
-        } catch (error) {
+        } catch (_error) {
           return {
             cpuUsage: 0,
             memoryFree: 0,
@@ -879,7 +879,7 @@ class LoadBalancerSystem {
             alerts,
             timestamp: new Date().toISOString()
           });
-        } catch (error) {
+        } catch (_error) {
           console.log('⚠️ Could not send alerts to status API');
         }
       }
@@ -928,7 +928,7 @@ class LoadBalancerSystem {
           fs.unlinkSync(file.path);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`⚠️ Could not cleanup old files in ${directory}:`, error.message);
     }
   }

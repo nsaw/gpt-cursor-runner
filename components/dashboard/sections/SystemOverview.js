@@ -1,5 +1,5 @@
 // ✅ SystemOverview.js - System health overview component
-import React, { useState, useEffect } from 'react';
+import { _{ _React, _{ useState, _useEffect } } } from 'react';
 
 export default function SystemOverview() {
   const [resourceHealth, setResourceHealth] = useState({
@@ -10,32 +10,32 @@ export default function SystemOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  useEffect(_() => {
     fetchSystemHealth();
-    const interval = setInterval(fetchSystemHealth, 20000); // Refresh every 20 seconds
+    const _interval = setInterval(fetchSystemHealth, 20000); // Refresh every 20 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const fetchSystemHealth = async () => {
+  const _fetchSystemHealth = async () => {
     try {
-      const response = await fetch('/api/system-health');
+      const _response = await fetch('/api/system-health');
       if (!response.ok) throw new Error('Failed to fetch system health');
-      const data = await response.json();
+      const _data = await response.json();
       setResourceHealth(data.resourceHealth || { memory: 0, cpu: 0, disk: 0 });
       setIsLoading(false);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
       setIsLoading(false);
     }
   };
 
-  const getHealthClass = (value) => {
+  const _getHealthClass = (_value) => {
     if (value < 60) return 'health-ok';
     if (value < 80) return 'health-warning';
     return 'health-error';
   };
 
-  const getHealthIcon = (value) => {
+  const _getHealthIcon = (_value) => {
     if (value < 60) return '✅';
     if (value < 80) return '⚠️';
     return '❌';

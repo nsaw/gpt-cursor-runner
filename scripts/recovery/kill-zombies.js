@@ -10,7 +10,7 @@ patterns.forEach(p => {
   try {
     console.log(`[KILL] ${p}`);
     execSync(`pkill -f ${p}`);
-  } catch (e) {
+  } catch (_e) {
     console.log(`[INFO] ${p} already dead`);
   }
 });

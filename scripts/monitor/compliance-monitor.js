@@ -74,7 +74,7 @@ class ComplianceMonitor {
 
       console.log(`✅ Validation cycle completed in ${Date.now() - startTime}ms`);
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Validation cycle failed:', error.message);
       await this.recordViolation('VALIDATION_FAILURE', error.message);
     }

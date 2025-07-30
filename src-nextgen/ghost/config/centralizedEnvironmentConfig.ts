@@ -312,7 +312,7 @@ class CentralizedEnvironmentConfig {
 
       return this.updateConfig(newConfig);
     } catch (error) {
-      this.log('error', 'Failed to import configuration', { error: error.message });
+      this.log('error', 'Failed to import configuration', { error: error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) });
       return false;
     }
   }
@@ -338,7 +338,7 @@ class CentralizedEnvironmentConfig {
     try {
       fs.writeFileSync(envConfigPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.log('error', 'Failed to save configuration', { error: error.message });
+      this.log('error', 'Failed to save configuration', { error: error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) });
     }
   }
 
@@ -353,7 +353,7 @@ class CentralizedEnvironmentConfig {
       };
       fs.writeFileSync(configStatePath, JSON.stringify(state, null, 2));
     } catch (error) {
-      this.log('error', 'Failed to save config state', { error: error.message });
+      this.log('error', 'Failed to save config state', { error: error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) });
     }
   }
 
@@ -376,7 +376,7 @@ class CentralizedEnvironmentConfig {
     try {
       fs.appendFileSync(configLogPath, JSON.stringify(logEntry) + '\n');
     } catch (error) {
-      console.error('Failed to write to config log:', error);
+      console.error('Failed to writerror to config log:', error);
     }
   }
 }

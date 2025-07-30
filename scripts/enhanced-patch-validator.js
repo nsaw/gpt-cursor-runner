@@ -118,7 +118,7 @@ class EnhancedPatchValidator extends EventEmitter {
       
       return results;
       
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ [VALIDATOR] Validation failed for ${patchData.id}:`, error.message);
       
       results.overall = 'FAIL';
@@ -180,7 +180,7 @@ class EnhancedPatchValidator extends EventEmitter {
         result.errors.push(...outputValidation.errors);
       }
       
-    } catch (error) {
+    } catch (_error) {
       result.duration = Date.now() - startTime;
       result.status = 'FAIL';
       result.errors.push({
@@ -271,83 +271,83 @@ class EnhancedPatchValidator extends EventEmitter {
     const result = { valid: true, errors: [] };
     
     switch (validationName) {
-      case 'typescript':
-        if (stderr && stderr.includes('error TS')) {
-          result.valid = false;
-          result.errors.push({
-            category: 'typescript_error',
-            message: 'TypeScript compilation errors found',
-            severity: 'critical',
-            details: stderr
-          });
-        }
-        break;
+    case 'typescript':
+      if (stderr && stderr.includes('error TS')) {
+        result.valid = false;
+        result.errors.push({
+          category: 'typescript_error',
+          message: 'TypeScript compilation errors found',
+          severity: 'critical',
+          details: stderr
+        });
+      }
+      break;
         
-      case 'eslint':
-        if (stderr && stderr.includes('error')) {
-          result.valid = false;
-          result.errors.push({
-            category: 'eslint_error',
-            message: 'ESLint errors found',
-            severity: 'critical',
-            details: stderr
-          });
-        }
-        break;
+    case 'eslint':
+      if (stderr && stderr.includes('error')) {
+        result.valid = false;
+        result.errors.push({
+          category: 'eslint_error',
+          message: 'ESLint errors found',
+          severity: 'critical',
+          details: stderr
+        });
+      }
+      break;
         
-      case 'runtime':
-        if (stdout && stdout.includes('FAIL')) {
-          result.valid = false;
-          result.errors.push({
-            category: 'runtime_error',
-            message: 'Runtime validation failed',
-            severity: 'critical',
-            details: stdout
-          });
-        }
-        break;
+    case 'runtime':
+      if (stdout && stdout.includes('FAIL')) {
+        result.valid = false;
+        result.errors.push({
+          category: 'runtime_error',
+          message: 'Runtime validation failed',
+          severity: 'critical',
+          details: stdout
+        });
+      }
+      break;
         
-      case 'performance':
-        if (stdout) {
-          const performanceMatch = stdout.match(/(\d+)ms/);
-          if (performanceMatch) {
-            const duration = parseInt(performanceMatch[1]);
-            if (duration > this.performanceThreshold) {
-              result.valid = false;
-              result.errors.push({
-                category: 'performance_error',
-                message: `Performance threshold exceeded: ${duration}ms > ${this.performanceThreshold}ms`,
-                severity: 'warning',
-                details: stdout
-              });
-            }
+    case 'performance':
+      if (stdout) {
+        const performanceMatch = stdout.match(/(\d+)ms/);
+        if (performanceMatch) {
+          const duration = parseInt(performanceMatch[1]);
+          if (duration > this.performanceThreshold) {
+            result.valid = false;
+            result.errors.push({
+              category: 'performance_error',
+              message: `Performance threshold exceeded: ${duration}ms > ${this.performanceThreshold}ms`,
+              severity: 'warning',
+              details: stdout
+            });
           }
         }
-        break;
+      }
+      break;
         
-      case 'roles':
-        if (stdout && stdout.includes('FAIL')) {
-          result.valid = false;
-          result.errors.push({
-            category: 'role_error',
-            message: 'Role validation failed',
-            severity: 'critical',
-            details: stdout
-          });
-        }
-        break;
+    case 'roles':
+      if (stdout && stdout.includes('FAIL')) {
+        result.valid = false;
+        result.errors.push({
+          category: 'role_error',
+          message: 'Role validation failed',
+          severity: 'critical',
+          details: stdout
+        });
+      }
+      break;
         
-      case 'components':
-        if (stdout && stdout.includes('FAIL')) {
-          result.valid = false;
-          result.errors.push({
-            category: 'component_error',
-            message: 'Component validation failed',
-            severity: 'critical',
-            details: stdout
-          });
-        }
-        break;
+    case 'components':
+      if (stdout && stdout.includes('FAIL')) {
+        result.valid = false;
+        result.errors.push({
+          category: 'component_error',
+          message: 'Component validation failed',
+          severity: 'critical',
+          details: stdout
+        });
+      }
+      break;
     }
     
     return result;

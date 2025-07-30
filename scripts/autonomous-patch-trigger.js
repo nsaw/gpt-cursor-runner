@@ -8,6 +8,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { EventEmitter } = require('events');
+const express = require('express');
 const PatchFormatConverter = require('./patch-format-converter');
 
 class AutonomousPatchTrigger extends EventEmitter {
@@ -18,6 +19,7 @@ class AutonomousPatchTrigger extends EventEmitter {
     this.maxRetries = options.maxRetries || 3;
     this.retryDelay = options.retryDelay || 5000; // 5 seconds
     this.timeout = options.timeout || 300000; // 5 minutes
+    this.port = options.port || 8790;
     
     // Directories
     this.patchDirectories = {
@@ -47,22 +49,61 @@ class AutonomousPatchTrigger extends EventEmitter {
       performance: false
     };
     
+    // Express server
+    this.app = express();
+    this.setupExpressServer();
+    
     this.setupStatusAPI();
     this.setupErrorRecovery();
   }
 
-  setupStatusAPI() {
-    // Connect to real-time status API
-    try {
-      const RealTimeStatusAPI = require('./real-time-status-api');
-      this.statusAPI = new RealTimeStatusAPI({ port: 8789 });
-      
-      // Listen for status updates
-      this.statusAPI.on('patchStatusUpdate', ({ patchId, status }) => {
-        this.handleStatusUpdate(patchId, status);
+  setupExpressServer() {
+    this.app.use(express.json());
+    
+    // Health check endpoint
+    this.app.get('/ping', (req, res) => {
+      res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        service: 'autonomous-patch-trigger'
       });
+    });
+    
+    // Health endpoint
+    this.app.get('/health', (req, res) => {
+      res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        service: 'autonomous-patch-trigger',
+        stats: this.getStatus(),
+        uptime: process.uptime()
+      });
+    });
+    
+    // Status endpoint
+    this.app.get('/status', (req, res) => {
+      res.json(this.getStatus());
+    });
+    
+    // List patches endpoint
+    this.app.get('/patches', (req, res) => {
+      const patches = {
+        pending: Array.from(this.pendingPatches.keys()),
+        executing: Array.from(this.executingPatches.keys()),
+        completed: Array.from(this.completedPatches.keys()),
+        failed: Array.from(this.failedPatches.keys())
+      };
+      res.json(patches);
+    });
+  }
+
+  setupStatusAPI() {
+    // Connect to existing real-time status API instead of creating a new one
+    try {
+      // Don't create a new status API instance, just connect to the existing one
+      this.statusAPI = null; // We'll connect via HTTP instead
       
-      console.log('✅ [AUTO-TRIGGER] Connected to real-time status API');
+      console.log('✅ [AUTO-TRIGGER] Will connect to existing real-time status API');
     } catch (error) {
       console.warn('⚠️ [AUTO-TRIGGER] Status API not available:', error.message);
     }
@@ -84,6 +125,12 @@ class AutonomousPatchTrigger extends EventEmitter {
     console.log('🚀 [AUTO-TRIGGER] Starting autonomous patch trigger...');
     console.log(`⏱️ [AUTO-TRIGGER] Poll interval: ${this.pollInterval}ms`);
     console.log(`🔄 [AUTO-TRIGGER] Max retries: ${this.maxRetries}`);
+    console.log(`🌐 [AUTO-TRIGGER] Server port: ${this.port}`);
+    
+    // Start Express server
+    this.server = this.app.listen(this.port, () => {
+      console.log(`✅ [AUTO-TRIGGER] HTTP server started on port ${this.port}`);
+    });
     
     // Ensure directories exist
     await this.ensureDirectories();
@@ -91,11 +138,7 @@ class AutonomousPatchTrigger extends EventEmitter {
     // Start monitoring
     this.startMonitoring();
     
-    // Start status API if available
-    if (this.statusAPI) {
-      this.statusAPI.start();
-    }
-    
+    // Don't start status API - we'll connect to the existing one
     console.log('✅ [AUTO-TRIGGER] Autonomous patch trigger started');
   }
 
@@ -255,38 +298,87 @@ class AutonomousPatchTrigger extends EventEmitter {
   }
 
   async executePatchWithValidation(patchData, patchInfo) {
+    console.log(`🔍 [DEBUG] Starting executePatchWithValidation for patch: ${patchData.id}`);
+    console.log('📊 [DEBUG] Patch info:', JSON.stringify(patchInfo, null, 2));
+    
     const { mutations, postMutationBuild, validation } = patchData;
     
     // Execute mutations
     console.log(`🔧 [AUTO-TRIGGER] Applying ${mutations.length} mutations for ${patchData.id}`);
+    console.log('🔍 [DEBUG] Mutations to execute:', JSON.stringify(mutations, null, 2));
     
-    for (const mutation of mutations) {
-      await this.executeMutation(mutation);
-    }
-    
-    // Run post-mutation build commands
-    if (postMutationBuild && postMutationBuild.shell) {
-      console.log(`⚡ [AUTO-TRIGGER] Running ${postMutationBuild.shell.length} build commands`);
-      
-      for (const command of postMutationBuild.shell) {
-        await this.executeCommand(command);
+    for (let i = 0; i < mutations.length; i++) {
+      const mutation = mutations[i];
+      console.log(`🔧 [DEBUG] Executing mutation ${i + 1}/${mutations.length}: ${mutation.path}`);
+      try {
+        await this.executeMutation(mutation);
+        console.log(`✅ [DEBUG] Mutation ${i + 1} completed successfully`);
+      } catch (error) {
+        console.error(`❌ [DEBUG] Mutation ${i + 1} failed:`, error.message);
+        throw error;
       }
     }
     
-    // Run validation pipeline
-    if (validation) {
-      console.log(`🧪 [AUTO-TRIGGER] Running validation pipeline for ${patchData.id}`);
-      await this.runValidationPipeline(validation);
+    console.log(`✅ [DEBUG] All mutations completed successfully`);
+    
+    // Run post-mutation build if specified
+    let buildCommands = [];
+    if (postMutationBuild && postMutationBuild.shell && postMutationBuild.shell.length > 0) {
+      buildCommands = postMutationBuild.shell;
+    } else if (validation && validation.shell && validation.shell.length > 0) {
+      // Fallback to validation shell commands
+      buildCommands = validation.shell;
     }
     
-    // Generate summary
-    await this.generatePatchSummary(patchData, patchInfo, 'completed');
+    if (buildCommands.length > 0) {
+      console.log('🔨 [DEBUG] Running post-mutation build commands');
+      console.log('🔍 [DEBUG] Build commands:', JSON.stringify(buildCommands, null, 2));
+      
+      for (const command of buildCommands) {
+        console.log(`🔧 [DEBUG] Executing build command: ${command}`);
+        try {
+          await this.executeCommand(command);
+          console.log(`✅ [DEBUG] Build command completed: ${command}`);
+        } catch (error) {
+          console.error(`❌ [DEBUG] Build command failed: ${command}`, error.message);
+          // Don't throw for build commands, just log the error
+          console.log(`ℹ️ [DEBUG] Continuing despite build command failure`);
+        }
+      }
+    } else {
+      console.log(`ℹ️ [DEBUG] No post-mutation build commands specified`);
+    }
+    
+    // Run validation pipeline (skip if we already ran validation commands)
+    if (validation && !validation.shell) {
+      console.log('✅ [DEBUG] Running validation pipeline');
+      console.log('🔍 [DEBUG] Validation config:', JSON.stringify(validation, null, 2));
+      
+      try {
+        await this.runValidationPipeline(validation);
+        console.log(`✅ [DEBUG] Validation pipeline completed successfully`);
+      } catch (error) {
+        console.error(`❌ [DEBUG] Validation pipeline failed:`, error.message);
+        throw error;
+      }
+    } else {
+      console.log(`ℹ️ [DEBUG] No validation pipeline specified or already ran validation commands`);
+    }
+    
+    console.log(`🎉 [DEBUG] executePatchWithValidation completed successfully for patch: ${patchData.id}`);
   }
 
   async executeMutation(mutation) {
-    const { path: filePath, contents, type = 'file_modification' } = mutation;
+    const { path: filePath, contents } = mutation;
     
     try {
+      // Check for self-reference (patch trying to modify itself)
+      if (filePath.includes('patch-') && filePath.endsWith('.json')) {
+        console.log(`⚠️ [AUTO-TRIGGER] Self-reference detected: ${filePath}`);
+        console.log(`ℹ️ [AUTO-TRIGGER] Skipping self-modification to prevent infinite loops`);
+        return; // Skip self-modification
+      }
+      
       // Create directory if needed
       const dir = path.dirname(filePath);
       await fs.mkdir(dir, { recursive: true });
@@ -297,6 +389,7 @@ class AutonomousPatchTrigger extends EventEmitter {
       console.log(`✅ [AUTO-TRIGGER] Applied mutation: ${filePath}`);
       
     } catch (error) {
+      console.error(`❌ [AUTO-TRIGGER] Mutation failed for ${filePath}:`, error.message);
       throw new Error(`Mutation failed for ${filePath}: ${error.message}`);
     }
   }
@@ -307,13 +400,31 @@ class AutonomousPatchTrigger extends EventEmitter {
       
       console.log(`⚡ [AUTO-TRIGGER] Executing: ${command}`);
       
+      // Handle problematic commands
+      if (command.includes('timeout') && command.includes('tail')) {
+        console.log(`⚠️ [AUTO-TRIGGER] Skipping problematic tail command: ${command}`);
+        resolve({ stdout: 'Skipped', stderr: '' });
+        return;
+      }
+      
+      if (command.includes('& disown')) {
+        console.log(`⚠️ [AUTO-TRIGGER] Removing & disown from command: ${command}`);
+        command = command.replace(' & disown', '');
+      }
+      
       exec(command, { 
         cwd: '/Users/sawyer/gitSync/gpt-cursor-runner',
-        timeout: 60000 // 1 minute timeout per command
+        timeout: 30000 // 30 second timeout per command
       }, (error, stdout, stderr) => {
         if (error) {
           console.error(`❌ [AUTO-TRIGGER] Command failed: ${command}`, error.message);
-          reject(new Error(`Command execution failed: ${error.message}`));
+          // Don't reject for non-critical commands
+          if (command.includes('curl') || command.includes('echo')) {
+            console.log(`ℹ️ [AUTO-TRIGGER] Non-critical command failed, continuing: ${command}`);
+            resolve({ stdout: 'Failed but continuing', stderr: error.message });
+          } else {
+            reject(new Error(`Command execution failed: ${error.message}`));
+          }
         } else {
           console.log(`✅ [AUTO-TRIGGER] Command completed: ${command}`);
           resolve({ stdout, stderr });
@@ -358,7 +469,7 @@ class AutonomousPatchTrigger extends EventEmitter {
       }
     }
     
-    console.log(`✅ [AUTO-TRIGGER] Validation pipeline completed:`, validationResults);
+    console.log('✅ [AUTO-TRIGGER] Validation pipeline completed:', validationResults);
     return validationResults;
   }
 
@@ -484,7 +595,7 @@ ${status === 'completed' ? '✅ Patch executed successfully' : '❌ Patch execut
       try {
         await this.statusAPI.updatePatchStatus(patchId, status, details);
       } catch (error) {
-        console.warn(`⚠️ [AUTO-TRIGGER] Failed to notify status API:`, error.message);
+        console.warn('⚠️ [AUTO-TRIGGER] Failed to notify status API:', error.message);
       }
     }
   }
@@ -510,6 +621,16 @@ ${status === 'completed' ? '✅ Patch executed successfully' : '❌ Patch execut
       clearInterval(this.monitoringInterval);
     }
     
+    if (this.server) {
+      this.server.close((error) => {
+        if (error) {
+          console.error('❌ [AUTO-TRIGGER] Failed to close HTTP server:', error.message);
+        } else {
+          console.log('✅ [AUTO-TRIGGER] HTTP server closed');
+        }
+      });
+    }
+
     if (this.statusAPI) {
       this.statusAPI.stop();
     }

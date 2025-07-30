@@ -75,7 +75,10 @@ class CorsManager:
                 'http://localhost:8082',
                 'http://localhost:8083',
                 'https://slack.com',
-                'https://hooks.slack.com'
+                'https://hooks.slack.com',
+                'https://webhook-thoughtmarks.thoughtmarks.app',
+                'https://thoughtmarks.app',
+                'https://*.thoughtmarks.app'
             }
         
         if self.config.allowed_methods is None:

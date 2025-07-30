@@ -53,7 +53,7 @@ async function restartDaemon(daemonName: string): Promise<boolean> {
     
     // Attempt restart using non-blocking pattern
     const cmd = `cd /Users/sawyer/gitSync/gpt-cursor-runner && node src-nextgen/ghost/shell/${daemonName}.ts`;
-    const { stdout, stderr } = await execAsync(cmd);
+    const { stderr } = await execAsync(cmd);
     
     restartCooldowns.set(daemonName, Date.now());
     

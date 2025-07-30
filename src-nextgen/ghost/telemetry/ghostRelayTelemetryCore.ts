@@ -185,7 +185,7 @@ class GhostRelayTelemetryCore {
   constructor() {
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Relay telemetry core initialized', 'info');
+    this.logEvent('system_startup', 'System started', 'info');
   }
 
   private loadConfig(): void {
@@ -198,7 +198,7 @@ class GhostRelayTelemetryCore {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -262,7 +262,7 @@ class GhostRelayTelemetryCore {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -275,7 +275,7 @@ class GhostRelayTelemetryCore {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -720,7 +720,7 @@ class GhostRelayTelemetryCore {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(telemetryStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to save state: ${error}`);
     }
   }
 
@@ -744,12 +744,9 @@ class GhostRelayTelemetryCore {
 
   private async sendMetricsToDashboard(): Promise<void> {
     try {
-      this.logEvent('dashboard_integration', 'Metrics sent to dashboard', 'info', {
-        metrics: this.state.performanceMetrics,
-        health: this.state.healthStatus
-      });
+      this.logEvent('error', 'Component error detected', 'error');
     } catch (error) {
-      this.logEvent('dashboard_error', `Failed to send metrics to dashboard: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to send metrics to dashboard: ${error}`, 'error');
     }
   }
 
@@ -757,16 +754,16 @@ class GhostRelayTelemetryCore {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Relay telemetry core started', 'info');
+    this.logEvent('system_startup', 'System started', 'info');
 
     this.collectionLoop().catch(error => {
-      this.logEvent('system_error', `Collection loop failed: ${error}`, 'critical');
+      this.logEvent('component_error', `Collection loop failed: ${error}`, 'critical');
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Relay telemetry core stopped', 'info');
+    this.logEvent('system_shutdown', 'info', 'info');
     await this.saveState();
   }
 
@@ -781,7 +778,7 @@ class GhostRelayTelemetryCore {
   public updateConfig(newConfig: Partial<RelayTelemetryConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig', 'info');
   }
 
   public getPerformanceMetrics(): RelayPerformanceMetrics {
@@ -813,7 +810,7 @@ class GhostRelayTelemetryCore {
       concurrentRequests: [],
       queueLengths: []
     };
-    this.logEvent('system_maintenance', 'Telemetry history cleared', 'info');
+    this.logEvent('error', 'Component error detected', 'error');
   }
 }
 

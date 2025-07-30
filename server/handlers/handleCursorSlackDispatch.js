@@ -1,5 +1,5 @@
 const { WebClient } = require('@slack/web-api');
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
 // Initialize Slack Web API client
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);

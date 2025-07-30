@@ -119,7 +119,7 @@ class DualViewMonitor {
       };
             
       this.statusCategories.patches = status;
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Error checking patch status:', error.message);
       this.statusCategories.patches = { pending: 0, executing: 0, completed: 0, failed: 0 };
     }
@@ -141,7 +141,7 @@ class DualViewMonitor {
       } else {
         systems.stopped.push('patch-executor');
       }
-    } catch (error) {
+    } catch (_error) {
       systems.stopped.push('patch-executor');
     }
         
@@ -153,7 +153,7 @@ class DualViewMonitor {
       } else {
         systems.stopped.push('ghost-bridge');
       }
-    } catch (error) {
+    } catch (_error) {
       systems.stopped.push('ghost-bridge');
     }
         
@@ -165,7 +165,7 @@ class DualViewMonitor {
       } else {
         systems.stopped.push('summary-monitor');
       }
-    } catch (error) {
+    } catch (_error) {
       systems.stopped.push('summary-monitor');
     }
         
@@ -177,7 +177,7 @@ class DualViewMonitor {
       } else {
         systems.stopped.push('expo-dev-server');
       }
-    } catch (error) {
+    } catch (_error) {
       systems.stopped.push('expo-dev-server');
     }
         
@@ -200,7 +200,7 @@ class DualViewMonitor {
           lastCheck: new Date().toISOString()
         };
       }
-    } catch (error) {
+    } catch (_error) {
       this.statusCategories.ghost = {
         status: 'unreachable',
         lastCheck: new Date().toISOString()
@@ -293,7 +293,7 @@ class DualViewMonitor {
       } else {
         console.log('   ✅ No pending patches in queue');
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('   Error reading execution queue');
     }
   }
@@ -319,7 +319,7 @@ class DualViewMonitor {
       } else {
         console.log('   No recent activity');
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('   Error reading recent activity');
     }
   }

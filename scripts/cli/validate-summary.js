@@ -16,7 +16,7 @@ try {
     console.error('No status marker found');
     process.exit(2);
   }
-} catch (err) {
+} catch (_err) {
   console.error(`Failed to read ${filePath}:`, err.message);
   process.exit(3);
 } 

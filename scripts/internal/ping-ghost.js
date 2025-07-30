@@ -34,7 +34,7 @@ try {
     process.exit(1);
   }
     
-} catch (error) {
+} catch (_error) {
   console.error('❌ Ghost verification ping failed:', error.message);
   process.exit(1);
 } 

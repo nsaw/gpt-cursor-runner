@@ -13,7 +13,7 @@ function writePatchWithRetry(filename, content, attempt = 1) {
     if (!fs.existsSync(fullPath)) throw new Error('Write failed');
     fs.appendFileSync(logFile, `[✅ PATCH WRITE] ${filename} (attempt ${attempt})\n`);
     console.log(chalk.green(`[ghost] Patch written: ${filename}`));
-  } catch (e) {
+  } catch (_e) {
     fs.appendFileSync(logFile, `[❌ PATCH FAILED] ${filename} attempt ${attempt}: ${e.message}\n`);
     if (attempt < 3) {
       setTimeout(() => writePatchWithRetry(filename, content, attempt + 1), 1000 * attempt);

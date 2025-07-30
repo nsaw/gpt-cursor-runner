@@ -1,8 +1,8 @@
 // advanced-rollback-system.js: Comprehensive rollback system with granular control and dependency tracking
-const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
-const axios = require('axios');
+const _fs = require('fs');
+const _path = require('path');
+const { _exec } = require('child_process');
+const _axios = require('axios');
 
 class AdvancedRollbackSystem {
   constructor() {
@@ -113,10 +113,10 @@ class AdvancedRollbackSystem {
     
     this.backupManager = {
       // Create backup
-      createBackup: async (type = 'incremental', options = {}) => {
+      createBackup: async (_type = 'incremental', _options = {}) => {
         console.log(`💾 Creating ${type} backup...`);
         
-        const backup = {
+        const _backup = {
           id: this.generateBackupId(),
           type,
           timestamp: new Date().toISOString(),
@@ -129,17 +129,17 @@ class AdvancedRollbackSystem {
         try {
           // Create backup based on type
           switch (type) {
-            case 'full':
-              await this.backupManager.createFullBackup(backup);
-              break;
-            case 'incremental':
-              await this.backupManager.createIncrementalBackup(backup);
-              break;
-            case 'critical':
-              await this.backupManager.createCriticalBackup(backup);
-              break;
-            default:
-              throw new Error(`Unknown backup type: ${type}`);
+          case 'full':
+            await this.backupManager.createFullBackup(backup);
+            break;
+          case 'incremental':
+            await this.backupManager.createIncrementalBackup(backup);
+            break;
+          case 'critical':
+            await this.backupManager.createCriticalBackup(backup);
+            break;
+          default:
+            throw new Error(`Unknown backup type: ${type}`);
           }
           
           // Save backup metadata
@@ -149,7 +149,7 @@ class AdvancedRollbackSystem {
           console.log(`✅ ${type} backup created: ${backup.id}`);
           return backup;
           
-        } catch (error) {
+        } catch (_error) {
           backup.status = 'failed';
           backup.error = error.message;
           await this.backupManager.saveBackup(backup);
@@ -160,20 +160,20 @@ class AdvancedRollbackSystem {
       },
       
       // Create full backup
-      createFullBackup: async (backup) => {
-        const backupPath = path.join(this.backupsDir, `${backup.id}-full`);
+      createFullBackup: async (_backup) => {
+        const _backupPath = path.join(this.backupsDir, `${backup.id}-full`);
         fs.mkdirSync(backupPath, { recursive: true });
         
-        const includes = this.config.backupTypes.full.includes;
-        const files = [];
+        const _includes = this.config.backupTypes.full.includes;
+        const _files = [];
         
         for (const include of includes) {
-          const sourcePath = this.config.dataSources[include];
+          const _sourcePath = this.config.dataSources[include];
           if (sourcePath && fs.existsSync(sourcePath)) {
-            const targetPath = path.join(backupPath, include);
+            const _targetPath = path.join(backupPath, include);
             await this.backupManager.copyDirectory(sourcePath, targetPath);
             
-            const fileCount = this.backupManager.countFiles(targetPath);
+            const _fileCount = this.backupManager.countFiles(targetPath);
             files.push({
               type: include,
               path: targetPath,
@@ -187,21 +187,21 @@ class AdvancedRollbackSystem {
       },
       
       // Create incremental backup
-      createIncrementalBackup: async (backup) => {
-        const backupPath = path.join(this.backupsDir, `${backup.id}-incremental`);
+      createIncrementalBackup: async (_backup) => {
+        const _backupPath = path.join(this.backupsDir, `${backup.id}-incremental`);
         fs.mkdirSync(backupPath, { recursive: true });
         
-        const includes = this.config.backupTypes.incremental.includes;
-        const files = [];
-        const lastBackup = await this.backupManager.getLastBackup();
+        const _includes = this.config.backupTypes.incremental.includes;
+        const _files = [];
+        const _lastBackup = await this.backupManager.getLastBackup();
         
         for (const include of includes) {
-          const sourcePath = this.config.dataSources[include];
+          const _sourcePath = this.config.dataSources[include];
           if (sourcePath && fs.existsSync(sourcePath)) {
-            const targetPath = path.join(backupPath, include);
+            const _targetPath = path.join(backupPath, include);
             
             // Only backup changed files since last backup
-            const changedFiles = await this.backupManager.getChangedFiles(sourcePath, lastBackup);
+            const _changedFiles = await this.backupManager.getChangedFiles(sourcePath, lastBackup);
             await this.backupManager.copyChangedFiles(sourcePath, targetPath, changedFiles);
             
             files.push({
@@ -218,20 +218,20 @@ class AdvancedRollbackSystem {
       },
       
       // Create critical backup
-      createCriticalBackup: async (backup) => {
-        const backupPath = path.join(this.backupsDir, `${backup.id}-critical`);
+      createCriticalBackup: async (_backup) => {
+        const _backupPath = path.join(this.backupsDir, `${backup.id}-critical`);
         fs.mkdirSync(backupPath, { recursive: true });
         
-        const includes = this.config.backupTypes.critical.includes;
-        const files = [];
+        const _includes = this.config.backupTypes.critical.includes;
+        const _files = [];
         
         for (const include of includes) {
-          const sourcePath = this.config.dataSources[include];
+          const _sourcePath = this.config.dataSources[include];
           if (sourcePath && fs.existsSync(sourcePath)) {
-            const targetPath = path.join(backupPath, include);
+            const _targetPath = path.join(backupPath, include);
             await this.backupManager.copyDirectory(sourcePath, targetPath);
             
-            const fileCount = this.backupManager.countFiles(targetPath);
+            const _fileCount = this.backupManager.countFiles(targetPath);
             files.push({
               type: include,
               path: targetPath,
@@ -245,42 +245,42 @@ class AdvancedRollbackSystem {
       },
       
       // Save backup
-      saveBackup: async (backup) => {
-        const backupFile = path.join(this.backupsDir, `${backup.id}.json`);
+      saveBackup: async (_backup) => {
+        const _backupFile = path.join(this.backupsDir, `${backup.id}.json`);
         fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
       },
       
       // Get last backup
       getLastBackup: async () => {
-        const backupFiles = fs.readdirSync(this.backupsDir)
+        const _backupFiles = fs.readdirSync(this.backupsDir)
           .filter(f => f.endsWith('.json'))
           .sort()
           .reverse();
         
         if (backupFiles.length > 0) {
-          const lastBackupFile = path.join(this.backupsDir, backupFiles[0]);
+          const _lastBackupFile = path.join(this.backupsDir, backupFiles[0]);
           return JSON.parse(fs.readFileSync(lastBackupFile, 'utf8'));
         }
         
         return null;
       },
       
-              // Get changed files
-        getChangedFiles: async (sourcePath, lastBackup) => {
-          if (!lastBackup) {
-            // If no last backup, consider all files as changed
-            return this.backupManager.getAllFiles(sourcePath);
-          }
+      // Get changed files
+      getChangedFiles: async (_sourcePath, _lastBackup) => {
+        if (!lastBackup) {
+          // If no last backup, consider all files as changed
+          return this.backupManager.getAllFiles(sourcePath);
+        }
           
-          const changedFiles = [];
-          const allFiles = this.backupManager.getAllFiles(sourcePath);
+        const _changedFiles = [];
+        const _allFiles = this.backupManager.getAllFiles(sourcePath);
         
         for (const file of allFiles) {
-          const filePath = path.join(sourcePath, file);
-          const stats = fs.statSync(filePath);
+          const _filePath = path.join(sourcePath, file);
+          const _stats = fs.statSync(filePath);
           
           // Check if file was modified since last backup
-          const lastBackupTime = new Date(lastBackup.timestamp);
+          const _lastBackupTime = new Date(lastBackup.timestamp);
           if (stats.mtime > lastBackupTime) {
             changedFiles.push(file);
           }
@@ -290,18 +290,18 @@ class AdvancedRollbackSystem {
       },
       
       // Copy directory
-      copyDirectory: async (source, target) => {
+      copyDirectory: async (_source, _target) => {
         if (!fs.existsSync(target)) {
           fs.mkdirSync(target, { recursive: true });
         }
         
-        const items = fs.readdirSync(source);
+        const _items = fs.readdirSync(source);
         
         for (const item of items) {
-          const sourcePath = path.join(source, item);
-          const targetPath = path.join(target, item);
+          const _sourcePath = path.join(source, item);
+          const _targetPath = path.join(target, item);
           
-          const stats = fs.statSync(sourcePath);
+          const _stats = fs.statSync(sourcePath);
           
           if (stats.isDirectory()) {
             await this.backupManager.copyDirectory(sourcePath, targetPath);
@@ -312,17 +312,17 @@ class AdvancedRollbackSystem {
       },
       
       // Copy changed files
-      copyChangedFiles: async (source, target, changedFiles) => {
+      copyChangedFiles: async (_source, _target, _changedFiles) => {
         if (!fs.existsSync(target)) {
           fs.mkdirSync(target, { recursive: true });
         }
         
         for (const file of changedFiles) {
-          const sourcePath = path.join(source, file);
-          const targetPath = path.join(target, file);
+          const _sourcePath = path.join(source, file);
+          const _targetPath = path.join(target, file);
           
           // Ensure target directory exists
-          const targetDir = path.dirname(targetPath);
+          const _targetDir = path.dirname(targetPath);
           if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
           }
@@ -332,17 +332,17 @@ class AdvancedRollbackSystem {
       },
       
       // Get all files in directory
-      getAllFiles: (dir) => {
-        const files = [];
+      getAllFiles: (_dir) => {
+        const _files = [];
         
-        const scanDirectory = (currentDir, relativePath = '') => {
-          const items = fs.readdirSync(currentDir);
+        const _scanDirectory = (_currentDir, _relativePath = '') => {
+          const _items = fs.readdirSync(currentDir);
           
           for (const item of items) {
-            const fullPath = path.join(currentDir, item);
-            const relativeItemPath = path.join(relativePath, item);
+            const _fullPath = path.join(currentDir, item);
+            const _relativeItemPath = path.join(relativePath, item);
             
-            const stats = fs.statSync(fullPath);
+            const _stats = fs.statSync(fullPath);
             
             if (stats.isDirectory()) {
               scanDirectory(fullPath, relativeItemPath);
@@ -357,20 +357,20 @@ class AdvancedRollbackSystem {
       },
       
       // Count files in directory
-      countFiles: (dir) => {
+      countFiles: (_dir) => {
         return this.backupManager.getAllFiles(dir).length;
       },
       
       // Calculate directory size
-      calculateDirectorySize: (dir) => {
-        let totalSize = 0;
+      calculateDirectorySize: (_dir) => {
+        let _totalSize = 0;
         
-        const calculateSize = (currentDir) => {
-          const items = fs.readdirSync(currentDir);
+        const _calculateSize = (_currentDir) => {
+          const _items = fs.readdirSync(currentDir);
           
           for (const item of items) {
-            const fullPath = path.join(currentDir, item);
-            const stats = fs.statSync(fullPath);
+            const _fullPath = path.join(currentDir, item);
+            const _stats = fs.statSync(fullPath);
             
             if (stats.isDirectory()) {
               calculateSize(fullPath);
@@ -393,10 +393,10 @@ class AdvancedRollbackSystem {
     
     this.dependencyTracker = {
       // Track dependencies
-      trackDependencies: async (filePath) => {
+      trackDependencies: async (_filePath) => {
         console.log(`🔗 Tracking dependencies for: ${filePath}`);
         
-        const dependencies = {
+        const _dependencies = {
           file: filePath,
           timestamp: new Date().toISOString(),
           imports: [],
@@ -407,7 +407,7 @@ class AdvancedRollbackSystem {
         
         try {
           // Analyze file content
-          const content = fs.readFileSync(filePath, 'utf8');
+          const _content = fs.readFileSync(filePath, 'utf8');
           
           // Extract imports
           dependencies.imports = this.dependencyTracker.extractImports(content);
@@ -427,18 +427,18 @@ class AdvancedRollbackSystem {
           console.log(`✅ Dependencies tracked for: ${filePath}`);
           return dependencies;
           
-        } catch (error) {
+        } catch (_error) {
           console.error(`❌ Error tracking dependencies for ${filePath}:`, error.message);
           throw error;
         }
       },
       
       // Extract imports from file content
-      extractImports: (content) => {
-        const imports = [];
+      extractImports: (_content) => {
+        const _imports = [];
         
         // Match various import patterns
-        const importPatterns = [
+        const _importPatterns = [
           /import\s+.*?from\s+['"]([^'"]+)['"]/g,
           /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
           /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
@@ -455,11 +455,11 @@ class AdvancedRollbackSystem {
       },
       
       // Extract exports from file content
-      extractExports: (content) => {
-        const exports = [];
+      extractExports: (_content) => {
+        const _exports = [];
         
         // Match various export patterns
-        const exportPatterns = [
+        const _exportPatterns = [
           /export\s+(?:default\s+)?(?:function|class|const|let|var)\s+(\w+)/g,
           /export\s*{\s*([^}]+)\s*}/g,
           /module\.exports\s*=\s*(\w+)/g
@@ -476,14 +476,14 @@ class AdvancedRollbackSystem {
       },
       
       // Find dependencies
-      findDependencies: async (filePath) => {
-        const dependencies = [];
-        const imports = this.dependencyTracker.extractImports(
+      findDependencies: async (_filePath) => {
+        const _dependencies = [];
+        const _imports = this.dependencyTracker.extractImports(
           fs.readFileSync(filePath, 'utf8')
         );
         
         for (const importPath of imports) {
-          const resolvedPath = await this.dependencyTracker.resolveImport(filePath, importPath);
+          const _resolvedPath = await this.dependencyTracker.resolveImport(filePath, importPath);
           if (resolvedPath) {
             dependencies.push({
               import: importPath,
@@ -497,20 +497,20 @@ class AdvancedRollbackSystem {
       },
       
       // Find dependents
-      findDependents: async (filePath) => {
-        const dependents = [];
-        const scriptsDir = this.config.dataSources.scripts;
+      findDependents: async (_filePath) => {
+        const _dependents = [];
+        const _scriptsDir = this.config.dataSources.scripts;
         
         if (fs.existsSync(scriptsDir)) {
-          const files = this.backupManager.getAllFiles(scriptsDir);
+          const _files = this.backupManager.getAllFiles(scriptsDir);
           
           for (const file of files) {
-            const fullPath = path.join(scriptsDir, file);
-            const content = fs.readFileSync(fullPath, 'utf8');
-            const imports = this.dependencyTracker.extractImports(content);
+            const _fullPath = path.join(scriptsDir, file);
+            const _content = fs.readFileSync(fullPath, 'utf8');
+            const _imports = this.dependencyTracker.extractImports(content);
             
             // Check if this file imports the target file
-            const relativePath = path.relative(scriptsDir, filePath);
+            const _relativePath = path.relative(scriptsDir, filePath);
             if (imports.some(imp => imp.includes(relativePath) || imp.includes(path.basename(filePath)))) {
               dependents.push({
                 file: fullPath,
@@ -524,15 +524,15 @@ class AdvancedRollbackSystem {
       },
       
       // Resolve import path
-      resolveImport: async (filePath, importPath) => {
+      resolveImport: async (_filePath, _importPath) => {
         // Handle relative imports
         if (importPath.startsWith('.')) {
-          const resolvedPath = path.resolve(path.dirname(filePath), importPath);
+          const _resolvedPath = path.resolve(path.dirname(filePath), importPath);
           
           // Try different extensions
-          const extensions = ['.js', '.ts', '.json', ''];
+          const _extensions = ['.js', '.ts', '.json', ''];
           for (const ext of extensions) {
-            const fullPath = resolvedPath + ext;
+            const _fullPath = resolvedPath + ext;
             if (fs.existsSync(fullPath)) {
               return fullPath;
             }
@@ -548,51 +548,51 @@ class AdvancedRollbackSystem {
         
         // Handle module imports (node_modules)
         try {
-          const resolvedPath = require.resolve(importPath, { paths: [path.dirname(filePath)] });
+          const _resolvedPath = require.resolve(importPath, { paths: [path.dirname(filePath)] });
           return resolvedPath;
-        } catch (error) {
+        } catch (_error) {
           // Module not found
           return null;
         }
       },
       
       // Get dependency type
-      getDependencyType: (filePath) => {
-        const ext = path.extname(filePath);
+      getDependencyType: (_filePath) => {
+        const _ext = path.extname(filePath);
         
         switch (ext) {
-          case '.js':
-            return 'javascript';
-          case '.ts':
-            return 'typescript';
-          case '.json':
-            return 'configuration';
-          case '.md':
-            return 'documentation';
-          default:
-            return 'other';
+        case '.js':
+          return 'javascript';
+        case '.ts':
+          return 'typescript';
+        case '.json':
+          return 'configuration';
+        case '.md':
+          return 'documentation';
+        default:
+          return 'other';
         }
       },
       
       // Save dependencies
-      saveDependencies: async (dependencies) => {
-        const fileName = path.basename(dependencies.file).replace(/[^a-zA-Z0-9]/g, '_');
-        const dependencyFile = path.join(this.dependenciesDir, `${fileName}-dependencies.json`);
+      saveDependencies: async (_dependencies) => {
+        const _fileName = path.basename(dependencies.file).replace(/[^a-zA-Z0-9]/g, '_');
+        const _dependencyFile = path.join(this.dependenciesDir, `${fileName}-dependencies.json`);
         fs.writeFileSync(dependencyFile, JSON.stringify(dependencies, null, 2));
       },
       
       // Get all files in directory (helper method)
-      getAllFiles: (dir) => {
-        const files = [];
+      getAllFiles: (_dir) => {
+        const _files = [];
         
-        const scanDirectory = (currentDir, relativePath = '') => {
-          const items = fs.readdirSync(currentDir);
+        const _scanDirectory = (_currentDir, _relativePath = '') => {
+          const _items = fs.readdirSync(currentDir);
           
           for (const item of items) {
-            const fullPath = path.join(currentDir, item);
-            const relativeItemPath = path.join(relativePath, item);
+            const _fullPath = path.join(currentDir, item);
+            const _relativeItemPath = path.join(relativePath, item);
             
-            const stats = fs.statSync(fullPath);
+            const _stats = fs.statSync(fullPath);
             
             if (stats.isDirectory()) {
               scanDirectory(fullPath, relativeItemPath);
@@ -615,10 +615,10 @@ class AdvancedRollbackSystem {
     
     this.rollbackEngine = {
       // Execute rollback
-      executeRollback: async (options = {}) => {
+      executeRollback: async (_options = {}) => {
         console.log('🔄 Executing rollback...');
         
-        const rollback = {
+        const _rollback = {
           id: this.generateRollbackId(),
           timestamp: new Date().toISOString(),
           strategy: options.strategy || 'granular',
@@ -635,20 +635,20 @@ class AdvancedRollbackSystem {
           
           // Execute rollback based on strategy
           switch (rollback.strategy) {
-            case 'full':
-              await this.rollbackEngine.fullRollback(rollback);
-              break;
-            case 'partial':
-              await this.rollbackEngine.partialRollback(rollback);
-              break;
-            case 'granular':
-              await this.rollbackEngine.granularRollback(rollback);
-              break;
-            case 'dependency':
-              await this.rollbackEngine.dependencyRollback(rollback);
-              break;
-            default:
-              throw new Error(`Unknown rollback strategy: ${rollback.strategy}`);
+          case 'full':
+            await this.rollbackEngine.fullRollback(rollback);
+            break;
+          case 'partial':
+            await this.rollbackEngine.partialRollback(rollback);
+            break;
+          case 'granular':
+            await this.rollbackEngine.granularRollback(rollback);
+            break;
+          case 'dependency':
+            await this.rollbackEngine.dependencyRollback(rollback);
+            break;
+          default:
+            throw new Error(`Unknown rollback strategy: ${rollback.strategy}`);
           }
           
           // Post-rollback validation
@@ -661,35 +661,35 @@ class AdvancedRollbackSystem {
           console.log(`✅ Rollback completed: ${rollback.id}`);
           return rollback;
           
-        } catch (error) {
+        } catch (_error) {
           rollback.status = 'failed';
           rollback.error = error.message;
           await this.rollbackEngine.saveRollback(rollback);
           
-          console.error(`❌ Rollback failed:`, error.message);
+          console.error('❌ Rollback failed:', error.message);
           throw error;
         }
       },
       
       // Pre-rollback validation
-      preRollbackValidation: async (rollback) => {
+      preRollbackValidation: async (_rollback) => {
         console.log('🔍 Running pre-rollback validation...');
         
         // Check if backup exists
-        const backup = await this.backupManager.getLastBackup();
+        const _backup = await this.backupManager.getLastBackup();
         if (!backup) {
           throw new Error('No backup available for rollback');
         }
         
         // Check system health
-        const systemHealthy = await this.rollbackEngine.checkSystemHealth();
+        const _systemHealthy = await this.rollbackEngine.checkSystemHealth();
         if (!systemHealthy) {
           throw new Error('System is not healthy for rollback');
         }
         
         // Validate rollback target
         if (rollback.target) {
-          const targetValid = await this.rollbackEngine.validateRollbackTarget(rollback.target);
+          const _targetValid = await this.rollbackEngine.validateRollbackTarget(rollback.target);
           if (!targetValid) {
             throw new Error('Invalid rollback target');
           }
@@ -699,10 +699,10 @@ class AdvancedRollbackSystem {
       },
       
       // Full rollback
-      fullRollback: async (rollback) => {
+      fullRollback: async (_rollback) => {
         console.log('🔄 Executing full rollback...');
         
-        const backup = await this.backupManager.getLastBackup();
+        const _backup = await this.backupManager.getLastBackup();
         if (!backup) {
           throw new Error('No backup available for full rollback');
         }
@@ -724,16 +724,16 @@ class AdvancedRollbackSystem {
       },
       
       // Partial rollback
-      partialRollback: async (rollback) => {
+      partialRollback: async (_rollback) => {
         console.log('🔄 Executing partial rollback...');
         
-        const backup = await this.backupManager.getLastBackup();
+        const _backup = await this.backupManager.getLastBackup();
         if (!backup) {
           throw new Error('No backup available for partial rollback');
         }
         
         // Restore selected components
-        const components = rollback.target || ['patches', 'summaries'];
+        const _components = rollback.target || ['patches', 'summaries'];
         
         for (const component of components) {
           await this.rollbackEngine.restoreComponent(component, backup);
@@ -747,10 +747,10 @@ class AdvancedRollbackSystem {
       },
       
       // Granular rollback
-      granularRollback: async (rollback) => {
+      granularRollback: async (_rollback) => {
         console.log('🔄 Executing granular rollback...');
         
-        const files = rollback.target || [];
+        const _files = rollback.target || [];
         
         for (const file of files) {
           await this.rollbackEngine.restoreFile(file);
@@ -764,16 +764,16 @@ class AdvancedRollbackSystem {
       },
       
       // Dependency rollback
-      dependencyRollback: async (rollback) => {
+      dependencyRollback: async (_rollback) => {
         console.log('🔄 Executing dependency-aware rollback...');
         
-        const targetFile = rollback.target;
+        const _targetFile = rollback.target;
         if (!targetFile) {
           throw new Error('Target file required for dependency rollback');
         }
         
         // Get dependencies
-        const dependencies = await this.dependencyTracker.trackDependencies(targetFile);
+        const _dependencies = await this.dependencyTracker.trackDependencies(targetFile);
         
         // Rollback dependencies in order
         for (const dependency of dependencies.dependencies) {
@@ -797,17 +797,17 @@ class AdvancedRollbackSystem {
       },
       
       // Post-rollback validation
-      postRollbackValidation: async (rollback) => {
+      postRollbackValidation: async (_rollback) => {
         console.log('✅ Running post-rollback validation...');
         
         // Check system health
-        const systemHealthy = await this.rollbackEngine.checkSystemHealth();
+        const _systemHealthy = await this.rollbackEngine.checkSystemHealth();
         if (!systemHealthy) {
           throw new Error('System health check failed after rollback');
         }
         
         // Validate restored files
-        const filesValid = await this.rollbackEngine.validateRestoredFiles(rollback);
+        const _filesValid = await this.rollbackEngine.validateRestoredFiles(rollback);
         if (!filesValid) {
           throw new Error('Restored files validation failed');
         }
@@ -816,8 +816,8 @@ class AdvancedRollbackSystem {
       },
       
       // Save rollback
-      saveRollback: async (rollback) => {
-        const rollbackFile = path.join(this.historyDir, `${rollback.id}.json`);
+      saveRollback: async (_rollback) => {
+        const _rollbackFile = path.join(this.historyDir, `${rollback.id}.json`);
         fs.writeFileSync(rollbackFile, JSON.stringify(rollback, null, 2));
       },
       
@@ -825,11 +825,11 @@ class AdvancedRollbackSystem {
       checkSystemHealth: async () => {
         try {
           // Check if core services are running
-          const services = ['ghost', 'api', 'dashboard'];
+          const _services = ['ghost', 'api', 'dashboard'];
           for (const service of services) {
-            const port = this.getServicePort(service);
+            const _port = this.getServicePort(service);
             if (port) {
-              const response = await axios.get(`http://localhost:${port}/health`, {
+              const _response = await axios.get(`http://localhost:${port}/health`, {
                 timeout: 5000
               });
               if (response.status !== 200) {
@@ -838,12 +838,12 @@ class AdvancedRollbackSystem {
             }
           }
           return true;
-        } catch (error) {
+        } catch (_error) {
           return false;
         }
       },
       
-      validateRollbackTarget: async (target) => {
+      validateRollbackTarget: async (_target) => {
         return fs.existsSync(target);
       },
       
@@ -857,29 +857,29 @@ class AdvancedRollbackSystem {
         // Implementation for restarting services
       },
       
-      restoreFromBackup: async (backup) => {
+      restoreFromBackup: async (_backup) => {
         console.log('💾 Restoring from backup...');
         // Implementation for restoring from backup
       },
       
-      restoreComponent: async (component, backup) => {
+      restoreComponent: async (_component, _backup) => {
         console.log(`💾 Restoring component: ${component}`);
         // Implementation for restoring component
       },
       
-      restoreFile: async (filePath) => {
+      restoreFile: async (_filePath) => {
         console.log(`💾 Restoring file: ${filePath}`);
         // Implementation for restoring file
       },
       
-      validateRestoredFiles: async (rollback) => {
+      validateRestoredFiles: async (_rollback) => {
         console.log('✅ Validating restored files...');
         // Implementation for validating restored files
         return true;
       },
       
-      getServicePort: (service) => {
-        const ports = {
+      getServicePort: (_service) => {
+        const _ports = {
           ghost: 5051,
           api: 4000,
           dashboard: 3000
@@ -896,10 +896,10 @@ class AdvancedRollbackSystem {
     
     this.snapshotManager = {
       // Create snapshot
-      createSnapshot: async (description = '') => {
+      createSnapshot: async (_description = '') => {
         console.log('📸 Creating system snapshot...');
         
-        const snapshot = {
+        const _snapshot = {
           id: this.generateSnapshotId(),
           timestamp: new Date().toISOString(),
           description,
@@ -919,23 +919,23 @@ class AdvancedRollbackSystem {
           console.log(`✅ Snapshot created: ${snapshot.id}`);
           return snapshot;
           
-        } catch (error) {
+        } catch (_error) {
           snapshot.status = 'failed';
           snapshot.error = error.message;
           await this.snapshotManager.saveSnapshot(snapshot);
           
-          console.error(`❌ Snapshot failed:`, error.message);
+          console.error('❌ Snapshot failed:', error.message);
           throw error;
         }
       },
       
       // Capture system state
-      captureSystemState: async (snapshot) => {
-        const snapshotPath = path.join(this.snapshotsDir, snapshot.id);
+      captureSystemState: async (_snapshot) => {
+        const _snapshotPath = path.join(this.snapshotsDir, snapshot.id);
         fs.mkdirSync(snapshotPath, { recursive: true });
         
         // Capture key system files
-        const keyFiles = [
+        const _keyFiles = [
           'package.json',
           'package-lock.json',
           'tsconfig.json',
@@ -944,9 +944,9 @@ class AdvancedRollbackSystem {
         ];
         
         for (const file of keyFiles) {
-          const sourcePath = path.join('/Users/sawyer/gitSync/gpt-cursor-runner', file);
+          const _sourcePath = path.join('/Users/sawyer/gitSync/gpt-cursor-runner', file);
           if (fs.existsSync(sourcePath)) {
-            const targetPath = path.join(snapshotPath, file);
+            const _targetPath = path.join(snapshotPath, file);
             fs.copyFileSync(sourcePath, targetPath);
             
             snapshot.files.push({
@@ -968,8 +968,8 @@ class AdvancedRollbackSystem {
       },
       
       // Save snapshot
-      saveSnapshot: async (snapshot) => {
-        const snapshotFile = path.join(this.snapshotsDir, `${snapshot.id}.json`);
+      saveSnapshot: async (_snapshot) => {
+        const _snapshotFile = path.join(this.snapshotsDir, `${snapshot.id}.json`);
         fs.writeFileSync(snapshotFile, JSON.stringify(snapshot, null, 2));
       }
     };
@@ -984,10 +984,10 @@ class AdvancedRollbackSystem {
     this.backupIntervals = {};
     
     for (const [type, config] of Object.entries(this.config.backupTypes)) {
-      this.backupIntervals[type] = setInterval(async () => {
+      this.backupIntervals[type] = setInterval(_async () => {
         try {
           await this.backupManager.createBackup(type);
-        } catch (error) {
+        } catch (_error) {
           console.error(`❌ Automatic ${type} backup failed:`, error.message);
         }
       }, config.frequency);
@@ -1026,11 +1026,11 @@ module.exports = AdvancedRollbackSystem;
 
 // Start if run directly
 if (require.main === module) {
-  const rollbackSystem = new AdvancedRollbackSystem();
+  const _rollbackSystem = new AdvancedRollbackSystem();
   rollbackSystem.start().catch(console.error);
   
   // Graceful shutdown
-  process.on('SIGINT', async () => {
+  process.on(_'SIGINT', _async () => {
     await rollbackSystem.stop();
     process.exit(0);
   });

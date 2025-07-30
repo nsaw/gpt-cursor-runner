@@ -83,7 +83,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: overview
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -100,7 +100,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: status
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -117,7 +117,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: queue
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -134,7 +134,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: alerts
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -151,7 +151,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: history
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -171,7 +171,7 @@ class ComprehensiveDashboard extends EventEmitter {
           message: 'Rollback triggered',
           data: result
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -188,7 +188,7 @@ class ComprehensiveDashboard extends EventEmitter {
           status: 'success',
           message: 'Alert acknowledged'
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -205,7 +205,7 @@ class ComprehensiveDashboard extends EventEmitter {
           timestamp: new Date().toISOString(),
           data: health
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(500).json({
           status: 'error',
           error: error.message
@@ -226,8 +226,8 @@ class ComprehensiveDashboard extends EventEmitter {
         try {
           const data = JSON.parse(message);
           this.handleWebSocketMessage(clientId, data);
-        } catch (error) {
-          console.error(`❌ [DASHBOARD] WebSocket message error:`, error.message);
+        } catch (_error) {
+          console.error('❌ [DASHBOARD] WebSocket message error:', error.message);
         }
       });
 
@@ -242,7 +242,7 @@ class ComprehensiveDashboard extends EventEmitter {
     setInterval(async () => {
       try {
         await this.monitorComponents();
-      } catch (error) {
+      } catch (_error) {
         console.error('❌ [DASHBOARD] Component monitoring error:', error.message);
       }
     }, 10000); // Every 10 seconds
@@ -251,7 +251,7 @@ class ComprehensiveDashboard extends EventEmitter {
     setInterval(async () => {
       try {
         await this.monitorPatchQueues();
-      } catch (error) {
+      } catch (_error) {
         console.error('❌ [DASHBOARD] Patch queue monitoring error:', error.message);
       }
     }, 5000); // Every 5 seconds
@@ -271,7 +271,7 @@ class ComprehensiveDashboard extends EventEmitter {
     setInterval(async () => {
       try {
         await this.checkForAlerts();
-      } catch (error) {
+      } catch (_error) {
         console.error('❌ [DASHBOARD] Alert check error:', error.message);
       }
     }, 15000); // Every 15 seconds
@@ -288,8 +288,8 @@ class ComprehensiveDashboard extends EventEmitter {
     return {
       components: componentStatus,
       patches: patchQueue,
-      alerts: alerts,
-      health: health,
+      alerts,
+      health,
       uptime: process.uptime(),
       timestamp: new Date().toISOString()
     };
@@ -307,7 +307,7 @@ class ComprehensiveDashboard extends EventEmitter {
           healthy: isHealthy,
           lastChecked: new Date().toISOString()
         };
-      } catch (error) {
+      } catch (_error) {
         status[name] = {
           name: component.name,
           port: component.port,
@@ -380,7 +380,7 @@ class ComprehensiveDashboard extends EventEmitter {
             }
           }
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ [DASHBOARD] Error reading ${system} queue:`, error.message);
       }
     }
@@ -505,7 +505,7 @@ class ComprehensiveDashboard extends EventEmitter {
           level: 'warning',
           title: `${system} patch queue backlog`,
           message: `${queue.pending} patches pending in ${system} queue`,
-          system: system,
+          system,
           count: queue.pending
         });
       }
@@ -515,7 +515,7 @@ class ComprehensiveDashboard extends EventEmitter {
           level: 'error',
           title: `High failure rate in ${system}`,
           message: `${queue.failed} failed patches in ${system}`,
-          system: system,
+          system,
           count: queue.failed
         });
       }
@@ -559,7 +559,7 @@ class ComprehensiveDashboard extends EventEmitter {
     const alertId = `${type}_${Date.now()}`;
     const alert = {
       id: alertId,
-      type: type,
+      type,
       level: data.level || 'info',
       title: data.title,
       message: data.message,
@@ -600,8 +600,8 @@ class ComprehensiveDashboard extends EventEmitter {
     const rollbackId = `rollback_${Date.now()}`;
     const rollback = {
       id: rollbackId,
-      patchId: patchId,
-      reason: reason,
+      patchId,
+      reason,
       timestamp: new Date().toISOString(),
       status: 'pending'
     };
@@ -621,10 +621,10 @@ class ComprehensiveDashboard extends EventEmitter {
         level: 'info',
         title: 'Rollback completed',
         message: `Successfully rolled back patch ${patchId}`,
-        patchId: patchId
+        patchId
       });
       
-    } catch (error) {
+    } catch (_error) {
       rollback.status = 'failed';
       rollback.error = error.message;
       
@@ -633,7 +633,7 @@ class ComprehensiveDashboard extends EventEmitter {
         level: 'error',
         title: 'Rollback failed',
         message: `Failed to rollback patch ${patchId}: ${error.message}`,
-        patchId: patchId
+        patchId
       });
     }
     
@@ -681,21 +681,21 @@ class ComprehensiveDashboard extends EventEmitter {
         type: 'initial_data',
         data: overview
       }));
-    } catch (error) {
-      console.error(`❌ [DASHBOARD] Error sending initial data:`, error.message);
+    } catch (_error) {
+      console.error('❌ [DASHBOARD] Error sending initial data:', error.message);
     }
   }
 
   handleWebSocketMessage(clientId, data) {
     switch (data.type) {
-      case 'subscribe_alerts':
-        // Handle alert subscription
-        break;
-      case 'ping':
-        this.sendToClient(clientId, { type: 'pong', timestamp: new Date().toISOString() });
-        break;
-      default:
-        console.warn(`⚠️ [DASHBOARD] Unknown WebSocket message type: ${data.type}`);
+    case 'subscribe_alerts':
+      // Handle alert subscription
+      break;
+    case 'ping':
+      this.sendToClient(clientId, { type: 'pong', timestamp: new Date().toISOString() });
+      break;
+    default:
+      console.warn(`⚠️ [DASHBOARD] Unknown WebSocket message type: ${data.type}`);
     }
   }
 
@@ -719,13 +719,13 @@ class ComprehensiveDashboard extends EventEmitter {
   start() {
     this.server.listen(this.port, () => {
       console.log(`🚀 [DASHBOARD] Comprehensive dashboard started on port ${this.port}`);
-      console.log(`📊 [DASHBOARD] WebSocket server ready for connections`);
+      console.log('📊 [DASHBOARD] WebSocket server ready for connections');
     });
   }
 
   stop() {
     this.server.close(() => {
-      console.log(`🛑 [DASHBOARD] Comprehensive dashboard stopped`);
+      console.log('🛑 [DASHBOARD] Comprehensive dashboard stopped');
     });
   }
 }

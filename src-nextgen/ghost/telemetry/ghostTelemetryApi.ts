@@ -126,7 +126,7 @@ class GhostTelemetryApi {
     this.loadConfig();
     this.initializeState();
     this.setupEndpoints();
-    this.logEvent('system_startup', 'Telemetry API initialized', 'info');
+    this.logEvent('system_startup', 'System started', 'info');
   }
 
   private loadConfig(): void {
@@ -139,7 +139,7 @@ class GhostTelemetryApi {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -190,7 +190,7 @@ class GhostTelemetryApi {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -203,7 +203,7 @@ class GhostTelemetryApi {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -735,7 +735,7 @@ class GhostTelemetryApi {
       const bodyBuffer = Buffer.concat(chunks);
       try {
         body = JSON.parse(bodyBuffer.toString());
-      } catch (error) {
+      } catch (_error) {
         body = bodyBuffer.toString();
       }
     }
@@ -756,14 +756,14 @@ class GhostTelemetryApi {
 
   private async handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const startTime = Date.now();
-    let apiReq: ApiRequest;
+    let apiReq: ApiRequest | undefined;
     
     try {
       apiReq = await this.parseRequest(req);
       
       // Find matching endpoint
       const endpoint = this.state.endpoints.find(e => 
-        e.path === apiReq.path && e.method === apiReq.method
+        e.path === apiReq?.path && e.method === apiReq?.method
       );
 
       if (!endpoint) {
@@ -771,7 +771,7 @@ class GhostTelemetryApi {
           success: false,
           error: 'Endpoint not found',
           timestamp: new Date().toISOString(),
-          requestId: apiReq.id
+          requestId: apiReq?.id
         });
         return;
       }
@@ -782,7 +782,7 @@ class GhostTelemetryApi {
           success: false,
           error: 'Authentication required',
           timestamp: new Date().toISOString(),
-          requestId: apiReq.id
+          requestId: apiReq?.id
         });
         return;
       }
@@ -793,7 +793,7 @@ class GhostTelemetryApi {
           success: false,
           error: 'Rate limit exceeded',
           timestamp: new Date().toISOString(),
-          requestId: apiReq.id
+          requestId: apiReq?.id
         });
         return;
       }
@@ -809,8 +809,8 @@ class GhostTelemetryApi {
       const response = await endpoint.handler(apiReq);
       
       // Update request with response info
-      apiReq.responseTime = Date.now() - startTime;
-      apiReq.statusCode = 200;
+      apiReq!.responseTime = Date.now() - startTime;
+      apiReq!.statusCode = 200;
       
       this.sendResponse(res, 200, response);
       
@@ -823,9 +823,9 @@ class GhostTelemetryApi {
       };
       
       if (apiReq) {
-        apiReq.responseTime = Date.now() - startTime;
-        apiReq.statusCode = 500;
-        apiReq.error = error instanceof Error ? error.message : 'Unknown error';
+        apiReq!.responseTime = Date.now() - startTime;
+        apiReq!.statusCode = 500;
+        apiReq!.error = error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error';
       }
       
       this.sendResponse(res, 500, errorResponse);
@@ -837,17 +837,17 @@ class GhostTelemetryApi {
         
         // Update stats
         this.state.stats.totalRequests++;
-        if (apiReq.statusCode && apiReq.statusCode < 400) {
+        if (apiReq?.statusCode && apiReq?.statusCode < 400) {
           this.state.stats.successfulRequests++;
         } else {
           this.state.stats.failedRequests++;
         }
         
-        if (apiReq.responseTime) {
+        if (apiReq?.responseTime) {
           const currentAvg = this.state.stats.averageResponseTime;
           const totalRequests = this.state.stats.totalRequests;
           this.state.stats.averageResponseTime = 
-            (currentAvg * (totalRequests - 1) + apiReq.responseTime) / totalRequests;
+            (currentAvg * (totalRequests - 1) + apiReq?.responseTime) / totalRequests;
         }
         
         // Maintain request history

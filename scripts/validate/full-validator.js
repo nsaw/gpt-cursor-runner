@@ -22,7 +22,7 @@ function main() {
   // Check if Slack server is running, skip if not
   try {
     assertCommand('curl -s http://localhost:3000/slack/oauth/callback', 'OAuth');
-  } catch (e) {
+  } catch (_e) {
     console.log('⚠️  Slack server not running, skipping OAuth test');
   }
 

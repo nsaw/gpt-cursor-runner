@@ -22,7 +22,7 @@ const { concatenateFilename } = require('../utils/filename-concatenator');
 function safeLog(message) {
   try {
     console.log(message);
-  } catch (error) {
+  } catch (_error) {
     if (error.code === 'EPIPE') {
       // Log EPIPE suppression to file instead of stdout
       try {
@@ -132,7 +132,7 @@ class RealDualMonitor {
         this.recentLogs = logLines.slice(-10).map(line => {
           try {
             return JSON.parse(line);
-          } catch {
+          } catch (_error) {
             return { message: line, timestamp: new Date().toISOString() };
           }
         });
@@ -163,7 +163,7 @@ class RealDualMonitor {
           }, {});
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('Error reading unified monitor data:', error.message);
     }
   }
@@ -214,7 +214,7 @@ class RealDualMonitor {
               response: result.response ? result.response.substring(0, 100) : '',
               error: result.error || null
             });
-          } catch (error) {
+          } catch (_error) {
             validationResults.push({
               name: endpoint.name,
               url: endpoint.url,
@@ -228,7 +228,7 @@ class RealDualMonitor {
 
         this.tunnelStatus = validationResults;
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error validating endpoints:', error.message);
     }
   }
@@ -332,7 +332,7 @@ class RealDualMonitor {
         } else {
           console.log(`❌ ${systemKey} patches directory not found: ${system.patchesPath}`);
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ Error refreshing ${systemKey} patches:`, error.message);
       }
       
@@ -348,14 +348,14 @@ class RealDualMonitor {
               const summaryPath = path.join(system.summariesPath, summaryFile);
               const stats = fs.statSync(summaryPath);
               console.log(`📅 ${summaryFile}: ${stats.mtime.toISOString()}`);
-            } catch (error) {
+            } catch (_error) {
               console.warn(`⚠️ Could not get stats for ${summaryFile}: ${error.message}`);
             }
           }
         } else {
           console.log(`❌ ${systemKey} summaries directory not found: ${system.summariesPath}`);
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ Error refreshing ${systemKey} summaries:`, error.message);
       }
     }
@@ -394,7 +394,7 @@ class RealDualMonitor {
       for (const watcher of this.fileWatchers) {
         try {
           watcher.close();
-        } catch (error) {
+        } catch (_error) {
           // Ignore errors when closing watchers
         }
       }
@@ -500,7 +500,7 @@ class RealDualMonitor {
       // Log validation results
       console.log(`📊 ${systemKey} Patch Validation: ${patchFiles.length} patches, ${summaryFiles.length} summaries, ${completedIds.length} completed, ${failedIds.length} failed`);
       
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ Error checking patch status for ${systemKey}:`, error.message);
       console.error(`   Patches path: ${this.systems[systemKey].patchesPath}`);
       console.error(`   Summaries path: ${this.systems[systemKey].summariesPath}`);
@@ -525,7 +525,7 @@ class RealDualMonitor {
       if (fs.existsSync(summariesPath)) {
         fs.readdirSync(summariesPath); // Force disk read
       }
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ Disk sync failed for ${systemKey}:`, error.message);
     }
     
@@ -605,7 +605,7 @@ class RealDualMonitor {
             console.log(`🚨 ${check.name} is mandatory but down!`);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         systems.stopped.push(check.name);
         console.log(`❌ Error checking ${check.name}: ${error.message}`);
         
@@ -665,7 +665,7 @@ class RealDualMonitor {
       
       console.log(`👻 ${systemKey} ghost status: ${ghostStatus.status} - ${ghostStatus.details}`);
       
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ Error checking ghost status for ${systemKey}:`, error.message);
       this.statusCategories[systemKey].ghost = {
         status: 'error',
@@ -721,7 +721,7 @@ class RealDualMonitor {
         if (result.running) {
           foundProcesses.push(process);
         }
-      } catch (error) {
+      } catch (_error) {
         // Continue checking other processes
       }
     }
@@ -733,7 +733,7 @@ class RealDualMonitor {
   displayStatus() {
     try {
       console.clear();
-    } catch (error) {
+    } catch (_error) {
       if (error.code === 'EPIPE') {
         safeLog('[STREAM GUARD] EPIPE suppressed in console.clear()');
       }
@@ -906,7 +906,7 @@ class RealDualMonitor {
       } else {
         safeLog('   ✅ No pending patches in queue');
       }
-    } catch (error) {
+    } catch (_error) {
       safeLog('   Error reading execution queue');
     }
   }
@@ -933,7 +933,7 @@ class RealDualMonitor {
       } else {
         safeLog('   No recent activity');
       }
-    } catch (error) {
+    } catch (_error) {
       safeLog('   Error reading recent activity');
     }
   }
@@ -956,7 +956,7 @@ class RealDualMonitor {
           }
         });
         this.fileWatchers.push(patchWatcher);
-      } catch (error) {
+      } catch (_error) {
         safeLog(`⚠️  Could not watch ${systemKey} patches directory`);
       }
             
@@ -969,7 +969,7 @@ class RealDualMonitor {
           }
         });
         this.fileWatchers.push(summaryWatcher);
-      } catch (error) {
+      } catch (_error) {
         safeLog(`⚠️  Could not watch ${systemKey} summaries directory`);
       }
     });
@@ -1119,7 +1119,7 @@ class RealDualMonitor {
         } else {
           statusText += '   No recent activity\n';
         }
-      } catch (error) {
+      } catch (_error) {
         statusText += '   Error reading recent activity\n';
       }
     });

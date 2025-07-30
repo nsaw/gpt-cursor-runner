@@ -1,9 +1,9 @@
-module.exports = async function handleWhoami(req, res) {
-  const { user_name, user_id, team_id } = req.body;
+module.exports = async function handleWhoami(_req, _res) {
+  const { _user_name, _user_id, _team_id } = req.body;
   console.log('⚡️ /whoami triggered by:', user_name);
   
   try {
-    const whoamiText = `
+    const _whoamiText = `
 👤 *User Information*
 
 *Name:* ${user_name}
@@ -26,7 +26,7 @@ module.exports = async function handleWhoami(req, res) {
     `.trim();
 
     res.send(whoamiText);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting user info:', error);
     res.send(`❌ Error getting user info: ${error.message}`);
   }

@@ -24,8 +24,8 @@ const CONFIG = {
     GHOST_TRACE_FIELDS: ['ghostStatus', 'ghostUptime', 'ghostLastCheck'],
     FORMAT_RULES: {
       PATCH_NAME_PATTERN: /^(patch-v\d+\.\d+\.\d+\(P\d+\.\d+\.\d+\)_.+|v\d+\.\d+\.\d+\(P\d+\.\d+\.\d+\)_.+|.+)$/,
-      STATUS_VALUES: ['PASS', 'FAIL', 'UNVERIFIED', 'IN_PROGRESS', 'WORKING', 'COMPLETED', 'SUCCESSFUL', 'EXECUTED'],
-      TIMESTAMP_PATTERN: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      STATUS_VALUES: ['PASS', 'FAIL', 'UNVERIFIED', 'IN_PROGRESS', 'WORKING', 'COMPLETED', 'SUCCESSFUL', 'EXECUTED']
+      // Removed TIMESTAMP_PATTERN - GPT timestamps are unreliable
     },
     FAILURE_MARKERS: ['⚠️', '❌', 'FAIL', 'ERROR', 'CRASH', 'BROKEN', 'STALLED', 'TIMEOUT'],
     TRACE_DECODERS: {
@@ -72,7 +72,7 @@ class SummaryGhostParser {
       console.log('✅ [PARSER] Summary Ghost Parser initialized');
       this.log('PARSER_INIT', 'Summary Ghost Parser initialized successfully');
       
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [PARSER] Initialization failed:', error.message);
       this.log('PARSER_ERROR', `Initialization failed: ${error.message}`);
     }
@@ -88,7 +88,7 @@ class SummaryGhostParser {
           this.ghostStatus[systemKey] = statusData;
           console.log(`👻 [PARSER] Loaded ghost status for ${systemKey}`);
         }
-      } catch (error) {
+      } catch (_error) {
         console.warn(`⚠️ [PARSER] Could not load ghost status from ${statusFile}:`, error.message);
       }
     }
@@ -114,7 +114,7 @@ class SummaryGhostParser {
         timestamp: new Date().toISOString()
       };
       
-    } catch (error) {
+    } catch (_error) {
       return {
         file: path.basename(filePath),
         path: filePath,
@@ -273,9 +273,8 @@ class SummaryGhostParser {
 
     if (!metadata.timestamp) {
       warnings.push('Missing timestamp');
-    } else if (!CONFIG.VALIDATION_RULES.FORMAT_RULES.TIMESTAMP_PATTERN.test(metadata.timestamp)) {
-      warnings.push(`Non-standard timestamp format: ${metadata.timestamp}`);
     }
+    // Removed timestamp format validation - GPT timestamps are unreliable
 
     // Ghost integration validation
     if (metadata.hasGhostIntegration && !metadata.hasTraceFields) {
@@ -398,7 +397,7 @@ class SummaryGhostParser {
           }
         }
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ [PARSER] Error processing directory ${summaryDir}:`, error.message);
         this.log('PARSER_ERROR', `Directory processing failed: ${error.message}`);
       }
@@ -472,7 +471,7 @@ class SummaryGhostParser {
       const timestamp = new Date().toISOString();
       const logEntry = `[${timestamp}] [${level}] ${message}\n`;
       fs.appendFileSync(CONFIG.LOG_FILE, logEntry);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [PARSER] Failed to write to log:', error.message);
     }
   }
@@ -494,7 +493,7 @@ class SummaryGhostParser {
       
       console.log(`📄 [PARSER] Results exported to: ${exportPath}`);
       return exportPath;
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ [PARSER] Export failed:', error.message);
       return null;
     }

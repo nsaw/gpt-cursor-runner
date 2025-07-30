@@ -1,9 +1,9 @@
-const stateManager = require('../utils/stateManager');
-const runnerController = require('../utils/runnerController');
-const patchManager = require('../utils/patchManager');
+const _stateManager = require('../utils/stateManager');
+const _runnerController = require('../utils/runnerController');
+const _patchManager = require('../utils/patchManager');
 
-module.exports = async function handleStatus(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleStatus(_req, _res) {
+  const { _user_name } = req.body;
   console.log('⚡️ /status triggered by:', user_name);
   
   try {
@@ -13,14 +13,14 @@ module.exports = async function handleStatus(req, res) {
       patchManager.getPatchStats()
     ]);
 
-    const status = {
+    const _status = {
       ...state,
       runner: runnerStatus,
       patches: patchStats,
       timestamp: new Date().toISOString()
     };
 
-    const statusText = `
+    const _statusText = `
 🚀 *GPT-Cursor Runner Status*
 
 *Runner State:*
@@ -49,7 +49,7 @@ module.exports = async function handleStatus(req, res) {
     `.trim();
 
     res.send(statusText);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting status:', error);
     res.send(`❌ Error getting status: ${error.message}`);
   }

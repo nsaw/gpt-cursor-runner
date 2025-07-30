@@ -12,7 +12,7 @@ const { exec } = require('child_process');
     // Ensure patch directory exists
     try {
       await fs.access(patchDir);
-    } catch {
+    } catch (_error) {
       await fs.mkdir(patchDir, { recursive: true });
     }
 
@@ -45,7 +45,7 @@ const { exec } = require('child_process');
             const dir = path.dirname(mutation.path);
             try {
               await fs.access(dir);
-            } catch {
+            } catch (_error) {
               await fs.mkdir(dir, { recursive: true });
             }
 
@@ -74,7 +74,7 @@ const { exec } = require('child_process');
           console.error(`[EXECUTOR] ❌ Failed to move ${file} to .completed:`, moveError.message);
         }
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`[EXECUTOR] ❌ Error processing ${file}:`, error.message);
         
         // Move failed patch to .failed directory
@@ -92,7 +92,7 @@ const { exec } = require('child_process');
 
     console.log('[EXECUTOR] ✅ All patches processed successfully.');
 
-  } catch (error) {
+  } catch (_error) {
     console.error('[EXECUTOR] ❌ Patch processing failed:', error.message);
     process.exit(1);
   }
@@ -116,7 +116,7 @@ async function runCommand(command) {
   try {
     const result = await executeCommand(command);
     return result;
-  } catch (error) {
+  } catch (_error) {
     console.error(`Command execution failed: ${error.message}`);
     throw error;
   }

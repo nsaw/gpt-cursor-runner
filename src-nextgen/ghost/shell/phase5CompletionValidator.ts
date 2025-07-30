@@ -369,12 +369,12 @@ async function logValidationStatus(status: Phase5CompletionStatus): Promise<void
   try {
     fs.appendFileSync(validationLogPath, logEntry);
   } catch (err) {
-    console.error('[phase5-validator] Failed to write validation log:', err);
+    console.error('[phaserror5-validator] Failed to writerror validation log:', err);
   }
 }
 
 export async function validatePhase5Completion(): Promise<Phase5CompletionStatus> {
-  console.log('[phase5-validator] Starting Phase 5 completion validation...');
+  console.log('[phaserror5-validator] Starting Phaserror 5 completion validation...');
   
   const status = await runPhase5Validation();
   await logValidationStatus(status);
@@ -411,10 +411,10 @@ export async function createPhase5Backup(): Promise<boolean> {
       }
     }
     
-    console.log(`[phase5-validator] Backup created: ${backupDir}`);
+    console.log(`[phaserror5-validator] Backup created: ${backupDir}`);
     return true;
   } catch (err) {
-    console.error('[phase5-validator] Backup creation failed:', err);
+    console.error('[phaserror5-validator] Backup creation failed:', err);
     return false;
   }
 }
@@ -432,10 +432,10 @@ export async function pushToGit(): Promise<boolean> {
       await execAsync(cmd);
     }
     
-    console.log('[phase5-validator] Successfully pushed to git');
+    console.log('[phaserror5-validator] Successfully pushed to git');
     return true;
   } catch (err) {
-    console.error('[phase5-validator] Git push failed:', err);
+    console.error('[phaserror5-validator] Git push failed:', err);
     return false;
   }
 }

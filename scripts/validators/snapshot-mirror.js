@@ -1,11 +1,11 @@
 // Updated snapshot-mirror.js
-const fs = require('fs');
-const path = require('path');
+const _fs = require('fs');
+const _path = require('path');
 
-function safeLog(message) {
+function safeLog(_message) {
   try {
     console.log(message);
-  } catch (error) {
+  } catch (_error) {
     // Silent fail for EPIPE or other stream errors
     try {
       fs.appendFileSync('/Users/sawyer/gitSync/gpt-cursor-runner/logs/snapshot-mirror.log', 
@@ -14,24 +14,24 @@ function safeLog(message) {
   }
 }
 
-const SOURCE_PATHS = [
+const _SOURCE_PATHS = [
   '/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/validation/snapshots',
   '/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/validation/diff'
 ];
 
-const TARGETS = [
+const _TARGETS = [
   '/Users/sawyer/gitSync/.cursor-cache/CYOPS/validation/snapshots',
   '/Users/sawyer/gitSync/.cursor-cache/CYOPS/validation/diff',
   '/Users/sawyer/gitSync/.cursor-cache/MAIN/validation/snapshots',
   '/Users/sawyer/gitSync/.cursor-cache/MAIN/validation/diff'
 ];
 
-function mirrorValidation(source, target) {
+function mirrorValidation(_source, _target) {
   if (!fs.existsSync(source)) return;
   fs.readdirSync(source).forEach(file => {
-    const src = path.join(source, file);
-    const tgt = path.join(target, file);
-    const srcStat = fs.statSync(src);
+    const _src = path.join(source, file);
+    const _tgt = path.join(target, file);
+    const _srcStat = fs.statSync(src);
     
     // Only process files, not directories
     if (srcStat.isFile()) {

@@ -5,11 +5,11 @@
  * Registers all 25 essential Slack commands in batches
  */
 
-const axios = require('axios');
-const path = require('path');
+const _axios = require('axios');
+const _path = require('path');
 
 // Essential 25 Commands
-const ALL_COMMANDS = [
+const _ALL_COMMANDS = [
   // Core Runner Control (8 commands)
   'dashboard', 'status-runner', 'status-push', 'restart-runner', 'kill', 
   'toggle-runner', 'runner-lock', 'watchdog-ping',
@@ -28,8 +28,8 @@ const ALL_COMMANDS = [
   'roadmap', 'alert-runner-crash'
 ];
 
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
-const WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://runner.thoughtmarks.app';
+const _SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+const _WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://runner.thoughtmarks.app';
 
 if (!SLACK_BOT_TOKEN) {
   console.error('❌ SLACK_BOT_TOKEN not found in environment variables');
@@ -44,20 +44,20 @@ async function bulkRegisterCommands() {
 
   // First, get existing commands to avoid duplicates
   try {
-    const existingResponse = await axios.get('https://slack.com/api/apps.commands.list', {
+    const _existingResponse = await axios.get('https://slack.com/api/apps.commands.list', {
       headers: {
         'Authorization': `Bearer ${SLACK_BOT_TOKEN}`
       }
     });
 
-    const existingCommands = existingResponse.data.ok ? existingResponse.data.commands : [];
+    const _existingCommands = existingResponse.data.ok ? existingResponse.data.commands : [];
     console.log(`📋 Found ${existingCommands.length} existing commands`);
-  } catch (error) {
+  } catch (_error) {
     console.log('⚠️ Could not fetch existing commands, proceeding with registration');
   }
 
   // Create command definitions
-  const commandDefinitions = ALL_COMMANDS.map(command => ({
+  const _commandDefinitions = ALL_COMMANDS.map(command => ({
     command: `/${command}`,
     description: getCommandDescription(command),
     url: `${WEBHOOK_BASE_URL}/slack/commands`,
@@ -67,20 +67,20 @@ async function bulkRegisterCommands() {
   console.log('📝 Registering commands in batches...');
 
   // Register commands in batches of 5 to avoid rate limits
-  const batchSize = 5;
-  const results = [];
-  let successCount = 0;
-  let errorCount = 0;
+  const _batchSize = 5;
+  const _results = [];
+  let _successCount = 0;
+  let _errorCount = 0;
 
   for (let i = 0; i < commandDefinitions.length; i += batchSize) {
-    const batch = commandDefinitions.slice(i, i + batchSize);
+    const _batch = commandDefinitions.slice(i, i + batchSize);
     console.log(`\n📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(commandDefinitions.length / batchSize)}`);
 
     for (const commandDef of batch) {
       try {
         console.log(`   Registering ${commandDef.command}...`);
         
-        const response = await axios.post(
+        const _response = await axios.post(
           'https://slack.com/api/apps.commands.create',
           commandDef,
           {
@@ -104,7 +104,7 @@ async function bulkRegisterCommands() {
         // Rate limiting - wait 1 second between requests
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-      } catch (error) {
+      } catch (_error) {
         console.log(`   ❌ ${commandDef.command} error: ${error.message}`);
         errorCount++;
         results.push({ command: commandDef.command, status: 'error', error: error.message });
@@ -125,11 +125,11 @@ async function bulkRegisterCommands() {
   console.log(`📝 Total attempted: ${ALL_COMMANDS.length}`);
 
   // Save results to file
-  const resultsPath = path.join(__dirname, '../logs/slack_command_registration_results.json');
-  const fs = require('fs');
+  const _resultsPath = path.join(__dirname, '../logs/slack_command_registration_results.json');
+  const _fs = require('fs');
   
   // Ensure logs directory exists
-  const logsDir = path.dirname(resultsPath);
+  const _logsDir = path.dirname(resultsPath);
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
   }
@@ -156,8 +156,8 @@ async function bulkRegisterCommands() {
   return { successCount, errorCount, results };
 }
 
-function getCommandDescription(command) {
-  const descriptions = {
+function getCommandDescription(_command) {
+  const _descriptions = {
     // Core Runner Control
     'dashboard': 'View Dashboard',
     'status-runner': 'Check current runner status and health',
@@ -197,8 +197,8 @@ function getCommandDescription(command) {
   return descriptions[command] || `Handle ${command} command`;
 }
 
-function getUsageHint(command) {
-  const hints = {
+function getUsageHint(_command) {
+  const _hints = {
     // Core Runner Control
     'dashboard': 'View dashboard',
     'status-runner': 'Check status',

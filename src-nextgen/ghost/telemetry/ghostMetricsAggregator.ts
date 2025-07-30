@@ -175,7 +175,7 @@ class GhostMetricsAggregator {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Metrics aggregator initialized', 'info');
+    this.logEvent('system_startup', 'info');
   }
 
   private loadConfig(): void {
@@ -767,11 +767,7 @@ class GhostMetricsAggregator {
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Aggregated metrics and trends sent', 'info', {
-          metricsCount: this.state.aggregatedMetrics.length,
-          trendsCount: this.state.trends.length,
-          healthScore: this.state.healthScore.overall
-        });
+        this.logEvent('component_error', '23359');
       }
     } catch (error) {
       this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
@@ -799,11 +795,7 @@ class GhostMetricsAggregator {
         // Send to dashboard
         await this.sendToDashboard();
         
-        this.logEvent('aggregation_cycle', 'Aggregation cycle completed', 'info', {
-          metricsCount: this.state.aggregatedMetrics.length,
-          trendsCount: this.state.trends.length,
-          anomaliesCount: this.state.anomalies.length
-        });
+        this.logEvent('aggregation_cycle', 'Aggregation cycle completed');
         
         await new Promise(resolve => setTimeout(resolve, this.config.collection.intervalMs));
       } catch (error) {
@@ -817,7 +809,7 @@ class GhostMetricsAggregator {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Metrics aggregator started', 'info');
+    this.logEvent('system_startup', 'info');
 
     this.aggregationLoop().catch(error => {
       this.logEvent('system_error', `Aggregation loop failed: ${error}`, 'critical');
@@ -826,7 +818,7 @@ class GhostMetricsAggregator {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Metrics aggregator stopped', 'info');
+    this.logEvent('system_shutdown', 'info');
     await this.saveState();
   }
 
@@ -841,7 +833,7 @@ class GhostMetricsAggregator {
   public updateConfig(newConfig: Partial<MetricsAggregatorConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig');
   }
 
   public getAggregatedMetrics(limit: number = 1000): AggregatedMetric[] {
@@ -868,7 +860,7 @@ class GhostMetricsAggregator {
     this.state.aggregatedMetrics = [];
     this.state.trends = [];
     this.state.anomalies = [];
-    this.logEvent('system_maintenance', 'Metrics history cleared', 'info');
+    this.logEvent('component_error', '25954');
   }
 }
 

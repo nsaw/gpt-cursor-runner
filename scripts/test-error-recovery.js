@@ -18,7 +18,7 @@ async function testErrorRecovery() {
     // Import and run the processor with the mock patch
     const processor = require('./processor');
     await processor('test-patch.json');
-  } catch (error) {
+  } catch (_error) {
     console.log('[TEST] Error caught as expected:', error.message);
   }
   

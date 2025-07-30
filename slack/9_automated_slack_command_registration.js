@@ -2,12 +2,12 @@
 // FILENAME: tasks/9_automated_slack_command_registration.js
 // PURPOSE: Automatically registers all 25+ Slack slash commands using Slack API
 
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+const _fs = require('fs');
+const _path = require('path');
+const _axios = require('axios');
 require('dotenv').config();
 
-const ALL_COMMANDS = [
+const _ALL_COMMANDS = [
   'dashboard', 'patch-approve', 'patch-revert', 'pause-runner', 'restart-runner',
   'restart-runner-gpt', 'continue-runner', 'status', 'show-roadmap', 'roadmap',
   'kill-runner', 'toggle-runner-on', 'toggle-runner-off', 'toggle-runner-auto',
@@ -16,9 +16,9 @@ const ALL_COMMANDS = [
   'lock-runner', 'unlock-runner', 'alert-runner-crash'
 ];
 
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
-const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
-const WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://runner.thoughtmarks.app';
+const _SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+const _SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
+const _WEBHOOK_BASE_URL = process.env.PUBLIC_RUNNER_URL || 'https://runner.thoughtmarks.app';
 
 if (!SLACK_BOT_TOKEN) {
   console.error('❌ SLACK_BOT_TOKEN not found in environment variables');
@@ -31,22 +31,22 @@ async function registerSlackCommands() {
   console.log(`🔢 Total commands to register: ${ALL_COMMANDS.length}`);
   console.log('');
 
-  const results = [];
-  let successCount = 0;
-  let errorCount = 0;
+  const _results = [];
+  let _successCount = 0;
+  let _errorCount = 0;
 
   for (const command of ALL_COMMANDS) {
     try {
       console.log(`📝 Registering /${command}...`);
       
-      const commandData = {
+      const _commandData = {
         command: `/${command}`,
         description: getCommandDescription(command),
         url: `${WEBHOOK_BASE_URL}/slack/commands`,
         usage_hint: getUsageHint(command)
       };
 
-      const response = await axios.post(
+      const _response = await axios.post(
         'https://slack.com/api/apps.commands.create',
         commandData,
         {
@@ -70,7 +70,7 @@ async function registerSlackCommands() {
       // Rate limiting - wait 1 second between requests
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-    } catch (error) {
+    } catch (_error) {
       console.log(`❌ /${command} error: ${error.message}`);
       errorCount++;
       results.push({ command, status: 'error', error: error.message });
@@ -84,7 +84,7 @@ async function registerSlackCommands() {
   console.log(`📝 Total attempted: ${ALL_COMMANDS.length}`);
 
   // Save results to file
-  const resultsPath = path.join(__dirname, '../logs/slack_command_registration_results.json');
+  const _resultsPath = path.join(__dirname, '../logs/slack_command_registration_results.json');
   fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
   console.log(`📄 Results saved to: ${resultsPath}`);
 
@@ -92,8 +92,8 @@ async function registerSlackCommands() {
   generateVerificationScript();
 }
 
-function getCommandDescription(command) {
-  const descriptions = {
+function getCommandDescription(_command) {
+  const _descriptions = {
     'dashboard': 'View GPT-Cursor Runner dashboard and stats',
     'patch-approve': 'Approve the next pending GPT patch',
     'patch-revert': 'Revert the last applied patch',
@@ -125,8 +125,8 @@ function getCommandDescription(command) {
   return descriptions[command] || `Execute ${command} command`;
 }
 
-function getUsageHint(command) {
-  const hints = {
+function getUsageHint(_command) {
+  const _hints = {
     'dashboard': 'View dashboard',
     'patch-approve': 'Approve patch',
     'patch-revert': 'Revert patch',
@@ -143,7 +143,7 @@ function getUsageHint(command) {
 }
 
 function generateVerificationScript() {
-  const verificationScript = `#!/bin/bash
+  const _verificationScript = `#!/bin/bash
 # FILENAME: verify-slack-commands.sh
 # PURPOSE: Verify all registered Slack commands
 
@@ -154,7 +154,7 @@ ${ALL_COMMANDS.map(cmd => `echo "Testing /${cmd}..."`).join('\n')}
 echo "✅ Verification complete. Check Slack for command availability."
 `;
 
-  const scriptPath = path.join(__dirname, '../verify-slack-commands.sh');
+  const _scriptPath = path.join(__dirname, '../verify-slack-commands.sh');
   fs.writeFileSync(scriptPath, verificationScript);
   fs.chmodSync(scriptPath, 0o755);
   console.log(`🔍 Verification script created: ${scriptPath}`);

@@ -118,7 +118,7 @@ class RealtimeMonitor {
       }
             
       this.status.patches = status;
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Error checking patch status:', error.message);
     }
   }
@@ -212,7 +212,7 @@ class RealtimeMonitor {
       }
             
       this.status.recentActivity = recent;
-    } catch (error) {
+    } catch (_error) {
       this.status.recentActivity = [];
     }
   }

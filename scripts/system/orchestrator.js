@@ -30,7 +30,7 @@ function isProcessRunning(processName) {
     const { execSync } = require('child_process');
     const result = execSync(`ps aux | grep "${processName}" | grep -v grep | wc -l`, { encoding: 'utf8' });
     return parseInt(result.trim()) > 0;
-  } catch (e) {
+  } catch (_e) {
     return false;
   }
 }
@@ -94,7 +94,7 @@ function writeStatus(daemonRegistry) {
     // Ensure directory exists
     fs.mkdirSync(path.dirname(statusPath), { recursive: true });
     fs.writeFileSync(statusPath, JSON.stringify(state, null, 2));
-  } catch (e) {
+  } catch (_e) {
     console.error(`[STATUS WRITE ERROR] ${e.message}`);
   }
 }
@@ -105,7 +105,7 @@ function ghostRelay(filename, content, attempt = 1) {
     fs.writeFileSync(fullPath, content);
     if (!fs.existsSync(fullPath)) throw new Error('write failed');
     fs.appendFileSync(LOG, `[✅ ghost-relay] ${filename} written at attempt ${attempt}\n`);
-  } catch (e) {
+  } catch (_e) {
     fs.appendFileSync(LOG, `[❌ ghost-relay fail] ${filename} attempt ${attempt}: ${e.message}\n`);
     if (attempt < 3) {
       setTimeout(() => ghostRelay(filename, content, attempt + 1), attempt * 1500);
@@ -121,7 +121,7 @@ function main() {
   try {
     require('../tunnel/launch-viewer-tunnel');
     console.log('[Tunnel] Viewer tunnel launch initiated');
-  } catch (e) {
+  } catch (_e) {
     console.error(`[TUNNEL ERROR] ${e.message}`);
   }
   
@@ -129,7 +129,7 @@ function main() {
   try {
     spawn('node', ['scripts/daemons/doc-daemon.js'], { stdio: 'ignore', detached: true }).unref();
     console.log('[Doc Daemon] Documentation daemon launched');
-  } catch (e) {
+  } catch (_e) {
     console.error(`[DOC DAEMON ERROR] ${e.message}`);
   }
   
@@ -138,7 +138,7 @@ function main() {
     try {
       const reg = fs.existsSync(registryFile) ? JSON.parse(fs.readFileSync(registryFile)) : {};
       writeStatus(reg);
-    } catch (e) {
+    } catch (_e) {
       console.error(`[STATUS UPDATE ERROR] ${e.message}`);
     }
   }, 15000);

@@ -1,4 +1,4 @@
-const Redis = require('ioredis');
+const _Redis = require('ioredis');
 
 class RedisManager {
   constructor() {
@@ -16,17 +16,17 @@ class RedisManager {
         lazyConnect: true
       });
 
-      this.client.on('connect', () => {
+      this.client.on(_'connect', _() => {
         console.log('[REDIS] Connected to Redis server');
         this.connected = true;
       });
 
-      this.client.on('error', (error) => {
+      this.client.on(_'error', _(error) => {
         console.error('[REDIS] Connection error:', error);
         this.connected = false;
       });
 
-      this.client.on('close', () => {
+      this.client.on(_'close', _() => {
         console.log('[REDIS] Connection closed');
         this.connected = false;
       });
@@ -37,7 +37,7 @@ class RedisManager {
       await this.client.ping();
       
       return true;
-    } catch (error) {
+    } catch (_error) {
       console.error('[REDIS] Failed to connect:', error);
       return false;
     }
@@ -99,7 +99,7 @@ class RedisManager {
 }
 
 // Create singleton instance
-const redisManager = new RedisManager();
+const _redisManager = new RedisManager();
 
 // Export singleton instance
 module.exports = redisManager;

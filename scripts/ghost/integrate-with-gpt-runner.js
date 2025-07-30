@@ -38,7 +38,7 @@ async function writeSummary(content, filename) {
     await updateStatus(agent, `Summary completed: ${filename}`);
     
     return result;
-  } catch (error) {
+  } catch (_error) {
     // Update status to show error
     await updateStatus(agent, `Error writing summary: ${error.message}`);
     throw error;

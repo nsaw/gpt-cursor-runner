@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
   try {
     const data = fs.readFileSync(path.resolve(__dirname, '../../.cursor-cache/CYOPS/ghost/status.json'));
     res.send(`<pre>${data}</pre><script>setTimeout(()=>location.reload(), 5000)</script>`);
-  } catch (e) {
+  } catch (_e) {
     res.send(`<h1>Status Unavailable</h1><p>Error: ${e.message}</p><script>setTimeout(()=>location.reload(), 5000)</script>`);
   }
 });

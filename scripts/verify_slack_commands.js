@@ -53,7 +53,7 @@ async function testCommand(command) {
     
     console.log(`✅ ${command}: ${response.status} - ${response.data.substring(0, 100)}...`);
     return { command, status: 'success', response: response.data };
-  } catch (error) {
+  } catch (_error) {
     console.log(`❌ ${command}: ${error.response?.status || 'ERROR'} - ${error.message}`);
     return { command, status: 'error', error: error.message };
   }

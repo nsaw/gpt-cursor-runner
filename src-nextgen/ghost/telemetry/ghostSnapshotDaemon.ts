@@ -170,7 +170,7 @@ class GhostSnapshotDaemon {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Snapshot daemon initialized', 'info');
+    this.logEvent('system_startup', 'System started', 'info');
   }
 
   private loadConfig(): void {
@@ -183,7 +183,7 @@ class GhostSnapshotDaemon {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -238,7 +238,7 @@ class GhostSnapshotDaemon {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -252,7 +252,7 @@ class GhostSnapshotDaemon {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -422,7 +422,7 @@ class GhostSnapshotDaemon {
         cpuUsage,
         lastCheck: new Date().toISOString()
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         name: daemonName,
         status: 'failed',
@@ -608,7 +608,7 @@ class GhostSnapshotDaemon {
                   description: logEntry.message,
                   resolved: false
                 });
-              } catch (error) {
+              } catch (_error) {
                 // Skip malformed log entries
               }
             }
@@ -742,11 +742,7 @@ class GhostSnapshotDaemon {
       snapshot.size = Buffer.byteLength(snapshotJson, 'utf8');
       snapshot.checksum = crypto.createHash('sha256').update(snapshotJson).digest('hex');
 
-      this.logEvent('snapshot_complete', 'System snapshot created successfully', 'info', {
-        snapshotId: snapshot.id,
-        size: snapshot.size,
-        checksum: snapshot.checksum
-      });
+      this.logEvent('snapshot_complete', 'System snapshot created successfully', 'info');
 
       return snapshot;
     } catch (error) {
@@ -778,10 +774,7 @@ class GhostSnapshotDaemon {
         }
       }
 
-      this.logEvent('snapshot_complete', 'Snapshot saved successfully', 'info', {
-        snapshotId: snapshot.id,
-        path: snapshotPath
-      });
+      this.logEvent('snapshot_complete', 'Snapshot saved successfully', 'info');
     } catch (error) {
       this.logEvent('snapshot_error', `Failed to save snapshot: ${error}`, 'error');
       throw error;
@@ -816,21 +809,17 @@ class GhostSnapshotDaemon {
       const statePath = path.join(snapshotDir, 'snapshot-state.json');
       fs.writeFileSync(statePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to save state: ${error}`);
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Snapshot data sent to dashboard', 'info', {
-          totalSnapshots: this.state.totalSnapshots,
-          totalSize: this.state.totalSize,
-          lastSnapshot: this.state.lastSnapshot
-        });
+        this.logEvent('error', 'Component error detected', 'error');
       }
     } catch (error) {
-      this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
     }
   }
 
@@ -861,16 +850,16 @@ class GhostSnapshotDaemon {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Snapshot daemon started', 'info');
+    this.logEvent('system_startup', 'System started', 'info');
 
     this.captureLoop().catch(error => {
-      this.logEvent('system_error', `Capture loop failed: ${error}`, 'critical');
+      this.logEvent('component_error', `Capture loop failed: ${error}`, 'critical');
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Snapshot daemon stopped', 'info');
+    this.logEvent('system_shutdown', 'info', 'info');
     await this.saveState();
   }
 
@@ -885,7 +874,7 @@ class GhostSnapshotDaemon {
   public updateConfig(newConfig: Partial<SnapshotConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig', 'info');
   }
 
   public getSnapshots(limit: number = 10): SystemSnapshot[] {
@@ -908,7 +897,7 @@ class GhostSnapshotDaemon {
 
   public clearHistory(): void {
     this.state.events = [];
-    this.logEvent('system_maintenance', 'Snapshot history cleared', 'info');
+    this.logEvent('error', 'Component error detected', 'error');
   }
 }
 

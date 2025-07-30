@@ -11,7 +11,7 @@ function log(msg) {
     // Ensure log directory exists
     fs.mkdirSync(path.dirname(logPath), { recursive: true });
     fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`);
-  } catch (e) {
+  } catch (_e) {
     console.error(`[LOG ERROR] ${e.message}`);
   }
 }
@@ -26,7 +26,7 @@ function scan() {
         log(`[WARN] No summary found for patch: ${p}`);
       }
     });
-  } catch (e) {
+  } catch (_e) {
     log(`[ERROR] Dispatch monitor failed: ${e.message}`);
   }
 }

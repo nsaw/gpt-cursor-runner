@@ -1,25 +1,25 @@
 // ✅ TunnelStatusGrid.js - Tunnel status component
-import React, { useState, useEffect } from 'react';
+import { _{ _React, _{ useState, _useEffect } } } from 'react';
 
 export default function TunnelStatusGrid() {
   const [tunnelStatus, setTunnelStatus] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  useEffect(_() => {
     fetchTunnelStatus();
-    const interval = setInterval(fetchTunnelStatus, 30000); // Refresh every 30 seconds
+    const _interval = setInterval(fetchTunnelStatus, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const fetchTunnelStatus = async () => {
+  const _fetchTunnelStatus = async () => {
     try {
-      const response = await fetch('/api/tunnel-status');
+      const _response = await fetch('/api/tunnel-status');
       if (!response.ok) throw new Error('Failed to fetch tunnel status');
-      const data = await response.json();
+      const _data = await response.json();
       setTunnelStatus(data.tunnelStatus || []);
       setIsLoading(false);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
       setIsLoading(false);
     }
@@ -49,8 +49,7 @@ export default function TunnelStatusGrid() {
       <div className="tunnel-grid">
         {tunnelStatus.length === 0 ? (
           <div className="no-tunnels">No tunnel information available</div>
-        ) : (
-          tunnelStatus.map((tunnel, index) => (
+        ) : (_tunnelStatus.map((tunnel, _index) => (
             <div key={index} className={`tunnel-item ${tunnel.healthy ? 'tunnel-ok' : 'tunnel-error'}`}>
               <div className="tunnel-name">{tunnel.name}</div>
               <div className="tunnel-status">

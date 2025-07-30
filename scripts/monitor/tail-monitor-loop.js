@@ -4,7 +4,7 @@ const { exec } = require('child_process');
 function safeLog(message) {
   try {
     console.log(message);
-  } catch (error) {
+  } catch (_error) {
     // Silent fail for EPIPE or other stream errors
     try {
       fs.appendFileSync('/Users/sawyer/gitSync/gpt-cursor-runner/logs/tail-monitor.log', 

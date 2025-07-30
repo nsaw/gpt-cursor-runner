@@ -1,12 +1,12 @@
-const { exec } = require('child_process');
-// const path = require('path'); // Unused import
+const { _exec } = require('child_process');
+// const _path = require('path'); // Unused import
 
-module.exports = async (req, res) => {
+module.exports = async (_req, _res) => {
   try {
-    const bootScript = '/Users/sawyer/gitSync/tm-mobile-cursor/scripts/boot-all-systems.sh';
+    const _bootScript = '/Users/sawyer/gitSync/tm-mobile-cursor/scripts/boot-all-systems.sh';
     
     // Check if script exists
-    const fs = require('fs');
+    const _fs = require('fs');
     if (!fs.existsSync(bootScript)) {
       return res.json({
         response_type: 'in_channel',
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     }
     
     // Execute boot script
-    exec(`bash ${bootScript}`, (error, stdout, stderr) => {
+    exec(_`bash ${bootScript}`, _(error, _stdout, _stderr) => {
       if (error) {
         console.error('Boot script error:', error);
         return res.json({
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       });
     });
     
-  } catch (error) {
+  } catch (_error) {
     console.error('Error in handleBoot:', error);
     res.json({
       response_type: 'in_channel',

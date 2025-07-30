@@ -5,7 +5,7 @@ const fs = require('fs/promises');
     // Ensure heartbeat directory exists
     try {
       await fs.access('.cursor-cache/CYOPS/.heartbeat');
-    } catch {
+    } catch (_error) {
       await fs.mkdir('.cursor-cache/CYOPS/.heartbeat', { recursive: true });
     }
 
@@ -26,14 +26,14 @@ const fs = require('fs/promises');
       try {
         const data = JSON.parse(await fs.readFile(p, 'utf-8'));
         Object.assign(health, data);
-      } catch (e) {
+      } catch (_e) {
         console.log(`[WARNING] Could not read ${p}: ${e.message}`);
       }
     }));
 
     await fs.writeFile('.cursor-cache/CYOPS/.heartbeat/.async-health.json', JSON.stringify(health, null, 2));
     console.log('[GHOST2] Async aggregated health written.');
-  } catch (error) {
+  } catch (_error) {
     console.error('[GHOST2] Error in async health aggregation:', error.message);
   }
 })(); 

@@ -43,7 +43,7 @@ app.get('/api/status', async (_, res) => {
     // Get comprehensive status data
     const statusData = await getComprehensiveStatus();
     res.json(statusData);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -56,7 +56,7 @@ app.get('/api/daemon-status', async (_, res) => {
       timestamp: new Date().toISOString(),
       daemon_status: daemonStatus
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -69,7 +69,7 @@ app.get('/api/patch-status', async (_, res) => {
       timestamp: new Date().toISOString(),
       patchStatus
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -82,7 +82,7 @@ app.get('/api/tunnel-status', async (_, res) => {
       timestamp: new Date().toISOString(),
       tunnelStatus
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -95,7 +95,7 @@ app.get('/api/system-health', async (_, res) => {
       timestamp: new Date().toISOString(),
       resourceHealth: systemHealth
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -114,7 +114,7 @@ app.get('/api/validate-process', async (req, res) => {
       running: isRunning,
       process: processName
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -127,7 +127,7 @@ app.get('/api/recent-logs', async (_, res) => {
       timestamp: new Date().toISOString(),
       recentLogs
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -228,7 +228,7 @@ async function getDaemonStatus() {
         });
       });
       status[process] = result.running ? 'running' : 'stopped';
-    } catch (error) {
+    } catch (_error) {
       status[process] = 'unknown';
     }
   }
@@ -347,7 +347,7 @@ function getPatchStatus() {
         patch_details: allPatches.slice(0, 10), // Full details for recent patches (all statuses)
         summary_details: summaries.slice(0, 5) // Full details for recent summaries
       };
-    } catch (error) {
+    } catch (_error) {
       console.error(`Error reading ${system} status:`, error.message);
       status[system] = { pending: 0, completed: 0, patches: [], summaries: [], patch_details: [], summary_details: [] };
     }
@@ -402,7 +402,7 @@ async function getTunnelStatus() {
           lastCheck: new Date().toISOString(),
           responseTime: Date.now()
         };
-      } catch (error) {
+      } catch (_error) {
         return {
           name: tunnel.name,
           type: tunnel.type,
@@ -437,12 +437,12 @@ async function getTunnelStatus() {
           lastCheck: new Date().toISOString()
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // ngrok check failed, continue without it
     }
     
     return tunnels;
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting tunnel status:', error);
     return [];
   }
@@ -456,7 +456,7 @@ function getSystemHealth() {
     const disk = Math.floor(Math.random() * 15) + 25; // Simulated 25-40%
     
     return { memory, cpu, disk };
-  } catch (error) {
+  } catch (_error) {
     return { memory: 0, cpu: 0, disk: 0 };
   }
 }
@@ -473,7 +473,7 @@ async function validateProcess(processName) {
       });
     });
     return result;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -511,7 +511,7 @@ function getRecentLogs() {
           size: patchExecutorStatus.length
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // Ignore if process not found
     }
     
@@ -532,7 +532,7 @@ function getRecentLogs() {
               if (logData.timestamp) {
                 return new Date(logData.timestamp) > oneHourAgo;
               }
-            } catch (error) {
+            } catch (_error) {
               // For non-JSON logs, check if file was modified recently
               const fileStats = fs.statSync(logFile);
               return fileStats.mtime > oneHourAgo;
@@ -548,7 +548,7 @@ function getRecentLogs() {
               size: fs.statSync(logFile).size
             });
           }
-        } catch (error) {
+        } catch (_error) {
           logs.push({
             file: path.basename(logFile),
             error: error.message,
@@ -586,7 +586,7 @@ function getRecentLogs() {
             system: path.basename(summaryDir),
             recent_summaries: files
           });
-        } catch (error) {
+        } catch (_error) {
           summaryLogs.push({
             system: path.basename(summaryDir),
             error: error.message
@@ -602,7 +602,7 @@ function getRecentLogs() {
       log_files: allLogs,
       recent_activity: summaryLogs
     };
-  } catch (error) {
+  } catch (_error) {
     return { 
       log_files: [{ error: error.message, timestamp: new Date().toISOString() }],
       recent_activity: []
@@ -638,7 +638,7 @@ setInterval(async () => {
   try {
     const data = await getComprehensiveStatus();
     broadcastUpdate(data);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error broadcasting update:', error);
   }
 }, 30000);

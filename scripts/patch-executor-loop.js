@@ -22,7 +22,7 @@ async function ensureDirectories() {
     await fs.mkdir(PATCH_DIR, { recursive: true });
     await fs.mkdir(MAIN_PATCH_DIR, { recursive: true });
     console.log('✅ [LOOP-EXECUTOR] Patch directories verified');
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ [LOOP-EXECUTOR] Failed to create patch directories:', error.message);
   }
 }
@@ -58,7 +58,7 @@ async function processPatches(patchDir, agentName) {
             const dir = path.dirname(mutation.path);
             try {
               await fs.access(dir);
-            } catch {
+            } catch (_error) {
               await fs.mkdir(dir, { recursive: true });
             }
 
@@ -87,7 +87,7 @@ async function processPatches(patchDir, agentName) {
           console.error(`❌ [LOOP-EXECUTOR] Failed to move ${file} to .completed:`, moveError.message);
         }
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ [LOOP-EXECUTOR] Error processing ${agentName} patch ${file}:`, error.message);
         
         // Move failed patch to .failed directory
@@ -102,7 +102,7 @@ async function processPatches(patchDir, agentName) {
       }
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error(`❌ [LOOP-EXECUTOR] Error processing ${agentName} patches:`, error.message);
   }
 }
@@ -116,7 +116,7 @@ async function processLoop() {
     // Process MAIN patches
     await processPatches(MAIN_PATCH_DIR, 'MAIN');
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ [LOOP-EXECUTOR] Processing loop error:', error.message);
   }
 }
@@ -138,7 +138,7 @@ async function runCommand(command) {
   try {
     const result = await executeCommand(command);
     return result;
-  } catch (error) {
+  } catch (_error) {
     console.error(`Command execution failed: ${error.message}`);
     throw error;
   }

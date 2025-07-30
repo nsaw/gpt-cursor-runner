@@ -29,12 +29,12 @@ class ReliableStatus {
         try {
           process.kill(pid, 0); // Signal 0 just checks if process exists
           return true;
-        } catch (e) {
+        } catch (_e) {
           // Process doesn't exist, remove stale PID file
           fs.unlinkSync(pidFile);
           return false;
         }
-      } catch (e) {
+      } catch (_e) {
         return false;
       }
     }
@@ -51,7 +51,7 @@ class ReliableStatus {
         const fileAge = now - stats.mtime;
         // Consider active if log file was modified in last 5 minutes
         return fileAge < 5 * 60 * 1000;
-      } catch (e) {
+      } catch (_e) {
         return false;
       }
     }
@@ -92,7 +92,7 @@ class ReliableStatus {
       }
             
       return status;
-    } catch (error) {
+    } catch (_error) {
       return { pending: 0, executing: 0, completed: 0, failed: 0 };
     }
   }
@@ -140,7 +140,7 @@ class ReliableStatus {
               lastCheck: new Date().toISOString(),
               url: 'https://runner.thoughtmarks.app/health'
             });
-          } catch (e) {
+          } catch (_e) {
             resolve({
               status: 'running',
               lastCheck: new Date().toISOString(),
@@ -176,7 +176,7 @@ class ReliableStatus {
         });
       }
       return [];
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

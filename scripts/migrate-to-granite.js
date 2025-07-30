@@ -46,7 +46,7 @@ class GraniteMigration {
       try {
         await step.action();
         console.log(`✅ Step ${this.currentStep} completed successfully\n`);
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ Step ${this.currentStep} failed:`, error.message);
         console.log('\n💡 You can continue manually or restart the migration.\n');
         return false;
@@ -72,7 +72,7 @@ class GraniteMigration {
     try {
       execSync('slack --version', { stdio: 'pipe' });
       console.log('✅ Slack CLI is installed');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️  Slack CLI not found. Installing...');
       try {
         execSync('npm install -g @slack/cli', { stdio: 'inherit' });
@@ -149,7 +149,7 @@ class GraniteMigration {
         stdio: 'inherit'
       });
       console.log('✅ Manifest updated successfully');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️  CLI update failed, you can update manually:');
       console.log('1. Go to your app settings');
       console.log('2. Navigate to "App Manifest"');
@@ -221,7 +221,7 @@ class GraniteMigration {
         stdio: 'inherit'
       });
       console.log('✅ Fly.io secrets updated');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠️  Failed to update Fly.io secrets. Please update manually:');
       console.log('fly secrets set SLACK_APP_TOKEN="your-token" --app gpt-cursor-runner');
     }
@@ -238,7 +238,7 @@ class GraniteMigration {
         stdio: 'inherit'
       });
       console.log('✅ Dependencies installed');
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to install dependencies');
     }
   }

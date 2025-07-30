@@ -44,7 +44,7 @@ async function routeSummary(content, filename, agent = null) {
     
     console.log(`[ROUTE-SUMMARY] ✅ Summary routed to ${agent}: ${filename}`);
     return response.data;
-  } catch (error) {
+  } catch (_error) {
     console.error(`[ROUTE-SUMMARY] ❌ Failed to route summary to ${agent}:`, error.message);
     throw error;
   }
@@ -59,7 +59,7 @@ async function updateStatus(agent, status) {
     
     console.log(`[ROUTE-SUMMARY] ✅ Status updated for ${agent}: ${status}`);
     return response.data;
-  } catch (error) {
+  } catch (_error) {
     console.error(`[ROUTE-SUMMARY] ❌ Failed to update status for ${agent}:`, error.message);
     throw error;
   }
@@ -70,7 +70,7 @@ async function getStatus() {
   try {
     const response = await axios.get(`${GHOST_RELAY_URL}/status`);
     return response.data;
-  } catch (error) {
+  } catch (_error) {
     console.error('[ROUTE-SUMMARY] ❌ Failed to get status:', error.message);
     throw error;
   }

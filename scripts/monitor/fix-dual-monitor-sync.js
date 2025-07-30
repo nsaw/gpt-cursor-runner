@@ -33,7 +33,7 @@ class DualMonitorSync {
         await this.log(`❌ ${serviceName}: UNHEALTHY - ${stdout}`);
         return false;
       }
-    } catch (error) {
+    } catch (_error) {
       await this.log(`❌ ${serviceName}: ERROR - ${error.message}`);
       return false;
     }
@@ -68,13 +68,13 @@ class DualMonitorSync {
       ]);
       
       await this.log('📡 Comprehensive Dashboard Status:');
-      await this.log(comprehensiveStatus.stdout.substring(0, 200) + '...');
+      await this.log(`${comprehensiveStatus.stdout.substring(0, 200)  }...`);
       
       await this.log('📡 Real-Time Status API:');
-      await this.log(realTimeStatus.stdout.substring(0, 200) + '...');
+      await this.log(`${realTimeStatus.stdout.substring(0, 200)  }...`);
       
       await this.log('📡 Telemetry API:');
-      await this.log(telemetryStatus.stdout.substring(0, 200) + '...');
+      await this.log(`${telemetryStatus.stdout.substring(0, 200)  }...`);
       
       // Check for patchExecutor in comprehensive dashboard
       if (comprehensiveStatus.stdout.includes('patchExecutor')) {
@@ -98,7 +98,7 @@ class DualMonitorSync {
       }
       
       return true;
-    } catch (error) {
+    } catch (_error) {
       await this.log(`❌ Error unifying daemon states: ${error.message}`);
       return false;
     }
@@ -136,7 +136,7 @@ class DualMonitorSync {
         return false;
       }
       
-    } catch (error) {
+    } catch (_error) {
       await this.log(`❌ Error force-syncing WebSocket: ${error.message}`);
       return false;
     }
@@ -156,7 +156,7 @@ class DualMonitorSync {
         await this.log('❌ Ghost bridge/executor output not detected in status API');
         return false;
       }
-    } catch (error) {
+    } catch (_error) {
       await this.log(`❌ Error validating ghost bridge flow: ${error.message}`);
       return false;
     }
@@ -197,7 +197,7 @@ class DualMonitorSync {
         return false;
       }
       
-    } catch (error) {
+    } catch (_error) {
       await this.log(`❌ Sync failed: ${error.message}`);
       return false;
     }
@@ -213,7 +213,7 @@ async function main() {
   try {
     await fs.writeFile('logs/ghost/dual-monitor-sync.log', sync.syncLog.join('\n'));
     console.log('📝 Sync log saved to logs/ghost/dual-monitor-sync.log');
-  } catch (error) {
+  } catch (_error) {
     console.log('⚠️ Could not save sync log:', error.message);
   }
   

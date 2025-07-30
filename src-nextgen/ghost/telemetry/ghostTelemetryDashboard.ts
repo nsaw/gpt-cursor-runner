@@ -159,7 +159,7 @@ class GhostTelemetryDashboard {
   constructor() {
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Telemetry dashboard initialized');
+    this.logEvent('system_startup', 'info');
   }
 
   private loadConfig(): void {
@@ -345,7 +345,7 @@ class GhostTelemetryDashboard {
         memoryUsage: 0,
         cpuUsage: 0,
         lastCheck: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error'
       };
     }
   }
@@ -411,7 +411,7 @@ class GhostTelemetryDashboard {
         handlerId: data.handlerId || 'unknown',
         correlationId: data.correlationId
       };
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -781,7 +781,7 @@ class GhostTelemetryDashboard {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Telemetry dashboard started');
+    this.logEvent('system_startup', 'info');
 
     const updateLoop = async () => {
       while (this.isRunning) {
@@ -802,7 +802,7 @@ class GhostTelemetryDashboard {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Telemetry dashboard stopped');
+    this.logEvent('system_shutdown', 'info');
   }
 
   public getState(): DashboardState {
@@ -816,7 +816,7 @@ class GhostTelemetryDashboard {
   public updateConfig(newConfig: Partial<DashboardConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', newConfig);
+    this.logEvent('config_update', 'newConfig');
   }
 
   public isHealthy(): boolean {

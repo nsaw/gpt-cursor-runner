@@ -2,7 +2,12 @@ tunnel: gpt-cursor-runner
 credentials-file: ~/.cloudflared/f1545c78-1a94-408f-ba6b-9c4223b4c2bf.json
 
 ingress:
-  # Route everything to the monitor server on port 8787
+  # Route webhook endpoint to Flask app on port 5555
+  - hostname: webhook-thoughtmarks.thoughtmarks.app
+    service: http://localhost:5555
+    originRequest:
+      noTLSVerify: true
+  # Route everything else to the monitor server on port 8787
   - hostname: gpt-cursor-runner.thoughtmarks.app
     service: http://localhost:8787
     originRequest:

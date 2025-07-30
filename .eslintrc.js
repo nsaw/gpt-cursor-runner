@@ -2,76 +2,50 @@ module.exports = {
   env: {
     node: true,
     es2021: true,
-    browser: true,
+    jest: true,
   },
   extends: [
     'eslint:recommended',
   ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 2021,
+    ecmaVersion: 12,
     sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
   },
+  plugins: ['@typescript-eslint'],
   rules: {
-    // Code style
-    'indent': ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    
-    // Best practices
-    'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
-    'no-console': 'off', // Allow console.log for development
-    'no-debugger': 'warn',
-    
-    // Node.js specific
-    'no-process-exit': 'warn',
-    'no-path-concat': 'error',
-    
-    // ES6+
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'warn',
     'prefer-const': 'error',
     'no-var': 'error',
-    'arrow-spacing': 'error',
-    
-    // Code quality
-    'complexity': ['warn', 10],
-    'max-depth': ['warn', 4],
-    'max-lines': ['warn', 500],
-    'max-params': ['warn', 5],
-    
-    // Allow async/await
+    'no-unused-vars': 'off', // Use TypeScript version instead
+    'no-undef': 'off', // TypeScript handles this
+    'no-case-declarations': 'warn',
+    'no-empty': 'warn',
+    'no-dupe-keys': 'error',
+    'no-process-exit': 'warn',
     'require-await': 'warn',
-    
-    // Allow template literals
-    'prefer-template': 'error',
-    
-    // Allow object shorthand
-    'object-shorthand': 'error',
+    'complexity': 'warn',
+    'max-lines': 'warn',
+    'max-depth': 'warn',
+    'no-constant-condition': 'warn',
   },
-  globals: {
-    // Common globals
-    'process': 'readonly',
-    'Buffer': 'readonly',
-    '__dirname': 'readonly',
-    '__filename': 'readonly',
-  },
+  ignorePatterns: ['dist/', 'node_modules/', '*.min.js'],
   overrides: [
     {
-      // Scripts directory has more relaxed rules
-      files: ['scripts/**/*.js'],
+      files: ['*.ts', '*.tsx'],
       rules: {
-        'max-lines': ['warn', 300],
-        'no-console': 'off',
+        'no-undef': 'off',
       },
     },
     {
-      // Server directory may have different requirements
-      files: ['server/**/*.js'],
-      rules: {
-        'max-lines': ['warn', 400],
+      files: ['*.test.ts', '*.test.js', '**/__tests__/**'],
+      env: {
+        jest: true,
       },
     },
   ],
-}; 
+};

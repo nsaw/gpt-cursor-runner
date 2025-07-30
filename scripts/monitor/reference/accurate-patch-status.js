@@ -83,7 +83,7 @@ class AccuratePatchStatus {
       }
             
       this.status.patches = patchStatus;
-    } catch (error) {
+    } catch (_error) {
       console.error('Error checking patch status:', error.message);
     }
   }
@@ -135,7 +135,7 @@ class AccuratePatchStatus {
               lastCheck: new Date().toISOString(),
               url: this.status.ghost.url
             };
-          } catch (e) {
+          } catch (_e) {
             this.status.ghost = {
               status: 'running',
               lastCheck: new Date().toISOString(),
@@ -173,7 +173,7 @@ class AccuratePatchStatus {
       } else {
         this.status.recentActivity = [];
       }
-    } catch (error) {
+    } catch (_error) {
       this.status.recentActivity = [];
     }
   }
@@ -203,7 +203,7 @@ class AccuratePatchStatus {
       }
             
       this.status.executionQueue = queue;
-    } catch (error) {
+    } catch (_error) {
       this.status.executionQueue = [];
     }
   }

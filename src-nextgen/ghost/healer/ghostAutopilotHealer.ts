@@ -268,7 +268,7 @@ class GhostAutopilotHealer {
       this.componentHealth.set(componentId, health);
 
       return health;
-    } catch (error) {
+    } catch (_error) {
       health.status = 'failed';
       health.lastCheck = new Date().toISOString();
       this.componentHealth.set(componentId, health);

@@ -37,7 +37,7 @@ app.get('/monitor', (req, res) => {
       ghostStatus: status,
       endpoints: ['/health', '/monitor', '/status']
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       error: 'Failed to get monitor data',
       details: error.message
@@ -68,7 +68,7 @@ app.get('/status', (req, res) => {
       diagnostics,
       ghostStatus: status
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       error: 'Failed to get status data',
       details: error.message

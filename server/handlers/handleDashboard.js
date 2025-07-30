@@ -1,4 +1,4 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
 module.exports = async ({ command, ack, respond }) => {
   await ack();
@@ -7,10 +7,10 @@ module.exports = async ({ command, ack, respond }) => {
   
   await respond({
     response_type: 'in_channel',
-    text: `📊 *GPT-Cursor Runner Dashboard*\n\n` +
+    text: '📊 *GPT-Cursor Runner Dashboard*\n\n' +
           `• Dashboard: ${dashboardUrl}/dashboard\n` +
           `• Health Check: ${dashboardUrl}/health\n` +
           `• Slack Test: ${dashboardUrl}/slack/test\n\n` +
-          `Use \`/status-runner\` to check current status.`
+          'Use `/status-runner` to check current status.'
   });
 };

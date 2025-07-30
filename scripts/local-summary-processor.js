@@ -50,7 +50,7 @@ function getFileStats(filePath) {
       created: stats.birthtime,
       modified: stats.mtime
     };
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -85,7 +85,7 @@ function processSummaryFile(filePath) {
     trySendToRunner(fileName, content);
         
     return true;
-  } catch (error) {
+  } catch (_error) {
     log(`❌ Error processing ${path.basename(filePath)}: ${error.message}`);
     return false;
   }
@@ -134,7 +134,7 @@ function monitorSummaries() {
         processSummaryFile(filePath);
       });
     }
-  } catch (error) {
+  } catch (_error) {
     log(`❌ Error monitoring summaries: ${error.message}`);
   }
 }
@@ -174,7 +174,7 @@ function getStats() {
       });
     }
         
-  } catch (error) {
+  } catch (_error) {
     console.error(`❌ Error getting stats: ${error.message}`);
   }
 }
@@ -190,7 +190,7 @@ function showLog() {
     } else {
       console.log('📝 No log file found');
     }
-  } catch (error) {
+  } catch (_error) {
     console.error(`❌ Error reading log: ${error.message}`);
   }
 }

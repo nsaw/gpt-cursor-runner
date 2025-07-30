@@ -70,7 +70,7 @@ class AgentStatusDisplay {
       }
             
       this.status.patches = status;
-    } catch (error) {
+    } catch (_error) {
       console.error('Error checking patch status:', error.message);
     }
   }
@@ -150,7 +150,7 @@ class AgentStatusDisplay {
           date: stat.mtime.toLocaleDateString()
         };
       });
-    } catch (error) {
+    } catch (_error) {
       this.status.recentActivity = [];
     }
   }

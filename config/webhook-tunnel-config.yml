@@ -1,0 +1,9 @@
+tunnel: 9401ee23-3a46-409b-b0e7-b035371afe32
+credentials-file: ~/.cloudflared/9401ee23-3a46-409b-b0e7-b035371afe32.json
+
+ingress:
+  - hostname: webhook-thoughtmarks.thoughtmarks.app
+    service: http://localhost:5555
+    originRequest:
+      noTLSVerify: true
+  - service: http_status:404 

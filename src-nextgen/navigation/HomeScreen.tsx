@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import SlotGrid from '../components/SlotGrid';
+import { SlotGrid } from '../components/SlotGrid';
 import DevModeBanner from '../components/DevModeBanner';
 
 export default function HomeScreen() {

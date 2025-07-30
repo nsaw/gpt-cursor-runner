@@ -1,9 +1,9 @@
 // Telemetry Monitor Consolidator - Phase 8 HOT3
 // Consolidates dashboard source of truth and triggers daemon lifecycle stress test
 
-import { spawn, exec } from 'child_process';
-import { existsSync, readFileSync, writeFileSync, mkdirSync, statSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { _{ _{ spawn, _exec } } } from 'child_process';
+import { _{ _{ existsSync, _readFileSync, _writeFileSync, _mkdirSync, _statSync, _readdirSync } } } from 'fs';
+import { _{ _{ join } } } from 'path';
 
 interface MonitoringEndpoint {
   name: string;
@@ -50,11 +50,11 @@ class TelemetryMonitorConsolidator {
     this.initializeEndpoints();
     this.initializeDaemons();
     this.report = this.createInitialReport();
-    this.logEvent('consolidator_started', 'Telemetry Monitor Consolidator initialized');
+    this.logEvent('consolidator_started', 'Telemetry Monitor Consolidator initialized', 'info');
   }
 
   private ensureDirectories(): void {
-    const dirs = [
+    const _dirs = [
       '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs',
       '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry'
     ];
@@ -137,7 +137,7 @@ class TelemetryMonitorConsolidator {
   }
 
   private logEvent(event: string, message: string, data?: any): void {
-    const logEntry = {
+    const _logEntry = {
       timestamp: new Date().toISOString(),
       event,
       message,
@@ -146,29 +146,29 @@ class TelemetryMonitorConsolidator {
     
     try {
       writeFileSync(this.logPath, JSON.stringify(logEntry) + '\n', { flag: 'a' });
-    } catch (error) {
+    } catch (_error) {
       console.error(`Failed to write log: ${error}`);
     }
   }
 
   private async pingEndpoint(endpoint: MonitoringEndpoint): Promise<MonitoringEndpoint> {
-    const startTime = Date.now();
+    const _startTime = Date.now();
     
-    return new Promise((resolve) => {
-      const curl = spawn('curl', ['-s', '-o', '/dev/null', '-w', '%{http_code}', endpoint.url]);
+    return new Promise(_(resolve) => {
+      const _curl = spawn('curl', ['-s', '-o', '/dev/null', '-w', '%{http_code}', endpoint.url]);
       
-      let output = '';
-      curl.stdout.on('data', (data) => {
+      let _output = '';
+      curl.stdout.on(_'data', _(data) => {
         output += data.toString();
       });
       
-      curl.stderr.on('data', (data) => {
-        this.logEvent('endpoint_error', `Failed to check ${endpoint.name}: ${data.toString()}`);
+      curl.stderr.on(_'data', _(data) => {
+        this.logEvent('endpoint_error', 'Failed to check ${endpoint.name}: ${data.toString()}', 'info');
       });
       
-      curl.on('close', (code) => {
-        const responseTime = Date.now() - startTime;
-        const statusCode = parseInt(output.trim());
+      curl.on(_'close', _(code) => {
+        const _responseTime = Date.now() - startTime;
+        const _statusCode = parseInt(output.trim());
         
         let status: 'healthy' | 'degraded' | 'failed' = 'failed';
         if (code === 0 && statusCode === 200) {
@@ -193,52 +193,52 @@ class TelemetryMonitorConsolidator {
   }
 
   private async checkProcessStatus(daemon: DaemonProcess): Promise<DaemonProcess> {
-    return new Promise((resolve) => {
-      const ps = spawn('ps', ['aux']);
-      let output = '';
+    return new Promise(_(resolve) => {
+      const _ps = spawn('ps', ['aux']);
+      let _output = '';
       
-      ps.stdout.on('data', (data) => {
+      ps.stdout.on(_'data', _(data) => {
         output += data.toString();
       });
       
-      ps.on('close', () => {
-        const isRunning = output.includes(daemon.script);
+      ps.on(_'close', _() => {
+        const _isRunning = output.includes(daemon.script);
         const updatedDaemon: DaemonProcess = {
           ...daemon,
           status: isRunning ? 'running' : 'stopped'
         };
         
-        this.logEvent('process_check', `${daemon.name} → ${updatedDaemon.status}`);
+        this.logEvent('process_check', '${daemon.name} → ${updatedDaemon.status}', 'info');
         resolve(updatedDaemon);
       });
     });
   }
 
   private async restartDaemon(daemon: DaemonProcess): Promise<{ success: boolean; error?: string }> {
-    return new Promise((resolve) => {
-      this.logEvent('daemon_restart_start', `Restarting ${daemon.name}`);
+    return new Promise(_(resolve) => {
+      this.logEvent('daemon_restart_start', 'Restarting ${daemon.name}', 'info');
       
       // Kill existing process
-      const kill = spawn('pkill', ['-f', daemon.script]);
+      const _kill = spawn('pkill', ['-f', daemon.script]);
       
-      kill.on('close', (killCode) => {
-        setTimeout(() => {
+      kill.on(_'close', _(killCode) => {
+        setTimeout(_() => {
           // Check if process is still running
-          const check = spawn('ps', ['aux']);
-          let output = '';
+          const _check = spawn('ps', ['aux']);
+          let _output = '';
           
-          check.stdout.on('data', (data) => {
+          check.stdout.on(_'data', _(data) => {
             output += data.toString();
           });
           
-          check.on('close', () => {
-            const stillRunning = output.includes(daemon.script);
+          check.on(_'close', _() => {
+            const _stillRunning = output.includes(daemon.script);
             
             if (stillRunning) {
-              this.logEvent('daemon_restart_success', `${daemon.name} restarted successfully`);
+              this.logEvent('daemon_restart_success', '${daemon.name} restarted successfully', 'info');
               resolve({ success: true });
             } else {
-              this.logEvent('daemon_restart_failed', `${daemon.name} failed to restart`);
+              this.logEvent('daemon_restart_failed', '${daemon.name} failed to restart', 'info');
               resolve({ success: false, error: 'Process not found after restart' });
             }
           });
@@ -249,15 +249,15 @@ class TelemetryMonitorConsolidator {
 
   private async checkSummaryEmission(): Promise<boolean> {
     try {
-      const summaryDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
+      const _summaryDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
       if (!existsSync(summaryDir)) {
         return false;
       }
       
-             const files = readdirSync(summaryDir).filter(f => f.endsWith('.md'));
-       const recentFiles = files.filter(f => {
+             const _files = readdirSync(summaryDir).filter(f => f.endsWith('.md'));
+       const _recentFiles = files.filter(f => {
          try {
-           const stats = statSync(join(summaryDir, f));
+           const _stats = statSync(join(summaryDir, f));
            return Date.now() - stats.mtime.getTime() < 60000; // Last minute
          } catch {
            return false;
@@ -265,14 +265,14 @@ class TelemetryMonitorConsolidator {
        });
       
       return recentFiles.length > 0;
-    } catch (error) {
-      this.logEvent('summary_check_error', `Failed to check summary emission: ${error}`);
+    } catch (_error) {
+      this.logEvent('summary_check_error', 'Failed to check summary emission: ${error}', 'info');
       return false;
     }
   }
 
   public async forceAuditAndConsolidateTelemetry(): Promise<void> {
-    this.logEvent('audit_started', 'Starting telemetry audit and consolidation');
+    this.logEvent('audit_started', 'Starting telemetry audit and consolidation', 'info');
     
     // Step 1: Audit all endpoints
     console.log('[AUDIT] Checking all monitoring endpoints...');
@@ -298,7 +298,7 @@ class TelemetryMonitorConsolidator {
     // Step 5: Generate final report
     this.generateFinalReport();
     
-    this.logEvent('audit_completed', 'Telemetry audit and consolidation completed');
+    this.logEvent('audit_completed', 'Telemetry audit and consolidation completed', 'info');
   }
 
   private analyzeAndRecommend(): void {
@@ -306,21 +306,21 @@ class TelemetryMonitorConsolidator {
     const actions: string[] = [];
     
     // Check for endpoint conflicts
-    const port5001Endpoints = this.endpoints.filter(e => e.port === 5001);
+    const _port5001Endpoints = this.endpoints.filter(e => e.port === 5001);
     if (port5001Endpoints.length > 1) {
       recommendations.push('Multiple services on port 5001 detected - consider consolidation');
       actions.push('Identified port conflict on 5001');
     }
     
     // Check for degraded endpoints
-    const degradedEndpoints = this.endpoints.filter(e => e.status === 'degraded');
+    const _degradedEndpoints = this.endpoints.filter(e => e.status === 'degraded');
     if (degradedEndpoints.length > 0) {
       recommendations.push(`${degradedEndpoints.length} endpoints showing degraded performance`);
       actions.push('Detected degraded endpoint performance');
     }
     
     // Check for stopped daemons
-    const stoppedDaemons = this.daemons.filter(d => d.status === 'stopped');
+    const _stoppedDaemons = this.daemons.filter(d => d.status === 'stopped');
     if (stoppedDaemons.length > 0) {
       recommendations.push(`${stoppedDaemons.length} daemons are stopped and need restart`);
       actions.push('Detected stopped daemon processes');
@@ -331,23 +331,23 @@ class TelemetryMonitorConsolidator {
   }
 
   private async executeStressTest(): Promise<void> {
-    const cycles = 3;
-    let successfulRestarts = 0;
-    let failedRestarts = 0;
+    const _cycles = 3;
+    let _successfulRestarts = 0;
+    let _failedRestarts = 0;
     
-    for (let cycle = 1; cycle <= cycles; cycle++) {
-      this.logEvent('stress_test_cycle', `Starting stress test cycle ${cycle}/${cycles}`);
+    for (let _cycle = 1; cycle <= cycles; cycle++) {
+      this.logEvent('stress_test_cycle', 'Starting stress test cycle ${cycle}/${cycles}', 'info');
       console.log(`[STRESS TEST] Cycle ${cycle}/${cycles} - Restarting daemons...`);
       
       for (const daemon of this.daemons) {
-        const result = await this.restartDaemon(daemon);
+        const _result = await this.restartDaemon(daemon);
         if (result.success) {
           successfulRestarts++;
           daemon.restartCount++;
           daemon.lastRestart = new Date().toISOString();
         } else {
           failedRestarts++;
-          this.logEvent('stress_test_failure', `${daemon.name} restart failed: ${result.error}`);
+          this.logEvent('stress_test_failure', '${daemon.name} restart failed: ${result.error}', 'info');
         }
         
         // Staggered recovery - wait between restarts
@@ -362,7 +362,7 @@ class TelemetryMonitorConsolidator {
     }
     
     // Check summary emission after stress test
-    const summaryEmission = await this.checkSummaryEmission();
+    const _summaryEmission = await this.checkSummaryEmission();
     
     this.report.stressTestResults = {
       cycles,
@@ -397,8 +397,8 @@ class TelemetryMonitorConsolidator {
       
       console.log('\n=== END REPORT ===\n');
       
-    } catch (error) {
-      this.logEvent('report_error', `Failed to generate report: ${error}`);
+    } catch (_error) {
+      this.logEvent('report_error', 'Failed to generate report: ${error}', 'info');
     }
   }
 
@@ -417,7 +417,7 @@ class TelemetryMonitorConsolidator {
 
 // Export functions for external use
 export function forceAuditAndConsolidateTelemetry(): void {
-  const consolidator = new TelemetryMonitorConsolidator();
+  const _consolidator = new TelemetryMonitorConsolidator();
   consolidator.forceAuditAndConsolidateTelemetry().catch(error => {
     console.error('Consolidation failed:', error);
   });

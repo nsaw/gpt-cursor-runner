@@ -1,11 +1,11 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require('../utils/stateManager');
 
-module.exports = async function handleThemeFix(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleThemeFix(_req, _res) {
+  const { _user_name } = req.body;
   console.log('⚡️ /theme-fix triggered by:', user_name);
   
   try {
-    const themeStatus = await stateManager.getThemeStatus();
+    const _themeStatus = await stateManager.getThemeStatus();
     
     if (!themeStatus.needsFix) {
       res.send('✅ Theme is already healthy. No fixes needed.');
@@ -13,7 +13,7 @@ module.exports = async function handleThemeFix(req, res) {
     }
 
     // Simulate theme fix process
-    const fixResult = {
+    const _fixResult = {
       success: true,
       fixesApplied: themeStatus.themeIssues.length,
       timestamp: new Date().toISOString()
@@ -31,7 +31,7 @@ module.exports = async function handleThemeFix(req, res) {
       fixedBy: user_name
     });
 
-    const fixText = `
+    const _fixText = `
 🔧 *Theme Fixes Applied*
 
 *Status:* ✅ Successfully applied ${fixResult.fixesApplied} fixes
@@ -48,7 +48,7 @@ ${themeStatus.themeIssues.map(issue => `• Fixed: ${issue}`).join('\n')}
     `.trim();
 
     res.send(fixText);
-  } catch (error) {
+  } catch (_error) {
     console.error('Error applying theme fixes:', error);
     res.send(`❌ Error applying theme fixes: ${error.message}`);
   }

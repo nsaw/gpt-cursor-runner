@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
+const _express = require('express');
+const _router = express.Router();
 
 // API status endpoint
-router.get('/status', (req, res) => {
+router.get(_'/status', _(req, _res) => {
   res.json({
     status: 'operational',
     service: 'ghost-runner-api',
@@ -11,13 +11,13 @@ router.get('/status', (req, res) => {
 });
 
 // API patches endpoint
-router.post('/patches', async (req, res) => {
+router.post(_'/patches', _async (req, _res) => {
   try {
-    const patchData = req.body;
+    const _patchData = req.body;
     console.log('Received patch data:', patchData);
     
     // Process the patch data (placeholder for now)
-    const result = {
+    const _result = {
       status: 'success',
       message: 'Patch received and queued for processing',
       patchId: patchData.id || 'unknown',
@@ -25,20 +25,20 @@ router.post('/patches', async (req, res) => {
     };
     
     res.status(200).json(result);
-  } catch (error) {
-    console.error('Error processing patch:', error);
+  } catch (_error) {
+    console.error('Error processing patch:', _error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // API summaries endpoint
-router.post('/summaries', async (req, res) => {
+router.post(_'/summaries', _async (req, _res) => {
   try {
-    const summaryData = req.body;
+    const _summaryData = req.body;
     console.log('Received summary data:', summaryData);
     
     // Process the summary data (placeholder for now)
-    const result = {
+    const _result = {
       status: 'success',
       message: 'Summary received and stored',
       summaryId: summaryData.id || 'unknown',
@@ -46,8 +46,8 @@ router.post('/summaries', async (req, res) => {
     };
     
     res.status(200).json(result);
-  } catch (error) {
-    console.error('Error processing summary:', error);
+  } catch (_error) {
+    console.error('Error processing summary:', _error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

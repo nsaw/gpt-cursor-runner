@@ -192,7 +192,7 @@ class GhostAlertEngine {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Alert engine initialized', 'info');
+    this.logEvent('system_startup', 'info');
   }
 
   private loadConfig(): void {
@@ -705,7 +705,7 @@ class GhostAlertEngine {
       }
     } catch (error) {
       result.status = 'failed';
-      result.error = error instanceof Error ? error.message : 'Unknown error';
+      result.error = error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error';
       
       // Retry logic
       if (action.retryCount < action.maxRetries) {
@@ -793,10 +793,7 @@ class GhostAlertEngine {
   private async sendEmailNotification(channel: NotificationChannel, message: string): Promise<void> {
     // Email notification implementation would go here
     // For now, just log the attempt
-    this.logEvent('email_notification', 'Email notification sent', 'info', {
-      to: channel.config.to,
-      message
-    });
+    this.logEvent('email_notification', 'Email notification sent');
   }
 
   private async sendWebhook(action: AlertAction, alertEvent: AlertEvent): Promise<void> {
@@ -829,10 +826,7 @@ class GhostAlertEngine {
         throw new Error(`Command stderr: ${stderr}`);
       }
 
-      this.logEvent('command_executed', 'Command executed successfully', 'info', {
-        command,
-        output: stdout
-      });
+      this.logEvent('command_executed', 'Command executed successfully');
     } catch (error) {
       throw new Error(`Failed to execute command: ${error}`);
     }
@@ -944,10 +938,7 @@ class GhostAlertEngine {
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Alert status sent', 'info', {
-          activeAlerts: this.state.activeAlerts.length,
-          totalAlerts: this.state.alertHistory.length
-        });
+        this.logEvent('component_error', '27480');
       }
     } catch (error) {
       this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
@@ -969,10 +960,7 @@ class GhostAlertEngine {
         // Send to dashboard
         await this.sendToDashboard();
         
-        this.logEvent('monitoring_cycle', 'Alert monitoring cycle completed', 'info', {
-          activeAlerts: this.state.activeAlerts.length,
-          rulesEvaluated: this.state.rules.length
-        });
+        this.logEvent('monitoring_cycle', 'Alert monitoring cycle completed');
         
         await new Promise(resolve => setTimeout(resolve, this.config.monitoring.intervalMs));
       } catch (error) {
@@ -986,7 +974,7 @@ class GhostAlertEngine {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Alert engine started', 'info');
+    this.logEvent('system_startup', 'info');
 
     this.monitoringLoop().catch(error => {
       this.logEvent('system_error', `Monitoring loop failed: ${error}`, 'critical');
@@ -995,7 +983,7 @@ class GhostAlertEngine {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Alert engine stopped', 'info');
+    this.logEvent('system_shutdown', 'info');
     await this.saveState();
   }
 
@@ -1010,7 +998,7 @@ class GhostAlertEngine {
   public updateConfig(newConfig: Partial<AlertEngineConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig');
   }
 
   public getActiveAlerts(): AlertEvent[] {
@@ -1045,14 +1033,14 @@ class GhostAlertEngine {
 
   public addRule(rule: AlertRule): void {
     this.state.rules.push(rule);
-    this.logEvent('rule_added', 'Alert rule added', 'info', { ruleId: rule.id, ruleName: rule.name });
+    this.logEvent('rule_added', 'Alert rule added');
   }
 
   public removeRule(ruleId: string): boolean {
     const index = this.state.rules.findIndex(r => r.id === ruleId);
     if (index !== -1) {
       const rule = this.state.rules.splice(index, 1)[0];
-      this.logEvent('rule_removed', 'Alert rule removed', 'info', { ruleId: rule.id, ruleName: rule.name });
+      this.logEvent('rule_removed', 'Alert rule removed');
       return true;
     }
     return false;
@@ -1064,7 +1052,7 @@ class GhostAlertEngine {
 
   public clearHistory(): void {
     this.state.alertHistory = [];
-    this.logEvent('system_maintenance', 'Alert history cleared', 'info');
+    this.logEvent('component_error', '30753');
   }
 }
 

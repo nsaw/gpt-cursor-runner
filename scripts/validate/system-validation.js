@@ -71,7 +71,7 @@ function loadAllEndpoints() {
 
       return endpoints;
     }
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to load endpoints from TUNNELS.json:', error.message);
   }
   
@@ -124,7 +124,7 @@ class SystemValidator {
         };
         
         this.log(`  ${check.name}: ${this.results.pathRouting[check.name].status}`);
-      } catch (error) {
+      } catch (_error) {
         this.results.pathRouting[check.name] = {
           exists: false,
           writable: false,
@@ -152,7 +152,7 @@ class SystemValidator {
       };
       
       this.log(`  Unified Monitor Log: ${this.results.monitoring.log.status}`);
-    } catch (error) {
+    } catch (_error) {
       this.results.monitoring.log = {
         exists: false,
         hasRecentActivity: false,
@@ -182,7 +182,7 @@ class SystemValidator {
       };
       
       this.log(`  Unified Monitor Heartbeat: ${this.results.monitoring.heartbeat.status}`);
-    } catch (error) {
+    } catch (_error) {
       this.results.monitoring.heartbeat = {
         exists: false,
         isRecent: false,
@@ -207,7 +207,7 @@ class SystemValidator {
         };
         
         this.log(`  ${processName}: ${this.results.processes[processName].status}`);
-      } catch (error) {
+      } catch (_error) {
         this.results.processes[processName] = {
           running: false,
           status: 'FAIL',
@@ -235,7 +235,7 @@ class SystemValidator {
         };
         
         this.log(`  ${endpoint.name} (${endpoint.type}): ${this.results.health[endpoint.name].status}`);
-      } catch (error) {
+      } catch (_error) {
         this.results.health[endpoint.name] = {
           reachable: false,
           status: 'FAIL',

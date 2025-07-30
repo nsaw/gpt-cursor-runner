@@ -33,7 +33,7 @@ function getProcessCounts() {
     const totalCount = pythonCount + nodeCount;
     
     return { pythonCount, nodeCount, totalCount };
-  } catch (error) {
+  } catch (_error) {
     log(`Error getting process counts: ${error.message}`);
     return { pythonCount: 0, nodeCount: 0, totalCount: 0 };
   }
@@ -52,7 +52,7 @@ function killExcessProcesses() {
     try {
       execSync('pkill -f "python3.*gpt_cursor_runner"', { stdio: 'ignore' });
       killed += excess;
-    } catch (error) {
+    } catch (_error) {
       log(`Error killing Python processes: ${error.message}`);
     }
   }
@@ -64,7 +64,7 @@ function killExcessProcesses() {
     try {
       execSync('pkill -f "node.*server"', { stdio: 'ignore' });
       killed += excess;
-    } catch (error) {
+    } catch (_error) {
       log(`Error killing Node processes: ${error.message}`);
     }
   }
@@ -76,7 +76,7 @@ function killExcessProcesses() {
     try {
       execSync('pkill -f "gpt_cursor_runner"', { stdio: 'ignore' });
       killed += excess;
-    } catch (error) {
+    } catch (_error) {
       log(`Error killing total processes: ${error.message}`);
     }
   }
@@ -101,7 +101,7 @@ function checkPortConflicts() {
       if (lines.length > 1) { // More than just the header
         conflicts.push(port);
       }
-    } catch (error) {
+    } catch (_error) {
       // Port is free
     }
   }
@@ -113,7 +113,7 @@ function checkPortConflicts() {
       try {
         execSync(`lsof -ti :${port} | xargs kill -9`, { stdio: 'ignore' });
         log(`Killed processes on port ${port}`);
-      } catch (error) {
+      } catch (_error) {
         log(`Error killing processes on port ${port}: ${error.message}`);
       }
     }
@@ -133,7 +133,7 @@ function monitorSystem() {
       if (killed > 0 || conflicts > 0) {
         log(`System cleanup completed - Killed: ${killed}, Port conflicts: ${conflicts}`);
       }
-    } catch (error) {
+    } catch (_error) {
       log(`Error in monitoring loop: ${error.message}`);
     }
   }, 30000); // Check every 30 seconds

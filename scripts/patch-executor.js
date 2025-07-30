@@ -16,7 +16,7 @@ const { exec } = require('child_process');
     // Ensure patch directory exists
     try {
       await fs.access(patchDir);
-    } catch {
+    } catch (_error) {
       await fs.mkdir(patchDir, { recursive: true });
     }
 
@@ -40,16 +40,19 @@ const { exec } = require('child_process');
         
         const patchData = JSON.parse(await fs.readFile(patchFile, 'utf8'));
 
+        // Handle GPT's nested patch structure
+        const actualPatch = patchData.patch && typeof patchData.patch === 'object' ? patchData.patch : patchData;
+
         // Execute patch mutations with await
-        if (patchData.mutations) {
-          for (const mutation of patchData.mutations) {
+        if (actualPatch.mutations) {
+          for (const mutation of actualPatch.mutations) {
             console.log(`[EXECUTOR] Applying mutation to: ${mutation.path}`);
 
             // Create directory if needed
             const dir = path.dirname(mutation.path);
             try {
               await fs.access(dir);
-            } catch {
+            } catch (_error) {
               await fs.mkdir(dir, { recursive: true });
             }
 
@@ -58,9 +61,15 @@ const { exec } = require('child_process');
           }
         }
 
+        // Execute GPT patch command (if present and it's a string)
+        if (patchData.patch && typeof patchData.patch === 'string') {
+          console.log(`[EXECUTOR] Running GPT patch command: ${patchData.patch}`);
+          await runCommand(patchData.patch);
+        }
+
         // Execute post-mutation build commands
-        if (patchData.postMutationBuild && patchData.postMutationBuild.shell) {
-          for (const command of patchData.postMutationBuild.shell) {
+        if (actualPatch.postMutationBuild && actualPatch.postMutationBuild.shell) {
+          for (const command of actualPatch.postMutationBuild.shell) {
             console.log(`[EXECUTOR] Running: ${command}`);
             await runCommand(command);
           }
@@ -97,7 +106,7 @@ const { exec } = require('child_process');
     console.log('[EXECUTOR] ✅ Patch execution successful: All patches processed successfully.');
 
   } catch (error) {
-    console.error('[EXECUTOR] ❌ Patch processing failed:', error.message);
+    console.error('[EXECUTOR] ❌ Patch processing failed:', error ? error.message : 'Unknown error');
     process.exit(1);
   }
 })(); 

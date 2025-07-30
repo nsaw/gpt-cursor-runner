@@ -9,7 +9,7 @@ const EXEC = path.join(__dirname, '../patch-executor.js');
 function safeLog(msg) {
   try {
     console.log(msg);
-  } catch (error) {
+  } catch (_error) {
     // Silent fail for EPIPE or other stream errors
     try {
       fs.appendFileSync('/Users/sawyer/gitSync/gpt-cursor-runner/logs/patch-watchdog.log', 
@@ -22,7 +22,7 @@ function log(msg) {
   const line = `[${new Date().toISOString()}] ${msg}\n`;
   try {
     fs.appendFileSync(LOG, line);
-  } catch (error) {
+  } catch (_error) {
     // Fallback to safe log if file write fails
     safeLog(`[WATCHDOG_LOG_ERROR] ${error.message}`);
   }
@@ -66,7 +66,7 @@ function startPatchExecutor() {
         safeLog(`[WATCHDOG_ERROR] pgrep error: ${error.message}`);
       });
       
-    } catch (error) {
+    } catch (_error) {
       safeLog(`[WATCHDOG_ERROR] Watchdog loop error: ${error.message}`);
     }
     

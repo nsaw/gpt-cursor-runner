@@ -40,7 +40,7 @@ function updateStatus(agent, status) {
   try {
     fs.writeFileSync(logPath, statusUpdate);
     console.log(`[GHOST-RELAY] Updated ${agent} status: ${status}`);
-  } catch (error) {
+  } catch (_error) {
     console.error(`[GHOST-RELAY] Error updating ${agent} status:`, error.message);
   }
 }
@@ -63,7 +63,7 @@ function monitorAgents() {
         return stats.mtime.getTime() > fiveMinutesAgo;
       });
       cyopsStatus = recentFiles.length > 0 ? 'Active' : 'Idle';
-    } catch (error) {
+    } catch (_error) {
       cyopsStatus = 'Error';
     }
   }
@@ -80,7 +80,7 @@ function monitorAgents() {
         return stats.mtime.getTime() > fiveMinutesAgo;
       });
       mainStatus = recentFiles.length > 0 ? 'Active' : 'Idle';
-    } catch (error) {
+    } catch (_error) {
       mainStatus = 'Error';
     }
   }
@@ -149,7 +149,7 @@ app.post('/summary/:agent', (req, res) => {
     fs.writeFileSync(filePath, content);
     updateStatus(agent, `Summary delivered: ${filename}`);
     res.json({ success: true, agent, filename, path: filePath });
-  } catch (error) {
+  } catch (_error) {
     console.error(`[GHOST-RELAY] Error writing summary for ${agent}:`, error.message);
     res.status(500).json({ error: 'Failed to write summary' });
   }
@@ -158,7 +158,7 @@ app.post('/summary/:agent', (req, res) => {
 function tryRead(p) {
   try {
     return fs.readFileSync(p, 'utf8');
-  } catch {
+  } catch (_error) {
     return '[Unavailable]';
   }
 }

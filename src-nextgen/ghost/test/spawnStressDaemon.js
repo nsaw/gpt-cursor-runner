@@ -1,9 +1,9 @@
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs').promises;
-const path = require('path');
+const { _exec } = require('child_process');
+const { _promisify } = require('util');
+const _fs = require('fs').promises;
+const _path = require('path');
 
-const execAsync = promisify(exec);
+const _execAsync = promisify(exec);
 
 class StressDaemon {
   constructor() {
@@ -14,7 +14,7 @@ class StressDaemon {
   }
 
   async createDummyPatch(patchId) {
-    const patchContent = {
+    const _patchContent = {
       id: patchId,
       type: 'unified',
       metadata: {
@@ -46,7 +46,7 @@ class StressDaemon {
       }
     };
 
-    const patchPath = path.join(process.cwd(), 'patches', `${patchId}.json`);
+    const _patchPath = path.join(process.cwd(), 'patches', `${patchId}.json`);
     await fs.writeFile(patchPath, JSON.stringify(patchContent, null, 2));
     
     console.log(`[STRESS-DAEMON] Created dummy patch: ${patchId}`);
@@ -71,18 +71,18 @@ class StressDaemon {
       // Send status update to real-time API
       try {
         await execAsync(`curl -s -X POST http://localhost:8789/api/webhooks/patch-event -H "Content-Type: application/json" -d '{"patchId": "${patchId}", "status": "completed", "timestamp": "${new Date().toISOString()}"}'`);
-      } catch (error) {
+      } catch (_error) {
         console.log(`[STRESS-DAEMON] Could not send status update for ${patchId}`);
       }
       
-    } catch (error) {
+    } catch (_error) {
       console.log(`[STRESS-DAEMON] ❌ Patch ${patchId} failed: ${error.message}`);
       this.failedPatches.push({ patchId, error: error.message });
       
       // Send failure status to real-time API
       try {
         await execAsync(`curl -s -X POST http://localhost:8789/api/webhooks/patch-event -H "Content-Type: application/json" -d '{"patchId": "${patchId}", "status": "failed", "error": "${error.message}", "timestamp": "${new Date().toISOString()}"}'`);
-      } catch (apiError) {
+      } catch (_apiError) {
         console.log(`[STRESS-DAEMON] Could not send failure status for ${patchId}`);
       }
     } finally {
@@ -99,28 +99,28 @@ class StressDaemon {
     console.log(`[STRESS-DAEMON] Starting stress test with ${patchCount} patches...`);
     this.isRunning = true;
     
-    const startTime = Date.now();
+    const _startTime = Date.now();
     
     // Create patches directory if it doesn't exist
     try {
       await fs.mkdir(path.join(process.cwd(), 'patches'), { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Directory might already exist
     }
 
     // Create and execute patches
-    const patchPromises = [];
+    const _patchPromises = [];
     
     for (let i = 1; i <= patchCount; i++) {
-      const patchId = `stress-test-${Date.now()}-${i}`;
+      const _patchId = `stress-test-${Date.now()}-${i}`;
       this.activePatches.add(patchId);
       
       // Create patch file
       await this.createDummyPatch(patchId);
       
       // Execute patch with slight delay to simulate real-world conditions
-      const executePromise = new Promise((resolve) => {
-        setTimeout(async () => {
+      const _executePromise = new Promise(_(resolve) => {
+        setTimeout(_async () => {
           await this.executePatch(patchId);
           resolve();
         }, i * 500); // Stagger execution
@@ -132,11 +132,11 @@ class StressDaemon {
     // Wait for all patches to complete
     await Promise.all(patchPromises);
     
-    const endTime = Date.now();
-    const duration = endTime - startTime;
+    const _endTime = Date.now();
+    const _duration = endTime - startTime;
     
     console.log(`[STRESS-DAEMON] Stress test completed in ${duration}ms`);
-    console.log(`[STRESS-DAEMON] Results:`);
+    console.log('[STRESS-DAEMON] Results:');
     console.log(`  - Total patches: ${patchCount}`);
     console.log(`  - Completed: ${this.completedPatches.length}`);
     console.log(`  - Failed: ${this.failedPatches.length}`);
@@ -145,8 +145,8 @@ class StressDaemon {
     this.isRunning = false;
     
     // Log results to monitor sync log
-    const logMessage = '[STRESS-TEST] ' + new Date().toISOString() + ' - Completed ' + patchCount + ' patches: ' + this.completedPatches.length + ' success, ' + this.failedPatches.length + ' failed';
-    await execAsync('echo \'' + logMessage + '\' >> logs/ghost/monitor-sync.log');
+    const _logMessage = `[STRESS-TEST] ${  new Date().toISOString()  } - Completed ${  patchCount  } patches: ${  this.completedPatches.length  } success, ${  this.failedPatches.length  } failed`;
+    await execAsync(`echo '${  logMessage  }' >> logs/ghost/monitor-sync.log`);
     
     return {
       total: patchCount,
@@ -168,10 +168,10 @@ class StressDaemon {
 }
 
 // Export singleton instance
-const stressDaemon = new StressDaemon();
+const _stressDaemon = new StressDaemon();
 
 module.exports = {
-  startStress: (count) => stressDaemon.startStress(count),
+  startStress: (_count) => stressDaemon.startStress(count),
   getStatus: () => stressDaemon.getStatus(),
   stressDaemon
 }; 

@@ -171,7 +171,7 @@ class GhostLoopAuditor {
   constructor() {
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Loop auditor initialized', 'info');
+    this.logEvent('system_startup', 'Loop auditor started', 'info');
   }
 
   private loadConfig(): void {
@@ -184,7 +184,7 @@ class GhostLoopAuditor {
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`, 'error');
+      this.logEvent('config_error', `Failed to load config: ${error}`);
       this.config = this.getDefaultConfig();
     }
   }
@@ -247,7 +247,7 @@ class GhostLoopAuditor {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('config_error', `Failed to save config: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to save config: ${error}`);
     }
   }
 
@@ -260,7 +260,7 @@ class GhostLoopAuditor {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to load state: ${error}`);
       this.state = this.getInitialState();
     }
   }
@@ -432,9 +432,7 @@ class GhostLoopAuditor {
     const cycle = this.activeLoops.get(loopId);
     if (cycle) {
       cycle.daemonStatus = daemonStatus;
-      this.logEvent('loop_complete', 'Daemon status updated', 'info', {
-        daemonCount: daemonStatus.length
-      }, loopId);
+      this.logEvent('loop_complete', 'Daemon status updated', 'info');
     }
   }
 
@@ -447,12 +445,7 @@ class GhostLoopAuditor {
     const cycle = this.activeLoops.get(loopId);
     if (cycle) {
       cycle.validationResults = validationResults;
-      this.logEvent('validation_complete', 'Validation completed', 'info', {
-        passed: validationResults.passed,
-        errors: validationResults.errors.length,
-        warnings: validationResults.warnings.length,
-        processingTime: validationResults.processingTime
-      }, loopId);
+      this.logEvent('validation_complete', 'Validation completed', 'info');
     }
   }
 
@@ -465,11 +458,7 @@ class GhostLoopAuditor {
     const cycle = this.activeLoops.get(loopId);
     if (cycle) {
       cycle.relayResults = relayResults;
-      this.logEvent('relay_complete', 'Relay completed', 'info', {
-        success: relayResults.success,
-        responseTime: relayResults.responseTime,
-        sanitized: relayResults.sanitized
-      }, loopId);
+      this.logEvent('relay_complete', 'Relay completed', 'info');
     }
   }
 
@@ -624,21 +613,17 @@ class GhostLoopAuditor {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(auditorStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`, 'error');
+      this.logEvent('state_error', `Failed to save state: ${error}`);
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('dashboard_integration', 'Loop auditor data sent to dashboard', 'info', {
-          metrics: this.state.metrics,
-          anomalyCount: this.state.anomalies.length,
-          activeLoops: this.activeLoops.size
-        });
+        this.logEvent('loop_error', 'Component error detected', 'error');
       }
     } catch (error) {
-      this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
     }
   }
 
@@ -665,7 +650,7 @@ class GhostLoopAuditor {
         
         await new Promise(resolve => setTimeout(resolve, this.config.monitoring.intervalMs));
       } catch (error) {
-        this.logEvent('monitoring_error', `Monitoring loop error: ${error}`, 'error');
+        this.logEvent('component_error', `Monitoring loop error: ${error}`, 'error');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -678,13 +663,13 @@ class GhostLoopAuditor {
     this.logEvent('system_startup', 'Loop auditor started', 'info');
 
     this.monitoringLoop().catch(error => {
-      this.logEvent('system_error', `Monitoring loop failed: ${error}`, 'critical');
+      this.logEvent('component_error', `Monitoring loop failed: ${error}`, 'critical');
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'Loop auditor stopped', 'info');
+    this.logEvent('system_shutdown', 'info', 'info');
     await this.saveState();
   }
 
@@ -699,7 +684,7 @@ class GhostLoopAuditor {
   public updateConfig(newConfig: Partial<LoopAuditorConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'Configuration updated', 'info', newConfig);
+    this.logEvent('config_update', 'newConfig', 'info');
   }
 
   public getMetrics(): LoopAuditorState['metrics'] {
@@ -729,7 +714,7 @@ class GhostLoopAuditor {
     this.state.loopCycles = [];
     this.state.anomalies = [];
     this.activeLoops.clear();
-    this.logEvent('system_maintenance', 'Loop auditor history cleared', 'info');
+    this.logEvent('loop_error', 'Component error detected', 'error');
   }
 }
 

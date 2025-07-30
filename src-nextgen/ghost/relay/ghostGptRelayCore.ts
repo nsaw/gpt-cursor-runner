@@ -119,7 +119,7 @@ class GhostGptRelayCore {
         this.saveConfig();
       }
     } catch (error) {
-      console.error('[GhostGptRelayCore] Error loading config:', error);
+      console.error('[GhostGptRelayCorerror] Error loading config:', error);
       this.config = this.getDefaultConfig();
     }
   }
@@ -170,7 +170,7 @@ class GhostGptRelayCore {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      console.error('[GhostGptRelayCore] Error saving config:', error);
+      console.error('[GhostGptRelayCorerror] Error saving config:', error);
     }
   }
 
@@ -360,7 +360,7 @@ class GhostGptRelayCore {
         timestamp: new Date().toISOString(),
         success: false,
         content: '',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : String(error),
         processingTime,
         sanitized: false
       };
@@ -400,7 +400,7 @@ class GhostGptRelayCore {
       this.activeRequests.delete(request.id);
 
     } catch (error) {
-      console.error(`[GhostGptRelayCore] Error processing request ${request.id}:`, error);
+      console.error(`[GhostGptRelayCorerror] Error processing request ${request.id}:`, error);
       this.activeRequests.delete(request.id);
     }
   }
@@ -417,7 +417,7 @@ class GhostGptRelayCore {
         }
       }
     } catch (error) {
-      console.error('[GhostGptRelayCore] Error processing queue:', error);
+      console.error('[GhostGptRelayCorerror] Error processing queuerror:', error);
     }
   }
 
@@ -452,7 +452,7 @@ class GhostGptRelayCore {
     if (this.isRunning) return;
     
     this.isRunning = true;
-    console.log('[GhostGptRelayCore] Starting GPT relay core...');
+    console.log('[GhostGptRelayCorerror] Starting GPT relay corerror...');
     
     // Start queue processing
     setInterval(async () => {
@@ -464,7 +464,7 @@ class GhostGptRelayCore {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    console.log('[GhostGptRelayCore] Stopping GPT relay core...');
+    console.log('[GhostGptRelayCorerror] Stopping GPT relay corerror...');
   }
 
   public getConfig(): RelayConfig {

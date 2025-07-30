@@ -25,7 +25,7 @@ app.get('/ghost', async (req, res) => {
       });
       diffTable += '</table>';
     }
-  } catch (err) {
+  } catch (_err) {
     diffTable = '<p>Error loading diffs</p>';
   }
 
@@ -35,7 +35,7 @@ app.get('/ghost', async (req, res) => {
   try {
     const lines = fs.readFileSync(flyLogPath, 'utf-8').split('\n').slice(-10).join('<br>');
     flyLogTail = `<h3>Fly.io Status</h3><pre>${lines}</pre>`;
-  } catch (e) {
+  } catch (_e) {
     flyLogTail = '<p>Fly log unavailable</p>';
   }
 
@@ -55,7 +55,7 @@ ${flyLogTail}`);
 function tryRead(p) {
   try {
     return fs.readFileSync(p, 'utf8');
-  } catch {
+  } catch (_error) {
     return '[Unavailable]';
   }
 }

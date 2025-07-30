@@ -32,7 +32,7 @@ try {
   console.log('✅ ghost-status.json updated with live status');
   console.log(`📁 Written to: ${jsonPath}`);
   console.log(`📊 Output length: ${output.length} characters`);
-} catch (err) {
+} catch (_err) {
   console.error('❌ Failed to write ghost-status.json:', err.message);
   process.exit(1);
 } 

@@ -75,7 +75,7 @@ class CommandValidator {
 
       this.validationResults.details.push(result);
       return result;
-    } catch (error) {
+    } catch (_error) {
       console.error(`Error validating ${filePath}:`, error.message);
       return { file: path.basename(filePath), status: 'ERROR', error: error.message };
     }
@@ -122,7 +122,7 @@ class CommandValidator {
             files.push(fullPath);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         console.error(`Error scanning directory ${currentPath}:`, error.message);
       }
     }
