@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, List
 
 class EventLogger:
     """Centralized event logging system."""
-    
+
     def __init__(self, log_file: str = "data/event-log.json"):
         self.log_file = log_file
         self.max_entries = 1000
@@ -48,8 +48,11 @@ class EventLogger:
             print(f"Error reading log file: {e}")
             try:
                 from .slack_proxy import create_slack_proxy
+
                 slack_proxy = create_slack_proxy()
-                slack_proxy.notify_error(f"Error reading log file: {e}", context=self.log_file)
+                slack_proxy.notify_error(
+                    f"Error reading log file: {e}", context=self.log_file
+                )
             except Exception:
                 pass
             return {
@@ -58,7 +61,12 @@ class EventLogger:
                 "total_events": 0,
             }
 
-    def log_patch_event(self, event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
+    def log_patch_event(
+        self,
+        event_type: str,
+        patch_data: Dict[str, Any],
+        result: Optional[Dict[str, Any]] = None,
+    ):
         """Log patch-related events."""
         event = {
             "id": f"patch_{int(time.time() * 1000)}",
@@ -74,7 +82,12 @@ class EventLogger:
         }
         self._add_event(event)
 
-    def log_slack_event(self, event_type: str, slack_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
+    def log_slack_event(
+        self,
+        event_type: str,
+        slack_data: Dict[str, Any],
+        result: Optional[Dict[str, Any]] = None,
+    ):
         """Log Slack-related events."""
         event = {
             "id": f"slack_{int(time.time() * 1000)}",
@@ -107,30 +120,32 @@ class EventLogger:
         log_data["last_updated"] = datetime.now().isoformat()
         log_data["total_events"] = len(log_data["events"])
         if len(log_data["events"]) > self.max_entries:
-            log_data["events"] = log_data["events"][-self.max_entries:]
+            log_data["events"] = log_data["events"][-self.max_entries :]
         self._write_log(log_data)
 
-    def get_recent_events(self, limit: int = 50, event_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_recent_events(
+        self, limit: int = 50, event_type: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """Get recent events, optionally filtered by type."""
         log_data = self._read_log()
         events = log_data.get("events", [])
-        
+
         if event_type:
             events = [e for e in events if e.get("event_type") == event_type]
-        
+
         return events[-limit:]
 
     def get_event_summary(self) -> Dict[str, Any]:
         """Get event summary statistics."""
         log_data = self._read_log()
         events = log_data.get("events", [])
-        
+
         # Count events by type
         event_counts = {}
         for event in events:
             event_type = event.get("type", "unknown")
             event_counts[event_type] = event_counts.get(event_type, 0) + 1
-        
+
         return {
             "total_events": len(events),
             "event_counts": event_counts,
@@ -151,21 +166,26 @@ class EventLogger:
         log_data = self._read_log()
         events = log_data.get("events", [])
         filtered_events = []
-        
+
         for event in events:
             try:
-                event_time = datetime.fromisoformat(event.get("timestamp", "")).timestamp()
+                event_time = datetime.fromisoformat(
+                    event.get("timestamp", "")
+                ).timestamp()
                 if event_time > cutoff_time:
                     filtered_events.append(event)
             except Exception as e:
                 filtered_events.append(event)
                 try:
                     from .slack_proxy import create_slack_proxy
+
                     slack_proxy = create_slack_proxy()
-                    slack_proxy.notify_error(f"Error parsing event timestamp: {e}", context=self.log_file)
+                    slack_proxy.notify_error(
+                        f"Error parsing event timestamp: {e}", context=self.log_file
+                    )
                 except Exception:
                     pass
-        
+
         log_data["events"] = filtered_events
         log_data["total_events"] = len(filtered_events)
         log_data["last_updated"] = datetime.now().isoformat()

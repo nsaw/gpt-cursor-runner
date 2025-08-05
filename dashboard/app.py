@@ -9,49 +9,51 @@ from flask import Flask, render_template, jsonify
 import json
 import os
 import time
-import requests
+import requests  # type: ignore
 from datetime import datetime
 import subprocess
 import threading
+from typing import Dict, Any, Optional
 
 app = Flask(__name__)
 
 # Configuration
 CONFIG = {
-    'LOG_FILE': '/Users/sawyer/gitSync/gpt-cursor-runner/logs/unified-monitor.log',
-    'HEARTBEAT_FILE': '/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat/.unified-monitor.json',
-    'TUNNELS_FILE': '/Users/sawyer/gitSync/.cursor-cache/.docs/TUNNELS.json',
-    'CYOPS_PATCHES': '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches',
-    'CYOPS_SUMMARIES': '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries',
-    'MAIN_PATCHES': '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches',
-    'MAIN_SUMMARIES': '/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries',
-    'TELEMETRY_API_URL': 'http://localhost:8788'
+    "LOG_FILE": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/unified-monitor.log",
+    "HEARTBEAT_FILE": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat/.unified-monitor.json",
+    "TUNNELS_FILE": "/Users/sawyer/gitSync/.cursor-cache/.docs/TUNNELS.json",
+    "CYOPS_PATCHES": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches",
+    "CYOPS_SUMMARIES": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
+    "MAIN_PATCHES": "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches",
+    "MAIN_SUMMARIES": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries",
+    "TELEMETRY_API_URL": "http://localhost:8789",
 }
 
+
 class DashboardData:
-    def __init__(self):
-        self.last_update = None
-        self.data = {}
-        self.update_interval = 30  # seconds
-        self.telemetry_data = {}
-        
-    def load_unified_monitor_data(self):
+    def __init__(self) -> None:
+        self.last_update: Optional[datetime] = None
+        self.data: Dict[str, Any] = {}
+        self.update_interval: int = 30  # seconds
+        self.telemetry_data: Dict[str, Any] = {}
+
+    def load_unified_monitor_data(self) -> bool:
         """Load data from unified system monitor"""
         try:
-            if os.path.exists(CONFIG['HEARTBEAT_FILE']):
-                with open(CONFIG['HEARTBEAT_FILE'], 'r') as f:
+            if os.path.exists(CONFIG["HEARTBEAT_FILE"]):
+                with open(CONFIG["HEARTBEAT_FILE"], "r") as f:
                     data = json.load(f)
-                    self.data['unified_monitor'] = data
+                    self.data["unified_monitor"] = data
                     return True
         except Exception as e:
             print(f"Error loading unified monitor data: {e}")
         return False
-    
-    def load_recent_logs(self):
+
+    def load_recent_logs(self) -> bool:
         """Load last 10 log entries"""
         try:
-            if os.path.exists(CONFIG['LOG_FILE']):
-                with open(CONFIG['LOG_FILE'], 'r') as f:
+            if os.path.exists(CONFIG["LOG_FILE"]):
+                with open(CONFIG["LOG_FILE"], "r") as f:
                     lines = f.readlines()
                     recent_lines = lines[-10:] if len(lines) > 10 else lines
                     logs = []
@@ -59,544 +61,918 @@ class DashboardData:
                         try:
                             log_entry = json.loads(line.strip())
                             logs.append(log_entry)
-                        except:
-                            logs.append({'message': line.strip(), 'timestamp': datetime.now().isoformat()})
-                    self.data['recent_logs'] = logs
+                        except Exception:
+                            logs.append(
+                                {
+                                    "message": line.strip(),
+                                    "timestamp": datetime.now().isoformat(),
+                                }
+                            )
+                    self.data["recent_logs"] = logs
                     return True
         except Exception as e:
             print(f"Error loading recent logs: {e}")
         return False
-    
-    def load_patch_status(self):
+
+    def load_patch_status(self) -> bool:
         """Load patch status for both systems"""
         try:
             patch_data = {}
-            
+
             # CYOPS patches
-            if os.path.exists(CONFIG['CYOPS_PATCHES']):
-                cyops_patches = [f for f in os.listdir(CONFIG['CYOPS_PATCHES']) 
-                               if f.endswith('.json') and not f.startswith('.')]
-                cyops_summaries = [f for f in os.listdir(CONFIG['CYOPS_SUMMARIES']) 
-                                 if f.endswith('.md') and not f.startswith('.')]
-                patch_data['CYOPS'] = {
-                    'pending': len(cyops_patches),
-                    'completed': len(cyops_summaries),
-                    'patches': cyops_patches[:5],  # Show last 5
-                    'summaries': cyops_summaries[:5]  # Show last 5
+            if os.path.exists(CONFIG["CYOPS_PATCHES"]):
+                cyops_patches = [
+                    f
+                    for f in os.listdir(CONFIG["CYOPS_PATCHES"])
+                    if f.endswith(".json") and not f.startswith(".")
+                ]
+                cyops_summaries = [
+                    f
+                    for f in os.listdir(CONFIG["CYOPS_SUMMARIES"])
+                    if f.endswith(".md") and not f.startswith(".")
+                ]
+                patch_data["CYOPS"] = {
+                    "pending": len(cyops_patches),
+                    "completed": len(cyops_summaries),
+                    "patches": cyops_patches[:5],  # Show last 5
+                    "summaries": cyops_summaries[:5],  # Show last 5
                 }
-            
+
             # MAIN patches
-            if os.path.exists(CONFIG['MAIN_PATCHES']):
-                main_patches = [f for f in os.listdir(CONFIG['MAIN_PATCHES']) 
-                              if f.endswith('.json') and not f.startswith('.')]
-                main_summaries = [f for f in os.listdir(CONFIG['MAIN_SUMMARIES']) 
-                                if f.endswith('.md') and not f.startswith('.')]
-                patch_data['MAIN'] = {
-                    'pending': len(main_patches),
-                    'completed': len(main_summaries),
-                    'patches': main_patches[:5],  # Show last 5
-                    'summaries': main_summaries[:5]  # Show last 5
+            if os.path.exists(CONFIG["MAIN_PATCHES"]):
+                main_patches = [
+                    f
+                    for f in os.listdir(CONFIG["MAIN_PATCHES"])
+                    if f.endswith(".json") and not f.startswith(".")
+                ]
+                main_summaries = [
+                    f
+                    for f in os.listdir(CONFIG["MAIN_SUMMARIES"])
+                    if f.endswith(".md") and not f.startswith(".")
+                ]
+                patch_data["MAIN"] = {
+                    "pending": len(main_patches),
+                    "completed": len(main_summaries),
+                    "patches": main_patches[:5],  # Show last 5
+                    "summaries": main_summaries[:5],  # Show last 5
                 }
-            
-            self.data['patch_status'] = patch_data
+
+            self.data["patch_status"] = patch_data
             return True
         except Exception as e:
             print(f"Error loading patch status: {e}")
         return False
-    
-    def load_tunnel_status(self):
+
+    def load_tunnel_status(self) -> bool:
         """Load tunnel status from TUNNELS.json"""
         try:
-            if os.path.exists(CONFIG['TUNNELS_FILE']):
-                with open(CONFIG['TUNNELS_FILE'], 'r') as f:
-                    tunnels_data = json.load(f)
-                    
-                    tunnels = []
-                    
-                    # Add DNS records
-                    if 'dns_records' in tunnels_data:
-                        for record in tunnels_data['dns_records']:
-                            if record['status'] != 'INACTIVE' and record['dns_target']:
-                                tunnels.append({
-                                    'name': f"{record['subdomain']}.{record['domain']}",
-                                    'type': 'dns_record',
-                                    'status': record['status'],
-                                    'dns_target': record['dns_target']
-                                })
-                    
-                    # Add ngrok
-                    if 'ngrok' in tunnels_data and tunnels_data['ngrok']['domain']:
-                        tunnels.append({
-                            'name': 'ngrok-tunnel',
-                            'type': 'ngrok',
-                            'status': 'ACTIVE',
-                            'domain': tunnels_data['ngrok']['domain']
-                        })
-                    
-                    self.data['tunnels'] = tunnels
+            if os.path.exists(CONFIG["TUNNELS_FILE"]):
+                with open(CONFIG["TUNNELS_FILE"], "r") as f:
+                    tunnel_data = json.load(f)
+                    self.data["tunnel_status"] = tunnel_data
                     return True
         except Exception as e:
             print(f"Error loading tunnel status: {e}")
         return False
-    
-    def check_process_health(self):
-        """Check critical process health"""
+
+    def check_process_health(self) -> bool:
+        """Check PM2 process health"""
         try:
-            processes = [
-                'ghost-bridge.js',
-                'heartbeat-loop.js',
-                'doc-daemon.js',
-                'dual-m'
-            ]
-            
-            process_status = {}
-            for process in processes:
-                try:
-                    result = subprocess.run(['ps', 'aux'], capture_output=True, text=True)
-                    is_running = process in result.stdout
-                    process_status[process] = {
-                        'running': is_running,
-                        'status': 'HEALTHY' if is_running else 'STOPPED'
+            # Get PM2 process list
+            result = subprocess.run(
+                ["pm2", "jlist"], capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0:
+                processes = json.loads(result.stdout)
+                process_status = {}
+                for proc in processes:
+                    name = proc.get("name", "unknown")
+                    status = proc.get("pm2_env", {}).get("status", "unknown")
+                    process_status[name] = {
+                        "status": status,
+                        "uptime": proc.get("pm2_env", {}).get("pm_uptime", 0),
+                        "memory": proc.get("monit", {}).get("memory", 0),
+                        "cpu": proc.get("monit", {}).get("cpu", 0),
                     }
-                except Exception as e:
-                    process_status[process] = {
-                        'running': False,
-                        'status': 'ERROR',
-                        'error': str(e)
-                    }
-            
-            self.data['process_health'] = process_status
-            return True
+                self.data["process_health"] = process_status
+                return True
         except Exception as e:
             print(f"Error checking process health: {e}")
         return False
-    
-    def load_telemetry_data(self):
-        """Load data from telemetry API"""
+
+    def load_agent_status(self) -> bool:
+        """Load agent status from PM2"""
         try:
-            # Health check
-            health_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/health", timeout=5
+            # Get PM2 process list
+            result = subprocess.run(
+                ["pm2", "jlist"], capture_output=True, text=True, timeout=10
             )
-            if health_response.status_code == 200:
-                self.telemetry_data['health'] = health_response.json()
-            
-            # Metrics
-            metrics_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/metrics", timeout=5
-            )
-            if metrics_response.status_code == 200:
-                self.telemetry_data['metrics'] = metrics_response.json()
-            
-            # Alerts
-            alerts_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/alerts", timeout=5
-            )
-            if alerts_response.status_code == 200:
-                self.telemetry_data['alerts'] = alerts_response.json()
-            
-            # Components
-            components_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/components", timeout=5
-            )
-            if components_response.status_code == 200:
-                self.telemetry_data['components'] = components_response.json()
-            
-            # Trends
-            trends_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/trends", timeout=5
-            )
-            if trends_response.status_code == 200:
-                self.telemetry_data['trends'] = trends_response.json()
-            
-            # Anomalies
-            anomalies_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/anomalies", timeout=5
-            )
-            if anomalies_response.status_code == 200:
-                self.telemetry_data['anomalies'] = anomalies_response.json()
-            
-            # API Stats
-            stats_response = requests.get(
-                f"{CONFIG['TELEMETRY_API_URL']}/stats", timeout=5
-            )
-            if stats_response.status_code == 200:
-                self.telemetry_data['api_stats'] = stats_response.json()
-            
-            self.data['telemetry'] = self.telemetry_data
-            return True
-        except requests.exceptions.RequestException as e:
-            print(f"Error loading telemetry data: {e}")
-            self.data['telemetry'] = {'error': str(e)}
+            if result.returncode == 0:
+                processes = json.loads(result.stdout)
+
+                # Map PM2 process names to agent names
+                process_mapping = {
+                    "summary-monitor": "summary-monitor",
+                    "patch-executor": "patch-executor",
+                    "enhanced-doc-daemon": "enhanced-doc-daemon",
+                    "dual-monitor": "dual-monitor",
+                    "ghost-bridge": "ghost-bridge",
+                    "alert-engine-daemon": "alert-engine-daemon",
+                    "autonomous-decision-daemon": "autonomous-decision-daemon",
+                    "dashboard-uplink": "dashboard-uplink",
+                    "ghost-relay": "ghost-relay",
+                    "ghost-runner": "ghost-runner",
+                    "ghost-viewer": "ghost-viewer",
+                    "metrics-aggregator-daemon": "metrics-aggregator-daemon",
+                    "telemetry-orchestrator-daemon": "telemetry-orchestrator-daemon",
+                    "flask-dashboard": "flask-dashboard",
+                }
+
+                agent_status = {"CYOPS": {"processes": {}}, "MAIN": {"processes": {}}}
+
+                for proc in processes:
+                    name = proc.get("name", "unknown")
+                    status = proc.get("pm2_env", {}).get("status", "unknown")
+
+                    # Determine which agent this process belongs to
+                    if name in process_mapping:
+                        agent_status["CYOPS"]["processes"][name] = status
+                    else:
+                        # Assume unknown processes belong to MAIN
+                        agent_status["MAIN"]["processes"][name] = status
+
+                self.data["agent_status"] = agent_status
+                return True
         except Exception as e:
-            print(f"Error loading telemetry data: {e}")
-            self.data['telemetry'] = {'error': str(e)}
+            print(f"Error loading agent status: {e}")
         return False
 
-    def update_data(self):
+    def load_telemetry_data(self) -> bool:
+        """Load telemetry data from API"""
+        try:
+            response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/health", timeout=5)
+            if response.status_code == 200:
+                self.telemetry_data = response.json()
+                self.data["telemetry"] = self.telemetry_data
+                return True
+        except Exception as e:
+            print(f"Error loading telemetry data: {e}")
+        return False
+
+    def update_data(self) -> None:
         """Update all dashboard data"""
-        success = True
-        success &= self.load_unified_monitor_data()
-        success &= self.load_recent_logs()
-        success &= self.load_patch_status()
-        success &= self.load_tunnel_status()
-        success &= self.check_process_health()
-        success &= self.load_telemetry_data()
-        
+        self.load_unified_monitor_data()
+        self.load_recent_logs()
+        self.load_patch_status()
+        self.load_tunnel_status()
+        self.check_process_health()
+        self.load_agent_status()
+        self.load_telemetry_data()
         self.last_update = datetime.now()
-        self.data['last_update'] = self.last_update.isoformat()
-        self.data['update_success'] = success
-        
-        return success
+
 
 # Global dashboard data instance
 dashboard_data = DashboardData()
 
-@app.route('/')
-def index():
-    """Main dashboard page - serve rich UI"""
-    return render_template('index.html')
 
-@app.route('/monitor')
-def monitor():
-    """Monitor dashboard page - serve rich UI instead of basic JSON"""
-    return render_template('index.html')  # Use the rich dashboard UI
+@app.route("/")
+def index() -> str:
+    return render_template("index.html")
 
-@app.route('/api/status')
-def get_status():
-    """API endpoint for dashboard data"""
+
+@app.route("/monitor")
+def monitor() -> str:
+    return render_template("dashboard.html")
+
+
+@app.route("/api/status")
+def get_status() -> Any:
     dashboard_data.update_data()
     return jsonify(dashboard_data.data)
 
-@app.route('/api/health')
-def health_check():
-    """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.now().isoformat(),
-        'service': 'ghost-runner-dashboard'
-    })
 
-@app.route('/api/daemon-status')
-def get_daemon_status():
-    """Get live daemon status from disk and process checks"""
+@app.route("/api/health")
+def health_check() -> Any:
+    return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
+
+
+@app.route("/api/daemon-status")
+def get_daemon_status() -> Any:
+    """Get daemon status from PM2"""
     try:
-        # Check daemon processes
-        daemon_status = {}
-        processes = ['summary-monitor', 'patch-executor', 'doc-daemon', 'dualMonitor', 'ghost-bridge']
-        
-        for process in processes:
-            try:
-                result = subprocess.run(['pgrep', '-f', process], 
-                                      capture_output=True, text=True, timeout=5)
-                daemon_status[process] = 'running' if result.returncode == 0 else 'stopped'
-            except subprocess.TimeoutExpired:
-                daemon_status[process] = 'timeout'
-            except Exception:
-                daemon_status[process] = 'unknown'
-        
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'daemon_status': daemon_status
-        })
+        # Get PM2 process list
+        result = subprocess.run(
+            ["pm2", "jlist"], capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            processes = json.loads(result.stdout)
+
+            # Map PM2 process names to daemon names
+            process_mapping = {
+                "summary-monitor": "summary-monitor",
+                "patch-executor": "patch-executor",
+                "enhanced-doc-daemon": "enhanced-doc-daemon",
+                "dual-monitor": "dual-monitor",
+                "ghost-bridge": "ghost-bridge",
+                "alert-engine-daemon": "alert-engine-daemon",
+                "autonomous-decision-daemon": "autonomous-decision-daemon",
+                "dashboard-uplink": "dashboard-uplink",
+                "ghost-relay": "ghost-relay",
+                "ghost-runner": "ghost-runner",
+                "ghost-viewer": "ghost-viewer",
+                "metrics-aggregator-daemon": "metrics-aggregator-daemon",
+                "telemetry-orchestrator-daemon": "telemetry-orchestrator-daemon",
+                "flask-dashboard": "flask-dashboard",
+            }
+
+            daemon_status = {}
+
+            for proc in processes:
+                name = proc.get("name", "unknown")
+                status = proc.get("pm2_env", {}).get("status", "unknown")
+
+                if name in process_mapping:
+                    daemon_status[name] = {
+                        "status": status,
+                        "uptime": proc.get("pm2_env", {}).get("pm_uptime", 0),
+                        "memory": proc.get("monit", {}).get("memory", 0),
+                        "cpu": proc.get("monit", {}).get("cpu", 0),
+                        "restarts": proc.get("pm2_env", {}).get("restart_time", 0),
+                    }
+
+            return jsonify(
+                {
+                    "daemons": daemon_status,
+                    "total_daemons": len(daemon_status),
+                    "running_daemons": len(
+                        [d for d in daemon_status.values() if d["status"] == "online"]
+                    ),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": "Failed to get PM2 status",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Error getting daemon status: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
-@app.route('/api/patch-status')
-def get_patch_status():
-    """Get patch status for both systems"""
+
+@app.route("/api/patch-status")
+def get_patch_status() -> Any:
+    dashboard_data.load_patch_status()
+    return jsonify(dashboard_data.data.get("patch_status", {}))
+
+
+@app.route("/api/tunnel-status")
+def get_tunnel_status() -> Any:
+    dashboard_data.load_tunnel_status()
+    return jsonify(dashboard_data.data.get("tunnel_status", {}))
+
+
+@app.route("/api/manager-status")
+def get_manager_status() -> Any:
+    """Get manager status for both CYOPS and MAIN agents"""
     try:
-        dashboard_data.load_patch_status()
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'patchStatus': dashboard_data.data.get('patch_status', {})
-        })
+        # Get PM2 process list
+        result = subprocess.run(
+            ["pm2", "jlist"], capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            processes = json.loads(result.stdout)
+
+            # Define manager processes for each agent
+            cyops_managers = [
+                "summary-monitor",
+                "patch-executor",
+                "enhanced-doc-daemon",
+                "dual-monitor",
+                "ghost-bridge",
+                "alert-engine-daemon",
+                "autonomous-decision-daemon",
+                "dashboard-uplink",
+            ]
+
+            main_managers = [
+                "ghost-relay",
+                "ghost-runner",
+                "ghost-viewer",
+                "metrics-aggregator-daemon",
+                "telemetry-orchestrator-daemon",
+                "flask-dashboard",
+            ]
+
+            manager_status = {
+                "CYOPS": {"managers": {}, "status": "unknown"},
+                "MAIN": {"managers": {}, "status": "unknown"},
+            }
+
+            cyops_running = 0
+            main_running = 0
+
+            for proc in processes:
+                name = proc.get("name", "unknown")
+                status = proc.get("pm2_env", {}).get("status", "unknown")
+
+                if name in cyops_managers:
+                    manager_status["CYOPS"]["managers"][name] = {
+                        "status": status,
+                        "uptime": proc.get("pm2_env", {}).get("pm_uptime", 0),
+                        "memory": proc.get("monit", {}).get("memory", 0),
+                        "cpu": proc.get("monit", {}).get("cpu", 0),
+                    }
+                    if status == "online":
+                        cyops_running += 1
+
+                elif name in main_managers:
+                    manager_status["MAIN"]["managers"][name] = {
+                        "status": status,
+                        "uptime": proc.get("pm2_env", {}).get("pm_uptime", 0),
+                        "memory": proc.get("monit", {}).get("memory", 0),
+                        "cpu": proc.get("monit", {}).get("cpu", 0),
+                    }
+                    if status == "online":
+                        main_running += 1
+
+            # Determine overall status
+            if cyops_running == len(cyops_managers):
+                manager_status["CYOPS"]["status"] = "healthy"
+            elif cyops_running > 0:
+                manager_status["CYOPS"]["status"] = "degraded"
+            else:
+                manager_status["CYOPS"]["status"] = "down"
+
+            if main_running == len(main_managers):
+                manager_status["MAIN"]["status"] = "healthy"
+            elif main_running > 0:
+                manager_status["MAIN"]["status"] = "degraded"
+            else:
+                manager_status["MAIN"]["status"] = "down"
+
+            return jsonify(
+                {
+                    "manager_status": manager_status,
+                    "summary": {
+                        "cyops_managers": len(cyops_managers),
+                        "cyops_running": cyops_running,
+                        "main_managers": len(main_managers),
+                        "main_running": main_running,
+                    },
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": "Failed to get PM2 status",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Error getting manager status: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
-@app.route('/api/tunnel-status')
-def get_tunnel_status():
-    """Get tunnel status"""
-    try:
-        dashboard_data.load_tunnel_status()
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'tunnelStatus': dashboard_data.data.get('tunnels', [])
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
 
-@app.route('/api/system-health')
-def get_system_health():
-    """Get system resource health"""
+@app.route("/api/system-health")
+def get_system_health() -> Any:
+    """Get comprehensive system health information"""
+    import psutil  # type: ignore
+
     try:
-        # Get system metrics
-        import psutil
-        
+        # CPU information
+        cpu_percent = psutil.cpu_percent(interval=1)
+        cpu_count = psutil.cpu_count()
+
+        # Memory information
         memory = psutil.virtual_memory()
-        cpu = psutil.cpu_percent(interval=1)
-        disk = psutil.disk_usage('/').percent
-        
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'resourceHealth': {
-                'memory': memory.percent,
-                'cpu': cpu,
-                'disk': disk
-            }
-        })
-    except ImportError:
-        # Fallback if psutil not available
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'resourceHealth': {
-                'memory': 0,
-                'cpu': 0,
-                'disk': 0
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        memory_info = {
+            "total": memory.total,
+            "available": memory.available,
+            "used": memory.used,
+            "percent": memory.percent,
+        }
 
-@app.route('/api/validate-process')
-def validate_process():
-    """Validate if a specific process is running"""
+        # Disk information
+        disk = psutil.disk_usage("/")
+        disk_info = {
+            "total": disk.total,
+            "used": disk.used,
+            "free": disk.free,
+            "percent": (disk.used / disk.total) * 100,
+        }
+
+        # Network information
+        network = psutil.net_io_counters()
+        network_info = {
+            "bytes_sent": network.bytes_sent,
+            "bytes_recv": network.bytes_recv,
+            "packets_sent": network.packets_sent,
+            "packets_recv": network.packets_recv,
+        }
+
+        # Process count
+        process_count = len(psutil.pids())
+
+        return jsonify(
+            {
+                "cpu": {
+                    "percent": cpu_percent,
+                    "count": cpu_count,
+                },
+                "memory": memory_info,
+                "disk": disk_info,
+                "network": network_info,
+                "processes": process_count,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": f"Error getting system health: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/validate-process")
+def validate_process() -> Any:
+    """Validate that all required processes are running"""
     try:
-        from flask import request
-        process_name = request.args.get('name', '')
-        
-        if not process_name:
-            return jsonify({
-                'status': 'error',
-                'error': 'Process name required',
-                'timestamp': datetime.now().isoformat()
-            }), 400
-        
-        try:
-            result = subprocess.run(['pgrep', '-f', process_name], 
-                                  capture_output=True, text=True, timeout=5)
-            is_running = result.returncode == 0
-            
-            return jsonify({
-                'status': 'success',
-                'timestamp': datetime.now().isoformat(),
-                'running': is_running,
-                'process': process_name
-            })
-        except subprocess.TimeoutExpired:
-            return jsonify({
-                'status': 'success',
-                'timestamp': datetime.now().isoformat(),
-                'running': False,
-                'process': process_name
-            })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        # Get PM2 process list
+        result = subprocess.run(
+            ["pm2", "jlist"], capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            processes = json.loads(result.stdout)
 
-@app.route('/api/recent-logs')
-def get_recent_logs():
+            # Define required processes
+            required_processes = [
+                "summary-monitor",
+                "patch-executor",
+                "enhanced-doc-daemon",
+                "dual-monitor",
+                "ghost-bridge",
+                "alert-engine-daemon",
+                "autonomous-decision-daemon",
+                "dashboard-uplink",
+                "ghost-relay",
+                "ghost-runner",
+                "ghost-viewer",
+                "metrics-aggregator-daemon",
+                "telemetry-orchestrator-daemon",
+                "flask-dashboard",
+            ]
+
+            running_processes = [proc.get("name") for proc in processes]
+            missing_processes = [
+                p for p in required_processes if p not in running_processes
+            ]
+
+            validation_result = {
+                "valid": len(missing_processes) == 0,
+                "total_required": len(required_processes),
+                "running": len(running_processes),
+                "missing": missing_processes,
+                "processes": {},
+            }
+
+            for proc in processes:
+                name = proc.get("name", "unknown")
+                status = proc.get("pm2_env", {}).get("status", "unknown")
+                validation_result["processes"][name] = {
+                    "status": status,
+                    "required": name in required_processes,
+                }
+
+            return jsonify(validation_result)
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": "Failed to get PM2 status",
+                        "valid": False,
+                    }
+                ),
+                500,
+            )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": f"Error validating processes: {str(e)}",
+                    "valid": False,
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/recent-logs")
+def get_recent_logs() -> Any:
     """Get recent log entries"""
+    dashboard_data.load_recent_logs()
+    return jsonify(dashboard_data.data.get("recent_logs", []))
+
+
+@app.route("/api/telemetry/health")
+def get_telemetry_health() -> Any:
+    """Get telemetry health status"""
     try:
-        dashboard_data.load_recent_logs()
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'recentLogs': dashboard_data.data.get('recent_logs', [])
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/health", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "status": "unhealthy",
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/health')
-def get_telemetry_health():
-    """Get telemetry API health status"""
+@app.route("/api/telemetry/metrics")
+def get_telemetry_metrics() -> Any:
+    """Get telemetry metrics"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        health = telemetry.get('health', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryHealth': health
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/metrics", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/metrics')
-def get_telemetry_metrics():
-    """Get telemetry metrics data"""
+@app.route("/api/telemetry/alerts")
+def get_telemetry_alerts() -> Any:
+    """Get telemetry alerts"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        metrics = telemetry.get('metrics', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryMetrics': metrics
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/alerts", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/alerts')
-def get_telemetry_alerts():
-    """Get telemetry alerts data"""
+@app.route("/api/telemetry/components")
+def get_telemetry_components() -> Any:
+    """Get telemetry component status"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        alerts = telemetry.get('alerts', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryAlerts': alerts
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/components", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/components')
-def get_telemetry_components():
-    """Get telemetry components data"""
+@app.route("/api/telemetry/trends")
+def get_telemetry_trends() -> Any:
+    """Get telemetry trends"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        components = telemetry.get('components', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryComponents': components
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/trends", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/trends')
-def get_telemetry_trends():
-    """Get telemetry trends data"""
+@app.route("/api/telemetry/anomalies")
+def get_telemetry_anomalies() -> Any:
+    """Get telemetry anomalies"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        trends = telemetry.get('trends', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryTrends': trends
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/anomalies", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/anomalies')
-def get_telemetry_anomalies():
-    """Get telemetry anomalies data"""
+@app.route("/api/telemetry/stats")
+def get_telemetry_stats() -> Any:
+    """Get telemetry statistics"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        anomalies = telemetry.get('anomalies', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryAnomalies': anomalies
-        })
+        response = requests.get(f"{CONFIG['TELEMETRY_API_URL']}/stats", timeout=5)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/telemetry/stats')
-def get_telemetry_stats():
-    """Get telemetry API statistics"""
-    try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        stats = telemetry.get('api_stats', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetryStats': stats
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
-
-
-@app.route('/api/telemetry/all')
-def get_all_telemetry():
+@app.route("/api/telemetry/all")
+def get_all_telemetry() -> Any:
     """Get all telemetry data"""
     try:
-        dashboard_data.load_telemetry_data()
-        telemetry = dashboard_data.data.get('telemetry', {})
-        return jsonify({
-            'status': 'success',
-            'timestamp': datetime.now().isoformat(),
-            'telemetry': telemetry
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+        # Get all telemetry endpoints
+        endpoints = [
+            "health",
+            "metrics",
+            "alerts",
+            "components",
+            "trends",
+            "anomalies",
+            "stats",
+        ]
+        telemetry_data = {}
 
-def start_background_updates():
-    """Start background data updates"""
-    def update_loop():
+        for endpoint in endpoints:
+            try:
+                response = requests.get(
+                    f"{CONFIG['TELEMETRY_API_URL']}/{endpoint}", timeout=5
+                )
+                if response.status_code == 200:
+                    telemetry_data[endpoint] = response.json()
+                else:
+                    telemetry_data[endpoint] = {
+                        "error": f"HTTP {response.status_code}",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+            except Exception as e:
+                telemetry_data[endpoint] = {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+        return jsonify(
+            {
+                "telemetry": telemetry_data,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/service-action", methods=["POST"])
+def service_action() -> Any:
+    """Perform service actions (start, stop, restart)"""
+    try:
+        from flask import request
+
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        action = data.get("action")
+        service = data.get("service")
+
+        if not action or not service:
+            return jsonify({"error": "Action and service required"}), 400
+
+        if action not in ["start", "stop", "restart", "reload"]:
+            return jsonify({"error": "Invalid action"}), 400
+
+        # Execute PM2 command
+        result = subprocess.run(
+            ["pm2", action, service], capture_output=True, text=True, timeout=30
+        )
+
+        if result.returncode == 0:
+            return jsonify(
+                {
+                    "success": True,
+                    "action": action,
+                    "service": service,
+                    "output": result.stdout,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "action": action,
+                        "service": service,
+                        "error": result.stderr,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/service-logs")
+def get_service_logs() -> Any:
+    """Get service logs from PM2"""
+    try:
+        from flask import request
+
+        service = request.args.get("service", "")
+        lines = request.args.get("lines", "50")
+
+        if not service:
+            return jsonify({"error": "Service name required"}), 400
+
+        # Get PM2 logs
+        result = subprocess.run(
+            ["pm2", "logs", service, "--lines", lines, "--nostream"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode == 0:
+            return jsonify(
+                {
+                    "service": service,
+                    "logs": result.stdout.split("\n"),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": result.stderr,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
+                500,
+            )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+def start_background_updates() -> None:
+    """Start background thread for updating dashboard data"""
+
+    def update_loop() -> None:
         while True:
             try:
                 dashboard_data.update_data()
@@ -604,28 +980,11 @@ def start_background_updates():
             except Exception as e:
                 print(f"Error in background update: {e}")
                 time.sleep(60)  # Wait longer on error
-    
-    thread = threading.Thread(target=update_loop, daemon=True)
-    thread.start()
 
-if __name__ == '__main__':
-    # Start background updates
+    update_thread = threading.Thread(target=update_loop, daemon=True)
+    update_thread.start()
+
+
+if __name__ == "__main__":
     start_background_updates()
-    
-    # Initial data load
-    dashboard_data.update_data()
-    
-    print("🚀 Starting GHOST RUNNER Dashboard...")
-    print("📊 Dashboard will be available at: http://localhost:5001")
-    print("🔗 API endpoints:")
-    print("   - /api/status - Dashboard data")
-    print("   - /api/health - Health check")
-    print("")
-    print("⚙️  Configuration:")
-    print(f"   - Log file: {CONFIG['LOG_FILE']}")
-    print(f"   - Heartbeat: {CONFIG['HEARTBEAT_FILE']}")
-    print(f"   - Tunnels: {CONFIG['TUNNELS_FILE']}")
-    print("")
-    
-    # Run Flask app
-    app.run(host='0.0.0.0', port=5001, debug=False) 
+    app.run(host="0.0.0.0", port=8787, debug=False)

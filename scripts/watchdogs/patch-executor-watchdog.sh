@@ -4,9 +4,9 @@ set -euo pipefail
 # Patch Executor Watchdog
 # Ensures patch executor loop never goes down
 
-PATCH_EXECUTOR_SCRIPT="/Users/sawyer/gitSync/gpt-cursor-runner/scripts/patch-executor-loop.js"
+PATCH_EXECUTOR_SCRIPT="/Users/sawyer/gitSync/gpt-cursor-runner/patch_executor_daemon.py"
 LOG_FILE="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-executor-watchdog.log"
-PID_FILE="/Users/sawyer/gitSync/gpt-cursor-runner/pids/patch-executor-loop.pid"
+PID_FILE="/Users/sawyer/gitSync/gpt-cursor-runner/pids/patch-executor-daemon.pid"
 MAX_RESTARTS=10
 SLEEP_INTERVAL=30
 MAX_MEMORY_MB=512
@@ -39,7 +39,7 @@ function check_patch_executor_health() {
       fi
       
       # Check if process is responsive by looking for recent activity
-      local log_file="/Users/sawyer/gitSync/gpt-cursor-runner/logs/patch-executor-loop.log"
+      local log_file="/Users/sawyer/gitSync/gpt-cursor-runner/logs/patch-executor-daemon.log"
       if [ -f "$log_file" ]; then
         local last_activity=$(stat -f "%m" "$log_file" 2>/dev/null || echo "0")
         local current_time=$(date +%s)
@@ -73,7 +73,7 @@ function restart_patch_executor() {
   
   # Start new patch executor
   log_message "🚀 Starting new patch executor..."
-  nohup node "$PATCH_EXECUTOR_SCRIPT" >> /Users/sawyer/gitSync/gpt-cursor-runner/logs/patch-executor-loop.log 2>&1 &
+  nohup python3 "$PATCH_EXECUTOR_SCRIPT" --patches-dir /Users/sawyer/gitSync/.cursor-cache/MAIN/patches >> /Users/sawyer/gitSync/gpt-cursor-runner/logs/patch-executor-daemon.log 2>&1 &
   local new_pid=$!
   echo "$new_pid" > "$PID_FILE"
   

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const fs = require('fs');
 const patchRouter = require('./patchRouter');
+const webhookThoughtmarksCommands = require('../slack/webhook-thoughtmarks-commands');
 
 const app = express();
 app.use(bodyParser.json());
@@ -12,6 +13,9 @@ const GPT_KEY = process.env.GPT_EMERGENCY_KEY || 'supersecret';
 
 // Use patch router
 app.use('/', patchRouter);
+
+// Use webhook-thoughtmarks Slack commands
+app.use('/', webhookThoughtmarksCommands);
 
 // Relay listener
 app.post('/relay/receive', (req, res) => {

@@ -19,6 +19,7 @@ except ImportError:
 
 try:
     from .slack_proxy import create_slack_proxy
+
     slack_proxy = create_slack_proxy()
 except ImportError:
     slack_proxy = None
@@ -31,12 +32,12 @@ def list_patches(patches_dir: Optional[str] = None) -> List[Dict[str, Any]]:
         patches_dir = os.getenv("PATCHES_DIRECTORY", "patches")
 
     patches: List[Dict[str, Any]] = []
-    
+
     if not os.path.exists(patches_dir):
         return patches
-    
+
     patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
-    
+
     for filepath in patch_files:
         try:
             with open(filepath, "r") as f:
@@ -44,7 +45,7 @@ def list_patches(patches_dir: Optional[str] = None) -> List[Dict[str, Any]]:
 
             # Get file metadata
             stat = os.stat(filepath)
-            
+
             patch_info = {
                 "filename": os.path.basename(filepath),
                 "filepath": filepath,
@@ -71,35 +72,39 @@ def list_patches(patches_dir: Optional[str] = None) -> List[Dict[str, Any]]:
 
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(f"Error reading patch file: {e}", context=filepath)
+                    slack_proxy.notify_error(
+                        f"Error reading patch file: {e}", context=filepath
+                    )
             except Exception:
                 pass
 
     # Sort by modification time (newest first)
     patches.sort(key=lambda x: x.get("modified", ""), reverse=True)
-    
+
     return patches
 
 
-def view_patch(patch_id: str, patches_dir: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def view_patch(
+    patch_id: str, patches_dir: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     """View a specific patch by ID."""
     if patches_dir is None:
         patches_dir = os.getenv("PATCHES_DIRECTORY", "patches")
 
     if not os.path.exists(patches_dir):
         return None
-    
+
     patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
-    
+
     for filepath in patch_files:
         try:
             with open(filepath, "r") as f:
                 patch_data = json.load(f)
-            
+
             if patch_data.get("id") == patch_id:
                 # Get file metadata
                 stat = os.stat(filepath)
-                
+
                 return {
                     "filename": os.path.basename(filepath),
                     "filepath": filepath,
@@ -111,7 +116,9 @@ def view_patch(patch_id: str, patches_dir: Optional[str] = None) -> Optional[Dic
         except Exception as e:
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(f"Error reading patch file: {e}", context=filepath)
+                    slack_proxy.notify_error(
+                        f"Error reading patch file: {e}", context=filepath
+                    )
             except Exception:
                 pass
             continue
@@ -122,7 +129,7 @@ def view_patch(patch_id: str, patches_dir: Optional[str] = None) -> Optional[Dic
 def get_patch_summary(patches_dir: Optional[str] = None) -> Dict[str, Any]:
     """Get summary statistics for patches."""
     patches = list_patches(patches_dir)
-    
+
     if not patches:
         return {
             "total_patches": 0,
@@ -141,7 +148,7 @@ def get_patch_summary(patches_dir: Optional[str] = None) -> Dict[str, Any]:
     recent_7d = 0
 
     now = datetime.now()
-    
+
     for patch in patches:
         if patch.get("status") == "error":
             continue
@@ -162,7 +169,7 @@ def get_patch_summary(patches_dir: Optional[str] = None) -> Dict[str, Any]:
         try:
             modified = datetime.fromisoformat(patch.get("modified", ""))
             age = now - modified
-            
+
             if age.days == 0 and age.seconds < 24 * 3600:
                 recent_24h += 1
             if age.days < 7:
@@ -180,16 +187,18 @@ def get_patch_summary(patches_dir: Optional[str] = None) -> Dict[str, Any]:
     }
 
 
-def search_patches(query: str, patches_dir: Optional[str] = None) -> List[Dict[str, Any]]:
+def search_patches(
+    query: str, patches_dir: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """Search patches by query string."""
     patches = list_patches(patches_dir)
-    
+
     if not query:
         return patches
 
     query_lower = query.lower()
     results = []
-    
+
     for patch in patches:
         if patch.get("status") == "error":
             continue
@@ -209,16 +218,18 @@ def search_patches(query: str, patches_dir: Optional[str] = None) -> List[Dict[s
     return results
 
 
-def get_patch_diff(patch_id: str, patches_dir: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def get_patch_diff(
+    patch_id: str, patches_dir: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     """Get diff information for a patch."""
     patch_info = view_patch(patch_id, patches_dir)
-    
+
     if not patch_info:
         return None
-    
+
     patch_data = patch_info.get("patch_data", {})
     patch_info = patch_data.get("patch", {})
-    
+
     return {
         "patch_id": patch_id,
         "pattern": patch_info.get("pattern", ""),
@@ -279,7 +290,7 @@ def validate_patch_file(filepath: str) -> Dict[str, Any]:
 def get_patch_stats(patches_dir: Optional[str] = None) -> Dict[str, Any]:
     """Get detailed patch statistics."""
     patches = list_patches(patches_dir)
-    
+
     if not patches:
         return {
             "total_patches": 0,

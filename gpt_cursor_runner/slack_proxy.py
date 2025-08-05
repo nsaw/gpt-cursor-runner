@@ -48,7 +48,7 @@ class SlackProxy:
         patch_id = patch_data.get("id", "unknown")
         target_file = patch_data.get("target_file", "unknown")
         description = patch_data.get("description", "No description")
-        
+
         text = f"✅ Patch created: `{patch_id}`"
         attachments = [
             {
@@ -63,7 +63,9 @@ class SlackProxy:
         ]
         return self.send_message(text, attachments)
 
-    def notify_patch_applied(self, patch_id: str, target_file: str, success: bool) -> bool:
+    def notify_patch_applied(
+        self, patch_id: str, target_file: str, success: bool
+    ) -> bool:
         """Notify when a patch is applied."""
         if success:
             text = f"✅ Patch applied: `{patch_id}`"
@@ -71,13 +73,17 @@ class SlackProxy:
         else:
             text = f"❌ Patch failed: `{patch_id}`"
             color = "danger"
-        
+
         attachments = [
             {
                 "color": color,
                 "fields": [
                     {"title": "Target File", "value": target_file, "short": True},
-                    {"title": "Status", "value": "Applied" if success else "Failed", "short": True},
+                    {
+                        "title": "Status",
+                        "value": "Applied" if success else "Failed",
+                        "short": True,
+                    },
                 ],
                 "footer": "GPT-Cursor Runner",
                 "ts": int(time.time()),
@@ -93,7 +99,11 @@ class SlackProxy:
                 "color": "danger",
                 "fields": [
                     {"title": "Context", "value": context or "Unknown", "short": True},
-                    {"title": "Time", "value": time.strftime("%Y-%m-%d %H:%M:%S"), "short": True},
+                    {
+                        "title": "Time",
+                        "value": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "short": True,
+                    },
                 ],
                 "footer": "GPT-Cursor Runner",
                 "ts": int(time.time()),
@@ -112,14 +122,22 @@ class SlackProxy:
         else:
             icon = "❌"
             color = "danger"
-        
+
         text = f"{icon} **System Status**\n\n{status_message}"
         attachments = [
             {
                 "color": color,
                 "fields": [
-                    {"title": "Health Score", "value": f"{health_score}%", "short": True},
-                    {"title": "Time", "value": time.strftime("%Y-%m-%d %H:%M:%S"), "short": True},
+                    {
+                        "title": "Health Score",
+                        "value": f"{health_score}%",
+                        "short": True,
+                    },
+                    {
+                        "title": "Time",
+                        "value": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "short": True,
+                    },
                 ],
                 "footer": "GPT-Cursor Runner",
                 "ts": int(time.time()),
@@ -127,7 +145,9 @@ class SlackProxy:
         ]
         return self.send_message(text, attachments)
 
-    def notify_command_executed(self, command: str, user: str, success: bool = True) -> bool:
+    def notify_command_executed(
+        self, command: str, user: str, success: bool = True
+    ) -> bool:
         """Notify about command execution."""
         if success:
             text = f"✅ Command executed: `{command}`"
@@ -135,14 +155,18 @@ class SlackProxy:
         else:
             text = f"❌ Command failed: `{command}`"
             color = "danger"
-        
+
         attachments = [
             {
                 "color": color,
                 "fields": [
                     {"title": "Command", "value": command, "short": True},
                     {"title": "User", "value": user, "short": True},
-                    {"title": "Status", "value": "Success" if success else "Failed", "short": True},
+                    {
+                        "title": "Status",
+                        "value": "Success" if success else "Failed",
+                        "short": True,
+                    },
                 ],
                 "footer": "GPT-Cursor Runner",
                 "ts": int(time.time()),

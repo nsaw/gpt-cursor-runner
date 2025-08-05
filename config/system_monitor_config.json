@@ -1,0 +1,79 @@
+{
+  "components": {
+    "python_runner": {
+      "type": "process",
+      "command": "python3 -m gpt_cursor_runner.main",
+      "port": 5051,
+      "health_endpoint": "/health",
+      "max_restarts": 5,
+      "restart_cooldown": 60,
+      "description": "Main Python GPT-Cursor Runner"
+    },
+    "node_server": {
+      "type": "process",
+      "command": "node server/index.js",
+      "port": 5555,
+      "health_endpoint": "/health",
+      "max_restarts": 5,
+      "restart_cooldown": 60,
+      "description": "Node.js Slack Command Server"
+    },
+    "braun_daemon": {
+      "type": "daemon",
+      "script": "braun_daemon.py",
+      "max_restarts": 3,
+      "restart_cooldown": 30,
+      "description": "BRAUN Patch Processing Daemon"
+    },
+    "cyops_daemon": {
+      "type": "daemon",
+      "script": "cyops_daemon.py",
+      "max_restarts": 3,
+      "restart_cooldown": 30,
+      "description": "CYOPS Patch Processing Daemon"
+    },
+    "tunnel": {
+      "type": "tunnel",
+      "ports": [5051, 5555],
+      "max_restarts": 3,
+      "restart_cooldown": 120,
+      "description": "ngrok Tunnel Service"
+    }
+  },
+  "alerts": {
+    "slack_webhook": null,
+    "alert_levels": ["error", "critical"],
+    "cooldown_period": 300,
+    "escalation_rules": {
+      "critical": {
+        "repeat_interval": 300,
+        "max_repeats": 3
+      },
+      "error": {
+        "repeat_interval": 600,
+        "max_repeats": 2
+      }
+    }
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "alert_cleanup_interval": 3600,
+    "history_retention_hours": 24,
+    "performance_metrics": {
+      "enabled": true,
+      "collection_interval": 60,
+      "retention_hours": 168
+    }
+  },
+  "recovery": {
+    "circuit_breaker": {
+      "failure_threshold": 5,
+      "recovery_timeout": 300,
+      "half_open_max_requests": 3
+    },
+    "graceful_degradation": {
+      "enabled": true,
+      "degraded_mode_threshold": 0.7
+    }
+  }
+} 

@@ -1,0 +1,406 @@
+<!-- Next-Gen Dashboard (compact, dark, glass-morphism, mobile-first) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>👻 Ghost Runner — NextGen Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0d0e11; --pnl:#15171a8c; --brd:#ffffff14;
+      --txt:#adadade2; --sub:#4c5a6c;
+      --ok:#12d08c; --warn:#ffb545; --err:#ff5460;
+      --grad:linear-gradient(135deg,#12d08c 0%,#1b637b 100%);
+      --glass-shadow:0 8px 32px 0 rgba(12, 16, 66, 0.37);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,sans-serif;background:var(--bg);color:var(--txt);line-height:1.45}
+    h1{font-size:clamp(1.4rem,4vw,1.9rem);font-weight:600;text-align:center;
+       margin:24px 0;background:var(--grad);-webkit-background-clip:text;color:transparent}
+    h3{font-size:clamp(1rem,3vw,1.2rem);color:var(--sub);text-align:center;margin-bottom:32px}
+    .wrap{max-width:1400px;margin:auto;padding:clamp(10px,3vw,28px)}
+    .grid{display:grid;gap:clamp(14px,2vw,24px)}
+    @media(min-width:620px){.grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+    .card{background:var(--pnl);backdrop-filter:blur(14px);border:1px solid var(--brd);
+          border-radius:14px;padding:20px;box-shadow:var(--glass-shadow);
+          transition:transform .25s ease}
+    .card:hover{transform:translateY(-4px)}
+    .card h2{font-size:1.05rem;margin-bottom:.9rem;color:var(--ok);font-weight:600}
+    .metric{display:flex;justify-content:space-between;align-items:center;
+            padding:6px 0;border-bottom:1px solid var(--brd);font-size:.83rem}
+    .metric:last-child{border:none}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--sub)}
+    .ok{background:var(--ok)}.warn{background:var(--warn)}.err{background:var(--err)}
+    pre{font-family:monospace;font-size:.75rem;white-space:pre-wrap;
+        max-height:200px;overflow:auto;margin-top:.6rem;padding:8px;
+        background:var(--pnl);border:1px solid var(--brd);border-radius:10px}
+    button{all:unset;cursor:pointer;padding:.5rem 1rem;background:var(--grad);
+           border-radius:8px;font-weight:600;color:#000;display:inline-block;margin-top:.8rem}
+    .section-title{margin:32px 0 12px;color:var(--sub);font-size:.9rem;letter-spacing:.5px;text-align:center}
+    ul.generic-list { list-style:none; padding:0; margin:0; }
+    .generic-list li { padding:6px 0; border-bottom:1px solid var(--brd); font-size:.85rem;
+      display:flex; justify-content:space-between; }
+    .generic-list li:last-child { border:none; }
+    .list-id { font-family:monospace; color:var(--txt); }
+    .list-time { color:var(--sub); font-size:.75rem; }
+    .status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-top:10px; }
+    .status-card { background:var(--pnl); border-radius:8px; padding:10px; border:1px solid var(--brd); text-align:center; }
+    .status-card h3 { margin-bottom:8px; color:var(--txt); font-size:.8rem; }
+    .status-indicator { font-size:1rem; font-weight:bold; padding:6px; border-radius:4px; transition:all .3s ease; }
+    .status-indicator.status-ok { background:var(--ok); color:#000; }
+    .status-indicator.status-error { background:var(--err); color:#fff; }
+    .status-indicator.status-unknown { background:var(--warn); color:#000; }
+    .agent-section { background:var(--pnl); border-radius:8px; padding:15px; border:1px solid var(--brd); margin-bottom:15px; }
+    .agent-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .agent-name { font-weight:bold; color:var(--ok); font-size:1rem; }
+    .agent-status { padding:4px 8px; border-radius:4px; font-size:.75rem; font-weight:bold; }
+    .agent-status.healthy { background:var(--ok); color:#000; }
+    .agent-status.pending { background:var(--warn); color:#000; }
+    .agent-status.stopped { background:var(--err); color:#fff; }
+    .agent-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(80px,1fr)); gap:8px; margin-bottom:10px; }
+    .agent-metric { text-align:center; padding:6px; background:var(--bg); border-radius:4px; }
+    .agent-metric-label { font-size:.7rem; color:var(--sub); margin-bottom:2px; }
+    .agent-metric-value { font-size:1rem; font-weight:bold; color:var(--txt); }
+    .loading { text-align:center; padding:20px; color:var(--sub); }
+    .error-message { background:var(--err); color:#fff; padding:10px; border-radius:5px; margin:10px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>👻 GHOST RUNNER</h1>
+    <h3>[ dual-agent dashboard ]</h3>
+
+    <!-- Overall health -->
+    <div class="metric" style="margin-bottom:20px">
+      <span>Overall</span><span id="overallDot" class="dot sub"></span>
+    </div>
+
+    <!-- CYOPS / DEV -->
+    <div class="section-title">CYOPS / DEV [ HEALTH + STATUS ]</div>
+    <div class="grid" id="cyopsGrid"></div>
+
+    <!-- MAIN / BRAUN -->
+    <div class="section-title">MAIN / BRAUN [ HEALTH + STATUS ]</div>
+    <div class="grid" id="mainGrid"></div>
+
+    <!-- Shared Services -->
+    <div class="section-title">GHOST | SYSTEMS | METRICS | STATUS</div>
+    <div class="grid">
+      <!-- Component Health -->
+      <div class="card">
+        <h2>⚙️ Component Health</h2>
+        <div class="status-grid">
+          <div class="status-card">
+            <h3>Fly.io</h3>
+            <div id="health-fly" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Tunnel</h3>
+            <div id="health-tunnel" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Flask</h3>
+            <div id="health-flask" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>BRAUN Daemon</h3>
+            <div id="health-braun" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Ghost Runner</h3>
+            <div id="health-ghost" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Patch Executor</h3>
+            <div id="health-executor" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Dashboard Uplink</h3>
+            <div id="health-uplink" class="status-indicator">…</div>
+          </div>
+          <div class="status-card">
+            <h3>Summary Watcher</h3>
+            <div id="health-watcher" class="status-indicator">…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patch Delivery -->
+      <div class="card">
+        <h2>🚚 Patch Delivery</h2>
+        <ul id="recent-patches" class="generic-list">
+          <li class="loading">Loading…</li>
+        </ul>
+      </div>
+
+      <!-- Execution History -->
+      <div class="card">
+        <h2>🏃 Execution History</h2>
+        <ul id="recent-executions" class="generic-list">
+          <li class="loading">Loading…</li>
+        </ul>
+      </div>
+
+      <!-- Recent Summaries -->
+      <div class="card">
+        <h2>📰 Recent Summaries</h2>
+        <ul id="recent-summaries" class="generic-list">
+          <li class="loading">Loading…</li>
+        </ul>
+      </div>
+
+      <!-- System Resources -->
+      <div class="card">
+        <h2>💻 System Resources</h2>
+        <div class="metric">
+          <span>Memory Usage</span>
+          <span id="memory-usage">Loading…</span>
+        </div>
+        <div class="metric">
+          <span>CPU Usage</span>
+          <span id="cpu-usage">Loading…</span>
+        </div>
+        <div class="metric">
+          <span>Disk Usage</span>
+          <span id="disk-usage">Loading…</span>
+        </div>
+        <div class="metric">
+          <span>Uptime</span>
+          <span id="uptime">Loading…</span>
+        </div>
+      </div>
+
+      <!-- Recent Logs -->
+      <div class="card">
+        <h2>📝 Recent Logs</h2>
+        <div id="recent-logs" class="loading">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = {};
+    let updateInterval;
+
+    function formatTimestamp(timestamp) {
+      if (!timestamp) return 'Never';
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    }
+
+    function formatUptime(seconds) {
+      if (!seconds) return 'Unknown';
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    }
+
+    function updateOverallHealth() {
+      const dot = document.getElementById('overallDot');
+      if (!data.agent_status) return;
+
+      const mainHealthy = data.agent_status.MAIN?.pending === 0;
+      const cyopsHealthy = data.agent_status.CYOPS?.pending === 0;
+      const allHealthy = mainHealthy && cyopsHealthy;
+
+      dot.className = `dot ${allHealthy ? 'ok' : 'warn'}`;
+    }
+
+    function updateAgentGrid(agentName, agentData) {
+      const grid = document.getElementById(agentName.toLowerCase() + 'Grid');
+      if (!grid || !agentData) return;
+
+      const statusClass = agentData.pending > 0 ? 'pending' : 'healthy';
+      const statusText = agentData.pending > 0 ? `${agentData.pending} Pending` : 'Healthy';
+
+      grid.innerHTML = `
+        <div class="card">
+          <h2>${agentName} Agent</h2>
+          <div class="metric">
+            <span>Status</span>
+            <span class="agent-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="metric">
+            <span>Pending</span>
+            <span>${agentData.pending}</span>
+          </div>
+          <div class="metric">
+            <span>Completed</span>
+            <span>${agentData.completed}</span>
+          </div>
+          <div class="metric">
+            <span>Summary Monitor</span>
+            <span>${agentData.processes['summary-monitor']}</span>
+          </div>
+          <div class="metric">
+            <span>Patch Executor</span>
+            <span>${agentData.processes['patch-executor']}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateComponentHealth() {
+      const health = data.process_health || {};
+      const components = [
+        ['fly', 'Fly.io'], ['tunnel', 'Tunnel'], ['flask', 'Flask'],
+        ['braun', 'BRAUN Daemon'], ['ghost', 'Ghost Runner'],
+        ['executor', 'Patch Executor'], ['uplink', 'Dashboard Uplink'],
+        ['watcher', 'Summary Watcher']
+      ];
+
+      components.forEach(([key, label]) => {
+        const el = document.getElementById('health-' + key);
+        if (!el) return;
+
+        const status = (health[label] || 'unknown').toLowerCase();
+        const isHealthy = status === 'healthy' || status === 'running';
+        const isError = status === 'stopped' || status === 'error';
+
+        el.className = `status-indicator ${
+          isHealthy ? 'status-ok' : isError ? 'status-error' : 'status-unknown'
+        }`;
+        el.textContent = isHealthy ? '✅' : isError ? '❌' : '⚠️';
+      });
+    }
+
+    function updateGenericList(id, items, formatter) {
+      const ul = document.getElementById(id);
+      if (!ul) return;
+
+      ul.innerHTML = '';
+      if (!items || !items.length) {
+        ul.innerHTML = '<li>No data</li>';
+        return;
+      }
+
+      items.slice(0, 5).forEach(it => {
+        const li = document.createElement('li');
+        li.innerHTML = formatter(it);
+        ul.appendChild(li);
+      });
+    }
+
+    function updateRecentPatches() {
+      const patches = data.patch_status;
+      if (!patches) return;
+
+      const allPatches = [];
+      if (patches.CYOPS?.patch_details) allPatches.push(...patches.CYOPS.patch_details);
+      if (patches.MAIN?.patch_details) allPatches.push(...patches.MAIN.patch_details);
+
+      allPatches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      updateGenericList('recent-patches', allPatches, it =>
+        `<span class="list-id">${it.name}</span>
+         <span class="list-time">${new Date(it.timestamp).toLocaleTimeString()}</span>
+         <span class="dot ${it.status === 'completed' ? 'ok' : it.status === 'failed' ? 'err' : 'warn'}"></span>`
+      );
+    }
+
+    function updateRecentSummaries() {
+      const patches = data.patch_status;
+      if (!patches) return;
+
+      const allSummaries = [];
+      if (patches.CYOPS?.summary_details) allSummaries.push(...patches.CYOPS.summary_details);
+      if (patches.MAIN?.summary_details) allSummaries.push(...patches.MAIN.summary_details);
+
+      allSummaries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      updateGenericList('recent-summaries', allSummaries, it =>
+        `<span class="list-id">${it.name}</span>
+         <span class="list-time">${new Date(it.timestamp).toLocaleTimeString()}</span>`
+      );
+    }
+
+    function updateSystemResources() {
+      const monitor = data.unified_monitor;
+      if (!monitor) return;
+
+      document.getElementById('uptime').textContent = formatUptime(monitor.uptime);
+
+      const resources = monitor.systems?.resources;
+      if (resources) {
+        document.getElementById('memory-usage').textContent = `${resources.memory || 0}%`;
+        document.getElementById('cpu-usage').textContent = `${resources.cpu || 0}%`;
+        document.getElementById('disk-usage').textContent = `${resources.disk || 0}%`;
+      }
+    }
+
+    function updateRecentLogs() {
+      const logs = data.recent_logs;
+      const container = document.getElementById('recent-logs');
+      if (!container) return;
+
+      if (!logs || !logs.log_files || !Array.isArray(logs.log_files)) {
+        container.innerHTML = '<div class="loading">No recent logs available</div>';
+        return;
+      }
+
+      const logFile = logs.log_files.find(file => file.lines && Array.isArray(file.lines) && file.lines.length > 0);
+      if (!logFile || !logFile.lines) {
+        container.innerHTML = '<div class="loading">No recent logs available</div>';
+        return;
+      }
+
+      const recentLines = logFile.lines.slice(-5).reverse();
+      container.innerHTML = recentLines.map(line => {
+        try {
+          const logData = JSON.parse(line);
+          return `<div style="font-size:.75rem;margin:2px 0;color:var(--txt);">
+            <span style="color:var(--sub);">${new Date(logData.timestamp).toLocaleTimeString()}</span>
+            <span style="color:var(--ok);">${logData.level || 'INFO'}</span>
+            <span>${logData.message || 'No message'}</span>
+          </div>`;
+        } catch (error) {
+          return `<div style="font-size:.75rem;margin:2px 0;color:var(--txt);">${line}</div>`;
+        }
+      }).join('');
+    }
+
+    function updateDashboard() {
+      updateOverallHealth();
+      updateAgentGrid('CYOPS', data.agent_status?.CYOPS);
+      updateAgentGrid('MAIN', data.agent_status?.MAIN);
+      updateComponentHealth();
+      updateRecentPatches();
+      updateRecentSummaries();
+      updateSystemResources();
+      updateRecentLogs();
+    }
+
+    async function fetchData() {
+      try {
+        console.log('[dashboard] Fetching data...');
+        
+        const response = await fetch('/api/status');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        data = await response.json();
+        updateDashboard();
+        
+      } catch (error) {
+        console.error('[dashboard] Failed to fetch data:', error);
+        document.getElementById('overallDot').className = 'dot err';
+      }
+    }
+
+    // Initial load
+    fetchData();
+
+    // Poll every 30 seconds
+    updateInterval = setInterval(fetchData, 30000);
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+    });
+  </script>
+</body>
+</html>

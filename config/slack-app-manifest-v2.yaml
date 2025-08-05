@@ -1,184 +1,138 @@
+_metadata:
+  major_version: 1
+  minor_version: 0
 display_information:
-  name: gpt-cursor-runner
+  name: gpt-cursor-webhook-thoughtmarks
   description: cursor's boss
   background_color: "#000000"
-  long_description: >
-    Robots using robots to control robots. This Slack app serves as a command interface
-    for a GPT-powered hybrid automation pipeline, controlling Cursor through carefully
-    structured instructional blocks and real-time patch orchestration. It's a fusion
-    of natural language and precision tooling, letting humans guide AI which guides
-    other AI.
-
-    Robots using robots to control robots. From phase tagging to thematic overrides,
-    this app delivers full-cycle control over Cursor's render, audit, and layout enforcement loop.
-    Integration flows are driven via slash commands, Slack events, and webhook triggers—
-    all wrapped in a command interface for structured patch logic and rollback safety.
-
-    Robots using robots to control robots. From approving patches to reverting failed phases,
-    from restarting GPT workflows to toggling auto modes, this is the control center.
-    This is the war room. This is Cursor's boss. And Cursor listens to it.
-
+  long_description: "Robots using robots to control robots. This Slack app serves as a command interface for a GPT-powered hybrid automation pipeline, controlling Cursor through carefully structured instructional blocks and real-time patch orchestration."
+settings:
+  interactivity:
+    is_enabled: true
+    request_url: https://webhook-thoughtmarks.thoughtmarks.app/slack/events
+  org_deploy_enabled: true
+  socket_mode_enabled: true
+  token_rotation_enabled: true
 features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
   bot_user:
-    display_name: gpt-cursor-runner
+    display_name: Ghost
     always_online: true
   slash_commands:
-    # Core Runner Control (8 commands)
     - command: /dashboard
+      url: https://webhook-thoughtmarks.thoughtmarks.app/commands
       description: View Dashboard
-      usage_hint: View dashboard
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-    - command: /status-runner
-      description: Check current runner status and health
-      usage_hint: Check status
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /status-push
-      description: Status pulse now
-      usage_hint: Status pulse
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /restart-runner
-      description: Restart the GPT-Cursor Runner service
-      usage_hint: Restart service
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /kill
-      description: Force stop the runner (emergency)
-      usage_hint: Emergency stop
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /toggle-runner
-      description: Toggles between on (auto mode) and off
-      usage_hint: Toggle runner state
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /runner-lock
-      description: toggle (un)Lock runner (prevent changes)
-      usage_hint: Lock/unlock runner
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /watchdog-ping
-      description: Ping watchdog
-      usage_hint: Check system health
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Patch Management (7 commands)
     - command: /patch-pass
-      description: Pass next pending patches with options
-      usage_hint: Pass patches
-      url: https://runner.thoughtmarks.app/slack/commands
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Pass next pending patches
       should_escape: false
     - command: /patch-revert
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Revert the last applied patch
-      usage_hint: Revert patch
-      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /restart-runner
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Restart the GPT-Cursor Runner service
+      should_escape: false
+    - command: /status-runner
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Check current runner status and health
+      should_escape: false
+    - command: /roadmap
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Show project roadmap and milestones
+      should_escape: false
+    - command: /kill
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Force stop the runner (emergency)
+      should_escape: false
+    - command: /status-push
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Status pulse now
       should_escape: false
     - command: /patch-preview
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Preview pending patches
-      usage_hint: Preview patch
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /approve-screenshot
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Approve screenshot-based patches
-      usage_hint: Approve screenshot
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /revert-phase
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Revert to previous phase
-      usage_hint: Revert phase
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /log-phase-status
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Log current phase status
-      usage_hint: Log status
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /cursor-mode
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Switch Cursor operation modes
-      usage_hint: Switch mode
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Workflow Control (5 commands)
-    - command: /proceed
-      description: passes through "proceed" with option to specify
-      usage_hint: Proceed with options
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /again
-      description: restarts or retry last with optional manual input
-      usage_hint: Retry operation
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /manual-revise
-      description: returns to sender with notes for another attempt
-      usage_hint: Manual revision
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /manual-append
-      description: conditional approval- passes through with notes
-      usage_hint: Manual append
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /interrupt
-      description: stop current operation, pass note, and resume w/ new info
-      usage_hint: Interrupt operations
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Troubleshooting & Diagnostics (3 commands)
-    - command: /troubleshoot
-      description: Triggers GPT to generate a full hybrid diagnostic block
-      usage_hint: Auto diagnostics
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /troubleshoot-oversight
-      description: requires human review after running fix to confirm
-      usage_hint: Oversight mode
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /send-with
-      description: Request reissue of patch from sender with more info
-      usage_hint: Send with context
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Information & Alerts (2 commands)
-    - command: /roadmap
-      description: Show project roadmap and milestones
-      usage_hint: View roadmap
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /alert-runner-crash
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
       description: Send crash alert notification
-      usage_hint: Alert crash
-      url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-
+    - command: /proceed
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Pass through proceed with options
+      should_escape: false
+    - command: /again
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Restart or retry last with optional manual input
+      should_escape: false
+    - command: /manual-revise
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Return to sender with notes for another attempt
+      should_escape: false
+    - command: /manual-append
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Conditional approval with notes
+      should_escape: false
+    - command: /interrupt
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Stop current operation and resume with new info
+      should_escape: false
+    - command: /troubleshoot
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Generate full hybrid diagnostic block
+      should_escape: false
+    - command: /send-with
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Request reissue of patch with more info
+      should_escape: false
+    - command: /troubleshoot-oversight
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Require human review after running fix
+      should_escape: false
+    - command: /watchdog-ping
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Ping watchdog
+      should_escape: false
+    - command: /toggle-runner
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Toggle between on (auto mode) and off
+      should_escape: false
+    - command: /runner-lock
+      url: https://webhook-thoughtmarks.thoughtmarks.app/slack/commands
+      description: Toggle lock runner (prevent changes)
+      should_escape: false
 oauth_config:
   redirect_urls:
-    - https://runner.thoughtmarks.app/slack/oauth/callback
+    - https://webhook-thoughtmarks.thoughtmarks.app/slack/oauth/callback
   scopes:
     bot:
       - commands
       - chat:write
-      - users:read
-      - app_mentions:read
       - incoming-webhook
-      - channels:history
-
-settings:
-  event_subscriptions:
-    request_url: https://runner.thoughtmarks.app/slack/events
-    bot_events:
-      - app_mention
-      - message.channels
-  interactivity:
-    is_enabled: true
-    request_url: https://runner.thoughtmarks.app/slack/interactions
-  org_deploy_enabled: false
-  socket_mode_enabled: false
-  token_rotation_enabled: false
+      - assistant:write
+event_subscriptions:
+  request_url: https://webhook-thoughtmarks.thoughtmarks.app/slack/events
+  bot_events:
+    - app_mention
+    - message.channels

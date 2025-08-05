@@ -12,7 +12,8 @@
     "lint": "echo lint skipped",
     "lint:fix": "eslint . --fix",
     "lint:scripts": "eslint scripts/",
-    "lint:server": "eslint server/"
+    "lint:server": "eslint server/",
+    "test:dashboard": "playwright test tests/dashboard-green-state.spec.ts"
   },
   "keywords": [
     "gpt",
@@ -38,6 +39,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
     "node-fetch": "^3.3.2",
+    "openai": "^5.11.0",
     "opossum": "^9.0.0",
     "path-to-regexp": "^8.2.0",
     "pg": "^8.16.3",
@@ -48,8 +50,8 @@
     "winston-daily-rotate-file": "^5.0.0",
     "ws": "^8.18.3"
   },
-  "devDependencies": {\n    "supertest": "^6.3.4",
-    "supertest": "^6.3.4",
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@slack/cli-hooks": "^1.2.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
@@ -59,6 +61,8 @@
     "eslint": "^8.57.1",
     "jest": "^30.0.5",
     "nodemon": "^3.0.1",
+    "playwright": "^1.54.2",
+    "supertest": "^6.3.4",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   }

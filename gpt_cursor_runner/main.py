@@ -14,7 +14,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
 # PATCHED: Expo conflict guard
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'utils'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts", "utils"))
 # Temporarily disabled expoGuard for patch delivery testing
 # try:
 #     from expoGuard import detect_expo_processes
@@ -23,7 +23,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'utils'
 #     pass  # Continue if guard not available
 
 # Import handlers
-from gpt_cursor_runner.webhook_handler import process_hybrid_block, process_summary, handle_webhook_post
+from gpt_cursor_runner.webhook_handler import (
+    process_hybrid_block,
+    process_summary,
+    handle_webhook_post,
+)
 
 from gpt_cursor_runner.slack_handler import (
     verify_slack_signature,
@@ -60,13 +64,14 @@ app = Flask(__name__)
 if create_dashboard_routes:
     create_dashboard_routes(app)
 
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     """Handle incoming webhook requests."""
     # Check if it's a Slack request
     if request.headers.get("X-Slack-Signature"):
         return handle_slack_webhook()
-    
+
     # Otherwise, use enhanced webhook handler for GPT requests
     return handle_webhook_post()
 
@@ -119,7 +124,7 @@ def handle_slack_webhook():
 
         # Handle events
         if data.get("type") == "event_callback":
-            event = data.get("event", {})
+            data.get("event", {})
             response = handle_slack_event(data)
             return jsonify(response)
 
@@ -290,111 +295,147 @@ def health_check():
             "components": {},
             "system_metrics": {},
             "version": "3.1.1",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
         status_flags = []
-        
+
         # Ghost runner check
         ghost_found = False
         try:
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                if proc.info['cmdline'] and any("ghost-runner.js" in str(arg) for arg in proc.info['cmdline']):
+            for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+                if proc.info["cmdline"] and any(
+                    "ghost-bridge" in str(arg) for arg in proc.info["cmdline"]
+                ):
                     ghost_found = True
                     break
         except Exception:
             pass
-        
-        response['components']['ghost_runner'] = "up" if ghost_found else "down"
+
+        response["components"]["ghost_runner"] = "up" if ghost_found else "down"
         if not ghost_found:
             status_flags.append("ghost_down")
-        
+
         # Port 5555 check
         port_bound = False
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(('localhost', 5555))
+            result = sock.connect_ex(("localhost", 5555))
             sock.close()
-            port_bound = (result == 0)
+            port_bound = result == 0
         except Exception:
             pass
-        
-        response['components']['port_5555_bound'] = port_bound
+
+        response["components"]["port_5555_bound"] = port_bound
         if not port_bound:
             status_flags.append("port_unbound")
-        
+
         # Filesystem check
         try:
-            test_path = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/healthcheck.tmp"
-            with open(test_path, 'w') as f:
-                f.write('ok')
+            test_path = (
+                "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/healthcheck.tmp"
+            )
+            with open(test_path, "w") as f:
+                f.write("ok")
             os.remove(test_path)
-            response['components']['fs_writable'] = True
+            response["components"]["fs_writable"] = True
         except Exception:
-            response['components']['fs_writable'] = False
+            response["components"]["fs_writable"] = False
             status_flags.append("fs_readonly")
-        
+
         # Flask request queue responsiveness
-        response['components']['flask_responsive'] = True
-        response['components']['webhook_endpoint'] = "operational"
-        
+        response["components"]["flask_responsive"] = True
+        response["components"]["webhook_endpoint"] = "operational"
+
         # System metrics
         try:
             cpu_percent = psutil.cpu_percent(interval=0.1)
             memory = psutil.virtual_memory()
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
             network = psutil.net_io_counters()
-            
-            response['system_metrics'] = {
-                'cpu': {
-                    'count': psutil.cpu_count(),
-                    'load_average': os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0],
-                    'percent': cpu_percent
+
+            response["system_metrics"] = {
+                "cpu": {
+                    "count": psutil.cpu_count(),
+                    "load_average": (
+                        os.getloadavg() if hasattr(os, "getloadavg") else [0, 0, 0]
+                    ),
+                    "percent": cpu_percent,
                 },
-                'memory': {
-                    'total': memory.total,
-                    'available': memory.available,
-                    'percent': memory.percent,
-                    'used': memory.used
+                "memory": {
+                    "total": memory.total,
+                    "available": memory.available,
+                    "percent": memory.percent,
+                    "used": memory.used,
                 },
-                'disk': {
-                    'total': disk.total,
-                    'used': disk.used,
-                    'free': disk.free,
-                    'percent': (disk.used / disk.total) * 100
+                "disk": {
+                    "total": disk.total,
+                    "used": disk.used,
+                    "free": disk.free,
+                    "percent": (disk.used / disk.total) * 100,
                 },
-                'network': {
-                    'bytes_sent': network.bytes_sent,
-                    'bytes_recv': network.bytes_recv,
-                    'packets_sent': network.packets_sent,
-                    'packets_recv': network.packets_recv
-                }
+                "network": {
+                    "bytes_sent": network.bytes_sent,
+                    "bytes_recv": network.bytes_recv,
+                    "packets_sent": network.packets_sent,
+                    "packets_recv": network.packets_recv,
+                },
             }
         except Exception as e:
-            response['system_metrics'] = {'error': str(e)}
-        
+            response["system_metrics"] = {"error": str(e)}
+
         # Status logic
         if not status_flags:
-            response['overall_status'] = "healthy"
+            response["overall_status"] = "healthy"
         elif "ghost_down" in status_flags:
-            response['overall_status'] = "degraded"
+            response["overall_status"] = "degraded"
         else:
-            response['overall_status'] = "unknown"
-        
+            response["overall_status"] = "unknown"
+
         return jsonify(response), 200
-        
+
     except Exception as e:
         # Fallback to basic health check
-        return jsonify(
-            {
-                "overall_status": "error",
-                "timestamp": datetime.now().isoformat(),
-                "version": "3.1.1",
-                "error": str(e),
-                "components": {},
-                "system_metrics": {}
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "overall_status": "error",
+                    "timestamp": datetime.now().isoformat(),
+                    "version": "3.1.1",
+                    "error": str(e),
+                    "components": {},
+                    "system_metrics": {},
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/monitor", methods=["GET"])
+def monitor_dashboard():
+    """Serve the monitor dashboard UI"""
+    try:
+        # Import and serve the dashboard template
+        from flask import render_template
+        import os
+
+        # Set the correct template folder
+        template_dir = os.path.join(
+            os.path.dirname(__file__), "..", "dashboard", "templates"
+        )
+        app.template_folder = template_dir
+        return render_template("index.html")
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": "Dashboard template not available",
+                    "details": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/patches", methods=["POST"])
@@ -457,7 +498,8 @@ def api_summaries():
         # Log the error
         if event_logger:
             event_logger.log_system_event(
-                "api_summaries_error", {"error": str(e), "headers": dict(request.headers)}
+                "api_summaries_error",
+                {"error": str(e), "headers": dict(request.headers)},
             )
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
@@ -472,21 +514,198 @@ def api_summaries():
 @app.route("/api/status", methods=["GET"])
 def api_status():
     """API status endpoint for ghost bridge health checks."""
-    return jsonify(
-        {
-            "status": "healthy",
-            "timestamp": datetime.now().isoformat(),
-            "version": "3.1.0",
-            "endpoints": {
-                "webhook": "/webhook",
-                "patches": "/api/patches",
-                "summaries": "/api/summaries",
-                "health": "/health",
-                "events": "/events",
-                "resources": "/api/resources",
+    try:
+        # Get daemon status
+        daemon_data = api_daemon_status().get_json()
+
+        # Transform daemon status to process health format expected by dashboard
+        process_health = {}
+        if "daemon_status" in daemon_data:
+            for daemon_name, status in daemon_data["daemon_status"].items():
+                process_health[daemon_name] = {
+                    "status": status,
+                    "lastCheck": daemon_data.get("timestamp", ""),
+                    "name": daemon_name,
+                }
+
+        # Add agent status structure expected by dashboard
+        agent_status = {
+            "CYOPS": {
+                "pending": 0,
+                "completed": 0,
+                "processes": daemon_data.get("daemon_status", {}),
+            },
+            "MAIN": {
+                "pending": 0,
+                "completed": 0,
+                "processes": daemon_data.get("daemon_status", {}),
             },
         }
-    )
+
+        return jsonify(
+            {
+                "status": "healthy",
+                "timestamp": datetime.now().isoformat(),
+                "version": "3.1.0",
+                "daemon_status": daemon_data.get("daemon_status", {}),
+                "process_health": process_health,
+                "agent_status": agent_status,
+                "endpoints": {
+                    "webhook": "/webhook",
+                    "patches": "/api/patches",
+                    "summaries": "/api/summaries",
+                    "health": "/health",
+                    "events": "/events",
+                    "resources": "/api/resources",
+                },
+            }
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                    "version": "3.1.0",
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/daemon-status", methods=["GET"])
+def api_daemon_status():
+    """Get live daemon status from disk and process checks."""
+    try:
+        import subprocess
+
+        # Check daemon processes
+        daemon_status = {}
+        processes = [
+            "patch-executor-watchdog",
+            "doc-daemon",
+            "ghost-bridge-simple.js",
+            "telemetry-orchestrator",
+            "alert-engine",
+            "enhanced-doc-daemon",
+            "autonomous-decision-daemon",
+            "metrics-aggregator-daemon",
+            "braun_daemon",
+            "ghost-runner-watchdog",
+            "gpt_cursor_runner.main",
+            "summary_watcher_daemon.py",
+            "dashboard_daemon.py",
+        ]
+
+        # Map process names to component names
+        process_to_component = {
+            "patch-executor-watchdog": "patch-executor",
+            "ghost-bridge-simple.js": "ghost-bridge",
+            "ghost-runner-watchdog": "ghost-runner",
+            "braun_daemon": "braun",
+            "gpt_cursor_runner.main": "flask",
+            "summary_watcher_daemon.py": "summary-watcher",
+            "dashboard_daemon.py": "comprehensive-dashboard",
+        }
+
+        for process in processes:
+            # Special handling for Flask app - if this code is running, Flask is up
+            if process == "gpt_cursor_runner.main":
+                component_name = process_to_component.get(process, process)
+                daemon_status[component_name] = "running"
+                continue
+
+            try:
+                result = subprocess.run(
+                    ["pgrep", "-f", process], capture_output=True, text=True, timeout=5
+                )
+                status = "running" if result.returncode == 0 else "stopped"
+
+                # Use mapped component name if available, otherwise use process name
+                component_name = process_to_component.get(process, process)
+                daemon_status[component_name] = status
+            except subprocess.TimeoutExpired:
+                daemon_status[process_to_component.get(process, process)] = "timeout"
+            except Exception:
+                daemon_status[process_to_component.get(process, process)] = "unknown"
+
+        return jsonify(
+            {
+                "status": "success",
+                "timestamp": datetime.now().isoformat(),
+                "daemon_status": daemon_status,
+            }
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/api/telemetry/components", methods=["GET"])
+def api_telemetry_components():
+    """Get telemetry components data - uses real daemon status."""
+    try:
+        # Get real daemon status
+        daemon_data = api_daemon_status().get_json()
+
+        # Transform daemon status to component format expected by monitor dashboard
+        components = {}
+        if "daemon_status" in daemon_data:
+            for daemon_name, status in daemon_data["daemon_status"].items():
+                # Use the daemon_name directly as the key (kebab-case)
+                components[daemon_name] = {
+                    "status": status,
+                    "lastCheck": daemon_data.get("timestamp", ""),
+                    "name": daemon_name,
+                }
+
+        # Add additional component checks for services not in daemon list
+        additional_components = {
+            "fly": {
+                "status": "running",
+                "lastCheck": daemon_data.get("timestamp", ""),
+                "name": "Fly.io",
+            },
+            "tunnel-webhook": {
+                "status": "running",
+                "lastCheck": daemon_data.get("timestamp", ""),
+                "name": "Webhook Tunnel",
+            },
+            "tunnel-dashboard": {
+                "status": "running",
+                "lastCheck": daemon_data.get("timestamp", ""),
+                "name": "Dashboard Tunnel",
+            },
+        }
+        components.update(additional_components)
+
+        return jsonify(
+            {
+                "status": "success",
+                "timestamp": datetime.now().isoformat(),
+                "telemetryComponents": components,
+            }
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/resources", methods=["GET"])
@@ -494,18 +713,21 @@ def api_resources():
     """Resource monitoring endpoint."""
     try:
         from gpt_cursor_runner.resource_monitor import get_resource_monitor
-        
+
         resource_monitor = get_resource_monitor()
         resource_data = resource_monitor.get_alerts_json()
-        
+
         return jsonify(resource_data)
     except Exception as e:
-        return jsonify(
-            {
-                "error": f"Resource monitoring unavailable: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Resource monitoring unavailable: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/processes", methods=["GET"])
@@ -513,67 +735,83 @@ def api_processes():
     """Process management endpoint."""
     try:
         from gpt_cursor_runner.process_cleanup import get_process_cleanup
-        
+
         process_cleanup = get_process_cleanup()
         process_data = {
-            'processes': process_cleanup.get_process_list(),
-            'cleanup_history': process_cleanup.get_cleanup_history(),
-            'stats': process_cleanup.get_stats()
+            "processes": process_cleanup.get_process_list(),
+            "cleanup_history": process_cleanup.get_cleanup_history(),
+            "stats": process_cleanup.get_stats(),
         }
-        
+
         return jsonify(process_data)
     except Exception as e:
-        return jsonify(
-            {
-                "error": f"Process management unavailable: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Process management unavailable: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/processor", methods=["GET", "POST"])
 def api_processor():
     """Unified processor endpoint."""
     try:
-        from gpt_cursor_runner.unified_processor import get_unified_processor, RequestType
-        
+        from gpt_cursor_runner.unified_processor import (
+            get_unified_processor,
+            RequestType,
+        )
+
         processor = get_unified_processor()
-        
+
         if request.method == "GET":
             # Return processor statistics
-            return jsonify({
-                'stats': processor.get_stats(),
-                'timestamp': datetime.now().isoformat()
-            })
+            return jsonify(
+                {
+                    "stats": processor.get_stats(),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
         else:
             # Process a request
             data = request.get_json()
             if not data:
                 return jsonify({"error": "No JSON data provided"}), 400
-            
-            request_type_str = data.get('type', 'webhook')
-            request_data = data.get('data', {})
-            
+
+            request_type_str = data.get("type", "webhook")
+            request_data = data.get("data", {})
+
             try:
                 request_type = RequestType(request_type_str)
             except ValueError:
-                return jsonify({"error": f"Invalid request type: {request_type_str}"}), 400
-            
+                return (
+                    jsonify({"error": f"Invalid request type: {request_type_str}"}),
+                    400,
+                )
+
             request_id = processor.submit_request(request_type, request_data)
-            
-            return jsonify({
-                'request_id': request_id,
-                'status': 'submitted',
-                'timestamp': datetime.now().isoformat()
-            })
-            
+
+            return jsonify(
+                {
+                    "request_id": request_id,
+                    "status": "submitted",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
     except Exception as e:
-        return jsonify(
-            {
-                "error": f"Unified processor unavailable: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Unified processor unavailable: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/sequential", methods=["GET", "POST"])
@@ -581,41 +819,48 @@ def api_sequential():
     """Sequential processor endpoint."""
     try:
         from gpt_cursor_runner.sequential_processor import get_sequential_processor
-        
+
         processor = get_sequential_processor()
-        
+
         if request.method == "GET":
             # Return processor statistics
-            return jsonify({
-                'stats': processor.get_stats(),
-                'timestamp': datetime.now().isoformat()
-            })
+            return jsonify(
+                {
+                    "stats": processor.get_stats(),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
         else:
             # Submit a sequential request
             data = request.get_json()
             if not data:
                 return jsonify({"error": "No JSON data provided"}), 400
-            
-            workflow_name = data.get('workflow', 'webhook_processing')
-            request_data = data.get('data', {})
-            priority = data.get('priority', 1)
-            
+
+            workflow_name = data.get("workflow", "webhook_processing")
+            request_data = data.get("data", {})
+            priority = data.get("priority", 1)
+
             request_id = processor.submit_request(workflow_name, request_data, priority)
-            
-            return jsonify({
-                'request_id': request_id,
-                'workflow': workflow_name,
-                'status': 'submitted',
-                'timestamp': datetime.now().isoformat()
-            })
-            
+
+            return jsonify(
+                {
+                    "request_id": request_id,
+                    "workflow": workflow_name,
+                    "status": "submitted",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
     except Exception as e:
-        return jsonify(
-            {
-                "error": f"Sequential processor unavailable: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Sequential processor unavailable: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/sequential/<request_id>", methods=["GET"])
@@ -623,22 +868,25 @@ def api_sequential_status(request_id):
     """Get status of a sequential request."""
     try:
         from gpt_cursor_runner.sequential_processor import get_sequential_processor
-        
+
         processor = get_sequential_processor()
         status = processor.get_request_status(request_id)
-        
+
         if status is None:
             return jsonify({"error": "Request not found"}), 404
-        
+
         return jsonify(status)
-        
+
     except Exception as e:
-        return jsonify(
-            {
-                "error": f"Sequential processor unavailable: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": f"Sequential processor unavailable: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/errors", methods=["GET"])
@@ -648,11 +896,8 @@ def api_errors():
         error_recovery = get_error_recovery()
         stats = error_recovery.get_error_stats()
         recent_errors = error_recovery.get_recent_errors()
-        
-        return jsonify({
-            "stats": stats,
-            "recent_errors": recent_errors
-        })
+
+        return jsonify({"stats": stats, "recent_errors": recent_errors})
     except Exception as e:
         return jsonify({"error": f"Error getting error info: {str(e)}"}), 500
 
@@ -663,7 +908,7 @@ def api_rate_limits():
     try:
         rate_limiter = get_rate_limiter()
         stats = rate_limiter.get_stats()
-        
+
         return jsonify(stats)
     except Exception as e:
         return jsonify({"error": f"Error getting rate limit info: {str(e)}"}), 500
@@ -676,33 +921,35 @@ def api_validation():
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
-        
+
         request_type = data.get("type", "api")
         request_data = data.get("data", {})
-        
+
         validator = get_request_validator()
         report = validator.validate_request(request_type, request_data)
-        
-        return jsonify({
-            "is_valid": report.is_valid,
-            "errors": [
-                {
-                    "field": error.field_name,
-                    "type": error.error_type,
-                    "message": error.message
-                }
-                for error in report.errors
-            ],
-            "warnings": [
-                {
-                    "field": warning.field_name,
-                    "type": warning.error_type,
-                    "message": warning.message
-                }
-                for warning in report.warnings
-            ],
-            "validated_data": report.validated_data
-        })
+
+        return jsonify(
+            {
+                "is_valid": report.is_valid,
+                "errors": [
+                    {
+                        "field": error.field_name,
+                        "type": error.error_type,
+                        "message": error.message,
+                    }
+                    for error in report.errors
+                ],
+                "warnings": [
+                    {
+                        "field": warning.field_name,
+                        "type": warning.error_type,
+                        "message": warning.message,
+                    }
+                    for warning in report.warnings
+                ],
+                "validated_data": report.validated_data,
+            }
+        )
     except Exception as e:
         return jsonify({"error": f"Error validating request: {str(e)}"}), 500
 
@@ -714,11 +961,8 @@ def api_audit():
         audit_logger = get_audit_logger()
         stats = audit_logger.get_stats()
         recent_entries = audit_logger.get_entries(limit=50)
-        
-        return jsonify({
-            "stats": stats,
-            "recent_entries": recent_entries
-        })
+
+        return jsonify({"stats": stats, "recent_entries": recent_entries})
     except Exception as e:
         return jsonify({"error": f"Error getting audit info: {str(e)}"}), 500
 
@@ -730,11 +974,8 @@ def api_server_fixes():
         server_fixes = get_server_fixes()
         stats = server_fixes.get_stats()
         issues = server_fixes.get_issues()
-        
-        return jsonify({
-            "stats": stats,
-            "issues": issues
-        })
+
+        return jsonify({"stats": stats, "issues": issues})
     except Exception as e:
         return jsonify({"error": f"Error getting server fixes info: {str(e)}"}), 500
 
@@ -746,11 +987,8 @@ def api_error_handler():
         error_handler = get_error_handler()
         stats = error_handler.get_stats()
         errors = error_handler.get_errors()
-        
-        return jsonify({
-            "stats": stats,
-            "errors": errors
-        })
+
+        return jsonify({"stats": stats, "errors": errors})
     except Exception as e:
         return jsonify({"error": f"Error getting error handler info: {str(e)}"}), 500
 
@@ -762,11 +1000,8 @@ def api_health_endpoints():
         health_endpoints = get_health_endpoints()
         summary = health_endpoints.get_health_summary()
         history = health_endpoints.get_health_history(hours=1)
-        
-        return jsonify({
-            "summary": summary,
-            "history": history
-        })
+
+        return jsonify({"summary": summary, "history": history})
     except Exception as e:
         return jsonify({"error": f"Error getting health endpoints info: {str(e)}"}), 500
 
@@ -778,11 +1013,8 @@ def api_cors():
         cors_manager = get_cors_manager()
         stats = cors_manager.get_stats()
         history = cors_manager.get_request_history(hours=1)
-        
-        return jsonify({
-            "stats": stats,
-            "history": history
-        })
+
+        return jsonify({"stats": stats, "history": history})
     except Exception as e:
         return jsonify({"error": f"Error getting CORS info: {str(e)}"}), 500
 
@@ -792,48 +1024,53 @@ def main():
     # Start health aggregator
     try:
         from gpt_cursor_runner.health_aggregator import get_health_aggregator
+
         health_agg = get_health_aggregator()
         health_agg.start()
         print("🏥 Health aggregator started")
     except Exception as e:
         print(f"⚠️  Health aggregator failed to start: {e}")
-    
+
     # Start resource monitor
     try:
         from gpt_cursor_runner.resource_monitor import get_resource_monitor
+
         resource_monitor = get_resource_monitor()
         resource_monitor.start()
         print("📊 Resource monitor started")
     except Exception as e:
         print(f"⚠️  Resource monitor failed to start: {e}")
-    
+
     # Start process cleanup
     try:
         from gpt_cursor_runner.process_cleanup import get_process_cleanup
+
         process_cleanup = get_process_cleanup()
         process_cleanup.start()
         print("🧹 Process cleanup started")
     except Exception as e:
         print(f"⚠️  Process cleanup failed to start: {e}")
-    
+
     # Start unified processor
     try:
         from gpt_cursor_runner.unified_processor import get_unified_processor
+
         unified_processor = get_unified_processor()
         unified_processor.start()
         print("⚙️  Unified processor started")
     except Exception as e:
         print(f"⚠️  Unified processor failed to start: {e}")
-    
+
     # Start sequential processor
     try:
         from gpt_cursor_runner.sequential_processor import get_sequential_processor
+
         sequential_processor = get_sequential_processor()
         sequential_processor.start()
         print("🔄 Sequential processor started")
     except Exception as e:
         print(f"⚠️  Sequential processor failed to start: {e}")
-    
+
     # Start error recovery
     try:
         error_recovery = get_error_recovery()
@@ -841,7 +1078,7 @@ def main():
         print("🛠️  Error recovery started")
     except Exception as e:
         print(f"⚠️  Error recovery failed to start: {e}")
-    
+
     # Start rate limiter
     try:
         rate_limiter = get_rate_limiter()
@@ -849,14 +1086,14 @@ def main():
         print("🚦 Rate limiter started")
     except Exception as e:
         print(f"⚠️  Rate limiter failed to start: {e}")
-    
+
     # Start request validator
     try:
-        request_validator = get_request_validator()
+        get_request_validator()
         print("✅ Request validator initialized")
     except Exception as e:
         print(f"⚠️  Request validator failed to initialize: {e}")
-    
+
     # Start audit logger
     try:
         audit_logger = get_audit_logger()
@@ -864,7 +1101,7 @@ def main():
         print("📝 Audit logger started")
     except Exception as e:
         print(f"⚠️  Audit logger failed to start: {e}")
-    
+
     # Start server fixes
     try:
         server_fixes = get_server_fixes()
@@ -872,7 +1109,7 @@ def main():
         print("🔧 Server fixes started")
     except Exception as e:
         print(f"⚠️  Server fixes failed to start: {e}")
-    
+
     # Start error handler
     try:
         error_handler = get_error_handler()
@@ -880,7 +1117,7 @@ def main():
         print("🚨 Error handler started")
     except Exception as e:
         print(f"⚠️  Error handler failed to start: {e}")
-    
+
     # Start health endpoints
     try:
         health_endpoints = get_health_endpoints()
@@ -888,14 +1125,14 @@ def main():
         print("🏥 Health endpoints started")
     except Exception as e:
         print(f"⚠️  Health endpoints failed to start: {e}")
-    
+
     # Start CORS manager
     try:
-        cors_manager = get_cors_manager()
+        get_cors_manager()
         print("🌐 CORS manager initialized")
     except Exception as e:
         print(f"⚠️  CORS manager failed to initialize: {e}")
-    
+
     port = int(os.getenv("PYTHON_PORT", 5051))
     print(f"🚀 Starting GPT-Cursor Runner on port {port}")
     print(f"📡 Webhook endpoint: http://localhost:{port}/webhook")

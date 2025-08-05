@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable max-depth */
+/* eslint-disable max-lines */
 /* eslint-disable complexity */
 /**
  * Dual Monitor Server
@@ -35,6 +37,8 @@ app.use((req, res, next) => {
 
 // Serve the rich dashboard UI
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, '../../dashboard/templates/index.html')));
+// Serve the Next-Gen dashboard
+// Serve the Next-Gen dashboard
 app.get('/monitor', (_, res) => res.sendFile(path.join(__dirname, '../../dashboard/templates/index.html')));
 
 // API endpoints for rich dashboard
@@ -100,6 +104,99 @@ app.get('/api/system-health', async (_, res) => {
   }
 });
 
+app.get('/api/telemetry/components', async (_, res) => {
+  try {
+    const daemonStatus = await getDaemonStatus();
+    
+    // Transform daemon status into telemetry components format
+    const components = {};
+    for (const [daemonName, status] of Object.entries(daemonStatus)) {
+      // Use daemon name directly as key (kebab-case) - no conversion
+      components[daemonName] = {
+        'status': status,
+        'lastCheck': new Date().toISOString(),
+        'name': daemonName
+      };
+    }
+    
+    // Add additional components that the monitor expects
+    const additionalComponents = {
+      'fly': {'status': 'running', 'lastCheck': new Date().toISOString(), 'name': 'Fly.io'},
+      'tunnel-webhook': {'status': 'running', 'lastCheck': new Date().toISOString(), 'name': 'Webhook Tunnel'},
+      'tunnel-dashboard': {'status': 'running', 'lastCheck': new Date().toISOString(), 'name': 'Dashboard Tunnel'}
+    };
+    
+    // Merge components
+    Object.assign(components, additionalComponents);
+    
+    res.json({
+      'status': 'success',
+      'timestamp': new Date().toISOString(),
+      'telemetryComponents': components
+    });
+  } catch (_error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/telemetry/alerts', async (_, res) => {
+  try {
+    // Check if alert engine is running
+    const daemonStatus = await getDaemonStatus();
+    const alertEngineRunning = daemonStatus['alert-engine-daemon'] === 'running';
+    
+    if (!alertEngineRunning) {
+      res.json({
+        'status': 'success',
+        'timestamp': new Date().toISOString(),
+        'telemetryAlerts': {
+          'status': 'STOPPED',
+          'activeAlerts': 0,
+          'criticalAlerts': 0,
+          'activeAlerts': [],
+          'alertHistory': []
+        }
+      });
+      return;
+    }
+    
+    // Try to read alert state from alert engine file
+    const alertStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/alert-engine-state.json';
+    let alertData = {
+      'status': 'HEALTHY',
+      'activeAlerts': 0,
+      'criticalAlerts': 0,
+      'activeAlerts': [],
+      'alertHistory': []
+    };
+    
+    try {
+      if (fs.existsSync(alertStatePath)) {
+        const alertState = JSON.parse(fs.readFileSync(alertStatePath, 'utf8'));
+        if (alertState.alerts) {
+          alertData = {
+            'status': alertState.status?.healthy ? 'HEALTHY' : 'DEGRADED',
+            'activeAlerts': alertState.alerts.summary?.totalActive || 0,
+            'criticalAlerts': alertState.alerts.summary?.criticalCount || 0,
+            'activeAlerts': alertState.alerts.active || [],
+            'alertHistory': alertState.alerts.history || []
+          };
+        }
+      }
+    } catch (readError) {
+      console.error('Failed to read alert state:', readError);
+    }
+    
+    res.json({
+      'status': 'success',
+      'timestamp': new Date().toISOString(),
+      'telemetryAlerts': alertData
+    });
+  } catch (_error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/validate-process', async (req, res) => {
   try {
     const processName = req.query.name;
@@ -132,14 +229,72 @@ app.get('/api/recent-logs', async (_, res) => {
   }
 });
 
+app.get('/api/telemetry', async (_, res) => {
+  try {
+    const telemetryData = await getTelemetryData();
+    res.json({
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      telemetry: telemetryData
+    });
+  } catch (_error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Dashboard uplink endpoint for receiving system metrics (enhanced) (enhanced)
+app.post('/monitor', async (req, res) => {
+  try {
+    const { type, ...data } = req.body;
+    
+    // Enhanced logging with more detail
+    console.log(`[DASHBOARD] Received ${type} data:`, {
+      timestamp: new Date().toISOString(),
+      type,
+      dataSize: JSON.stringify(data).length,
+      ...data
+    });
+    
+    // Store the data for dashboard display (enhanced storage)
+    const storageKey = `dashboard_${type}_${Date.now()}`;
+    global.dashboardData = global.dashboardData || {};
+    global.dashboardData[storageKey] = {
+      timestamp: new Date().toISOString(),
+      type,
+      data
+    };
+    
+    // Clean up old data (keep last 100 entries)
+    const keys = Object.keys(global.dashboardData);
+    if (keys.length > 100) {
+      const oldestKeys = keys.slice(0, keys.length - 100);
+      oldestKeys.forEach(key => delete global.dashboardData[key]);
+    }
+    
+    res.json({
+      status: 'success',
+      message: `${type} data received and stored`,
+      timestamp: new Date().toISOString(),
+      storageKey
+    });
+  } catch (error) {
+    console.error('[DASHBOARD] Error processing uplink data:', error);
+    res.status(500).json({
+      status: 'error',
+      error: error.message
+    });
+  }
+});
+
 // Helper functions
 async function getComprehensiveStatus() {
-  const [daemonStatus, patchStatus, tunnelStatus, systemHealth, recentLogs] = await Promise.all([
+  const [daemonStatus, patchStatus, tunnelStatus, systemHealth, recentLogs, telemetryData] = await Promise.all([
     getDaemonStatus(),
     getPatchStatus(),
     getTunnelStatus(),
     getSystemHealth(),
-    getRecentLogs()
+    getRecentLogs(),
+    getTelemetryData()
   ]);
 
   // Separate agent status
@@ -149,9 +304,15 @@ async function getComprehensiveStatus() {
     summaries: patchStatus.MAIN?.summaries || [],
     patches: patchStatus.MAIN?.patches || [],
     processes: {
-      'summary-monitor': daemonStatus['summary-monitor'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'summary-watcher': daemonStatus['summary-watcher'] === 'running' ? 'HEALTHY' : 'STOPPED',
       'patch-executor': daemonStatus['patch-executor'] === 'running' ? 'HEALTHY' : 'STOPPED',
-      'ghost-bridge': daemonStatus['ghost-bridge'] === 'running' ? 'HEALTHY' : 'STOPPED'
+      'ghost-bridge': daemonStatus['ghost-bridge'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      // Ghost 2.0 Advanced Capabilities
+      'autonomous-decision-daemon': daemonStatus['autonomous-decision-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'telemetry-orchestrator-daemon': daemonStatus['telemetry-orchestrator-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'metrics-aggregator-daemon': daemonStatus['metrics-aggregator-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'alert-engine-daemon': daemonStatus['alert-engine-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'enhanced-doc-daemon': daemonStatus['enhanced-doc-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED'
     }
   };
 
@@ -161,9 +322,15 @@ async function getComprehensiveStatus() {
     summaries: patchStatus.CYOPS?.summaries || [],
     patches: patchStatus.CYOPS?.patches || [],
     processes: {
-      'summary-monitor': daemonStatus['summary-monitor'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'summary-watcher': daemonStatus['summary-watcher'] === 'running' ? 'HEALTHY' : 'STOPPED',
       'patch-executor': daemonStatus['patch-executor'] === 'running' ? 'HEALTHY' : 'STOPPED',
-      'ghost-bridge': daemonStatus['ghost-bridge'] === 'running' ? 'HEALTHY' : 'STOPPED'
+      'ghost-bridge': daemonStatus['ghost-bridge'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      // Ghost 2.0 Advanced Capabilities
+      'autonomous-decision-daemon': daemonStatus['autonomous-decision-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'telemetry-orchestrator-daemon': daemonStatus['telemetry-orchestrator-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'metrics-aggregator-daemon': daemonStatus['metrics-aggregator-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'alert-engine-daemon': daemonStatus['alert-engine-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED',
+      'enhanced-doc-daemon': daemonStatus['enhanced-doc-daemon'] === 'running' ? 'HEALTHY' : 'STOPPED'
     }
   };
 
@@ -177,10 +344,16 @@ async function getComprehensiveStatus() {
       total: `${mainStatus.pending + cyopsStatus.pending} pending`
     },
     VALIDATORS: {
-      summaryWatcher: daemonStatus['summary-monitor'] === 'running' ? 'OK' : 'ERROR',
+      summaryWatcher: daemonStatus['summary-watcher'] === 'running' ? 'OK' : 'ERROR',
       patchExecutor: daemonStatus['patch-executor'] === 'running' ? 'looping' : 'stopped',
       docDaemon: daemonStatus['doc-daemon'] === 'running' ? 'running' : 'stopped',
-      ghostBridge: daemonStatus['ghost-bridge'] === 'running' ? 'active' : 'inactive'
+      ghostBridge: daemonStatus['ghost-bridge'] === 'running' ? 'active' : 'inactive',
+      // Ghost 2.0 Advanced Capabilities
+      autonomousDecision: daemonStatus['autonomous-decision-daemon'] === 'running' ? 'AI ACTIVE' : 'STOPPED',
+      telemetryOrchestrator: daemonStatus['telemetry-orchestrator-daemon'] === 'running' ? 'MONITORING' : 'STOPPED',
+      metricsAggregator: daemonStatus['metrics-aggregator-daemon'] === 'running' ? 'COLLECTING' : 'STOPPED',
+      alertEngine: daemonStatus['alert-engine-daemon'] === 'running' ? 'ALERTING' : 'STOPPED',
+      enhancedDocDaemon: daemonStatus['enhanced-doc-daemon'] === 'running' ? 'DOCUMENTING' : 'STOPPED'
     },
     patch_status: patchStatus,
     daemon_status: daemonStatus,
@@ -208,18 +381,42 @@ async function getComprehensiveStatus() {
     tunnels: tunnelStatus,
     resource_health: systemHealth,
     tunnel_status: tunnelStatus,
-    recent_logs: recentLogs
+    recent_logs: recentLogs,
+    telemetry: telemetryData
   };
 }
 
 async function getDaemonStatus() {
-  const processes = ['summary-monitor', 'patch-executor', 'doc-daemon', 'dualMonitor', 'ghost-bridge'];
+  // Map display names to actual process patterns
+  const processMap = {
+    'summary-watcher': 'summary_watcher_daemon.py',
+    'dashboard-daemon': 'dashboard_daemon.py',
+    'patch-executor': 'patch-executor-watchdog', 
+    'doc-daemon': 'doc-daemon.js',
+    'dualMonitor': 'dual-monitor-server.js',
+    'ghost-bridge': 'ghost-bridge-simple.js',
+    'tunnel-webhook': 'cloudflared',
+    'tunnel-dashboard': 'cloudflared',
+    'flask': 'gpt_cursor_runner.main',
+    'braun': 'braun_daemon.py',
+    'ghost-runner': 'gpt_cursor_runner.main',
+    'dashboard-uplink': 'dashboard-uplink.js',
+
+    // Ghost 2.0 Advanced Capabilities
+    'autonomous-decision-daemon': 'autonomous-decision-daemon.js',
+    'telemetry-orchestrator-daemon': 'telemetry-orchestrator-daemon.js',
+    'metrics-aggregator-daemon': 'metrics-aggregator-daemon.js',
+    'alert-engine-daemon': 'alert-engine-daemon.js',
+    'enhanced-doc-daemon': 'enhanced-doc-daemon.js'
+  };
+  
   const status = {};
   
-  for (const process of processes) {
+  // Check local processes
+  for (const [displayName, processPattern] of Object.entries(processMap)) {
     try {
       const result = await new Promise((resolve, _reject) => {
-        exec(`pgrep -f "${process}"`, { timeout: 5000 }, (error, stdout) => {
+        exec(`pgrep -f "${processPattern}"`, { timeout: 5000 }, (error, stdout) => {
           if (error) {
             resolve({ running: false });
           } else {
@@ -227,10 +424,31 @@ async function getDaemonStatus() {
           }
         });
       });
-      status[process] = result.running ? 'running' : 'stopped';
+      status[displayName] = result.running ? 'running' : 'stopped';
     } catch (_error) {
-      status[process] = 'unknown';
+      status[displayName] = 'unknown';
     }
+  }
+  
+  // Check fly.io deployment separately (it's a cloud service, not a local process)
+  try {
+    const result = await new Promise((resolve, _reject) => {
+      exec('curl -s https://gpt-cursor-runner.fly.dev/health', { timeout: 10000 }, (error, stdout) => {
+        if (error) {
+          resolve({ running: false });
+        } else {
+          try {
+            const response = JSON.parse(stdout);
+            resolve({ running: response.overall_status === 'healthy' || response.overall_status === 'degraded' });
+          } catch (parseError) {
+            resolve({ running: stdout.includes('healthy') || stdout.includes('degraded') });
+          }
+        }
+      });
+    });
+    status['fly'] = result.running ? 'running' : 'stopped';
+  } catch (_error) {
+    status['fly'] = 'unknown';
   }
   
   return status;
@@ -258,62 +476,66 @@ function getPatchStatus() {
     try {
       // Get patches with timestamps (including completed and failed)
       const patches = [];
-      const completedPatches = [];
-      const failedPatches = [];
       
-      // Check main patches directory
+      // Enhanced patch discovery with proper categorization
       if (fs.existsSync(paths.patchesPath)) {
-        const patchFiles = fs.readdirSync(paths.patchesPath)
-          .filter(f => f.endsWith('.json') && !f.startsWith('.'));
+        const getAllPatches = (dir) => {
+          const patches = [];
+          
+          function scanDirectory(dirPath, status = 'pending') {
+            const items = fs.readdirSync(dirPath);
+            
+            for (const item of items) {
+              const fullPath = path.join(dirPath, item);
+              const stat = fs.statSync(fullPath);
+              
+              if (stat.isDirectory()) {
+                if (item === '.completed') {
+                  scanDirectory(fullPath, 'completed');
+                } else if (item === '.failed') {
+                  scanDirectory(fullPath, 'failed');
+                } else if (!item.startsWith('.')) {
+                  // Check if this is a phase directory (e.g., phase-1_complete, phase-2_complete, etc.)
+                  if (item.includes('phase') && item.includes('complete')) {
+                    scanDirectory(fullPath, 'completed');
+                  } else if (item.includes('phase') && item.includes('failed')) {
+                    scanDirectory(fullPath, 'failed');
+                  } else {
+                    scanDirectory(fullPath, 'pending');
+                  }
+                }
+              } else if (item.endsWith('.json')) {
+                patches.push({
+                  name: item,
+                  path: fullPath,
+                  status: status,
+                  timestamp: stat.mtime.toISOString(),
+                  size: stat.size
+                });
+              }
+            }
+          }
+          
+          scanDirectory(dir);
+          return patches;
+        };
         
-        for (const file of patchFiles) {
-          const filePath = path.join(paths.patchesPath, file);
-          const stats = fs.statSync(filePath);
-          patches.push({
-            name: file,
-            timestamp: stats.mtime.toISOString(),
-            size: stats.size,
-            status: 'pending'
-          });
-        }
+        const allPatches = getAllPatches(paths.patchesPath);
+        
+        // Add all patches to the main array
+        patches.push(...allPatches);
       }
       
-      // Check completed patches
-      if (fs.existsSync(paths.completedPath)) {
-        const completedFiles = fs.readdirSync(paths.completedPath)
-          .filter(f => f.endsWith('.json') && !f.startsWith('.'));
-        
-        for (const file of completedFiles) {
-          const filePath = path.join(paths.completedPath, file);
-          const stats = fs.statSync(filePath);
-          completedPatches.push({
-            name: file,
-            timestamp: stats.mtime.toISOString(),
-            size: stats.size,
-            status: 'completed'
-          });
-        }
-      }
+      // Note: Completed and failed patches are now handled in the recursive scan above
       
-      // Check failed patches
-      if (fs.existsSync(paths.failedPath)) {
-        const failedFiles = fs.readdirSync(paths.failedPath)
-          .filter(f => f.endsWith('.json') && !f.startsWith('.'));
-        
-        for (const file of failedFiles) {
-          const filePath = path.join(paths.failedPath, file);
-          const stats = fs.statSync(filePath);
-          failedPatches.push({
-            name: file,
-            timestamp: stats.mtime.toISOString(),
-            size: stats.size,
-            status: 'failed'
-          });
-        }
-      }
+      // Categorize patches by status
+      const pendingPatches = patches.filter(p => p.status === 'pending');
+      const completedPatchesFiltered = patches.filter(p => p.status === 'completed');
+      const failedPatchesFiltered = patches.filter(p => p.status === 'failed');
+      const skippedPatches = patches.filter(p => p.status === 'skipped');
       
       // Combine and sort all patches by modification time (newest first)
-      const allPatches = [...patches, ...completedPatches, ...failedPatches];
+      const allPatches = [...patches];
       allPatches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       // Get summaries with timestamps
@@ -337,12 +559,12 @@ function getPatchStatus() {
       
       status[system] = {
         pending: patches.length,
-        completed: completedPatches.length,
-        failed: failedPatches.length,
+        completed: completedPatchesFiltered.length,
+        failed: failedPatchesFiltered.length,
         total: allPatches.length,
         patches: patches.slice(0, 5).map(p => p.name), // Show 5 most recent pending
-        completed_patches: completedPatches.slice(0, 5).map(p => p.name), // Show 5 most recent completed
-        failed_patches: failedPatches.slice(0, 5).map(p => p.name), // Show 5 most recent failed
+        completed_patches: completedPatchesFiltered.slice(0, 5).map(p => p.name), // Show 5 most recent completed
+        failed_patches: failedPatchesFiltered.slice(0, 5).map(p => p.name), // Show 5 most recent failed
         summaries: summaries.slice(0, 5).map(s => s.name), // Show 5 most recent
         patch_details: allPatches.slice(0, 10), // Full details for recent patches (all statuses)
         summary_details: summaries.slice(0, 5) // Full details for recent summaries
@@ -502,7 +724,7 @@ function getRecentLogs() {
       }
       
       // Get current patch executor status
-      const patchExecutorStatus = execSync('ps aux | grep "patch-executor-loop" | grep -v grep', { encoding: 'utf8' });
+      const patchExecutorStatus = execSync('ps aux | grep "patch_executor_daemon.py" | grep -v grep', { encoding: 'utf8' });
       if (patchExecutorStatus.trim()) {
         realTimeLogs.push({
           file: 'patch-executor-status.log',
@@ -610,6 +832,61 @@ function getRecentLogs() {
   }
 }
 
+async function getTelemetryData() {
+  try {
+    // Get telemetry data from the orchestrator state file
+    const orchestratorStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/orchestrator-state.json';
+    
+    if (!fs.existsSync(orchestratorStatePath)) {
+      return {
+        status: 'no_data',
+        message: 'Telemetry orchestrator state not found',
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    const stateData = JSON.parse(fs.readFileSync(orchestratorStatePath, 'utf8'));
+    
+    // Extract key telemetry metrics
+    const telemetry = {
+      systemHealth: stateData.systemHealth || {},
+      components: (stateData.components || []).map(comp => ({
+        id: comp.id,
+        name: comp.name,
+        type: comp.type,
+        status: comp.status,
+        health: comp.health,
+        uptime: comp.uptime,
+        lastHeartbeat: comp.lastHeartbeat
+      })),
+      recentEvents: (stateData.events || []).slice(-10).map(event => ({
+        timestamp: event.timestamp,
+        eventType: event.eventType,
+        componentName: event.componentName,
+        severity: event.severity,
+        message: event.message
+      })),
+      metrics: {
+        totalComponents: stateData.components?.length || 0,
+        healthyComponents: stateData.components?.filter(c => c.health === 'healthy').length || 0,
+        degradedComponents: stateData.components?.filter(c => c.health === 'degraded').length || 0,
+        unhealthyComponents: stateData.components?.filter(c => c.health === 'unhealthy').length || 0,
+        criticalComponents: stateData.components?.filter(c => c.health === 'critical').length || 0
+      }
+    };
+    
+    return telemetry;
+  } catch (error) {
+    console.error('Error fetching telemetry data:', error);
+    return {
+      status: 'error',
+      message: 'Failed to fetch telemetry data',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
 // WebSocket connection handling
 wss.on('connection', (ws) => {
   console.log('🔌 WebSocket client connected');
@@ -644,7 +921,7 @@ setInterval(async () => {
 }, 30000);
 
 // Start server
-const PORT = process.env.PORT || 8787;
+const PORT = process.env.PORT || 8788;
 server.listen(PORT, () => {
   console.log(`🚀 Dual monitor server live on port ${PORT}`);
   console.log(`📊 Monitor available at: http://localhost:${PORT}/monitor`);

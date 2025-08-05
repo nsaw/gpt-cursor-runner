@@ -61,10 +61,20 @@ include = ["gpt_cursor_runner*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
-/(\.eggs|\.git|\.hg|\.mypy_cache|\.tox|\.venv|build|dist|venv|node_modules|logs|patches|assets|public|server|slack|scripts|tasks|runner|init|quarantine|Free|Pro|Team|Enterprise|docs|config|data|state|temp)/
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
 '''
 
 [tool.mypy]

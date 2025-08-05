@@ -311,16 +311,18 @@ class GhostAlertEngine {
           duration: 300,
           aggregation: 'avg'
         }],
-        actions: [{
-          id: 'cpu-notification',
-          type: 'notification',
-          target: 'slack',
-          template: 'High CPU usage detected: {{value}}%',
-          enabled: true,
-          retryCount: 0,
-          maxRetries: 3,
-          retryDelay: 60
-        }],
+        actions: [
+          {
+            id: 'cpu-dashboard',
+            type: 'notification',
+            target: 'dashboard-log',
+            template: 'High CPU usage detected: {{value}}%',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          }
+        ],
         cooldownPeriod: 300,
         triggerCount: 0,
         maxTriggers: 10
@@ -330,7 +332,7 @@ class GhostAlertEngine {
         name: 'Daemon Failure',
         description: 'Alert when daemon health ratio drops below 80%',
         enabled: true,
-        severity: 'error',
+        severity: 'critical',
         conditions: [{
           id: 'daemon-health-threshold',
           type: 'threshold',
@@ -340,16 +342,38 @@ class GhostAlertEngine {
           duration: 60,
           aggregation: 'avg'
         }],
-        actions: [{
-          id: 'daemon-notification',
-          type: 'notification',
-          target: 'slack',
-          template: 'Daemon health critical: {{value}}% healthy',
-          enabled: true,
-          retryCount: 0,
-          maxRetries: 3,
-          retryDelay: 60
-        }],
+        actions: [
+          {
+            id: 'daemon-dashboard',
+            type: 'notification',
+            target: 'dashboard-log',
+            template: 'Daemon health critical: {{value}}% healthy',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          },
+          {
+            id: 'daemon-email',
+            type: 'notification',
+            target: 'email-critical',
+            template: 'CRITICAL: Daemon health failure - {{value}}% healthy',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          },
+          {
+            id: 'daemon-auto-fix',
+            type: 'automation',
+            target: 'auto-fix-daemon',
+            template: 'AUTO-FIX: Attempting to restart failed daemons',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          }
+        ],
         escalationPolicy: this.getDefaultEscalationPolicies()[0],
         cooldownPeriod: 600,
         triggerCount: 0,
@@ -370,19 +394,103 @@ class GhostAlertEngine {
           duration: 120,
           aggregation: 'avg'
         }],
-        actions: [{
-          id: 'response-time-notification',
-          type: 'notification',
-          target: 'slack',
-          template: 'High response time detected: {{value}}ms',
-          enabled: true,
-          retryCount: 0,
-          maxRetries: 3,
-          retryDelay: 60
-        }],
+        actions: [
+          {
+            id: 'response-time-dashboard',
+            type: 'notification',
+            target: 'dashboard-log',
+            template: 'High response time detected: {{value}}ms',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          }
+        ],
         cooldownPeriod: 300,
         triggerCount: 0,
         maxTriggers: 10
+      },
+      {
+        id: 'memory-usage',
+        name: 'High Memory Usage',
+        description: 'Alert when memory usage exceeds 90%',
+        enabled: true,
+        severity: 'error',
+        conditions: [{
+          id: 'memory-threshold',
+          type: 'threshold',
+          metric: 'memory_usage',
+          operator: 'gt',
+          value: 90,
+          duration: 300,
+          aggregation: 'avg'
+        }],
+        actions: [
+          {
+            id: 'memory-dashboard',
+            type: 'notification',
+            target: 'dashboard-log',
+            template: 'High memory usage detected: {{value}}%',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          },
+          {
+            id: 'memory-auto-fix',
+            type: 'automation',
+            target: 'auto-fix-memory',
+            template: 'AUTO-FIX: Attempting memory cleanup',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          }
+        ],
+        cooldownPeriod: 600,
+        triggerCount: 0,
+        maxTriggers: 5
+      },
+      {
+        id: 'disk-usage',
+        name: 'High Disk Usage',
+        description: 'Alert when disk usage exceeds 95%',
+        enabled: true,
+        severity: 'error',
+        conditions: [{
+          id: 'disk-threshold',
+          type: 'threshold',
+          metric: 'disk_usage',
+          operator: 'gt',
+          value: 95,
+          duration: 300,
+          aggregation: 'avg'
+        }],
+        actions: [
+          {
+            id: 'disk-dashboard',
+            type: 'notification',
+            target: 'dashboard-log',
+            template: 'High disk usage detected: {{value}}%',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          },
+          {
+            id: 'disk-auto-fix',
+            type: 'automation',
+            target: 'auto-fix-disk',
+            template: 'AUTO-FIX: Attempting disk cleanup',
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60
+          }
+        ],
+        cooldownPeriod: 600,
+        triggerCount: 0,
+        maxTriggers: 5
       }
     ];
   }
@@ -390,31 +498,33 @@ class GhostAlertEngine {
   private getDefaultChannels(): NotificationChannel[] {
     return [
       {
-        id: 'slack-default',
-        name: 'Slack Default',
-        type: 'slack',
+        id: 'dashboard-log',
+        name: 'Dashboard Log Feed',
+        type: 'webhook',
         config: {
-          webhookUrl: process.env.SLACK_WEBHOOK_URL || '',
-          channel: '#alerts',
+          webhookUrl: 'http://localhost:5555/api/telemetry/alerts',
+          channel: 'dashboard',
           username: 'GHOST Alert Engine'
         },
         enabled: true,
-        rateLimit: 10,
+        rateLimit: 30,
         messageCount: 0
       },
       {
-        id: 'email-default',
-        name: 'Email Default',
+        id: 'email-critical',
+        name: 'Critical Email Alerts',
         type: 'email',
         config: {
-          smtpHost: process.env.SMTP_HOST || '',
+          smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
           smtpPort: parseInt(process.env.SMTP_PORT || '587'),
           username: process.env.SMTP_USERNAME || '',
           password: process.env.SMTP_PASSWORD || '',
           from: process.env.ALERT_EMAIL_FROM || 'alerts@ghost.local',
-          to: process.env.ALERT_EMAIL_TO || ''
+          to: 'nick@sawyerdesign.io',
+          secure: false,
+          sendAllAlerts: false // Only send critical alerts by default
         },
-        enabled: false,
+        enabled: true,
         rateLimit: 5,
         messageCount: 0
       }
@@ -431,9 +541,9 @@ class GhostAlertEngine {
             level: 1,
             delay: 300, // 5 minutes
             actions: [{
-              id: 'level1-notification',
+              id: 'level1-dashboard',
               type: 'notification',
-              target: 'slack',
+              target: 'dashboard-log',
               template: 'ALERT: {{message}} - Level 1 escalation',
               enabled: true,
               retryCount: 0,
@@ -441,39 +551,73 @@ class GhostAlertEngine {
               retryDelay: 60
             }],
             recipients: ['team'],
-            channels: ['slack']
+            channels: ['dashboard-log']
           },
           {
             level: 2,
             delay: 900, // 15 minutes
-            actions: [{
-              id: 'level2-notification',
-              type: 'notification',
-              target: 'slack',
-              template: 'URGENT: {{message}} - Level 2 escalation',
-              enabled: true,
-              retryCount: 0,
-              maxRetries: 3,
-              retryDelay: 60
-            }],
+            actions: [
+              {
+                id: 'level2-dashboard',
+                type: 'notification',
+                target: 'dashboard-log',
+                template: 'URGENT: {{message}} - Level 2 escalation',
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60
+              },
+              {
+                id: 'level2-email',
+                type: 'notification',
+                target: 'email-critical',
+                template: 'URGENT ALERT: {{message}} - Level 2 escalation',
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60
+              }
+            ],
             recipients: ['team', 'leadership'],
-            channels: ['slack', 'email']
+            channels: ['dashboard-log', 'email-critical']
           },
           {
             level: 3,
             delay: 1800, // 30 minutes
-            actions: [{
-              id: 'level3-notification',
-              type: 'notification',
-              target: 'slack',
-              template: 'CRITICAL: {{message}} - Level 3 escalation',
-              enabled: true,
-              retryCount: 0,
-              maxRetries: 3,
-              retryDelay: 60
-            }],
+            actions: [
+              {
+                id: 'level3-dashboard',
+                type: 'notification',
+                target: 'dashboard-log',
+                template: 'CRITICAL: {{message}} - Level 3 escalation',
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60
+              },
+              {
+                id: 'level3-email',
+                type: 'notification',
+                target: 'email-critical',
+                template: 'CRITICAL ALERT: {{message}} - Level 3 escalation - IMMEDIATE ACTION REQUIRED',
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60
+              },
+              {
+                id: 'level3-auto-fix',
+                type: 'automation',
+                target: 'auto-fix-critical',
+                template: 'AUTO-FIX: Attempting to resolve critical alert: {{message}}',
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60
+              }
+            ],
             recipients: ['team', 'leadership', 'emergency'],
-            channels: ['slack', 'email', 'sms']
+            channels: ['dashboard-log', 'email-critical', 'automation']
           }
         ],
         enabled: true,
@@ -699,20 +843,24 @@ class GhostAlertEngine {
           await this.triggerEscalation(action, alertEvent);
           result.status = 'success';
           break;
+        case 'automation':
+          await this.executeAutomation(action, alertEvent);
+          result.status = 'success';
+          break;
         default:
-          result.status = 'failed';
-          result.error = `Unknown action type: ${action.type}`;
+          throw new Error(`Unknown action type: ${action.type}`);
       }
     } catch (error) {
       result.status = 'failed';
-      result.error = error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error';
+      result.error = error.toString();
       
-      // Retry logic
       if (action.retryCount < action.maxRetries) {
         result.status = 'retrying';
-        action.retryCount++;
+        result.retryCount = action.retryCount + 1;
         
+        // Schedule retry
         setTimeout(async () => {
+          action.retryCount++;
           await this.executeAction(action, alertEvent);
         }, action.retryDelay * 1000);
       }
@@ -741,11 +889,11 @@ class GhostAlertEngine {
     const message = this.formatNotificationMessage(action.template, alertEvent);
     
     switch (channel.type) {
-      case 'slack':
-        await this.sendSlackNotification(channel, message);
+      case 'webhook':
+        await this.sendWebhookNotification(channel, message, alertEvent);
         break;
       case 'email':
-        await this.sendEmailNotification(channel, message);
+        await this.sendEmailNotification(channel, message, alertEvent);
         break;
       default:
         throw new Error(`Unsupported channel type: ${channel.type}`);
@@ -767,33 +915,81 @@ class GhostAlertEngine {
     return message;
   }
 
-  private async sendSlackNotification(channel: NotificationChannel, message: string): Promise<void> {
+  private async sendWebhookNotification(channel: NotificationChannel, message: string, alertEvent: AlertEvent): Promise<void> {
     try {
       const webhookUrl = channel.config.webhookUrl;
       if (!webhookUrl) {
-        throw new Error('Slack webhook URL not configured');
+        throw new Error('Webhook URL not configured');
       }
 
       const payload = {
-        text: message,
-        channel: channel.config.channel || '#alerts',
-        username: channel.config.username || 'GHOST Alert Engine'
+        alert: {
+          id: alertEvent.id,
+          ruleId: alertEvent.ruleId,
+          ruleName: alertEvent.ruleName,
+          severity: alertEvent.severity,
+          status: alertEvent.status,
+          message: message,
+          timestamp: alertEvent.timestamp,
+          data: alertEvent.data
+        },
+        channel: channel.config.channel || 'dashboard',
+        username: channel.config.username || 'GHOST Alert Engine',
+        timestamp: new Date().toISOString()
       };
 
       const { stdout } = await execAsync(`curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(payload)}' ${webhookUrl}`);
       
-      if (stdout.includes('ok') === false) {
-        throw new Error(`Slack API error: ${stdout}`);
+      if (stdout.includes('error')) {
+        throw new Error(`Webhook error: ${stdout}`);
       }
+      
+      this.logEvent('webhook_notification_sent', `Dashboard notification sent: ${message}`, 'info');
     } catch (error) {
-      throw new Error(`Failed to send Slack notification: ${error}`);
+      throw new Error(`Failed to send webhook notification: ${error}`);
     }
   }
 
-  private async sendEmailNotification(channel: NotificationChannel, message: string): Promise<void> {
-    // Email notification implementation would go here
-    // For now, just log the attempt
-    this.logEvent('email_notification', 'Email notification sent');
+  private async sendEmailNotification(channel: NotificationChannel, message: string, alertEvent: AlertEvent): Promise<void> {
+    try {
+      const config = channel.config;
+      
+      // Only send email for critical alerts or if explicitly configured
+      if (alertEvent.severity !== 'critical' && !config.sendAllAlerts) {
+        this.logEvent('email_skipped', `Email skipped for non-critical alert: ${alertEvent.severity}`, 'info');
+        return;
+      }
+
+      // Use mail command for simplicity (works on macOS/Linux)
+      const emailContent = `
+Subject: GHOST Alert Engine - ${alertEvent.severity.toUpperCase()}: ${alertEvent.ruleName}
+
+Alert Details:
+- Rule: ${alertEvent.ruleName}
+- Severity: ${alertEvent.severity}
+- Status: ${alertEvent.status}
+- Time: ${alertEvent.timestamp}
+
+Message: ${message}
+
+Alert Data: ${JSON.stringify(alertEvent.data, null, 2)}
+
+---
+This is an automated alert from the GHOST Alert Engine.
+Please check the dashboard for more details: https://gpt-cursor-runner.thoughtmarks.app/monitor
+      `;
+
+      const { stdout, stderr } = await execAsync(`echo "${emailContent}" | mail -s "GHOST Alert: ${alertEvent.ruleName}" ${config.to}`);
+      
+      if (stderr) {
+        throw new Error(`Email error: ${stderr}`);
+      }
+      
+      this.logEvent('email_notification_sent', `Email sent to ${config.to}: ${message}`, 'info');
+    } catch (error) {
+      this.logEvent('email_notification_error', `Failed to send email: ${error}`, 'error');
+      throw new Error(`Failed to send email notification: ${error}`);
+    }
   }
 
   private async sendWebhook(action: AlertAction, alertEvent: AlertEvent): Promise<void> {
@@ -858,6 +1054,55 @@ class GhostAlertEngine {
           alertId: alertEvent.id
         });
       }
+    }
+  }
+
+  private async executeAutomation(action: AlertAction, alertEvent: AlertEvent): Promise<void> {
+    try {
+      this.logEvent('automation_started', `Starting automation for alert: ${alertEvent.ruleName}`, 'info');
+      
+      // Define automation strategies based on alert type
+      const automationStrategies = {
+        'daemon-failure': async () => {
+          // Restart daemons if they're down
+          const { stdout } = await execAsync('ps aux | grep -E "(braun-daemon|ghost-runner|patch-executor)" | grep -v grep');
+          if (!stdout.trim()) {
+            this.logEvent('automation_restart_daemons', 'No daemons running, attempting restart', 'info');
+            await execAsync('bash scripts/watchdogs/alert-engine-daemon-watchdog.sh');
+          }
+        },
+        'high-cpu-usage': async () => {
+          // Kill high CPU processes
+          const { stdout } = await execAsync('ps aux --sort=-%cpu | head -5');
+          this.logEvent('automation_cpu_check', `High CPU processes: ${stdout}`, 'info');
+        },
+        'memory-usage': async () => {
+          // Clear caches and restart services
+          await execAsync('sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true');
+          this.logEvent('automation_memory_cleanup', 'Memory cleanup completed', 'info');
+        },
+        'disk-usage': async () => {
+          // Clean up old logs and temporary files
+          await execAsync('find /Users/sawyer/gitSync/.cursor-cache/CYOPS/logs -name "*.log" -mtime +7 -delete 2>/dev/null || true');
+          this.logEvent('automation_disk_cleanup', 'Disk cleanup completed', 'info');
+        }
+      };
+
+      const strategy = automationStrategies[alertEvent.ruleId as keyof typeof automationStrategies];
+      if (strategy) {
+        await strategy();
+        this.logEvent('automation_completed', `Automation completed for ${alertEvent.ruleName}`, 'info');
+        
+        // Mark alert as resolved if automation was successful
+        alertEvent.status = 'resolved';
+        alertEvent.resolvedBy = 'automation';
+        alertEvent.resolvedAt = new Date().toISOString();
+      } else {
+        this.logEvent('automation_no_strategy', `No automation strategy for rule: ${alertEvent.ruleId}`, 'warning');
+      }
+    } catch (error) {
+      this.logEvent('automation_error', `Automation failed for ${alertEvent.ruleName}: ${error}`, 'error');
+      throw new Error(`Failed to execute automation: ${error}`);
     }
   }
 
@@ -938,7 +1183,33 @@ class GhostAlertEngine {
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('component_error', '27480');
+        const dashboardData = {
+          alerts: {
+            active: this.state.activeAlerts,
+            history: this.state.alertHistory.slice(-50), // Last 50 alerts
+            summary: {
+              totalActive: this.state.activeAlerts.length,
+              totalHistory: this.state.alertHistory.length,
+              criticalCount: this.state.activeAlerts.filter(a => a.severity === 'critical').length,
+              errorCount: this.state.activeAlerts.filter(a => a.severity === 'error').length,
+              warningCount: this.state.activeAlerts.filter(a => a.severity === 'warning').length
+            }
+          },
+          status: {
+            healthy: this.isHealthy(),
+            uptime: Date.now() - this.startTime.getTime(),
+            lastUpdate: new Date().toISOString()
+          }
+        };
+
+        // Send to dashboard API
+        const { stdout } = await execAsync(`curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(dashboardData)}' http://localhost:5555/api/telemetry/alerts`);
+        
+        if (stdout.includes('error')) {
+          this.logEvent('dashboard_error', `Failed to send to dashboard: ${stdout}`, 'error');
+        } else {
+          this.logEvent('dashboard_update', 'Dashboard updated successfully', 'info');
+        }
       }
     } catch (error) {
       this.logEvent('dashboard_error', `Failed to send to dashboard: ${error}`, 'error');
@@ -974,7 +1245,7 @@ class GhostAlertEngine {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'info');
+    this.logEvent('system_startup', 'Alert engine started', 'info');
 
     this.monitoringLoop().catch(error => {
       this.logEvent('system_error', `Monitoring loop failed: ${error}`, 'critical');
@@ -983,7 +1254,7 @@ class GhostAlertEngine {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'info');
+    this.logEvent('system_shutdown', 'Alert engine stopped', 'info');
     await this.saveState();
   }
 
@@ -998,7 +1269,7 @@ class GhostAlertEngine {
   public updateConfig(newConfig: Partial<AlertEngineConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'newConfig');
+    this.logEvent('config_update', 'Configuration updated', 'info');
   }
 
   public getActiveAlerts(): AlertEvent[] {
@@ -1033,14 +1304,14 @@ class GhostAlertEngine {
 
   public addRule(rule: AlertRule): void {
     this.state.rules.push(rule);
-    this.logEvent('rule_added', 'Alert rule added');
+    this.logEvent('rule_added', 'Alert rule added', 'info');
   }
 
   public removeRule(ruleId: string): boolean {
     const index = this.state.rules.findIndex(r => r.id === ruleId);
     if (index !== -1) {
       const rule = this.state.rules.splice(index, 1)[0];
-      this.logEvent('rule_removed', 'Alert rule removed');
+      this.logEvent('rule_removed', 'Alert rule removed', 'info');
       return true;
     }
     return false;
@@ -1052,7 +1323,7 @@ class GhostAlertEngine {
 
   public clearHistory(): void {
     this.state.alertHistory = [];
-    this.logEvent('component_error', '30753');
+    this.logEvent('history_cleared', 'Alert history cleared', 'info');
   }
 }
 

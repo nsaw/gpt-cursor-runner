@@ -18,6 +18,7 @@ except ImportError:
 
 try:
     from .slack_proxy import create_slack_proxy
+
     slack_proxy = create_slack_proxy()
 except ImportError:
     slack_proxy = None
@@ -28,10 +29,10 @@ def verify_slack_signature(request_body: bytes, signature: str, timestamp: str) 
     slack_signing_secret = os.getenv("SLACK_SIGNING_SECRET")
     if not slack_signing_secret:
         return True  # Skip verification if not configured
-    
+
     # Create the signature base string
     sig_basestring = f"v0:{timestamp}:{request_body.decode('utf-8')}"
-    
+
     # Create the expected signature
     expected_signature = (
         "v0="
@@ -50,7 +51,7 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
     text = request_data.get("text", "")
     user_id = request_data.get("user_id", "")
     channel_id = request_data.get("channel_id", "")
-    
+
     # Log the command
     if event_logger:
         event_logger.log_slack_event(
@@ -62,14 +63,14 @@ def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
                 "text": text,
             },
         )
-    
+
     # Handle /status-runner
     if command == "/status-runner":
         response = {"text": "Runner status operational"}
         if slack_proxy:
             slack_proxy.notify_status("Runner status operational", health_score=100)
         return response
-    
+
     # Add more command handlers as needed
     return {"text": f"Unknown command: {command}"}
 
@@ -80,7 +81,7 @@ def handle_slack_event(event_data: Dict[str, Any]) -> Dict[str, Any]:
     user_id = event_data.get("user", "")
     channel_id = event_data.get("channel", "")
     text = event_data.get("text", "")
-    
+
     # Log the event
     if event_logger:
         event_logger.log_slack_event(
@@ -91,14 +92,14 @@ def handle_slack_event(event_data: Dict[str, Any]) -> Dict[str, Any]:
                 "text": text,
             },
         )
-    
+
     # Example: respond to app_mention
     if event_type == "app_mention":
         response = {"text": f"Hello <@{user_id}>! How can I help you?"}
         if slack_proxy:
             slack_proxy.notify_command_executed("app_mention", user_id, True)
         return response
-    
+
     return {"text": "Event received."}
 
 
@@ -115,7 +116,7 @@ def handle_interactive_component(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "text": json.dumps(payload),
             },
         )
-    
+
     # Example: acknowledge the interaction
     return {"text": "Interaction received."}
 
@@ -134,6 +135,7 @@ def send_slack_response(response_url: str, response_data: Dict[str, Any]) -> boo
     """Send response to Slack via response_url."""
     try:
         import requests
+
         response = requests.post(response_url, json=response_data, timeout=10)
         return response.status_code == 200
     except Exception as e:

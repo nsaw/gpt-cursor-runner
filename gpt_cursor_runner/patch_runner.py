@@ -10,7 +10,7 @@ import re
 import json
 import shutil
 from datetime import datetime
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, Tuple
 
 # Import dependencies
 try:
@@ -20,6 +20,7 @@ except ImportError:
 
 try:
     from .slack_proxy import create_slack_proxy
+
     slack_proxy = create_slack_proxy()
 except ImportError:
     slack_proxy = None
@@ -28,31 +29,35 @@ except ImportError:
 def validate_patch_schema(patch_data: Dict[str, Any]) -> Tuple[bool, str]:
     """Validate patch data against schema."""
     required_fields = ["id", "target_file", "patch"]
-    
+
     for field in required_fields:
         if field not in patch_data:
             return False, f"Missing required field: {field}"
-    
+
     patch_info = patch_data.get("patch", {})
     if not isinstance(patch_info, dict):
         return False, "Patch must be a dictionary"
-    
+
     if "pattern" not in patch_info:
         return False, "Patch must contain 'pattern' field"
-    
+
     if "replacement" not in patch_info:
         return False, "Patch must contain 'replacement' field"
-    
+
     return True, ""
 
 
-def log_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
+def log_patch_event(
+    event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None
+):
     """Log patch events for UI display."""
     if EVENT_LOGGER:
         EVENT_LOGGER.log_patch_event(event_type, patch_data, result)
 
 
-def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None):
+def notify_patch_event(
+    event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None
+):
     """Notify Slack of patch events."""
     if slack_proxy:
         try:
@@ -62,7 +67,11 @@ def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Opti
                     patch_data.get("target_file", "unknown"),
                     True,
                 )
-            elif event_type in ["validation_failed", "application_error", "dangerous_pattern"]:
+            elif event_type in [
+                "validation_failed",
+                "application_error",
+                "dangerous_pattern",
+            ]:
                 error_msg = (
                     result.get("message", "Unknown error")
                     if result
@@ -76,7 +85,9 @@ def notify_patch_event(event_type: str, patch_data: Dict[str, Any], result: Opti
             print(f"Error notifying Slack: {e}")
 
 
-def apply_patch(patch_data: Dict[str, Any], dry_run: bool = False, force: bool = False) -> Dict[str, Any]:
+def apply_patch(
+    patch_data: Dict[str, Any], dry_run: bool = False, force: bool = False
+) -> Dict[str, Any]:
     """Apply a patch to a target file."""
     result = {
         "success": False,
@@ -137,7 +148,7 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = False, force: bool =
             content = f.read()
 
         # Check if pattern is a regex (contains special regex characters)
-        is_regex = any(char in pattern for char in r'^$.*+?{}[]()|\\')
+        is_regex = any(char in pattern for char in r"^$.*+?{}[]()|\\")
 
         if is_regex:
             # Use regex matching
@@ -168,7 +179,9 @@ def apply_patch(patch_data: Dict[str, Any], dry_run: bool = False, force: bool =
 
         # Create backup if not dry run
         if not dry_run:
-            backup_file = f"{target_file}.bak_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            backup_file = (
+                f"{target_file}.bak_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
             shutil.copy2(target_file, backup_file)
             result["backup_created"] = True
             result["backup_file"] = backup_file
@@ -201,38 +214,38 @@ def is_dangerous_pattern(pattern: str) -> bool:
     """Check if a pattern is potentially dangerous."""
     dangerous_patterns = [
         r"^.*$",  # Matches entire file
-        r".*",    # Matches everything
-        r"^",     # Start of file
-        r"$",     # End of file
+        r".*",  # Matches everything
+        r"^",  # Start of file
+        r"$",  # End of file
     ]
-    
+
     for dangerous in dangerous_patterns:
         if pattern == dangerous:
             return True
-    
+
     return False
 
 
 def load_latest_patch() -> Optional[Dict[str, Any]]:
     """Load the most recent patch from the patches directory."""
     patches_dir = os.getenv("PATCHES_DIRECTORY", "patches")
-    
+
     if not os.path.exists(patches_dir):
         return None
-    
+
     patch_files = []
     for file in os.listdir(patches_dir):
         if file.endswith(".json"):
             filepath = os.path.join(patches_dir, file)
             patch_files.append((filepath, os.path.getmtime(filepath)))
-    
+
     if not patch_files:
         return None
-    
+
     # Sort by modification time (newest first)
     patch_files.sort(key=lambda x: x[1], reverse=True)
     latest_file = patch_files[0][0]
-    
+
     try:
         with open(latest_file, "r") as f:
             return json.load(f)

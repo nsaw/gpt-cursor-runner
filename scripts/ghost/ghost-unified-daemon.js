@@ -257,13 +257,13 @@ class HealthMonitor {
   async restartComponent(componentName, component) {
     try {
       if (component.pm2Name) {
-        // Restart via PM2
-        await this.execCommand(`pm2 restart ${component.pm2Name}`);
-        console.log(`[DAEMON] Restarted ${componentName} via PM2`);
+        // Restart via PM2 (non-blocking)
+        await this.execCommand(`{ pm2 restart ${component.pm2Name} & } >/dev/null 2>&1 & disown`);
+        console.log(`[DAEMON] Restarted ${componentName} via PM2 (non-blocking)`);
       } else if (component.script) {
-        // Start directly
-        await this.execCommand(`node ${component.script} &`);
-        console.log(`[DAEMON] Started ${componentName} directly`);
+        // Start directly (non-blocking)
+        await this.execCommand(`{ node ${component.script} & } >/dev/null 2>&1 & disown`);
+        console.log(`[DAEMON] Started ${componentName} directly (non-blocking)`);
       }
       
       // Reset restart count after successful restart
@@ -327,8 +327,8 @@ class GhostUnifiedDaemon {
         try {
           await this.healthMonitor.execCommand(`pm2 describe ${component.pm2Name}`);
         } catch (_error) {
-          console.log(`[DAEMON] Starting ${name} via PM2...`);
-          await this.healthMonitor.execCommand(`pm2 start ecosystem.config.js --only ${component.pm2Name}`);
+          console.log(`[DAEMON] Starting ${name} via PM2 (non-blocking)...`);
+          await this.healthMonitor.execCommand(`{ pm2 start ecosystem.config.js --only ${component.pm2Name} & } >/dev/null 2>&1 & disown`);
         }
       }
     }

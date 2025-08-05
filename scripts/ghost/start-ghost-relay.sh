@@ -9,10 +9,10 @@ mkdir -p /Users/sawyer/gitSync/.cursor-cache/MAIN/.logs
 mkdir -p /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries
 mkdir -p /Users/sawyer/gitSync/.cursor-cache/MAIN/summaries
 
-# Start ghost relay via PM2
-pm2 start ecosystem.config.js --only ghost-relay || {
-  echo "[GHOST-RELAY] Starting ghost relay directly..."
-  node scripts/ghost/ghost-relay.js &
+# Start ghost relay via PM2 (non-blocking)
+{ pm2 start ecosystem.config.js --only ghost-relay & } >/dev/null 2>&1 & disown || {
+  echo "[GHOST-RELAY] Starting ghost relay directly (non-blocking)..."
+  { node scripts/ghost/ghost-relay.js & } >/dev/null 2>&1 & disown
   echo $! > /tmp/ghost-relay.pid
 }
 

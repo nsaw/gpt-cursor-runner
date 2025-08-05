@@ -20,6 +20,7 @@ except ImportError:
 
 try:
     from .slack_proxy import create_slack_proxy
+
     slack_proxy = create_slack_proxy()
 except ImportError:
     slack_proxy = None
@@ -27,12 +28,12 @@ except ImportError:
 
 def create_dashboard_routes(app: Flask):
     """Create dashboard routes for Flask app."""
-    
+
     @app.route("/dashboard")
     def dashboard():
         """Serve dashboard HTML."""
         return DASHBOARD_HTML
-    
+
     @app.route("/api/dashboard/stats")
     def dashboard_stats():
         """Get dashboard statistics."""
@@ -43,13 +44,11 @@ def create_dashboard_routes(app: Flask):
             error_msg = f"Error getting dashboard stats: {str(e)}"
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(
-                        error_msg, context="/api/dashboard/stats"
-                    )
+                    slack_proxy.notify_error(error_msg, context="/api/dashboard/stats")
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/events")
     def dashboard_events():
         """Get recent events."""
@@ -63,13 +62,11 @@ def create_dashboard_routes(app: Flask):
             error_msg = f"Error getting events: {str(e)}"
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(
-                        error_msg, context="/api/dashboard/events"
-                    )
+                    slack_proxy.notify_error(error_msg, context="/api/dashboard/events")
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/patches")
     def dashboard_patches():
         """Get recent patches."""
@@ -86,7 +83,7 @@ def create_dashboard_routes(app: Flask):
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/metrics")
     def dashboard_metrics():
         """Get system metrics."""
@@ -107,7 +104,7 @@ def create_dashboard_routes(app: Flask):
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/tunnels")
     def dashboard_tunnels():
         """Get tunnel status."""
@@ -124,7 +121,7 @@ def create_dashboard_routes(app: Flask):
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/agents")
     def dashboard_agents():
         """Get agent status."""
@@ -135,13 +132,11 @@ def create_dashboard_routes(app: Flask):
             error_msg = f"Error getting agent status: {str(e)}"
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(
-                        error_msg, context="/api/dashboard/agents"
-                    )
+                    slack_proxy.notify_error(error_msg, context="/api/dashboard/agents")
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/queues")
     def dashboard_queues():
         """Get queue status."""
@@ -152,13 +147,11 @@ def create_dashboard_routes(app: Flask):
             error_msg = f"Error getting queue status: {str(e)}"
             try:
                 if slack_proxy:
-                    slack_proxy.notify_error(
-                        error_msg, context="/api/dashboard/queues"
-                    )
+                    slack_proxy.notify_error(error_msg, context="/api/dashboard/queues")
             except Exception:
                 pass
             return jsonify({"error": error_msg}), 500
-    
+
     @app.route("/api/dashboard/slack-commands")
     def dashboard_slack_commands():
         """Get Slack command statistics."""
@@ -185,7 +178,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
         "events": {},
         "slack": {},
     }
-    
+
     # Event statistics
     if event_logger:
         try:
@@ -194,7 +187,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
             for event in events:
                 event_type = event.get("type", "unknown")
                 event_counts[event_type] = event_counts.get(event_type, 0) + 1
-            
+
             stats["events"] = {
                 "total": len(events),
                 "by_type": event_counts,
@@ -209,7 +202,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
                     )
             except Exception:
                 pass
-    
+
     # Slack statistics
     if event_logger:
         try:
@@ -218,7 +211,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
             for event in slack_events:
                 event_type = event.get("event_type", "unknown")
                 slack_counts[event_type] = slack_counts.get(event_type, 0) + 1
-            
+
             stats["slack"] = {
                 "total_events": len(slack_events),
                 "by_type": slack_counts,
@@ -232,7 +225,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
                     )
             except Exception:
                 pass
-    
+
     return stats
 
 
@@ -240,11 +233,11 @@ def get_recent_patches(limit: int = 20) -> List[Dict[str, Any]]:
     """Get recent patches from the patches directory."""
     patches = []
     patches_dir = os.getenv("PATCHES_DIRECTORY", "patches")
-    
+
     if os.path.exists(patches_dir):
         patch_files = glob.glob(os.path.join(patches_dir, "*.json"))
         patch_files.sort(key=os.path.getmtime, reverse=True)
-        
+
         for patch_file in patch_files[:limit]:
             try:
                 with open(patch_file, "r") as f:
@@ -256,7 +249,7 @@ def get_recent_patches(limit: int = 20) -> List[Dict[str, Any]]:
                     patches.append(patch_data)
             except Exception as e:
                 print(f"Error reading patch file {patch_file}: {e}")
-    
+
     return patches
 
 
@@ -264,9 +257,10 @@ def get_uptime() -> Dict[str, Any]:
     """Get system uptime information."""
     try:
         import psutil
+
         boot_time = datetime.fromtimestamp(psutil.boot_time())
         uptime = datetime.now() - boot_time
-        
+
         return {
             "boot_time": boot_time.isoformat(),
             "uptime_seconds": int(uptime.total_seconds()),
@@ -282,8 +276,9 @@ def get_memory_usage() -> Dict[str, Any]:
     """Get memory usage information."""
     try:
         import psutil
+
         memory = psutil.virtual_memory()
-        
+
         return {
             "total": memory.total,
             "available": memory.available,
@@ -299,8 +294,9 @@ def get_disk_usage() -> Dict[str, Any]:
     """Get disk usage information."""
     try:
         import psutil
+
         disk = psutil.disk_usage("/")
-        
+
         return {
             "total": disk.total,
             "used": disk.used,
@@ -344,20 +340,29 @@ def get_slack_command_stats() -> Dict[str, Any]:
         try:
             slack_events = event_logger.get_slack_events(1000)
             command_counts = {}
-            
+
             for event in slack_events:
                 if event.get("event_type") == "slash_command":
                     command = event.get("command", "unknown")
                     command_counts[command] = command_counts.get(command, 0) + 1
-            
+
             return {
-                "total_commands": len([e for e in slack_events if e.get("event_type") == "slash_command"]),
+                "total_commands": len(
+                    [e for e in slack_events if e.get("event_type") == "slash_command"]
+                ),
                 "by_command": command_counts,
-                "recent_24h": len([e for e in slack_events if e.get("event_type") == "slash_command" and is_recent_event(e, 24)]),
+                "recent_24h": len(
+                    [
+                        e
+                        for e in slack_events
+                        if e.get("event_type") == "slash_command"
+                        and is_recent_event(e, 24)
+                    ]
+                ),
             }
         except Exception as e:
             return {"error": f"Error getting Slack command stats: {e}"}
-    
+
     return {"error": "Event logger not available"}
 
 

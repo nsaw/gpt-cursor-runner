@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 def load_patch(patch_file: str) -> Optional[Dict[str, Any]]:
     """Load patch data from JSON file."""
     try:
-        with open(patch_file, 'r') as f:
+        with open(patch_file, "r") as f:
             return json.load(f)  # type: ignore
     except Exception as e:
         print(f"❌ Error loading patch: {e}")
@@ -24,54 +24,54 @@ def load_patch(patch_file: str) -> Optional[Dict[str, Any]]:
 def apply_patch_to_file(patch_data: Dict[str, Any], target_file: str) -> bool:
     """Apply patch mutations to target file."""
     try:
-        mutations = patch_data.get('mutations', [])
-        
+        mutations = patch_data.get("mutations", [])
+
         for mutation in mutations:
-            mutation_type = mutation.get('type')
-            target = mutation.get('target')
-            content = mutation.get('content', '')
-            
-            if mutation_type == 'create':
+            mutation_type = mutation.get("type")
+            target = mutation.get("target")
+            content = mutation.get("content", "")
+
+            if mutation_type == "create":
                 # Ensure directory exists
                 target_path = Path(target)
                 target_path.parent.mkdir(parents=True, exist_ok=True)
-                
+
                 # Create file
-                with open(target, 'w') as f:
+                with open(target, "w") as f:
                     f.write(content)
                 print(f"✅ Created: {target}")
-                
-            elif mutation_type == 'update':
+
+            elif mutation_type == "update":
                 # Update existing file
-                with open(target, 'w') as f:
+                with open(target, "w") as f:
                     f.write(content)
                 print(f"✅ Updated: {target}")
-                
-            elif mutation_type == 'delete':
+
+            elif mutation_type == "delete":
                 # Delete file
                 if os.path.exists(target):
                     os.remove(target)
                     print(f"✅ Deleted: {target}")
-                    
+
     except Exception as e:
         print(f"❌ Error applying patch: {e}")
         return False
-    
+
     return True
 
 
 def validate_patch(patch_data: Dict[str, Any]) -> bool:
     """Run validation commands for the patch."""
     try:
-        validation_commands = patch_data.get('validate', {}).get('shell', [])
-        
+        validation_commands = patch_data.get("validate", {}).get("shell", [])
+
         for cmd in validation_commands:
             print(f"🔍 Running validation: {cmd}")
             result = os.system(cmd)
             if result != 0:
                 print(f"❌ Validation failed: {cmd}")
                 return False
-                
+
         return True
     except Exception as e:
         print(f"❌ Error during validation: {e}")
@@ -81,14 +81,14 @@ def validate_patch(patch_data: Dict[str, Any]) -> bool:
 def run_post_build(patch_data: Dict[str, Any]) -> None:
     """Run post-mutation build commands."""
     try:
-        post_commands = patch_data.get('postMutationBuild', {}).get('shell', [])
-        
+        post_commands = patch_data.get("postMutationBuild", {}).get("shell", [])
+
         for cmd in post_commands:
             print(f"🔧 Running post-build: {cmd}")
             result = os.system(cmd)
             if result != 0:
                 print(f"⚠️ Post-build command failed: {cmd}")
-                
+
     except Exception as e:
         print(f"❌ Error during post-build: {e}")
 
@@ -98,38 +98,38 @@ def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python3 -m gpt_cursor_runner.apply_patch <patch_file>")
         sys.exit(1)
-    
+
     patch_file = sys.argv[1]
-    
+
     if not os.path.exists(patch_file):
         print(f"❌ Patch file not found: {patch_file}")
         sys.exit(1)
-    
+
     print(f"🚀 Applying patch: {patch_file}")
-    
+
     # Load patch data
     patch_data = load_patch(patch_file)
     if not patch_data:
         sys.exit(1)
-    
+
     # Apply mutations
-    mutations = patch_data.get('mutations', [])
+    mutations = patch_data.get("mutations", [])
     for mutation in mutations:
-        target = mutation.get('target')
+        target = mutation.get("target")
         if target:
             success = apply_patch_to_file(patch_data, target)
             if not success:
                 print("❌ Patch application failed")
                 sys.exit(1)
-    
+
     # Run validation
     if not validate_patch(patch_data):
         print("❌ Patch validation failed")
         sys.exit(1)
-    
+
     # Run post-build commands
     run_post_build(patch_data)
-    
+
     print("✅ Patch applied successfully!")
 
 

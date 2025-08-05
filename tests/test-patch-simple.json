@@ -1,0 +1,25 @@
+{
+  "id": "test-patch-simple",
+  "version": "1.0.0",
+  "phase": "P8.10.03",
+  "timestamp": "2025-07-29T05:56:00Z",
+  "description": "Simple test patch for autonomous execution",
+  "mutations": [
+    {
+      "path": "/tmp/simple-test.log",
+      "contents": "Simple test completed at $(date)\n"
+    }
+  ],
+  "postMutationBuild": {
+    "shell": [
+      "echo 'Simple test completed successfully' >> /tmp/simple-test.log",
+      "date >> /tmp/simple-test.log"
+    ]
+  },
+  "metadata": {
+    "author": "ghost-system",
+    "tags": ["test", "simple"],
+    "dependencies": [],
+    "estimatedDuration": "10s"
+  }
+} 

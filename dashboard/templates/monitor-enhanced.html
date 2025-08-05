@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST RUNNER - Enhanced Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .header .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        /* Collapsible Sections */
+        .collapsible {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .collapsible-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        
+        .collapsible-header h2 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+        
+        .collapsible-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 2000px;
+        }
+        
+        .collapsible-content .content {
+            padding: 20px;
+        }
+        
+        /* Color-blind friendly status indicators */
+        .status-healthy {
+            color: #3498db !important; /* Blue instead of green */
+            border-left-color: #3498db !important;
+            background: #ebf3fd !important;
+        }
+        
+        .status-unhealthy {
+            color: #e74c3c !important; /* Red */
+            border-left-color: #e74c3c !important;
+            background: #fadbd8 !important;
+        }
+        
+        .status-warning {
+            color: #f39c12 !important; /* Orange */
+            border-left-color: #f39c12 !important;
+            background: #fef9e7 !important;
+        }
+        
+        .status-unknown {
+            color: #95a5a6 !important; /* Gray */
+            border-left-color: #95a5a6 !important;
+            background: #f8f9fa !important;
+        }
+        
+        /* Service Grid */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .service-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .service-info {
+            flex: 1;
+        }
+        
+        .service-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .service-status {
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.danger {
+            background: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn.warning {
+            background: #f39c12;
+        }
+        
+        .btn.warning:hover {
+            background: #d68910;
+        }
+        
+        /* Logs Section */
+        .logs-section {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .log-service {
+            margin-bottom: 20px;
+        }
+        
+        .log-service h4 {
+            background: #34495e;
+            color: white;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            margin: 0;
+        }
+        
+        .log-content {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 0 0 5px 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-line {
+            margin-bottom: 2px;
+        }
+        
+        /* Icons */
+        .icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        .icon-healthy::before { content: "✅"; }
+        .icon-unhealthy::before { content: "❌"; }
+        .icon-warning::before { content: "⚠️"; }
+        .icon-unknown::before { content: "❓"; }
+        
+        /* Loading states */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GHOST RUNNER</h1>
+            <div class="subtitle">Enhanced Dual-Agent Dashboard</div>
+            <div class="status" id="overall-status">Loading...</div>
+        </div>
+
+        <!-- Component Health Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('component-health')">
+                <h2>⚙️ Component Health</h2>
+                <span class="collapsible-icon" id="component-health-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="component-health">
+                <div class="content">
+                    <div class="loading" id="component-health-loading">
+                        <span class="spinner"></span>Loading component health...
+                    </div>
+                    <div id="component-health-content" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unified Manager Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('unified-manager')">
+                <h2>🔧 Unified Manager Status</h2>
+                <span class="collapsible-icon" id="unified-manager-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="unified-manager">
+                <div class="content">
+                    <div class="loading" id="unified-manager-loading">
+                        <span class="spinner"></span>Loading unified manager status...
+                    </div>
+                    <div id="unified-manager-content" style="display: none;">
+                        <div class="service-grid" id="service-grid"></div>
+                        <div class="controls">
+                            <button class="btn" onclick="refreshManagerStatus()">🔄 Refresh Status</button>
+                            <button class="btn warning" onclick="startAllServices()">▶️ Start All</button>
+                            <button class="btn danger" onclick="stopAllServices()">⏹️ Stop All</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Telemetry Dashboard Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('telemetry')">
+                <h2>📊 Telemetry Dashboard</h2>
+                <span class="collapsible-icon" id="telemetry-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="telemetry">
+                <div class="content">
+                    <div class="loading" id="telemetry-loading">
+                        <span class="spinner"></span>Loading telemetry data...
+                    </div>
+                    <div id="telemetry-content" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Engine Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('alerts')">
+                <h2>🚨 Alert Engine Dashboard</h2>
+                <span class="collapsible-icon" id="alerts-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="alerts">
+                <div class="content">
+                    <div class="loading" id="alerts-loading">
+                        <span class="spinner"></span>Loading alerts...
+                    </div>
+                    <div id="alerts-content" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Resources Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('resources')">
+                <h2>💻 System Resources</h2>
+                <span class="collapsible-icon" id="resources-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="resources">
+                <div class="content">
+                    <div class="loading" id="resources-loading">
+                        <span class="spinner"></span>Loading system resources...
+                    </div>
+                    <div id="resources-content" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Logs Section -->
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleSection('logs')">
+                <h2>📝 Service Logs (Tail -10)</h2>
+                <span class="collapsible-icon" id="logs-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="logs">
+                <div class="content">
+                    <div class="loading" id="logs-loading">
+                        <span class="spinner"></span>Loading service logs...
+                    </div>
+                    <div id="logs-content" style="display: none;">
+                        <div class="controls">
+                            <button class="btn" onclick="refreshLogs()">🔄 Refresh Logs</button>
+                        </div>
+                        <div class="logs-section" id="logs-section"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle collapsible sections
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                icon.textContent = '▲';
+                
+                // Load data when section is expanded
+                loadSectionData(sectionId);
+            }
+        }
+
+        // Load data for specific sections
+        function loadSectionData(sectionId) {
+            switch(sectionId) {
+                case 'unified-manager':
+                    loadUnifiedManagerStatus();
+                    break;
+                case 'logs':
+                    loadServiceLogs();
+                    break;
+                case 'component-health':
+                    loadComponentHealth();
+                    break;
+                case 'telemetry':
+                    loadTelemetryData();
+                    break;
+                case 'alerts':
+                    loadAlerts();
+                    break;
+                case 'resources':
+                    loadSystemResources();
+                    break;
+            }
+        }
+
+        // Load unified manager status
+        async function loadUnifiedManagerStatus() {
+            try {
+                const response = await fetch('/api/manager-status');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayUnifiedManagerStatus(data);
+                } else {
+                    document.getElementById('unified-manager-content').innerHTML = 
+                        '<div class="error">Error loading unified manager status</div>';
+                }
+            } catch (error) {
+                console.error('Error loading unified manager status:', error);
+                document.getElementById('unified-manager-content').innerHTML = 
+                    '<div class="error">Failed to load unified manager status</div>';
+            }
+            
+            document.getElementById('unified-manager-loading').style.display = 'none';
+            document.getElementById('unified-manager-content').style.display = 'block';
+        }
+
+        // Display unified manager status
+        function displayUnifiedManagerStatus(data) {
+            const serviceGrid = document.getElementById('service-grid');
+            const services = data.services.details;
+            
+            let html = '';
+            
+            // Summary
+            html += `
+                <div style="grid-column: 1 / -1; background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3>Service Summary</h3>
+                    <p>Total: ${data.services.total} | 
+                       <span class="status-healthy">Healthy: ${data.services.healthy}</span> | 
+                       <span class="status-unhealthy">Unhealthy: ${data.services.unhealthy}</span> | 
+                       <span class="status-unknown">Unknown: ${data.services.unknown}</span>
+                    </p>
+                </div>
+            `;
+            
+            // Service items
+            for (const [serviceName, serviceData] of Object.entries(services)) {
+                const statusClass = serviceData.status === 'healthy' ? 'status-healthy' : 
+                                  serviceData.status === 'unhealthy' ? 'status-unhealthy' : 'status-unknown';
+                const iconClass = serviceData.status === 'healthy' ? 'icon-healthy' : 
+                                serviceData.status === 'unhealthy' ? 'icon-unhealthy' : 'icon-unknown';
+                
+                html += `
+                    <div class="service-item ${statusClass}">
+                        <div class="service-info">
+                            <div class="service-name">${serviceName}</div>
+                            <div class="service-status">
+                                <span class="icon ${iconClass}"></span>
+                                ${serviceData.status.toUpperCase()}
+                            </div>
+                        </div>
+                        <div class="service-actions">
+                            <button class="btn" onclick="serviceAction('${serviceName}', 'start')">▶️</button>
+                            <button class="btn warning" onclick="serviceAction('${serviceName}', 'restart')">🔄</button>
+                            <button class="btn danger" onclick="serviceAction('${serviceName}', 'stop')">⏹️</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            serviceGrid.innerHTML = html;
+        }
+
+        // Service action
+        async function serviceAction(serviceName, action) {
+            try {
+                const response = await fetch('/api/service-action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        service: serviceName,
+                        action: action
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert(`${action} action completed for ${serviceName}`);
+                    loadUnifiedManagerStatus(); // Refresh status
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error executing service action:', error);
+                alert('Failed to execute service action');
+            }
+        }
+
+        // Load service logs
+        async function loadServiceLogs() {
+            try {
+                const response = await fetch('/api/service-logs');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayServiceLogs(data.service_logs);
+                } else {
+                    document.getElementById('logs-section').innerHTML = 
+                        '<div class="error">Error loading service logs</div>';
+                }
+            } catch (error) {
+                console.error('Error loading service logs:', error);
+                document.getElementById('logs-section').innerHTML = 
+                    '<div class="error">Failed to load service logs</div>';
+            }
+            
+            document.getElementById('logs-loading').style.display = 'none';
+            document.getElementById('logs-content').style.display = 'block';
+        }
+
+        // Display service logs
+        function displayServiceLogs(serviceLogs) {
+            const logsSection = document.getElementById('logs-section');
+            let html = '';
+            
+            for (const [serviceName, logData] of Object.entries(serviceLogs)) {
+                html += `
+                    <div class="log-service">
+                        <h4>${serviceName}</h4>
+                        <div class="log-content">
+                `;
+                
+                if (logData.status === 'available' && logData.lines.length > 0) {
+                    logData.lines.forEach(line => {
+                        html += `<div class="log-line">${line}</div>`;
+                    });
+                } else if (logData.status === 'not_found') {
+                    html += '<div class="log-line">Log file not found</div>';
+                } else {
+                    html += `<div class="log-line">Error: ${logData.error || 'Unknown error'}</div>`;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            logsSection.innerHTML = html;
+        }
+
+        // Refresh functions
+        function refreshManagerStatus() {
+            document.getElementById('unified-manager-loading').style.display = 'block';
+            document.getElementById('unified-manager-content').style.display = 'none';
+            loadUnifiedManagerStatus();
+        }
+
+        function refreshLogs() {
+            document.getElementById('logs-loading').style.display = 'block';
+            document.getElementById('logs-content').style.display = 'none';
+            loadServiceLogs();
+        }
+
+        // Placeholder functions for other sections
+        function loadComponentHealth() {
+            document.getElementById('component-health-loading').style.display = 'none';
+            document.getElementById('component-health-content').style.display = 'block';
+            document.getElementById('component-health-content').innerHTML = 
+                '<p>Component health data will be loaded here...</p>';
+        }
+
+        function loadTelemetryData() {
+            document.getElementById('telemetry-loading').style.display = 'none';
+            document.getElementById('telemetry-content').style.display = 'block';
+            document.getElementById('telemetry-content').innerHTML = 
+                '<p>Telemetry data will be loaded here...</p>';
+        }
+
+        function loadAlerts() {
+            document.getElementById('alerts-loading').style.display = 'none';
+            document.getElementById('alerts-content').style.display = 'block';
+            document.getElementById('alerts-content').innerHTML = 
+                '<p>Alert data will be loaded here...</p>';
+        }
+
+        function loadSystemResources() {
+            document.getElementById('resources-loading').style.display = 'none';
+            document.getElementById('resources-content').style.display = 'block';
+            document.getElementById('resources-content').innerHTML = 
+                '<p>System resources will be loaded here...</p>';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-expand unified manager section on load
+            toggleSection('unified-manager');
+        });
+    </script>
+</body>
+</html> 

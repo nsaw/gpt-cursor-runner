@@ -110,22 +110,22 @@ start_ghost_components() {
     
     cd "$PROJECT_ROOT"
     
-    # Start ghost relay via PM2
+    # Start ghost relay via PM2 (non-blocking)
     if ! pm2 describe ghost-relay > /dev/null 2>&1; then
         log "Starting ghost-relay..."
-        pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-relay
+        { pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-relay & } >/dev/null 2>&1 & disown
     fi
     
-    # Start ghost viewer via PM2
+    # Start ghost viewer via PM2 (non-blocking)
     if ! pm2 describe ghost-viewer > /dev/null 2>&1; then
         log "Starting ghost-viewer..."
-        pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-viewer
+        { pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-viewer & } >/dev/null 2>&1 & disown
     fi
     
-    # Start ghost bridge via PM2
+    # Start ghost bridge via PM2 (non-blocking)
     if ! pm2 describe ghost-bridge > /dev/null 2>&1; then
         log "Starting ghost-bridge..."
-        pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-bridge
+        { pm2 start "$PROJECT_ROOT/ecosystem.config.js" --only ghost-bridge & } >/dev/null 2>&1 & disown
     fi
     
     success "Ghost components started"

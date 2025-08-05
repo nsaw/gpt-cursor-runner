@@ -68,7 +68,7 @@ function checkPatchRoutingHealth() {
   // Check critical processes
   health.processes.ghostBridge = isProcessRunning('ghost-bridge');
   health.processes.patchRelayMain = isProcessRunning('patch-relay-main');
-  health.processes.patchExecutor = isProcessRunning('patch-executor');
+  health.processes.patchExecutor = isProcessRunning('patch_executor_daemon.py');
 
   // Check directories
   health.directories.mainPatches = fs.existsSync(PATHS.MAIN_PATCHES);
@@ -118,8 +118,8 @@ function restartFailedProcesses() {
     restarted++;
   }
 
-  if (!isProcessRunning('patch-executor')) {
-    startProcess('patch-executor', 'scripts/patch-executor-loop.js');
+  if (!isProcessRunning('patch_executor_daemon.py')) {
+    startProcess('patch_executor_daemon.py', 'python3 patch_executor_daemon.py --patches-dir /Users/sawyer/gitSync/.cursor-cache/MAIN/patches');
     restarted++;
   }
 

@@ -1,54 +1,364 @@
-""""
-Patch Reverter for GPT-Cursor Runner."""
-Reverts patches by patch_id or timestamp with automatic backup management."""
+"""
+Patch Reverter for GPT-Cursor Runner.
+Reverts patches by patch_id or timestamp with automatic backup management.
+"""
 
 import os
-import json
 import shutil
-import glob
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional"""
-class PatchReverter import ""Reverts patches and manages backup files.""
-    def __init__(self, patches_dir str = "patches", backup_suffix
-        str = ".bak")
-        self.patches_dir = patches_dir
-        self.backup_suffix = backup_suffix"
-    def find_backup_files(self, target_file
-        str) -> List[Dict[str, Any]]         """Find all backup files for a target file."""         backup_pattern = f"{target_file}{self.backup_suffix}_*"         bac""
-    f"kup_files = glob.glob(backup_pattern)          backups = []         for backup_file in backup_files
-        try                 # Extract timestamp from filename                 timestamp_str = backup_file.split(f"{self.backup_suffix}_")[-1]                 timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")                  # Get file stats                 stat = os.stat(backup_file)                  backups.append(                     {                         "backup_file"
-        backup_file,                         "timestamp" timestamp,                         "size" import stat.st_size,                         "created" datetime.fromtimestamp(stat.st_mtime),                     }                 )             except Exception as e as print(f"Warning in Could not parse backup file {backup_file} target_file,             "backup_used" import None,             "timestamp" datetime.now().isoformat(),         }          try:             # Find the patch file             patch_file = self._find_patch_by_id(patch_id)             if not patch_file
-        result["message"] = f"Patch with ID '{patch_id}' not found"                 return result              # Load patch data             with open(patch_file, "r") as f
-        patch_data = json.load(f)              target_file = target_file or patch_data.get("target_file")             if not target_file                 result["message"] = "No target file specified in patch"                 return result              # Find backup files             backups = self.find_backup_files(target_file)             if not backups
-        result["message"] = f"No backup files found for {target_file}"                 return result              # Use the most recent backup             backup_info = backups[0]              # Create a backup of current file before reverting             current_backup = f"{target_file}.revert_backup_{"                 datetime.now().strftime('%Y%m%d_%H%M%S')}"             shutil.copy2(target_file, current_backup)              # Restore from backup             shutil.copy2(backup_info["backup_file"], target_file)              result.update(                 {                     "success" True,                     "message" f"Successfully reverted {target_file} to state from {"                         backup_info['timestamp']}",                     "backup_used" import backup_info["backup_file"],                     "current_backup" current_backup,                 }             )          except Exception as e as result["message"] = f"Error reverting patch in {str(e)}"          return result      def revert_by_timestamp(
-        self, target_file str, timestamp timestamp.isoformat(),             "backup_used" import None,         }          try             # Find backup files             backups = self.find_backup_files(target_file)             if not backups
-        result["message"] = f"No backup files found for {target_file}"                 return result              # Find the closest backup to the timestamp             closest_backup = None             min_diff = timedelta.max              for backup in backups
-        diff = abs(backup["timestamp"] - timestamp)                 if diff < min_diff                     min_diff = diff                     closest_backup = backup              if not closest_backup                 result["message"] = f"No suitable backup found for {target_file}"                 return result              # Create a backup of current file             current_backup = f"{target_file}.revert_backup_{"                 datetime.now().strftime('%Y%m%d_%H%M%S')}"             shutil.copy2(target_file, current_backup)              # Restore from backup             shutil.copy2(closest_backup["backup_file"], target_file)              result.update(                 {                     "success"
-        True,                     "message" f"Successfully reverted {target_file} to state from {"                         closest_backup['timestamp']}",                     "backup_used"
-        closest_backup["backup_file"],                     "current_backup" current_backup,                     "time_difference" import str(min_diff),                 }             )          except Exception as e             result["message"] = f"Error reverting by timestamp in {str(e)}"          return result      def revert_latest_patch(self, target_file
-        str) -> Dict[str, Any]         """Revert the most recent patch for a file."""         result = {             "success"
-        False,             "message" "",             "target_file" backup["timestamp"],                         "backup_file" import backup["backup_file"],                         "size" backup["size"],                     }                 )         else: target_file,                                     "timestamp": backup["timestamp"],                                     "backup_file": backup["backup_file"],                                     "patch_file": patch_file,                                     "description": patch_data.get("description", ""),                                 }                             )                 except Exception as e: Could not read patch file {patch_file}: {e}")
-        # Sort by timestamp (newest first)         revertable.sort(key = lambda x x["timestamp"], reverse=True)         return revertable      def _find_patch_by_id(self, patch_id
-        str) -> Optional[str]         """Find a patch file by its ID."""         patch_files = glob.glob(os.path.join(self.patches_dir, "*.json"))          for patch_file in patch_files
-        try                 with open(patch_file, "r") as f as patch_data = json.load(f)                  if patch_data.get("id") == patch_id
-        return patch_file             except Exception as e
-        try                     from .slack_proxy import create_slack_proxy                      slack_proxy = create_slack_proxy()                     context_str = (                         patch_file if isinstance(patch_file, str) else str(patch_file)                     )                     slack_proxy.notify_error(                         f"Error reading patch file in _find_patch_by_id {e}",                         context = context_str,                     )                 except Exception
-        pass                 continue          return None      def cleanup_old_backups(self, days
-        int = 30) -> Dict[str, Any]         """Clean up backup files older than specified days."""         result = {             "success" True,             "files_removed" import 0,             "errors" [],             "timestamp": datetime.now().isoformat(),         }          cutoff_time = datetime.now() - timedelta(days=days)          # Find all backup files         backup_files = glob.glob(f"*{self.backup_suffix}_*")          for backup_file in backup_files
-        try                 # Extract timestamp from filename                 timestamp_str = backup_file.split(f"{self.backup_suffix}_")[-1]                 timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")                  if timestamp < cutoff_time
-        os.remove(backup_file)                     result["files_removed"] += 1              except Exception as e                 result["errors"].append(f"Error processing {backup_file} import {e}")                 try                     from .slack_proxy import create_slack_proxy                      slack_proxy = create_slack_proxy()                     context_str = (                         backup_file                         if isinstance(backup_file, str)
-        else str(backup_file)
-                    )
-                    slack_proxy.notify_error("
-                        f"Error processing backup file in cleanup_old_backups import {e}",
-                        context=context_str,
-                    )
-                except Exception
-                    pass
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+from pathlib import Path
 
-        return result
+
+class PatchReverter:
+    """Handles patch reversion with backup management."""
+
+    def __init__(self, backup_dir: str = "backups", max_backups: int = 100):
+        self.backup_dir = Path(backup_dir)
+        self.max_backups = max_backups
+        self.backup_dir.mkdir(exist_ok=True)
+
+    def revert_patch_by_id(self, patch_id: str, target_file: str) -> Dict[str, Any]:
+        """
+        Revert a specific patch by ID.
+
+        Args:
+            patch_id: The patch ID to revert
+            target_file: The file to revert
+
+        Returns:
+            Result dictionary with success status and details
+        """
+        try:
+            # Find backup for this patch
+            backup_file = self._find_backup_by_patch_id(patch_id, target_file)
+            if not backup_file:
+                return {
+                    "success": False,
+                    "error": f"No backup found for patch {patch_id}",
+                }
+
+            # Create current state backup before reverting
+            current_backup = self._create_backup(target_file, f"pre_revert_{patch_id}")
+
+            # Restore from backup
+            shutil.copy2(backup_file, target_file)
+
+            return {
+                "success": True,
+                "patch_id": patch_id,
+                "target_file": target_file,
+                "backup_used": str(backup_file),
+                "current_backup": str(current_backup),
+                "timestamp": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "patch_id": patch_id,
+                "target_file": target_file,
+            }
+
+    def revert_patch_by_timestamp(
+        self, target_file: str, timestamp: datetime
+    ) -> Dict[str, Any]:
+        """
+        Revert a file to its state at a specific timestamp.
+
+        Args:
+            target_file: The file to revert
+            timestamp: The timestamp to revert to
+
+        Returns:
+            Result dictionary with success status and details
+        """
+        try:
+            # Find the closest backup before the timestamp
+            backup_file = self._find_backup_by_timestamp(target_file, timestamp)
+            if not backup_file:
+                return {
+                    "success": False,
+                    "error": f"No backup found before {timestamp}",
+                }
+
+            # Create current state backup before reverting
+            current_backup = self._create_backup(
+                target_file, f"pre_revert_{timestamp.strftime('%Y%m%d_%H%M%S')}"
+            )
+
+            # Restore from backup
+            shutil.copy2(backup_file, target_file)
+
+            return {
+                "success": True,
+                "target_file": target_file,
+                "timestamp": timestamp.isoformat(),
+                "backup_used": str(backup_file),
+                "current_backup": str(current_backup),
+                "reverted_at": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "target_file": target_file,
+                "timestamp": timestamp.isoformat(),
+            }
+
+    def create_backup(self, file_path: str, patch_id: str) -> str:
+        """
+        Create a backup of a file before applying a patch.
+
+        Args:
+            file_path: Path to the file to backup
+            patch_id: Patch ID for naming the backup
+
+        Returns:
+            Path to the created backup file
+        """
+        return str(self._create_backup(file_path, patch_id))
+
+    def _create_backup(self, file_path: str, patch_id: str) -> Path:
+        """Internal method to create a backup."""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        # Create backup filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.basename(file_path)
+        backup_filename = f"{timestamp}_{patch_id}_{filename}.bak"
+        backup_path = self.backup_dir / backup_filename
+
+        # Copy file to backup
+        shutil.copy2(file_path, backup_path)
+
+        # Clean up old backups
+        self._cleanup_old_backups()
+
+        return backup_path
+
+    def _find_backup_by_patch_id(
+        self, patch_id: str, target_file: str
+    ) -> Optional[Path]:
+        """Find backup file by patch ID."""
+        filename = os.path.basename(target_file)
+        pattern = f"*_{patch_id}_{filename}.bak"
+
+        for backup_file in self.backup_dir.glob(pattern):
+            return backup_file
+
+        return None
+
+    def _find_backup_by_timestamp(
+        self, target_file: str, timestamp: datetime
+    ) -> Optional[Path]:
+        """Find the closest backup before the given timestamp."""
+        filename = os.path.basename(target_file)
+        pattern = f"*_{filename}.bak"
+
+        backups = []
+        for backup_file in self.backup_dir.glob(pattern):
+            try:
+                # Extract timestamp from filename
+                parts = backup_file.stem.split("_")
+                if len(parts) >= 2:
+                    backup_timestamp = datetime.strptime(
+                        f"{parts[0]}_{parts[1]}", "%Y%m%d_%H%M%S"
+                    )
+                    if backup_timestamp <= timestamp:
+                        backups.append((backup_file, backup_timestamp))
+            except ValueError:
+                continue
+
+        if not backups:
+            return None
+
+        # Return the backup closest to but not after the timestamp
+        backups.sort(key=lambda x: x[1], reverse=True)
+        return backups[0][0]
+
+    def _cleanup_old_backups(self) -> None:
+        """Remove old backups to stay within max_backups limit."""
+        backup_files = list(self.backup_dir.glob("*.bak"))
+
+        if len(backup_files) <= self.max_backups:
+            return
+
+        # Sort by modification time (oldest first)
+        backup_files.sort(key=lambda x: x.stat().st_mtime)
+
+        # Remove oldest backups
+        files_to_remove = backup_files[: len(backup_files) - self.max_backups]
+        for backup_file in files_to_remove:
+            try:
+                backup_file.unlink()
+            except Exception:
+                pass  # Ignore errors during cleanup
+
+    def list_backups(self, target_file: str = None) -> List[Dict[str, Any]]:
+        """
+        List available backups.
+
+        Args:
+            target_file: Optional file to filter backups for
+
+        Returns:
+            List of backup information dictionaries
+        """
+        backups = []
+
+        if target_file:
+            filename = os.path.basename(target_file)
+            pattern = f"*_{filename}.bak"
+            backup_files = list(self.backup_dir.glob(pattern))
+        else:
+            backup_files = list(self.backup_dir.glob("*.bak"))
+
+        for backup_file in backup_files:
+            try:
+                stat = backup_file.stat()
+                parts = backup_file.stem.split("_")
+
+                backup_info = {
+                    "file": str(backup_file),
+                    "size": stat.st_size,
+                    "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                }
+
+                # Try to extract patch ID and timestamp
+                if len(parts) >= 3:
+                    backup_info["patch_id"] = parts[1]
+                    backup_info["original_file"] = "_".join(parts[2:])
+                elif len(parts) >= 2:
+                    backup_info["timestamp"] = f"{parts[0]}_{parts[1]}"
+                    backup_info["original_file"] = "_".join(parts[2:])
+
+                backups.append(backup_info)
+
+            except Exception:
+                continue
+
+        # Sort by modification time (newest first)
+        backups.sort(key=lambda x: x["modified"], reverse=True)
+        return backups
+
+    def get_backup_info(self, backup_file: str) -> Optional[Dict[str, Any]]:
+        """
+        Get detailed information about a specific backup.
+
+        Args:
+            backup_file: Path to the backup file
+
+        Returns:
+            Backup information dictionary or None if not found
+        """
+        backup_path = Path(backup_file)
+        if not backup_path.exists():
+            return None
+
+        try:
+            stat = backup_path.stat()
+            parts = backup_path.stem.split("_")
+
+            info = {
+                "file": str(backup_path),
+                "size": stat.st_size,
+                "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                "created": datetime.fromtimestamp(stat.st_ctime).isoformat(),
+            }
+
+            # Extract metadata from filename
+            if len(parts) >= 3:
+                info["patch_id"] = parts[1]
+                info["original_file"] = "_".join(parts[2:])
+            elif len(parts) >= 2:
+                info["timestamp"] = f"{parts[0]}_{parts[1]}"
+                info["original_file"] = "_".join(parts[2:])
+
+            return info
+
+        except Exception:
+            return None
+
+    def restore_backup(self, backup_file: str, target_file: str) -> Dict[str, Any]:
+        """
+        Restore a file from a specific backup.
+
+        Args:
+            backup_file: Path to the backup file
+            target_file: Path to restore to
+
+        Returns:
+            Result dictionary with success status and details
+        """
+        try:
+            backup_path = Path(backup_file)
+            if not backup_path.exists():
+                return {
+                    "success": False,
+                    "error": f"Backup file not found: {backup_file}",
+                }
+
+            # Create current state backup before restoring
+            current_backup = self._create_backup(
+                target_file, f"pre_restore_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
+
+            # Restore from backup
+            shutil.copy2(backup_path, target_file)
+
+            return {
+                "success": True,
+                "backup_file": str(backup_path),
+                "target_file": target_file,
+                "current_backup": str(current_backup),
+                "restored_at": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "backup_file": backup_file,
+                "target_file": target_file,
+            }
+
+    def delete_backup(self, backup_file: str) -> Dict[str, Any]:
+        """
+        Delete a specific backup file.
+
+        Args:
+            backup_file: Path to the backup file to delete
+
+        Returns:
+            Result dictionary with success status
+        """
+        try:
+            backup_path = Path(backup_file)
+            if not backup_path.exists():
+                return {
+                    "success": False,
+                    "error": f"Backup file not found: {backup_file}",
+                }
+
+            backup_path.unlink()
+
+            return {
+                "success": True,
+                "deleted_file": str(backup_path),
+                "deleted_at": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "backup_file": backup_file,
+            }
 
 
 # Global instance
 patch_reverter = PatchReverter()
-"'
