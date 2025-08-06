@@ -1,0 +1,23 @@
+name: Dashboard Green-State
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  playwright-green-state:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: yarn playwright install --with-deps
+      - name: Run dashboard green-state check (headless)
+        env:
+          DASHBOARD_URL: "https://gpt-cursor-runner.thoughtmarks.app/monitor"
+        run: yarn test:dashboard 
