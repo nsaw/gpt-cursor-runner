@@ -1,27 +1,65 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import os
+import json
+import requests
+from typing import Any, Dict, List, Optional
+
 """
 Slack Dispatch Module for GPT-Cursor Runner.
 Provides functions for GPT and Cursor to post messages directly to Slack.
 """
 
-import json
-import requests
-import os
-from typing import Dict, List, Optional, Any
-from .config_manager import ConfigManager
-
 
 class SlackDispatcher:
     """Handles Slack dispatch for GPT and Cursor."""
 
-    def __init__(self):
-        self.config = ConfigManager()
-        self.runner_url = os.getenv("RUNNER_URL", "https://runner.thoughtmarks.app")
-        self.slack_token = os.getenv("SLACK_BOT_TOKEN")
+    def __init__(self) -> None:
+        from gpt_cursor_runner.config.config_manager import ConfigManager
 
-    def _make_dispatch_request(self, command: str, payload: Dict) -> Dict[str, Any]:
+        self.config: ConfigManager = ConfigManager()
+        self.runner_url: str = os.getenv(
+            "RUNNER_URL", "https://runner.thoughtmarks.app"
+        )
+        self.slack_token: Optional[str] = os.getenv("SLACK_BOT_TOKEN")
+
+    def _make_dispatch_request(
+        self, command: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         """Make a dispatch request to the runner."""
         url = f"{self.runner_url}/slack/commands"
-        data = {
+        data: dict[str, str] = {
             "command": command,
             "text": json.dumps(payload),
             "user_name": "gpt-cursor-runner",
@@ -50,7 +88,11 @@ class SlackDispatcher:
         if not self.config.is_gpt_slack_enabled():
             return {"success": False, "error": "GPT Slack dispatch is disabled"}
 
-        payload = {"action": "postMessage", "channel": channel, "text": text}
+        payload: Dict[str, Any] = {
+            "action": "postMessage",
+            "channel": channel,
+            "text": text,
+        }
         if blocks:
             payload["blocks"] = blocks
 
@@ -74,7 +116,7 @@ class SlackDispatcher:
         if not self.config.is_gpt_slack_enabled():
             return {"success": False, "error": "GPT Slack dispatch is disabled"}
 
-        payload = {
+        payload: Dict[str, Any] = {
             "action": "updateMessage",
             "channel": channel,
             "ts": ts,
@@ -116,7 +158,11 @@ class SlackDispatcher:
         Returns:
             Dict with success status and response
         """
-        payload = {"action": "postMessage", "channel": channel, "text": text}
+        payload: Dict[str, Any] = {
+            "action": "postMessage",
+            "channel": channel,
+            "text": text,
+        }
         if blocks:
             payload["blocks"] = blocks
 
@@ -136,7 +182,7 @@ class SlackDispatcher:
         Returns:
             Dict with success status and response
         """
-        payload = {
+        payload: Dict[str, Any] = {
             "action": "postCodeBlock",
             "channel": channel,
             "text": code,
@@ -159,7 +205,7 @@ class SlackDispatcher:
         Returns:
             Dict with success status and response
         """
-        payload = {
+        payload: Dict[str, Any] = {
             "action": "updateMessage",
             "channel": channel,
             "ts": ts,
@@ -221,6 +267,8 @@ class SlackDispatcher:
 • `/cursor-slack-dispatch` - Cursor posts to Slack
 """.strip()
 
+        # Ensure channel is not None after getting default
+        assert channel is not None
         return self.gpt_post_message(channel, cheatsheet_text)
 
     def post_help(self, channel: Optional[str] = None) -> Dict[str, Any]:
@@ -257,6 +305,8 @@ class SlackDispatcher:
 • Lock system with `/lock-runner` if needed
 """.strip()
 
+        # Ensure channel is not None after getting default
+        assert channel is not None
         return self.gpt_post_message(channel, help_text)
 
     def post_dashboard_ping(self, channel: Optional[str] = None) -> Dict[str, Any]:
@@ -287,6 +337,8 @@ class SlackDispatcher:
 *Next:* Monitor for new patches or issues
 """.strip()
 
+        # Ensure channel is not None after getting default
+        assert channel is not None
         return self.gpt_post_message(channel, ping_text)
 
 
@@ -310,4 +362,8 @@ def cursor_post_code(
 def post_cheatsheet(channel: Optional[str] = None) -> Dict[str, Any]:
     """Quick function to post cheatsheet."""
     dispatcher = SlackDispatcher()
+    if not channel:
+        channel = dispatcher.config.get_gpt_default_channel()
+    # Ensure channel is not None after getting default
+    assert channel is not None
     return dispatcher.post_cheatsheet(channel)

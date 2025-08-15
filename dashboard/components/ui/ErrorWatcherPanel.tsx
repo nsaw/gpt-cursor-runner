@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useDaemonHealth, useOrchestratorHealth } from '../hooks';
-import './ErrorWatcherPanel.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useDaemonHealth, useOrchestratorHealth } from "../hooks";
+import "./ErrorWatcherPanel.css";
 
 export interface ErrorWatcherPanelProps {
   className?: string;
@@ -13,7 +13,7 @@ export interface ErrorWatcherPanelProps {
 
 export interface Alert {
   id: string;
-  type: 'error' | 'warning' | 'info' | 'success';
+  type: "error" | "warning" | "info" | "success";
   title: string;
   message: string;
   timestamp: string;
@@ -29,19 +29,22 @@ export interface RestartCounter {
 }
 
 export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
-  className = '',
+  className = "",
   refreshInterval = 5000,
   maxAlerts = 10,
   showRestartCounters = true,
   autoDismissAlerts = true,
-  alertTimeout = 30000
+  alertTimeout = 30000,
 }) => {
-  const { data: daemonData, error: daemonError } = useDaemonHealth({ pollingInterval: refreshInterval });
-  const { data: orchestratorData, error: orchestratorError } = useOrchestratorHealth({ pollingInterval: refreshInterval });
-  
+  const { data: daemonData, error: daemonError } = useDaemonHealth({
+    pollingInterval: refreshInterval,
+  });
+  const { data: orchestratorData, error: orchestratorError } =
+    useOrchestratorHealth({ pollingInterval: refreshInterval });
+
   const daemons = daemonData?.daemons || [];
   const orchestratorStatus = orchestratorData;
-  
+
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [restartCounters, setRestartCounters] = useState<RestartCounter[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -51,16 +54,16 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
     const newAlerts: Alert[] = [];
 
     // Check for daemon errors
-    daemons.forEach(daemon => {
+    daemons.forEach((daemon) => {
       if (daemon.error) {
         newAlerts.push({
           id: `daemon-${daemon.name}-${Date.now()}`,
-          type: 'error',
+          type: "error",
           title: `Daemon Error: ${daemon.name}`,
           message: daemon.error,
           timestamp: new Date().toISOString(),
           daemon: daemon.name,
-          dismissible: true
+          dismissible: true,
         });
       }
     });
@@ -69,29 +72,29 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
     if (orchestratorError) {
       newAlerts.push({
         id: `orchestrator-${Date.now()}`,
-        type: 'error',
-        title: 'Orchestrator Error',
+        type: "error",
+        title: "Orchestrator Error",
         message: orchestratorError.message,
         timestamp: new Date().toISOString(),
-        dismissible: true
+        dismissible: true,
       });
     }
 
     // Check for system-wide issues
-    const failedDaemons = daemons.filter(d => !d.running);
+    const failedDaemons = daemons.filter((d) => !d.running);
     if (failedDaemons.length > 0) {
       newAlerts.push({
         id: `system-failed-${Date.now()}`,
-        type: 'warning',
-        title: 'System Health Warning',
+        type: "warning",
+        title: "System Health Warning",
         message: `${failedDaemons.length} daemon(s) are not running`,
         timestamp: new Date().toISOString(),
-        dismissible: false
+        dismissible: false,
       });
     }
 
     // Add new alerts to the list
-    setAlerts(prev => {
+    setAlerts((prev) => {
       const combined = [...newAlerts, ...prev];
       return combined.slice(0, maxAlerts);
     });
@@ -102,9 +105,12 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
     if (!autoDismissAlerts) return;
 
     const timer = setTimeout(() => {
-      setAlerts(prev => prev.filter(alert => 
-        Date.now() - new Date(alert.timestamp).getTime() < alertTimeout
-      ));
+      setAlerts((prev) =>
+        prev.filter(
+          (alert) =>
+            Date.now() - new Date(alert.timestamp).getTime() < alertTimeout,
+        ),
+      );
     }, alertTimeout);
 
     return () => clearTimeout(timer);
@@ -113,12 +119,12 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
   // Track restart counters
   useEffect(() => {
     const counters: RestartCounter[] = [];
-    
+
     // This would typically come from the watchdog logs
     // For now, we'll simulate based on daemon status changes
-    daemons.forEach(daemon => {
-      if (daemon.error && daemon.error.includes('restart')) {
-        const existing = counters.find(c => c.daemon === daemon.name);
+    daemons.forEach((daemon) => {
+      if (daemon.error && daemon.error.includes("restart")) {
+        const existing = counters.find((c) => c.daemon === daemon.name);
         if (existing) {
           existing.count++;
           existing.lastRestart = new Date().toISOString();
@@ -128,7 +134,7 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
             daemon: daemon.name,
             count: 1,
             lastRestart: new Date().toISOString(),
-            reason: daemon.error
+            reason: daemon.error,
           });
         }
       }
@@ -138,30 +144,40 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
   }, [daemons]);
 
   const dismissAlert = useCallback((alertId: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
   }, []);
 
   const clearAllAlerts = useCallback(() => {
     setAlerts([]);
   }, []);
 
-  const getAlertIcon = (type: Alert['type']) => {
+  const getAlertIcon = (type: Alert["type"]) => {
     switch (type) {
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      case 'success': return '✅';
-      default: return '📝';
+      case "error":
+        return "❌";
+      case "warning":
+        return "⚠️";
+      case "info":
+        return "ℹ️";
+      case "success":
+        return "✅";
+      default:
+        return "📝";
     }
   };
 
-  const getAlertClass = (type: Alert['type']) => {
+  const getAlertClass = (type: Alert["type"]) => {
     switch (type) {
-      case 'error': return 'alert-error';
-      case 'warning': return 'alert-warning';
-      case 'info': return 'alert-info';
-      case 'success': return 'alert-success';
-      default: return 'alert-default';
+      case "error":
+        return "alert-error";
+      case "warning":
+        return "alert-warning";
+      case "info":
+        return "alert-info";
+      case "success":
+        return "alert-success";
+      default:
+        return "alert-default";
     }
   };
 
@@ -187,15 +203,15 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
           )}
         </div>
         <div className="header-right">
-          <button 
+          <button
             className="expand-button"
             onClick={() => setIsExpanded(!isExpanded)}
-            title={isExpanded ? 'Collapse' : 'Expand'}
+            title={isExpanded ? "Collapse" : "Expand"}
           >
-            {isExpanded ? '−' : '+'}
+            {isExpanded ? "−" : "+"}
           </button>
           {hasActiveAlerts && (
-            <button 
+            <button
               className="clear-button"
               onClick={clearAllAlerts}
               title="Clear all alerts"
@@ -211,14 +227,12 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
         <div className="alerts-section">
           <h4>Active Alerts</h4>
           <div className="alerts-list">
-            {alerts.map(alert => (
-              <div 
-                key={alert.id} 
+            {alerts.map((alert) => (
+              <div
+                key={alert.id}
                 className={`alert-item ${getAlertClass(alert.type)}`}
               >
-                <div className="alert-icon">
-                  {getAlertIcon(alert.type)}
-                </div>
+                <div className="alert-icon">{getAlertIcon(alert.type)}</div>
                 <div className="alert-content">
                   <div className="alert-title">{alert.title}</div>
                   <div className="alert-message">{alert.message}</div>
@@ -232,7 +246,7 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
                   </div>
                 </div>
                 {alert.dismissible && (
-                  <button 
+                  <button
                     className="dismiss-button"
                     onClick={() => dismissAlert(alert.id)}
                     title="Dismiss alert"
@@ -251,11 +265,13 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
         <div className="restart-counters-section">
           <h4>Restart Counters</h4>
           <div className="counters-list">
-            {restartCounters.map(counter => (
+            {restartCounters.map((counter) => (
               <div key={counter.daemon} className="counter-item">
                 <div className="counter-header">
                   <span className="counter-daemon">{counter.daemon}</span>
-                  <span className="counter-count">{counter.count} restarts</span>
+                  <span className="counter-count">
+                    {counter.count} restarts
+                  </span>
                 </div>
                 <div className="counter-details">
                   <span className="counter-time">
@@ -297,19 +313,23 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
               <div className="status-item">
                 <span className="status-label">Running:</span>
                 <span className="status-value success">
-                  {daemons.filter(d => d.running).length}
+                  {daemons.filter((d) => d.running).length}
                 </span>
               </div>
               <div className="status-item">
                 <span className="status-label">Failed:</span>
                 <span className="status-value error">
-                  {daemons.filter(d => !d.running).length}
+                  {daemons.filter((d) => !d.running).length}
                 </span>
               </div>
               <div className="status-item">
                 <span className="status-label">Orchestrator:</span>
-                <span className={`status-value ${orchestratorStatus?.overallHealth === 'healthy' ? 'success' : 'error'}`}>
-                  {orchestratorStatus?.overallHealth === 'healthy' ? 'Healthy' : 'Unhealthy'}
+                <span
+                  className={`status-value ${orchestratorStatus?.overallHealth === "healthy" ? "success" : "error"}`}
+                >
+                  {orchestratorStatus?.overallHealth === "healthy"
+                    ? "Healthy"
+                    : "Unhealthy"}
                 </span>
               </div>
             </div>
@@ -318,4 +338,4 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
       )}
     </div>
   );
-}; 
+};

@@ -1,16 +1,18 @@
 // GHOST Snapshot Daemon — Phase 8B P8.06.00
 // Runtime state capture and system telemetry snapshot system
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import * as crypto from 'crypto';
+import * as fs from "fs";
+import * as path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as crypto from "crypto";
 
 const execAsync = promisify(exec);
-const snapshotLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/snapshot-daemon.log';
-const snapshotDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/snapshots';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/snapshot-config.json';
+const snapshotLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/snapshot-daemon.log";
+const snapshotDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/snapshots";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/snapshot-config.json";
 const logDir = path.dirname(snapshotLogPath);
 
 // Ensure directories exist
@@ -27,10 +29,33 @@ if (!fs.existsSync(path.dirname(configPath))) {
 interface SnapshotEvent {
   id: string;
   timestamp: string;
-  eventType: 'snapshot_start' | 'snapshot_complete' | 'snapshot_error' | 'backup_start' | 'backup_complete' | 'cleanup' | 'system_event' | 'system_startup' | 'config_error' | 'state_error' | 'dashboard_integration' | 'dashboard_error' | 'capture_error' | 'system_error' | 'system_shutdown' | 'config_update' | 'system_maintenance' | 'system_info_error' | 'telemetry_error' | 'patch_info_error' | 'metrics_error' | 'anomaly_error' | 'cleanup_error';
+  eventType:
+    | "snapshot_start"
+    | "snapshot_complete"
+    | "snapshot_error"
+    | "backup_start"
+    | "backup_complete"
+    | "cleanup"
+    | "system_event"
+    | "system_startup"
+    | "config_error"
+    | "state_error"
+    | "dashboard_integration"
+    | "dashboard_error"
+    | "capture_error"
+    | "system_error"
+    | "system_shutdown"
+    | "config_update"
+    | "system_maintenance"
+    | "system_info_error"
+    | "telemetry_error"
+    | "patch_info_error"
+    | "metrics_error"
+    | "anomaly_error"
+    | "cleanup_error";
   component: string;
   data: any;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  severity: "info" | "warning" | "error" | "critical";
   message: string;
 }
 
@@ -48,7 +73,7 @@ interface SystemSnapshot {
   };
   daemonStatus: {
     name: string;
-    status: 'running' | 'failed' | 'restarted' | 'paused' | 'unknown';
+    status: "running" | "failed" | "restarted" | "paused" | "unknown";
     pid?: number;
     uptime: number;
     memoryUsage: number;
@@ -94,7 +119,7 @@ interface SystemSnapshot {
     id: string;
     timestamp: string;
     type: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
+    severity: "low" | "medium" | "high" | "critical";
     description: string;
     resolved: boolean;
   }[];
@@ -170,20 +195,20 @@ class GhostSnapshotDaemon {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'System started', 'info');
+    this.logEvent("system_startup", "System started", "info");
   }
 
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        const configData = fs.readFileSync(configPath, 'utf8');
+        const configData = fs.readFileSync(configPath, "utf8");
         this.config = JSON.parse(configData);
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`);
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
       this.config = this.getDefaultConfig();
     }
   }
@@ -198,39 +223,39 @@ class GhostSnapshotDaemon {
         retentionDays: 7,
         includeTelemetry: true,
         includeLogs: false,
-        includeConfigs: true
+        includeConfigs: true,
       },
       backup: {
         enabled: true,
         backupInterval: 86400000, // 24 hours
         maxBackups: 10,
         compression: true,
-        encryption: false
+        encryption: false,
       },
       cleanup: {
         enabled: true,
         cleanupInterval: 3600000, // 1 hour
         maxAge: 604800000, // 7 days
-        preserveImportant: true
+        preserveImportant: true,
       },
       integration: {
         dashboard: {
           enabled: true,
           sendSnapshots: true,
-          sendMetrics: true
+          sendMetrics: true,
         },
         telemetry: {
           enabled: true,
           sendEvents: true,
-          sendMetrics: true
-        }
+          sendMetrics: true,
+        },
       },
       security: {
         enabled: true,
         validateSnapshots: true,
         auditLogging: true,
-        sanitizeData: true
-      }
+        sanitizeData: true,
+      },
     };
   }
 
@@ -238,21 +263,21 @@ class GhostSnapshotDaemon {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('component_error', `Failed to save config: ${error}`);
+      this.logEvent("system_error", `Failed to save config: ${error}`, "error");
     }
   }
 
   private initializeState(): void {
     try {
-      const statePath = path.join(snapshotDir, 'snapshot-state.json');
+      const statePath = path.join(snapshotDir, "snapshot-state.json");
       if (fs.existsSync(statePath)) {
-        const stateData = fs.readFileSync(statePath, 'utf8');
+        const stateData = fs.readFileSync(statePath, "utf8");
         this.state = JSON.parse(stateData);
       } else {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`);
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
       this.state = this.getInitialState();
     }
   }
@@ -266,15 +291,15 @@ class GhostSnapshotDaemon {
       totalSnapshots: 0,
       totalSize: 0,
       lastUpdate: new Date().toISOString(),
-      version: '1.0.0'
+      version: "1.0.0",
     };
   }
 
   private logEvent(
-    eventType: SnapshotEvent['eventType'],
+    eventType: SnapshotEvent["eventType"],
     message: string,
-    severity: SnapshotEvent['severity'],
-    data: any = {}
+    severity: SnapshotEvent["severity"],
+    data: any = {},
   ): void {
     if (!this.config.enabled) return;
 
@@ -282,14 +307,14 @@ class GhostSnapshotDaemon {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       eventType,
-      component: 'snapshot-daemon',
+      component: "snapshot-daemon",
       data,
       severity,
-      message
+      message,
     };
 
     this.state.events.push(event);
-    
+
     if (this.state.events.length > this.maxEventHistory) {
       this.state.events = this.state.events.slice(-this.maxEventHistory);
     }
@@ -299,25 +324,30 @@ class GhostSnapshotDaemon {
       eventType: event.eventType,
       severity: event.severity,
       message,
-      data: this.config.security.sanitizeData ? this.sanitizeData(data) : data
+      data: this.config.security.sanitizeData ? this.sanitizeData(data) : data,
     };
 
-    fs.appendFileSync(snapshotLogPath, JSON.stringify(logEntry) + '\n');
+    fs.appendFileSync(snapshotLogPath, JSON.stringify(logEntry) + "\n");
   }
 
   private sanitizeData(data: any): any {
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       return data
-        .replace(/api[_-]?key["\s]*[:=]["\s]*[^"\s,}]+/gi, 'api_key: [REDACTED]')
-        .replace(/token["\s]*[:=]["\s]*[^"\s,}]+/gi, 'token: [REDACTED]')
-        .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, 'password: [REDACTED]');
+        .replace(
+          /api[_-]?key["\s]*[:=]["\s]*[^"\s,}]+/gi,
+          "api_key: [REDACTED]",
+        )
+        .replace(/token["\s]*[:=]["\s]*[^"\s,}]+/gi, "token: [REDACTED]")
+        .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
     }
-    if (typeof data === 'object' && data !== null) {
+    if (typeof data === "object" && data !== null) {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(data)) {
-        if (this.config.security.sanitizeData && 
-            ['apiKey', 'token', 'password', 'secret'].includes(key.toLowerCase())) {
-          sanitized[key] = '[REDACTED]';
+        if (
+          this.config.security.sanitizeData &&
+          ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
+        ) {
+          sanitized[key] = "[REDACTED]";
         } else {
           sanitized[key] = this.sanitizeData(value);
         }
@@ -327,20 +357,22 @@ class GhostSnapshotDaemon {
     return data;
   }
 
-  private async captureSystemInfo(): Promise<SystemSnapshot['systemInfo']> {
+  private async captureSystemInfo(): Promise<SystemSnapshot["systemInfo"]> {
     try {
-      const { stdout: hostname } = await execAsync('hostname');
-      const { stdout: platform } = await execAsync('uname -s');
-      const { stdout: arch } = await execAsync('uname -m');
-      const { stdout: nodeVersion } = await execAsync('node --version');
-      const { stdout: uptime } = await execAsync('uptime');
-      const { stdout: loadAvg } = await execAsync('sysctl -n vm.loadavg');
+      const { stdout: hostname } = await execAsync("hostname");
+      const { stdout: platform } = await execAsync("uname -s");
+      const { stdout: arch } = await execAsync("uname -m");
+      const { stdout: nodeVersion } = await execAsync("node --version");
+      const { stdout: uptime } = await execAsync("uptime");
+      const { stdout: loadAvg } = await execAsync("sysctl -n vm.loadavg");
 
       const uptimeMatch = uptime.match(/up\s+(.+?),/);
       const systemUptime = uptimeMatch ? this.parseUptime(uptimeMatch[1]) : 0;
 
-      const loadParts = loadAvg.trim().split(' ');
-      const loadAverage = loadParts.slice(0, 3).map(load => parseFloat(load) || 0);
+      const loadParts = loadAvg.trim().split(" ");
+      const loadAverage = loadParts
+        .slice(0, 3)
+        .map((load) => parseFloat(load) || 0);
 
       return {
         hostname: hostname.trim(),
@@ -348,84 +380,103 @@ class GhostSnapshotDaemon {
         arch: arch.trim(),
         nodeVersion: nodeVersion.trim(),
         uptime: systemUptime,
-        loadAverage
+        loadAverage,
       };
     } catch (error) {
-      this.logEvent('system_info_error', `Failed to capture system info: ${error}`, 'error');
+      this.logEvent(
+        "system_info_error",
+        `Failed to capture system info: ${error}`,
+        "error",
+      );
       return {
-        hostname: 'unknown',
-        platform: 'unknown',
-        arch: 'unknown',
-        nodeVersion: 'unknown',
+        hostname: "unknown",
+        platform: "unknown",
+        arch: "unknown",
+        nodeVersion: "unknown",
         uptime: 0,
-        loadAverage: [0, 0, 0]
+        loadAverage: [0, 0, 0],
       };
     }
   }
 
-  private async captureDaemonStatus(): Promise<SystemSnapshot['daemonStatus']> {
+  private async captureDaemonStatus(): Promise<SystemSnapshot["daemonStatus"]> {
     const daemons = [
-      'relayCore', 'watchdog', 'executor', 'healer',
-      'validationEngine', 'messageQueue', 'healthAggregator', 'decisionEngine'
+      "relayCore",
+      "watchdog",
+      "executor",
+      "healer",
+      "validationEngine",
+      "messageQueue",
+      "healthAggregator",
+      "decisionEngine",
     ];
 
-    const statusPromises = daemons.map(daemon => this.checkDaemonStatus(daemon));
+    const statusPromises = daemons.map((daemon) =>
+      this.checkDaemonStatus(daemon),
+    );
     return Promise.all(statusPromises);
   }
 
-  private async checkDaemonStatus(daemonName: string): Promise<SystemSnapshot['daemonStatus'][0]> {
+  private async checkDaemonStatus(
+    daemonName: string,
+  ): Promise<SystemSnapshot["daemonStatus"][0]> {
     try {
       const { stdout } = await execAsync(`pgrep -f "${daemonName}"`);
-      const pids = stdout.trim().split('\n').filter(pid => pid.length > 0);
-      
+      const pids = stdout
+        .trim()
+        .split("\n")
+        .filter((pid) => pid.length > 0);
+
       if (pids.length === 0) {
         return {
           name: daemonName,
-          status: 'failed',
+          status: "failed",
           uptime: 0,
           memoryUsage: 0,
           cpuUsage: 0,
-          lastCheck: new Date().toISOString()
+          lastCheck: new Date().toISOString(),
         };
       }
 
       const pid = parseInt(pids[0]);
-      
-      const { stdout: psOutput } = await execAsync(`ps -p ${pid} -o pid,ppid,etime,pcpu,pmem,comm`);
-      const lines = psOutput.trim().split('\n');
-      
+
+      const { stdout: psOutput } = await execAsync(
+        `ps -p ${pid} -o pid,ppid,etime,pcpu,pmem,comm`,
+      );
+      const lines = psOutput.trim().split("\n");
+
       if (lines.length < 2) {
         return {
           name: daemonName,
-          status: 'unknown',
+          status: "unknown",
           pid,
           uptime: 0,
           memoryUsage: 0,
           cpuUsage: 0,
-          lastCheck: new Date().toISOString()
+          lastCheck: new Date().toISOString(),
         };
       }
 
       const stats = lines[1].trim().split(/\s+/);
       const cpuUsage = parseFloat(stats[3]) || 0;
       const memoryUsage = parseFloat(stats[4]) || 0;
-      
+
       const etime = stats[2];
       const uptime = this.parseEtime(etime);
 
       return {
         name: daemonName,
-        status: 'running',
+        status: "running",
         pid,
         uptime,
         memoryUsage,
         cpuUsage,
-        lastCheck: new Date().toISOString()
+        lastCheck: new Date().toISOString(),
       };
     } catch (_error) {
       return {
         name: daemonName,
-        status: 'failed',
+        status: "failed",
         uptime: 0,
         memoryUsage: 0,
         cpuUsage: 0,
@@ -434,179 +485,219 @@ class GhostSnapshotDaemon {
     }
   }
 
-  private async captureTelemetryData(): Promise<SystemSnapshot['telemetryData']> {
+  private async captureTelemetryData(): Promise<
+    SystemSnapshot["telemetryData"]
+  > {
     try {
       const telemetryData = {
         dashboardState: null,
         relayTelemetry: null,
         heartbeatStatus: null,
-        loopAuditor: null
+        loopAuditor: null,
       };
 
       // Try to load telemetry data from files
-      const dashboardStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/dashboard-state.json';
-      const relayTelemetryPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/relay-telemetry-state.json';
-      const heartbeatStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/heartbeat-state.json';
-      const loopAuditorPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/loop-auditor-state.json';
+      const dashboardStatePath =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/dashboard-state.json";
+      const relayTelemetryPath =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/relay-telemetry-state.json";
+      const heartbeatStatePath =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/heartbeat-state.json";
+      const loopAuditorPath =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/loop-auditor-state.json";
 
       if (fs.existsSync(dashboardStatePath)) {
-        telemetryData.dashboardState = JSON.parse(fs.readFileSync(dashboardStatePath, 'utf8'));
+        telemetryData.dashboardState = JSON.parse(
+          fs.readFileSync(dashboardStatePath, "utf8"),
+        );
       }
 
       if (fs.existsSync(relayTelemetryPath)) {
-        telemetryData.relayTelemetry = JSON.parse(fs.readFileSync(relayTelemetryPath, 'utf8'));
+        telemetryData.relayTelemetry = JSON.parse(
+          fs.readFileSync(relayTelemetryPath, "utf8"),
+        );
       }
 
       if (fs.existsSync(heartbeatStatePath)) {
-        telemetryData.heartbeatStatus = JSON.parse(fs.readFileSync(heartbeatStatePath, 'utf8'));
+        telemetryData.heartbeatStatus = JSON.parse(
+          fs.readFileSync(heartbeatStatePath, "utf8"),
+        );
       }
 
       if (fs.existsSync(loopAuditorPath)) {
-        telemetryData.loopAuditor = JSON.parse(fs.readFileSync(loopAuditorPath, 'utf8'));
+        telemetryData.loopAuditor = JSON.parse(
+          fs.readFileSync(loopAuditorPath, "utf8"),
+        );
       }
 
       return telemetryData;
     } catch (error) {
-      this.logEvent('telemetry_error', `Failed to capture telemetry data: ${error}`, 'error');
+      this.logEvent(
+        "telemetry_error",
+        `Failed to capture telemetry data: ${error}`,
+        "error",
+      );
       return {
         dashboardState: null,
         relayTelemetry: null,
         heartbeatStatus: null,
-        loopAuditor: null
+        loopAuditor: null,
       };
     }
   }
 
-  private async capturePatchInfo(): Promise<SystemSnapshot['patchInfo']> {
+  private async capturePatchInfo(): Promise<SystemSnapshot["patchInfo"]> {
     try {
-      const patchesDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
-      const completedDir = path.join(patchesDir, '.completed');
-      
-      let lastPatch = 'none';
+      const patchesDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
+      const completedDir = path.join(patchesDir, ".completed");
+
+      let lastPatch = "none";
       let patchHistory: any[] = [];
-      
+
       if (fs.existsSync(completedDir)) {
-        const completedPatches = fs.readdirSync(completedDir)
-          .filter(file => file.endsWith('.json'))
+        const completedPatches = fs
+          .readdirSync(completedDir)
+          .filter((file) => file.endsWith(".json"))
           .sort()
           .reverse();
-        
+
         if (completedPatches.length > 0) {
           lastPatch = completedPatches[0];
-          
+
           // Get last 10 patches for history
-          patchHistory = completedPatches.slice(0, 10).map(patch => {
+          patchHistory = completedPatches.slice(0, 10).map((patch) => {
             try {
               const patchPath = path.join(completedDir, patch);
-              const patchData = JSON.parse(fs.readFileSync(patchPath, 'utf8'));
+              const patchData = JSON.parse(fs.readFileSync(patchPath, "utf8"));
               return {
                 id: patchData.id,
                 version: patchData.version,
                 phase: patchData.phase,
-                timestamp: patchData.metadata?.created || new Date().toISOString()
+                timestamp:
+                  patchData.metadata?.created || new Date().toISOString(),
               };
             } catch (error) {
-              return { id: patch, error: 'Failed to parse patch' };
+              return { id: patch, error: "Failed to parse patch" };
             }
           });
         }
       }
 
       const patchQueue = {
-        pending: fs.existsSync(path.join(patchesDir, '.pending')) ? 
-          fs.readdirSync(path.join(patchesDir, '.pending')).length : 0,
-        executing: fs.existsSync(path.join(patchesDir, '.executing')) ? 
-          fs.readdirSync(path.join(patchesDir, '.executing')).length : 0,
-        failed: fs.existsSync(path.join(patchesDir, '.failed')) ? 
-          fs.readdirSync(path.join(patchesDir, '.failed')).length : 0
+        pending: fs.existsSync(path.join(patchesDir, ".pending"))
+          ? fs.readdirSync(path.join(patchesDir, ".pending")).length
+          : 0,
+        executing: fs.existsSync(path.join(patchesDir, ".executing"))
+          ? fs.readdirSync(path.join(patchesDir, ".executing")).length
+          : 0,
+        failed: fs.existsSync(path.join(patchesDir, ".failed"))
+          ? fs.readdirSync(path.join(patchesDir, ".failed")).length
+          : 0,
       };
 
       return {
         lastPatch,
         patchQueue,
-        patchHistory
+        patchHistory,
       };
     } catch (error) {
-      this.logEvent('patch_info_error', `Failed to capture patch info: ${error}`, 'error');
+      this.logEvent(
+        "patch_info_error",
+        `Failed to capture patch info: ${error}`,
+        "error",
+      );
       return {
-        lastPatch: 'unknown',
+        lastPatch: "unknown",
         patchQueue: { pending: 0, executing: 0, failed: 0 },
-        patchHistory: []
+        patchHistory: [],
       };
     }
   }
 
-  private async captureSystemMetrics(): Promise<SystemSnapshot['systemMetrics']> {
+  private async captureSystemMetrics(): Promise<
+    SystemSnapshot["systemMetrics"]
+  > {
     try {
       // CPU metrics
-      const { stdout: cpuInfo } = await execAsync('top -l 1 | grep "CPU usage"');
+      const { stdout: cpuInfo } = await execAsync(
+        'top -l 1 | grep "CPU usage"',
+      );
       const cpuUsage = this.parseCpuUsage(cpuInfo);
-      
-      const { stdout: loadInfo } = await execAsync('sysctl -n hw.ncpu');
+
+      const { stdout: loadInfo } = await execAsync("sysctl -n hw.ncpu");
       const cores = parseInt(loadInfo.trim());
-      
-      const { stdout: loadAvg } = await execAsync('sysctl -n vm.loadavg');
+
+      const { stdout: loadAvg } = await execAsync("sysctl -n vm.loadavg");
       const load = this.parseLoadAverage(loadAvg);
 
       // Memory metrics
-      const { stdout: memoryInfo } = await execAsync('vm_stat');
+      const { stdout: memoryInfo } = await execAsync("vm_stat");
       const memory = this.parseMemoryInfo(memoryInfo);
 
       // Disk metrics
-      const { stdout: diskInfo } = await execAsync('df -h /Users/sawyer/gitSync');
+      const { stdout: diskInfo } = await execAsync(
+        "df -h /Users/sawyer/gitSync",
+      );
       const disk = this.parseDiskInfo(diskInfo);
 
       // Network metrics (simplified)
       const network = {
         bytesIn: 0,
         bytesOut: 0,
-        connections: 0
+        connections: 0,
       };
 
       return {
         cpu: { usage: cpuUsage, load, cores },
         memory,
         disk,
-        network
+        network,
       };
     } catch (error) {
-      this.logEvent('metrics_error', `Failed to capture system metrics: ${error}`, 'error');
+      this.logEvent(
+        "metrics_error",
+        `Failed to capture system metrics: ${error}`,
+        "error",
+      );
       return {
         cpu: { usage: 0, load: 0, cores: 0 },
         memory: { total: 0, used: 0, available: 0, usage: 0 },
         disk: { total: 0, used: 0, available: 0, usage: 0 },
-        network: { bytesIn: 0, bytesOut: 0, connections: 0 }
+        network: { bytesIn: 0, bytesOut: 0, connections: 0 },
       };
     }
   }
 
-  private async captureAnomalies(): Promise<SystemSnapshot['anomalies']> {
+  private async captureAnomalies(): Promise<SystemSnapshot["anomalies"]> {
     try {
-      const anomalies: SystemSnapshot['anomalies'] = [];
-      
+      const anomalies: SystemSnapshot["anomalies"] = [];
+
       // Check for recent errors in logs
       const logFiles = [
-        '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-dashboard.log',
-        '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/relay-telemetry.log',
-        '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/heartbeat-visualizer.log'
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-dashboard.log",
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/relay-telemetry.log",
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/heartbeat-visualizer.log",
       ];
 
       for (const logFile of logFiles) {
         if (fs.existsSync(logFile)) {
-          const logContent = fs.readFileSync(logFile, 'utf8');
-          const lines = logContent.split('\n').slice(-100); // Last 100 lines
-          
+          const logContent = fs.readFileSync(logFile, "utf8");
+          const lines = logContent.split("\n").slice(-100); // Last 100 lines
+
           for (const line of lines) {
-            if (line.includes('"severity":"error"') || line.includes('"severity":"critical"')) {
+            if (
+              line.includes('"severity":"error"') ||
+              line.includes('"severity":"critical"')
+            ) {
               try {
                 const logEntry = JSON.parse(line);
                 anomalies.push({
                   id: crypto.randomUUID(),
                   timestamp: logEntry.timestamp,
-                  type: 'log_error',
+                  type: "log_error",
                   severity: logEntry.severity,
                   description: logEntry.message,
-                  resolved: false
+                  resolved: false,
                 });
               } catch (_error) {
                 // Skip malformed log entries
@@ -618,7 +709,11 @@ class GhostSnapshotDaemon {
 
       return anomalies.slice(0, 50); // Limit to 50 most recent anomalies
     } catch (error) {
-      this.logEvent('anomaly_error', `Failed to capture anomalies: ${error}`, 'error');
+      this.logEvent(
+        "anomaly_error",
+        `Failed to capture anomalies: ${error}`,
+        "error",
+      );
       return [];
     }
   }
@@ -627,30 +722,30 @@ class GhostSnapshotDaemon {
     const daysMatch = uptimeStr.match(/(\d+)\s+days?/);
     const hoursMatch = uptimeStr.match(/(\d+)\s+hours?/);
     const minutesMatch = uptimeStr.match(/(\d+)\s+minutes?/);
-    
+
     const days = daysMatch ? parseInt(daysMatch[1]) : 0;
     const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
     const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
-    
-    return (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60);
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60;
   }
 
   private parseEtime(etime: string): number {
-    const parts = etime.split('-');
+    const parts = etime.split("-");
     let days = 0;
     let time = parts[0];
-    
+
     if (parts.length > 1) {
       days = parseInt(parts[0]);
       time = parts[1];
     }
-    
-    const timeParts = time.split(':');
+
+    const timeParts = time.split(":");
     const hours = parseInt(timeParts[0]) || 0;
     const minutes = parseInt(timeParts[1]) || 0;
     const seconds = parseInt(timeParts[2]) || 0;
-    
-    return (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60) + seconds;
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
   }
 
   private parseCpuUsage(cpuInfo: string): number {
@@ -659,74 +754,89 @@ class GhostSnapshotDaemon {
   }
 
   private parseLoadAverage(loadAvg: string): number {
-    const parts = loadAvg.trim().split(' ');
+    const parts = loadAvg.trim().split(" ");
     return parseFloat(parts[0]) || 0;
   }
 
-  private parseMemoryInfo(memoryInfo: string): { total: number; used: number; available: number; usage: number } {
-    const lines = memoryInfo.split('\n');
+  private parseMemoryInfo(memoryInfo: string): {
+    total: number;
+    used: number;
+    available: number;
+    usage: number;
+  } {
+    const lines = memoryInfo.split("\n");
     let total = 0;
     let used = 0;
-    
+
     for (const line of lines) {
-      if (line.includes('Pages free:')) {
+      if (line.includes("Pages free:")) {
         const match = line.match(/Pages free:\s+(\d+)/);
         if (match) {
           used = parseInt(match[1]) * 4096;
         }
       }
     }
-    
+
     total = 16 * 1024 * 1024 * 1024; // 16GB estimate
     const available = total - used;
     const usage = total > 0 ? (used / total) * 100 : 0;
-    
+
     return { total, used, available, usage };
   }
 
-  private parseDiskInfo(diskInfo: string): { total: number; used: number; available: number; usage: number } {
-    const lines = diskInfo.split('\n');
+  private parseDiskInfo(diskInfo: string): {
+    total: number;
+    used: number;
+    available: number;
+    usage: number;
+  } {
+    const lines = diskInfo.split("\n");
     if (lines.length < 2) {
       return { total: 0, used: 0, available: 0, usage: 0 };
     }
-    
+
     const parts = lines[1].trim().split(/\s+/);
     if (parts.length < 5) {
       return { total: 0, used: 0, available: 0, usage: 0 };
     }
-    
+
     const total = this.parseSize(parts[1]);
     const used = this.parseSize(parts[2]);
     const available = this.parseSize(parts[3]);
     const usage = total > 0 ? (used / total) * 100 : 0;
-    
+
     return { total, used, available, usage };
   }
 
   private parseSize(sizeStr: string): number {
     const match = sizeStr.match(/^(\d+(\.\d+)?)([KMGT])?/);
     if (!match) return 0;
-    
+
     const value = parseFloat(match[1]);
     const unit = match[3];
-    
+
     switch (unit) {
-      case 'K': return value * 1024;
-      case 'M': return value * 1024 * 1024;
-      case 'G': return value * 1024 * 1024 * 1024;
-      case 'T': return value * 1024 * 1024 * 1024 * 1024;
-      default: return value;
+      case "K":
+        return value * 1024;
+      case "M":
+        return value * 1024 * 1024;
+      case "G":
+        return value * 1024 * 1024 * 1024;
+      case "T":
+        return value * 1024 * 1024 * 1024 * 1024;
+      default:
+        return value;
     }
   }
 
   private async createSnapshot(): Promise<SystemSnapshot> {
-    this.logEvent('snapshot_start', 'Creating system snapshot', 'info');
+    this.logEvent("snapshot_start", "Creating system snapshot", "info");
 
     try {
       const snapshot: SystemSnapshot = {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: "1.0.0",
         systemInfo: await this.captureSystemInfo(),
         daemonStatus: await this.captureDaemonStatus(),
         telemetryData: await this.captureTelemetryData(),
@@ -734,26 +844,40 @@ class GhostSnapshotDaemon {
         systemMetrics: await this.captureSystemMetrics(),
         anomalies: await this.captureAnomalies(),
         size: 0,
-        checksum: ''
+        checksum: "",
       };
 
       // Calculate size and checksum
       const snapshotJson = JSON.stringify(snapshot, null, 2);
-      snapshot.size = Buffer.byteLength(snapshotJson, 'utf8');
-      snapshot.checksum = crypto.createHash('sha256').update(snapshotJson).digest('hex');
+      snapshot.size = Buffer.byteLength(snapshotJson, "utf8");
+      snapshot.checksum = crypto
+        .createHash("sha256")
+        .update(snapshotJson)
+        .digest("hex");
 
-      this.logEvent('snapshot_complete', 'System snapshot created successfully', 'info');
+      this.logEvent(
+        "snapshot_complete",
+        "System snapshot created successfully",
+        "info",
+      );
 
       return snapshot;
     } catch (error) {
-      this.logEvent('snapshot_error', `Failed to create snapshot: ${error}`, 'error');
+      this.logEvent(
+        "snapshot_error",
+        `Failed to create snapshot: ${error}`,
+        "error",
+      );
       throw error;
     }
   }
 
   private async saveSnapshot(snapshot: SystemSnapshot): Promise<void> {
     try {
-      const snapshotPath = path.join(snapshotDir, `snapshot-${snapshot.id}.json`);
+      const snapshotPath = path.join(
+        snapshotDir,
+        `snapshot-${snapshot.id}.json`,
+      );
       fs.writeFileSync(snapshotPath, JSON.stringify(snapshot, null, 2));
 
       // Update state
@@ -767,16 +891,23 @@ class GhostSnapshotDaemon {
         const removedSnapshot = this.state.snapshots.shift();
         if (removedSnapshot) {
           this.state.totalSize -= removedSnapshot.size;
-          const removedPath = path.join(snapshotDir, `snapshot-${removedSnapshot.id}.json`);
+          const removedPath = path.join(
+            snapshotDir,
+            `snapshot-${removedSnapshot.id}.json`,
+          );
           if (fs.existsSync(removedPath)) {
             fs.unlinkSync(removedPath);
           }
         }
       }
 
-      this.logEvent('snapshot_complete', 'Snapshot saved successfully', 'info');
+      this.logEvent("snapshot_complete", "Snapshot saved successfully", "info");
     } catch (error) {
-      this.logEvent('snapshot_error', `Failed to save snapshot: ${error}`, 'error');
+      this.logEvent(
+        "snapshot_error",
+        `Failed to save snapshot: ${error}`,
+        "error",
+      );
       throw error;
     }
   }
@@ -785,20 +916,24 @@ class GhostSnapshotDaemon {
     try {
       const cutoffTime = Date.now() - this.config.cleanup.maxAge;
       const files = fs.readdirSync(snapshotDir);
-      
+
       for (const file of files) {
-        if (file.startsWith('snapshot-') && file.endsWith('.json')) {
+        if (file.startsWith("snapshot-") && file.endsWith(".json")) {
           const filePath = path.join(snapshotDir, file);
           const stats = fs.statSync(filePath);
-          
+
           if (stats.mtime.getTime() < cutoffTime) {
             fs.unlinkSync(filePath);
-            this.logEvent('cleanup', `Removed old snapshot: ${file}`, 'info');
+            this.logEvent("cleanup", `Removed old snapshot: ${file}`, "info");
           }
         }
       }
     } catch (error) {
-      this.logEvent('cleanup_error', `Failed to cleanup old snapshots: ${error}`, 'error');
+      this.logEvent(
+        "cleanup_error",
+        `Failed to cleanup old snapshots: ${error}`,
+        "error",
+      );
     }
   }
 
@@ -806,20 +941,24 @@ class GhostSnapshotDaemon {
     try {
       this.state.timestamp = new Date().toISOString();
       this.state.lastUpdate = new Date().toISOString();
-      const statePath = path.join(snapshotDir, 'snapshot-state.json');
+      const statePath = path.join(snapshotDir, "snapshot-state.json");
       fs.writeFileSync(statePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`);
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('error', 'Component error detected', 'error');
+        this.logEvent("system_error", "Component error detected", "error");
       }
     } catch (error) {
-      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send to dashboard: ${error}`,
+        "error",
+      );
     }
   }
 
@@ -837,11 +976,13 @@ class GhostSnapshotDaemon {
 
         await this.saveState();
         await this.sendToDashboard();
-        
-        await new Promise(resolve => setTimeout(resolve, this.config.capture.intervalMs));
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.capture.intervalMs),
+        );
       } catch (error) {
-        this.logEvent('capture_error', `Capture loop error: ${error}`, 'error');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.logEvent("capture_error", `Capture loop error: ${error}`, "error");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
@@ -850,16 +991,20 @@ class GhostSnapshotDaemon {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'System started', 'info');
+    this.logEvent("system_startup", "System started", "info");
 
-    this.captureLoop().catch(error => {
-      this.logEvent('component_error', `Capture loop failed: ${error}`, 'critical');
+    this.captureLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Capture loop failed: ${error}`,
+        "critical",
+      );
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'info', 'info');
+    this.logEvent("system_shutdown", "Snapshot daemon stopped", "info");
     await this.saveState();
   }
 
@@ -874,7 +1019,7 @@ class GhostSnapshotDaemon {
   public updateConfig(newConfig: Partial<SnapshotConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'newConfig', 'info');
+    this.logEvent("config_update", "Configuration updated", "info");
   }
 
   public getSnapshots(limit: number = 10): SystemSnapshot[] {
@@ -892,12 +1037,15 @@ class GhostSnapshotDaemon {
   }
 
   public isHealthy(): boolean {
-    return this.state.totalSnapshots > 0 && this.state.lastSnapshot !== new Date(0).toISOString();
+    return (
+      this.state.totalSnapshots > 0 &&
+      this.state.lastSnapshot !== new Date(0).toISOString()
+    );
   }
 
   public clearHistory(): void {
     this.state.events = [];
-    this.logEvent('error', 'Component error detected', 'error');
+    this.logEvent("system_error", "Component error detected", "error");
   }
 }
 
@@ -923,9 +1071,4 @@ export function getGhostSnapshotDaemon(): GhostSnapshotDaemon {
   return snapshotDaemonInstance;
 }
 
-export type {
-  SnapshotEvent,
-  SystemSnapshot,
-  SnapshotConfig,
-  SnapshotState
-}; 
+export type { SnapshotEvent, SystemSnapshot, SnapshotConfig, SnapshotState };

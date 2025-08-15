@@ -1,3 +1,54 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 import os
 import json
 import time
@@ -29,7 +80,7 @@ class DaemonMonitor:
     def is_process_running(self, daemon_name: str) -> Dict[str, Any]:
         """Check if a daemon process is running using non-blocking patterns"""
         try:
-            # Use non-blocking pattern to check process
+            # Use non-blocking pattern to check process"""
             cmd = f"ps aux | grep -E '{daemon_name}\\.ts|{daemon_name}\\.js' | grep -v grep | head -1"
             result = subprocess.run(
                 cmd, shell=True, capture_output=True, text=True, timeout=5
@@ -134,7 +185,7 @@ class LogMonitor:
             if not log_file or not os.path.exists(log_file):
                 return []
 
-            # Read last N lines safely
+            # Read last N lines safely"""
             with open(log_file, "r", encoding="utf-8") as f:
                 all_lines = f.readlines()
                 recent_lines = (

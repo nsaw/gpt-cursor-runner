@@ -1,0 +1,7 @@
+tunnel: runner
+credentials-file: REDACTED
+
+ingress:
+  - hostname: runner.thoughtmarks.app
+    service: http://localhost:5555
+  - service: http_status:404

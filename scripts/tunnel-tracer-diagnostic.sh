@@ -17,7 +17,8 @@ echo "" | tee -a "$TRACE_LOG"
 
 # Test 1: Basic tunnel connectivity
 echo "[TEST 1] Basic tunnel connectivity..." | tee -a "$TRACE_LOG"
-{ timeout 30 curl -s -I https://webhook-thoughtmarks.thoughtmarks.app/webhook & } >/dev/null 2>&1 & disown
+# MIGRATED: { timeout 30 curl -s -I https://webhook-thoughtmarks.thoughtmarks.app/webhook & } >/dev/null 2>&1 & disown
+node scripts/nb.js --ttl 30 --label curl --log validations/logs/curl.log --status validations/status -- curl -s -I https://webhook-thoughtmarks.thoughtmarks.app/webhook
 sleep 5
 curl -s -I https://webhook-thoughtmarks.thoughtmarks.app/webhook | tee -a "$TRACE_LOG"
 echo "" | tee -a "$TRACE_LOG"

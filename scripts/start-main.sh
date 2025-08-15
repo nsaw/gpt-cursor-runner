@@ -7,6 +7,10 @@ echo "🚀 Starting MAIN project..."
 # Change to project directory
 cd "$(dirname "$0")/.."
 
+# Activate virtual environment
+echo "🔧 Activating virtual environment..."
+source .venv/bin/activate
+
 # Kill existing processes first
 echo "🔄 Killing existing processes..."
 ./scripts/kill-ports-main.sh

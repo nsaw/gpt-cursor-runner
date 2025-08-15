@@ -1,0 +1,70 @@
+{
+  "showInUI": true,
+  "blockCommitOnError": true,
+  "watchConsole": true,
+  "execution": {
+    "autoReleaseTimeoutMs": 30000,
+    "onReloadHang": "Move to background and resume automatically"
+  },
+  "enforceValidationGate": true,
+  "strictRuntimeAudit": true,
+  "runDryCheck": true,
+  "forceRuntimeTrace": true,
+  "requireMutationProof": true,
+  "requireServiceUptime": true,
+  "parseCheck": false,
+  "onParseFail": "alert-only",
+
+  "blockId": "patch-v3.3.19(P11.12.06)_cyops-queue-pickup_fix+unified-executor",
+  "version": "patch-v3.3.19(P11.12.06)_cyops-queue-pickup_fix+unified-executor",
+  "project": "DEV:gpt-cursor-runner",
+  "git": {
+    "branch": "hotfix/cyops-queue-pickup_fix+unified-executor",
+    "tag": "patch-v3.3.19(P11.12.06)_cyops-queue-pickup_fix+unified-executor"
+  },
+  "summaryFile": "/Users/sawyer/gitSync/gpt-cursor-runner/summaries/patch-v3.3.19(P11.12.06)_cyops-queue-pickup_fix+unified-executor.summary.md",
+
+  "mutations": [
+    {
+      "op": "upsert",
+      "path": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/config/patch-queue.json",
+      "mode": "0644",
+      "contents": "{\n  \"watchDirs\": [\n    \"/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches\",\n    \"/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/tasks/patches\",\n    \"/Users/sawyer/gitSync/gpt-cursor-runner/tasks/patches\"\n  ],\n  \"processedDir\": \"/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/tasks/processed\"\n}\n"
+    },
+    {
+      "op": "upsert",
+      "path": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/patch-executor.js",
+      "mode": "0755",
+      "contents": "#!/usr/bin/env node\n'use strict';\n// Unified patch executor with CYOPS queue support + non-blocking post/validate via nb.js\nconst fs = require('fs');\nconst fsp = fs.promises;\nconst path = require('path');\nconst { spawn } = require('child_process');\n\nconst DEFAULT_CFG = path.resolve(__dirname, 'config', 'patch-queue.json');\nconst argv = process.argv.slice(2);\nconst once = argv.includes('--once');\nconst dirArgIdx = argv.indexOf('--dirs');\nconst explicitDirs = dirArgIdx !== -1 ? argv[dirArgIdx + 1] : '';\nconst dryRun = argv.includes('--dry-run');\n\nfunction log(...a){ console.log('[patch-executor]', ...a); }\nfunction runZsh(cmd, {inherit=false,cwd=process.cwd()}={}){\n  return new Promise((res,rej)=>{\n    const p = spawn('/bin/zsh', ['-lc', cmd], {stdio: inherit? 'inherit':'pipe', cwd});\n    let out=''; let err='';\n    if(!inherit){ p.stdout.on('data',d=>out+=d); p.stderr.on('data',d=>err+=d); }\n    p.on('exit', code => code===0? res({code,out,err}) : rej(new Error(err||`exit ${code}`)));\n  });\n}\nasync function fileExists(p){ try{ await fsp.access(p); return true; }catch{return false;} }\nfunction listPatchFiles(dir){\n  if(!fs.existsSync(dir)) return [];\n  return fs.readdirSync(dir)\n    .filter(f => /^patch-.*\\.json$/i.test(f))\n    .map(f => path.join(dir,f))\n    .sort();\n}\nasync function ensureDir(p){ await fsp.mkdir(p,{recursive:true}); }\n\nasync function applyMutation(m){\n  const op = m.op || 'upsert';\n  if(op === 'upsert'){\n    const p = m.path; const body = m.contents ?? '';\n    await ensureDir(path.dirname(p));\n    await fsp.writeFile(p, body, 'utf8');\n    if(m.mode) await fsp.chmod(p, m.mode);\n    log('upsert', p);\n    return;\n  }\n  if(op === 'delete'){\n    const p = m.path; if(await fileExists(p)){ await fsp.rm(p, {recursive:true, force:true}); }\n    log('delete', p);\n    return;\n  }\n  if(op === 'chmod'){\n    const p = m.path; if(await fileExists(p)){ await fsp.chmod(p, m.mode || '0644'); }\n    log('chmod', p);\n    return;\n  }\n  log('skip-unknown-op', op);\n}\n\nasync function runShellListNonBlocking(list, root){\n  if(!Array.isArray(list) || list.length===0) return;\n  const nbJs = path.resolve(root, 'scripts', 'nb.js');\n  const hasNb = fs.existsSync(nbJs);\n  for(const [i,cmd] of list.entries()){\n    const label = `post_${i+1}`;\n    if(hasNb){\n      const line = `node ${JSON.stringify(nbJs)} --ttl 20m --label ${JSON.stringify(label)} --log validations/logs/${label}.log --status validations/status -- ${cmd}`;\n      await runZsh(line, {inherit:true, cwd:root});\n    } else {\n      await runZsh(`(${cmd}) >/dev/null 2>&1 & disown`, {inherit:true, cwd:root});\n    }\n  }\n}\n\nasync function runValidateListNonBlocking(list, root){\n  if(!Array.isArray(list) || list.length===0) return;\n  const nbJs = path.resolve(root, 'scripts', 'nb.js');\n  const hasNb = fs.existsSync(nbJs);\n  for(const [i,cmd] of list.entries()){\n    const label = `validate_${i+1}`;\n    if(hasNb){\n      const line = `node ${JSON.stringify(nbJs)} --ttl 20m --label ${JSON.stringify(label)} --log validations/logs/${label}.log --status validations/status -- ${cmd}`;\n      await runZsh(line, {inherit:true, cwd:root});\n    } else {\n      await runZsh(`(${cmd}) >/dev/null 2>&1 & disown`, {inherit:true, cwd:root});\n    }\n  }\n}\n\nasync function processPatch(patchPath){\n  const root = path.resolve(__dirname, '..');\n  const raw = await fsp.readFile(patchPath, 'utf8');\n  let patch;\n  try{ patch = JSON.parse(raw); }catch(e){ throw new Error(`invalid JSON: ${patchPath}`); }\n  log('processing', path.basename(patchPath));\n\n  // mutations\n  if(Array.isArray(patch.mutations)){\n    for(const m of patch.mutations){ await applyMutation(m); }\n  }\n\n  // postMutationBuild (non-blocking)\n  const postList = patch.postMutationBuild?.shell || [];\n  await runShellListNonBlocking(postList, root);\n\n  // validate (non-blocking)\n  const valList = patch.validate?.shell || [];\n  await runValidateListNonBlocking(valList, root);\n\n  // move to processed\n  const cfg = JSON.parse(await fsp.readFile(DEFAULT_CFG,'utf8'));\n  const processedDir = cfg.processedDir || path.join(path.dirname(patchPath),'processed');\n  await ensureDir(processedDir);\n  const dest = path.join(processedDir, path.basename(patchPath));\n  await fsp.rename(patchPath, dest).catch(async()=>{\n    // fallback: copy+unlink in case cross-device\n    await fsp.copyFile(patchPath, dest); await fsp.unlink(patchPath);\n  });\n  log('moved', dest);\n}\n\nasync function main(){\n  const cfgPath = DEFAULT_CFG;\n  const cfg = await fileExists(cfgPath) ? JSON.parse(await fsp.readFile(cfgPath,'utf8')) : {watchDirs:[]};\n  const envDirs = process.env.PATCH_QUEUE_DIRS ? process.env.PATCH_QUEUE_DIRS.split(',').map(s=>s.trim()).filter(Boolean) : [];\n  const argDirs = explicitDirs ? explicitDirs.split(',').map(s=>s.trim()).filter(Boolean) : [];\n  const watchDirs = [...new Set([ ...argDirs, ...envDirs, ...cfg.watchDirs ])];\n  if(watchDirs.length===0){\n    console.error('No patch files found in queue (no watchDirs configured).');\n    process.exit(0);\n  }\n  log('watchDirs:', watchDirs.join(' | '));\n\n  // --once mode: scan and process now\n  if(once){\n    for(const d of watchDirs){\n      const files = listPatchFiles(d);\n      if(files.length) log('found', files.length, 'in', d);\n      for(const f of files){\n        try{ if(!dryRun) await processPatch(f); else log('dry-run would process', f); }\n        catch(e){ console.error('[patch-executor] error', f, e.message); }\n      }\n    }\n    return;\n  }\n\n  // watcher mode\n  const chokidarPath = require.resolve('chokidar');\n  const chokidar = require(chokidarPath);\n  const watcher = chokidar.watch(watchDirs.map(d=>path.join(d,'patch-*.json')), {ignoreInitial:false, awaitWriteFinish:{stabilityThreshold:500, pollInterval:100}});\n  watcher.on('add', f => { log('detected', f); processPatch(f).catch(e => console.error('[patch-executor] error', f, e.message)); });\n  log('watching for incoming patches...');\n}\n\nmain().catch(e=>{ console.error(e); process.exit(1); });\n"
+    },
+    {
+      "op": "upsert",
+      "path": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/find-timeout-disown.js",
+      "mode": "0755",
+      "contents": "#!/usr/bin/env node\n'use strict';\nconst fs = require('fs');\nconst path = require('path');\nconst root = process.argv[2] || process.cwd();\nconst out = path.join(root, 'validations', 'migration-report.md');\nconst ignore = new Set(['node_modules','.git','build','dist','.expo','.next','ios','android']);\nlet hits = [];\nfunction walk(dir){\n  for(const ent of fs.readdirSync(dir,{withFileTypes:true})){\n    if(ignore.has(ent.name)) continue;\n    const p = path.join(dir, ent.name);\n    if(ent.isDirectory()) walk(p); else {\n      const ext = path.extname(ent.name).toLowerCase();\n      if(!['.js','.ts','.tsx','.json','.md','.sh','.zsh','.yaml','.yml'].includes(ext)) continue;\n      const text = fs.readFileSync(p,'utf8');\n      const lines = text.split(/\\r?\\n/);\n      lines.forEach((line,i)=>{ if(/timeout\\s+[^\\n]*?&\\s*disown/.test(line)) hits.push({file:p,line:i+1,code:line.trim()}); });\n    }\n  }\n}\nwalk(root);\nfs.mkdirSync(path.dirname(out),{recursive:true});\nfs.writeFileSync(out, ['# Timeout+disown occurrences','',`Root: ${root}`,'',...hits.map(h=>`- ${h.file}:${h.line}: \\`${h.code}\\``)].join('\\n'));\nconsole.log(`Wrote report: ${out} (hits=${hits.length})`);\n"
+    },
+    {
+      "op": "upsert",
+      "path": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/tools/print-migration-report-head.zsh",
+      "mode": "0755",
+      "contents": "#!/bin/zsh\nset -euo pipefail\nREPORT=\"/Users/sawyer/gitSync/gpt-cursor-runner/validations/migration-report.md\"\nif [ -f \"$REPORT\" ]; then\n  echo \"=== migration-report.md (head) ===\"\n  head -n 60 \"$REPORT\"\nelse\n  echo \"No migration report found at $REPORT\"\nfi\n"
+    }
+  ],
+
+  "preCommit": {
+    "notes": "Troubleshooting/hardpatch — no freezer backup per rule 83."
+  },
+
+  "postMutationBuild": {
+    "shell": [
+      "mkdir -p /Users/sawyer/gitSync/gpt-cursor-runner/validations/logs /Users/sawyer/gitSync/gpt-cursor-runner/validations/status",
+      "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/patch-executor.js --once --dirs '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches,/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/tasks/patches,/Users/sawyer/gitSync/gpt-cursor-runner/tasks/patches' || true",
+      "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/find-timeout-disown.js /Users/sawyer/gitSync/gpt-cursor-runner || true",
+      "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/tools/print-migration-report-head.zsh || true"
+    ]
+  },
+
+  "validate": {
+    "shell": ["node -e \"process.exit(0)\""]
+  }
+}

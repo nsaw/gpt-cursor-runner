@@ -1,22 +1,30 @@
+# System files
 .DS_Store
 .AppleDouble
 .LSOverride
 Thumbs.db
 Desktop.ini
+
+# Dependencies / build outputs
 node_modules/
 .expo/
 .expo-shared/
 web-build/
+.venv/
+
+# Environment / secrets
 .env
 .env.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 cursor-uploads/client_secret_*.json
+
+# Project-specific exclusions
 .backup/
 archive/
 ios-bak/
 *.log
 .git/
-.venv/
 ios/
+_backups/

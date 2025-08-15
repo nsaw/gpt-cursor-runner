@@ -1,10 +1,10 @@
 // ✅ MonitorLayout.js - rearranged for mobile-first clarity
-import React from 'react';
-import PatchQueue from './sections/PatchQueue';
-import GhostHealthStatus from './sections/GhostHealthStatus';
-import RecentLogs from './sections/RecentLogs';
-import TunnelStatusGrid from './sections/TunnelStatusGrid';
-import SystemOverview from './sections/SystemOverview';
+import React from "react";
+import PatchQueue from "./sections/PatchQueue";
+import GhostHealthStatus from "./sections/GhostHealthStatus";
+import RecentLogs from "./sections/RecentLogs";
+import TunnelStatusGrid from "./sections/TunnelStatusGrid";
+import SystemOverview from "./sections/SystemOverview";
 
 export default function MonitorLayout() {
   return (
@@ -16,4 +16,4 @@ export default function MonitorLayout() {
       <SystemOverview />
     </div>
   );
-} 
+}

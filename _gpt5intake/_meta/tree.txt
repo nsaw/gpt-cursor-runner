@@ -1,0 +1,10 @@
+.
+./_meta
+./_meta/env_vars.txt
+./_meta/tree.txt
+./Users
+./Users/sawyer
+./Users/sawyer/crontab.txt
+./Users/sawyer/gitSync
+./Users/sawyer/gitSync/gpt-cursor-runner
+./Users/sawyer/gitSync/.cursor-cache

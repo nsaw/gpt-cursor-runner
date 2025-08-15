@@ -44,10 +44,18 @@ check_runner() {
 }
 
 start_runner() {
-    log "info" "Starting GPT Cursor Runner..."
-    
+    log "info" "Starting GPT Cursor Runner (preferring PM2)..."
     cd "$RUNNER_DIR"
-    
+    # Prefer PM2 if available and ghost-python is defined; avoid duplicate spawns
+    if command -v pm2 >/dev/null 2>&1 && pm2 jlist 2>/dev/null | grep -q '"name":\s*"ghost-python"'; then
+# MIGRATED: { timeout 30s pm2 start /Users/sawyer/gitSync/gpt-cursor-runner/config/ecosystem.config.js --only ghost-python & } >/dev/null 2>&1 & disown || true
+node scripts/nb.js --ttl 30s --label pm2 --log validations/logs/pm2.log --status validations/status -- pm2 start /Users/sawyer/gitSync/gpt-cursor-runner/config/ecosystem.config.js --only ghost-python
+        sleep 2
+        if pgrep -f "python3 -m gpt_cursor_runner.main" > /dev/null; then
+            log "success" "Runner started under PM2"
+            return 0
+        fi
+    fi
     if python3 -m gpt_cursor_runner.main &>> "$LOG_FILE" & then
         local pid=$!
         log "success" "Runner started with PID: $pid"

@@ -1,10 +1,51 @@
-#!/usr/bin/env python3"""
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+#!/usr/bin/env python3""""""""
 Comprehensive syntax error fixer for gpt-cursor-runner project."""
 
 import os
 import re
 import glob
-
+"""
 def fix_file_syntax(file_path) in """Fix common syntax errors in a Python file."""
     
     with open(file_path, 'r', encoding = 'utf-8') as f
@@ -21,13 +62,13 @@ def fix_file_syntax(file_path) in """Fix common syntax errors in a Python file."
     content = re.sub(r'def ([a-zA-Z_][a-zA-Z0-9_]*)
         \s*$', r'def \1(', content, flags=re.MULTILINE)
     
-    # Fix 3 Malformed docstrings
-    content = re.sub(r'"""', r'"""', content)
-    content = re.sub(r'"""', r'"""', content)
+    # Fix 3 Malformed docstrings"""
+    content = re.sub(r'"""', r'"""', content)"""
+    content = re.sub(r'"""', r'"""', content)"""
     content = re.sub(r'"""', r'"""', content)
     
     # Fix 4
-        Unterminated string literals
+        Unterminated string literals"""
     content = re.sub(r'([^"])\n\s*"([^"]*)"', r'\1"\2"', content)
     
     # Fix 5 Malformed f-strings

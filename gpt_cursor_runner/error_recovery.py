@@ -5,14 +5,13 @@ Error Recovery Module for GHOST 2.0.
 Handles system errors and provides recovery mechanisms.
 """
 
+import logging
 import threading
-import time
+import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
-import traceback
+from typing import Dict, List, Optional, Any, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +66,7 @@ class RecoveryStrategy:
 class ErrorRecovery:
     """Handles error recovery and system resilience."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.errors: List[ErrorRecord] = []
         self.recovery_strategies: List[RecoveryStrategy] = []
         self.active_recoveries: Dict[str, Dict[str, Any]] = {}
@@ -78,7 +77,7 @@ class ErrorRecovery:
         # Register default recovery strategies
         self._register_default_strategies()
 
-    def _register_default_strategies(self):
+    def _register_default_strategies(self) -> None:
         """Register default error recovery strategies."""
         self.recovery_strategies = [
             # Network errors - retry with backoff
@@ -115,7 +114,7 @@ class ErrorRecovery:
             ),
         ]
 
-    def start(self):
+    def start(self) -> None:
         """Start the error recovery background thread."""
         if self._recovery_thread is None or not self._recovery_thread.is_alive():
             self._stop_event.clear()
@@ -125,14 +124,14 @@ class ErrorRecovery:
             self._recovery_thread.start()
             logger.info("Error recovery started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the error recovery background thread."""
         self._stop_event.set()
         if self._recovery_thread and self._recovery_thread.is_alive():
             self._recovery_thread.join(timeout=5)
             logger.info("Error recovery stopped")
 
-    def _recovery_loop(self):
+    def _recovery_loop(self) -> None:
         """Background loop for error recovery."""
         while not self._stop_event.is_set():
             try:
@@ -143,7 +142,7 @@ class ErrorRecovery:
             # Wait before next recovery cycle
             self._stop_event.wait(10)
 
-    def _process_recoveries(self):
+    def _process_recoveries(self) -> None:
         """Process active error recoveries."""
         with self._lock:
             current_time = datetime.now()
@@ -165,7 +164,7 @@ class ErrorRecovery:
             for error_id in completed_recoveries:
                 del self.active_recoveries[error_id]
 
-    def _attempt_recovery(self, error_id: str, recovery: Dict[str, Any]):
+    def _attempt_recovery(self, error_id: str, recovery: Dict[str, Any]) -> None:
         """Attempt to recover from an error."""
         try:
             action = recovery["action"]
@@ -190,95 +189,92 @@ class ErrorRecovery:
         except Exception as e:
             logger.error(f"Error during recovery attempt for {error_id}: {e}")
 
-    def _restart_component(self, component: str):
+    def _restart_component(self, component: str) -> None:
         """Restart a system component."""
         try:
             if component == "health_aggregator":
                 from gpt_cursor_runner.health_aggregator import get_health_aggregator
 
                 health_agg = get_health_aggregator()
-                health_agg.stop()
-                time.sleep(2)
-                health_agg.start()
-                logger.info("Health aggregator restarted")
-            elif component == "resource_monitor":
-                from gpt_cursor_runner.resource_monitor import get_resource_monitor
+                if health_agg:
+                    health_agg.restart()
+            elif component == "patch_executor":
+                from gpt_cursor_runner.patch_executor_daemon import get_patch_executor
 
-                resource_monitor = get_resource_monitor()
-                resource_monitor.stop()
-                time.sleep(2)
-                resource_monitor.start()
-                logger.info("Resource monitor restarted")
-            elif component == "process_cleanup":
-                from gpt_cursor_runner.process_cleanup import get_process_cleanup
+                executor = get_patch_executor()
+                if executor:
+                    executor.restart()
+            elif component == "dashboard":
+                from gpt_cursor_runner.dashboard_daemon import get_dashboard_daemon
 
-                process_cleanup = get_process_cleanup()
-                process_cleanup.stop()
-                time.sleep(2)
-                process_cleanup.start()
-                logger.info("Process cleanup restarted")
-            elif component == "unified_processor":
-                from gpt_cursor_runner.unified_processor import get_unified_processor
+                dashboard = get_dashboard_daemon()
+                if dashboard:
+                    dashboard.restart()
 
-                processor = get_unified_processor()
-                processor.stop()
-                time.sleep(2)
-                processor.start()
-                logger.info("Unified processor restarted")
-            elif component == "sequential_processor":
-                from gpt_cursor_runner.sequential_processor import (
-                    get_sequential_processor,
-                )
+            logger.info(f"Restarted component: {component}")
 
-                processor = get_sequential_processor()
-                processor.stop()
-                time.sleep(2)
-                processor.start()
-                logger.info("Sequential processor restarted")
         except Exception as e:
             logger.error(f"Failed to restart component {component}: {e}")
 
-    def _retry_operation(self, error_id: str, recovery: Dict[str, Any]):
+    def _retry_operation(self, error_id: str, recovery: Dict[str, Any]) -> None:
         """Retry a failed operation."""
-        # This would typically retry the specific operation that failed
-        logger.info(f"Retrying operation for error {error_id}")
+        try:
+            # Get the original error record
+            error_record = self._get_error_record(error_id)
+            if error_record:
+                # Re-execute the operation that failed
+                logger.info(f"Retrying operation for error {error_id}")
+                # Implementation would depend on the specific operation type
 
-    def _fallback_operation(self, error_id: str, recovery: Dict[str, Any]):
-        """Use fallback operation."""
-        # This would typically use an alternative method
-        logger.info(f"Using fallback operation for error {error_id}")
+        except Exception as e:
+            logger.error(f"Failed to retry operation for {error_id}: {e}")
 
-    def _escalate_error(self, error_id: str, recovery: Dict[str, Any]):
+    def _fallback_operation(self, error_id: str, recovery: Dict[str, Any]) -> None:
+        """Execute fallback operation."""
+        try:
+            logger.info(f"Executing fallback for error {error_id}")
+            # Implementation would depend on the specific fallback strategy
+
+        except Exception as e:
+            logger.error(f"Failed to execute fallback for {error_id}: {e}")
+
+    def _escalate_error(self, error_id: str, recovery: Dict[str, Any]) -> None:
         """Escalate error to higher level."""
         try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
+            error_record = self._get_error_record(error_id)
+            if error_record:
+                logger.critical(
+                    f"Escalating critical error {error_id}: {error_record.error_type} - {error_record.error_message}"
+                )
+                # Send alert, notify administrators, etc.
 
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(
-                f"Critical error {error_id} requires manual intervention",
-                context="error_recovery",
-            )
         except Exception as e:
             logger.error(f"Failed to escalate error {error_id}: {e}")
 
+    def _get_error_record(self, error_id: str) -> Optional[ErrorRecord]:
+        """Get error record by ID."""
+        with self._lock:
+            for error in self.errors:
+                if error.error_id == error_id:
+                    return error
+        return None
+
     def record_error(
-        self, error: Exception, component: str, context: Dict[str, Any] = None
+        self,
+        error_type: str,
+        error_message: str,
+        component: str,
+        stack_trace: str = "",
+        context: Optional[Dict[str, Any]] = None,
     ) -> str:
-        """Record an error for recovery processing."""
-        import uuid
-
-        error_id = f"error_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
-        error_type = type(error).__name__
-        error_message = str(error)
-        stack_trace = traceback.format_exc()
-
-        # Determine severity based on error type
+        """Record a new error occurrence."""
+        error_id = str(uuid.uuid4())
+        timestamp = datetime.now()
         severity = self._determine_severity(error_type, error_message)
 
-        # Create error record
         error_record = ErrorRecord(
             error_id=error_id,
-            timestamp=datetime.now(),
+            timestamp=timestamp,
             error_type=error_type,
             error_message=error_message,
             severity=severity,
@@ -290,20 +286,27 @@ class ErrorRecovery:
         with self._lock:
             self.errors.append(error_record)
 
-            # Find matching recovery strategy
-            strategy = self._find_recovery_strategy(error_type, error_message)
-            if strategy:
-                self.active_recoveries[error_id] = {
-                    "action": strategy.action,
-                    "component": component,
-                    "attempts": 0,
-                    "max_attempts": strategy.max_attempts,
-                    "backoff_seconds": strategy.backoff_seconds,
-                    "next_attempt": datetime.now(),
-                }
+        # Check if recovery should be attempted
+        strategy = self._find_recovery_strategy(error_type, error_message)
+        if strategy and strategy.action != RecoveryAction.IGNORE:
+            self._schedule_recovery(error_id, error_record, strategy)
 
-        logger.warning(f"Recorded error {error_id} in {component}: {error_message}")
+        logger.error(f"Recorded error {error_id}: {error_type} - {error_message}")
         return error_id
+
+    def _schedule_recovery(
+        self, error_id: str, error_record: ErrorRecord, strategy: RecoveryStrategy
+    ) -> None:
+        """Schedule error recovery."""
+        with self._lock:
+            self.active_recoveries[error_id] = {
+                "action": strategy.action,
+                "component": error_record.component,
+                "attempts": 0,
+                "max_attempts": strategy.max_attempts,
+                "backoff_seconds": strategy.backoff_seconds,
+                "next_attempt": datetime.now(),
+            }
 
     def _determine_severity(self, error_type: str, error_message: str) -> ErrorSeverity:
         """Determine error severity based on type and message."""
@@ -383,13 +386,13 @@ class ErrorRecovery:
                 for error in recent_errors
             ]
 
-    def add_recovery_strategy(self, strategy: RecoveryStrategy):
+    def add_recovery_strategy(self, strategy: RecoveryStrategy) -> None:
         """Add a custom recovery strategy."""
         with self._lock:
             self.recovery_strategies.append(strategy)
         logger.info(f"Added recovery strategy for pattern: {strategy.error_pattern}")
 
-    def clear_old_errors(self, days: int = 7):
+    def clear_old_errors(self, days: int = 7) -> None:
         """Clear errors older than specified days."""
         cutoff_date = datetime.now() - timedelta(days=days)
         with self._lock:

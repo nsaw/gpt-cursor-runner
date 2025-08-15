@@ -4,11 +4,11 @@ Script to apply saved patches to target files.
 This demonstrates Option 3 functionality - direct patch application.
 """
 
-import os
 import json
+import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Optional, Any
 
 
 def load_patch(patch_file: str) -> Optional[Dict[str, Any]]:
@@ -94,42 +94,34 @@ def run_post_build(patch_data: Dict[str, Any]) -> None:
 
 
 def main() -> None:
-    """Main function to apply patch."""
+    """Main function to apply a patch."""
     if len(sys.argv) != 2:
-        print("Usage: python3 -m gpt_cursor_runner.apply_patch <patch_file>")
+        print("Usage: python apply_patch.py <patch_file>")
         sys.exit(1)
 
     patch_file = sys.argv[1]
-
     if not os.path.exists(patch_file):
         print(f"❌ Patch file not found: {patch_file}")
         sys.exit(1)
 
-    print(f"🚀 Applying patch: {patch_file}")
-
     # Load patch data
     patch_data = load_patch(patch_file)
     if not patch_data:
+        print("❌ Failed to load patch data")
         sys.exit(1)
 
-    # Apply mutations
-    mutations = patch_data.get("mutations", [])
-    for mutation in mutations:
-        target = mutation.get("target")
-        if target:
-            success = apply_patch_to_file(patch_data, target)
-            if not success:
-                print("❌ Patch application failed")
-                sys.exit(1)
-
-    # Run validation
+    # Validate patch
     if not validate_patch(patch_data):
         print("❌ Patch validation failed")
         sys.exit(1)
 
+    # Apply patch
+    if not apply_patch_to_file(patch_data, patch_file):
+        print("❌ Failed to apply patch")
+        sys.exit(1)
+
     # Run post-build commands
     run_post_build(patch_data)
-
     print("✅ Patch applied successfully!")
 
 

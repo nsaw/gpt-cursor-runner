@@ -3,15 +3,15 @@
 
 export class GptFeedbackIngestion {
   constructor() {
-    console.log('[GptFeedbackIngestion] Initialized');
+    console.log("[GptFeedbackIngestion] Initialized");
   }
-  
+
   public async start(): Promise<void> {
-    console.log('[GptFeedbackIngestion] Started');
+    console.log("[GptFeedbackIngestion] Started");
   }
-  
+
   public async stop(): Promise<void> {
-    console.log('[GptFeedbackIngestion] Stopped');
+    console.log("[GptFeedbackIngestion] Stopped");
   }
 }
 

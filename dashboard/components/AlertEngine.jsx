@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './alerts.css';
+import React, { useState, useEffect } from "react";
+import "./alerts.css";
 
 const AlertEngine = () => {
   const [alerts, setAlerts] = useState([]);
@@ -16,13 +16,13 @@ const AlertEngine = () => {
   const fetchAlerts = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/telemetry/alerts');
+      const response = await fetch("/api/telemetry/alerts");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      
-      if (data.status === 'success' && data.alerts) {
+
+      if (data.status === "success" && data.alerts) {
         setAlerts(data.alerts);
       } else {
         setAlerts([]);
@@ -38,35 +38,35 @@ const AlertEngine = () => {
 
   const getSeverityIcon = (severity) => {
     switch (severity?.toLowerCase()) {
-      case 'critical':
-        return '🔴';
-      case 'error':
-        return '🟠';
-      case 'warning':
-        return '🟡';
-      case 'info':
-        return '🔵';
-      case 'success':
-        return '🟢';
+      case "critical":
+        return "🔴";
+      case "error":
+        return "🟠";
+      case "warning":
+        return "🟡";
+      case "info":
+        return "🔵";
+      case "success":
+        return "🟢";
       default:
-        return '⚪';
+        return "⚪";
     }
   };
 
   const getSeverityClass = (severity) => {
     switch (severity?.toLowerCase()) {
-      case 'critical':
-        return 'alert-critical';
-      case 'error':
-        return 'alert-error';
-      case 'warning':
-        return 'alert-warning';
-      case 'info':
-        return 'alert-info';
-      case 'success':
-        return 'alert-success';
+      case "critical":
+        return "alert-critical";
+      case "error":
+        return "alert-error";
+      case "warning":
+        return "alert-warning";
+      case "info":
+        return "alert-info";
+      case "success":
+        return "alert-success";
       default:
-        return 'alert-default';
+        return "alert-default";
     }
   };
 
@@ -81,7 +81,7 @@ const AlertEngine = () => {
   };
 
   const formatTimestamp = (timestamp) => {
-    if (!timestamp) return 'Unknown';
+    if (!timestamp) return "Unknown";
     try {
       return new Date(timestamp).toLocaleString();
     } catch {
@@ -91,32 +91,33 @@ const AlertEngine = () => {
 
   const renderAlertContent = (alert) => {
     const isExpanded = expandedAlerts.has(alert.id);
-    
+
     return (
-      <div 
-        key={alert.id} 
-        className={`alert-item ${getSeverityClass(alert.severity)} ${isExpanded ? 'expanded' : ''}`}
+      <div
+        key={alert.id}
+        className={`alert-item ${getSeverityClass(alert.severity)} ${isExpanded ? "expanded" : ""}`}
       >
-        <div className="alert-header" onClick={() => toggleAlertExpansion(alert.id)}>
-          <div className="alert-icon">
-            {getSeverityIcon(alert.severity)}
-          </div>
+        <div
+          className="alert-header"
+          onClick={() => toggleAlertExpansion(alert.id)}
+        >
+          <div className="alert-icon">{getSeverityIcon(alert.severity)}</div>
           <div className="alert-title">
-            <span className="alert-severity">{alert.severity || 'Unknown'}</span>
+            <span className="alert-severity">
+              {alert.severity || "Unknown"}
+            </span>
             <span className="alert-message">
-              {alert.message || alert.title || 'No message provided'}
+              {alert.message || alert.title || "No message provided"}
             </span>
           </div>
           <div className="alert-meta">
             <span className="alert-timestamp">
               {formatTimestamp(alert.timestamp)}
             </span>
-            <span className="alert-toggle">
-              {isExpanded ? '▼' : '▶'}
-            </span>
+            <span className="alert-toggle">{isExpanded ? "▼" : "▶"}</span>
           </div>
         </div>
-        
+
         {isExpanded && (
           <div className="alert-details">
             {alert.description && (
@@ -134,7 +135,7 @@ const AlertEngine = () => {
                 <strong>Source:</strong> {alert.source}
               </div>
             )}
-            {alert.metadata && typeof alert.metadata === 'object' && (
+            {alert.metadata && typeof alert.metadata === "object" && (
               <div className="alert-metadata">
                 <strong>Details:</strong>
                 <pre className="metadata-json">
@@ -150,7 +151,7 @@ const AlertEngine = () => {
 
   const renderAlertHistory = () => {
     const recentAlerts = alerts.slice(0, 10); // Show last 10 alerts
-    
+
     if (recentAlerts.length === 0) {
       return (
         <div className="no-alerts">
@@ -164,17 +165,15 @@ const AlertEngine = () => {
       <div className="alert-history">
         <div className="alert-history-header">
           <h3>Recent Alerts ({recentAlerts.length})</h3>
-          <button 
+          <button
             className="refresh-button"
             onClick={fetchAlerts}
             disabled={isLoading}
           >
-            {isLoading ? '🔄' : '🔄'} Refresh
+            {isLoading ? "🔄" : "🔄"} Refresh
           </button>
         </div>
-        <div className="alert-list">
-          {recentAlerts.map(renderAlertContent)}
-        </div>
+        <div className="alert-list">{recentAlerts.map(renderAlertContent)}</div>
       </div>
     );
   };
@@ -185,10 +184,7 @@ const AlertEngine = () => {
         <div className="error-message">
           <span className="error-icon">❌</span>
           <span className="error-text">{error}</span>
-          <button 
-            className="retry-button"
-            onClick={fetchAlerts}
-          >
+          <button className="retry-button" onClick={fetchAlerts}>
             Retry
           </button>
         </div>
@@ -208,18 +204,24 @@ const AlertEngine = () => {
           <span className="stat-item">
             <span className="stat-label">Critical:</span>
             <span className="stat-value critical">
-              {alerts.filter(a => a.severity?.toLowerCase() === 'critical').length}
+              {
+                alerts.filter((a) => a.severity?.toLowerCase() === "critical")
+                  .length
+              }
             </span>
           </span>
           <span className="stat-item">
             <span className="stat-label">Errors:</span>
             <span className="stat-value error">
-              {alerts.filter(a => a.severity?.toLowerCase() === 'error').length}
+              {
+                alerts.filter((a) => a.severity?.toLowerCase() === "error")
+                  .length
+              }
             </span>
           </span>
         </div>
       </div>
-      
+
       {isLoading ? (
         <div className="loading">
           <span className="loading-spinner">🔄</span>
@@ -232,4 +234,4 @@ const AlertEngine = () => {
   );
 };
 
-export default AlertEngine; 
+export default AlertEngine;

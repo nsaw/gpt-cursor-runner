@@ -5,13 +5,17 @@ Health Aggregation Module for GHOST 2.0.
 Collects and aggregates health metrics from various system components.
 """
 
+import logging
 import os
-import psutil
 import threading
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Dict, Optional, Any
-from dataclasses import dataclass, asdict
-import logging
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +46,7 @@ class SystemHealth:
 class HealthAggregator:
     """Aggregates health metrics from various system components."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.components: Dict[str, ComponentHealth] = {}
         self.system_metrics: Dict[str, Any] = {}
         self.last_aggregation: Optional[datetime] = None
@@ -51,7 +55,7 @@ class HealthAggregator:
         self._stop_event = threading.Event()
         self._aggregation_thread: Optional[threading.Thread] = None
 
-    def start(self):
+    def start(self) -> None:
         """Start the health aggregation background thread."""
         if self._aggregation_thread is None or not self._aggregation_thread.is_alive():
             self._stop_event.clear()
@@ -61,14 +65,14 @@ class HealthAggregator:
             self._aggregation_thread.start()
             logger.info("Health aggregator started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the health aggregation background thread."""
         self._stop_event.set()
         if self._aggregation_thread and self._aggregation_thread.is_alive():
             self._aggregation_thread.join(timeout=5)
             logger.info("Health aggregator stopped")
 
-    def _aggregation_loop(self):
+    def _aggregation_loop(self) -> None:
         """Background loop for health aggregation."""
         while not self._stop_event.is_set():
             try:
@@ -81,7 +85,7 @@ class HealthAggregator:
             # Wait for next aggregation cycle
             self._stop_event.wait(self.aggregation_interval)
 
-    def _collect_system_metrics(self):
+    def _collect_system_metrics(self) -> None:
         """Collect system-level metrics."""
         try:
             # CPU metrics
@@ -128,7 +132,7 @@ class HealthAggregator:
             logger.error(f"Error collecting system metrics: {e}")
             self.system_metrics = {"error": str(e)}
 
-    def _aggregate_health(self):
+    def _aggregate_health(self) -> None:
         """Aggregate health from all components."""
         with self._lock:
             healthy_count = 0
@@ -150,7 +154,7 @@ class HealthAggregator:
 
             self.overall_status = overall_status
 
-    def register_component(self, name: str, health_check_func):
+    def register_component(self, name: str, health_check_func) -> None:
         """Register a component for health monitoring."""
         with self._lock:
             self.components[name] = ComponentHealth(

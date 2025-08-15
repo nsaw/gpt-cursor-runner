@@ -1,11 +1,11 @@
 // Attempts to re-trigger summary logic if .md missing
-const fs = require('fs');
-const path = require('path');
-const { exec } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { exec } = require("child_process");
 
 const patchId = process.argv[2];
 if (!patchId) {
-  console.error('Patch ID missing');
+  console.error("Patch ID missing");
   process.exit(1);
 }
 const summaryPath = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-${patchId}.md`;

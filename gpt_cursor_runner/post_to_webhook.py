@@ -1,17 +1,50 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import os
+import requests
+from datetime import datetime
+from typing import Dict, Optional, Any
+
 """
 Post hybrid blocks to the GPT-Cursor Runner webhook endpoint.
 """
-
-import requests
-import os
-from typing import Dict, Any, Optional
-from datetime import datetime
 
 
 class WebhookPoster:
     """Posts hybrid blocks to the webhook endpoint."""
 
-    def __init__(self, endpoint_url: Optional[str] = None):
+    def __init__(self, endpoint_url: Optional[str] = None) -> None:
         self.endpoint_url = endpoint_url or os.getenv("ENDPOINT_URL")
         if not self.endpoint_url:
             raise ValueError("ENDPOINT_URL not configured")
@@ -27,6 +60,13 @@ class WebhookPoster:
             Response from the webhook
         """
         try:
+            if not self.endpoint_url:
+                return {
+                    "success": False,
+                    "error": "No endpoint URL configured",
+                    "message": "Webhook endpoint not configured",
+                }
+
             response = requests.post(
                 self.endpoint_url,
                 json=hybrid_block,
@@ -185,7 +225,7 @@ onChangeText={(text) => {
         return self.post_hybrid_block(form_validation_block)
 
 
-def main():
+def main() -> None:
     """Main function to demonstrate webhook posting."""
     try:
         poster = WebhookPoster()

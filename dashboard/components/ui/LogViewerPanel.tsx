@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLogStream } from '../hooks';
-import './LogViewerPanel.css';
+import React, { useState, useEffect, useRef } from "react";
+import { useLogStream } from "../hooks";
+import "./LogViewerPanel.css";
 
 export interface LogViewerPanelProps {
   className?: string;
@@ -8,24 +8,28 @@ export interface LogViewerPanelProps {
   refreshInterval?: number;
   showTimestamp?: boolean;
   showSource?: boolean;
-  filterLevel?: 'all' | 'error' | 'warning' | 'info';
+  filterLevel?: "all" | "error" | "warning" | "info";
   autoScroll?: boolean;
 }
 
 export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
-  className = '',
+  className = "",
   maxLines = 100,
   refreshInterval = 2000,
   showTimestamp = true,
   showSource = true,
-  filterLevel = 'all',
-  autoScroll = true
+  filterLevel = "all",
+  autoScroll = true,
 }) => {
-  const { logs, error, refetch } = useLogStream({ pollingInterval: refreshInterval });
+  const { logs, error, refetch } = useLogStream({
+    pollingInterval: refreshInterval,
+  });
   const [filteredLogs, setFilteredLogs] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSource, setSelectedSource] = useState<string>('all');
-  const [currentFilterLevel, setCurrentFilterLevel] = useState<'all' | 'error' | 'warning' | 'info'>(filterLevel);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSource, setSelectedSource] = useState<string>("all");
+  const [currentFilterLevel, setCurrentFilterLevel] = useState<
+    "all" | "error" | "warning" | "info"
+  >(filterLevel);
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   // Filter logs based on level, search term, and source
@@ -33,20 +37,20 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
     let filtered = logs;
 
     // Filter by level
-    if (currentFilterLevel !== 'all') {
-      filtered = filtered.filter(log => log.level === currentFilterLevel);
+    if (currentFilterLevel !== "all") {
+      filtered = filtered.filter((log) => log.level === currentFilterLevel);
     }
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(log => 
-        log.message.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter((log) =>
+        log.message.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     // Filter by source
-    if (selectedSource !== 'all') {
-      filtered = filtered.filter(log => log.daemon === selectedSource);
+    if (selectedSource !== "all") {
+      filtered = filtered.filter((log) => log.daemon === selectedSource);
     }
 
     // Limit to max lines
@@ -64,25 +68,33 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
 
   // Get unique sources for filter dropdown
   const sources = React.useMemo(() => {
-    const uniqueSources = new Set(logs.map(log => log.daemon || 'system'));
+    const uniqueSources = new Set(logs.map((log) => log.daemon || "system"));
     return Array.from(uniqueSources).sort();
   }, [logs]);
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return '#EF4444';
-      case 'warning': return '#F59E0B';
-      case 'info': return '#3B82F6';
-      default: return '#6B7280';
+      case "error":
+        return "#EF4444";
+      case "warning":
+        return "#F59E0B";
+      case "info":
+        return "#3B82F6";
+      default:
+        return "#6B7280";
     }
   };
 
   const getLevelIcon = (level: string) => {
     switch (level) {
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return '📝';
+      case "error":
+        return "❌";
+      case "warning":
+        return "⚠️";
+      case "info":
+        return "ℹ️";
+      default:
+        return "📝";
     }
   };
 
@@ -115,9 +127,13 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
         <div className="log-controls">
           <div className="control-group">
             <label>Level:</label>
-            <select 
-              value={currentFilterLevel} 
-              onChange={(e) => setCurrentFilterLevel(e.target.value as 'all' | 'error' | 'warning' | 'info')}
+            <select
+              value={currentFilterLevel}
+              onChange={(e) =>
+                setCurrentFilterLevel(
+                  e.target.value as "all" | "error" | "warning" | "info",
+                )
+              }
               className="filter-select"
             >
               <option value="all">All</option>
@@ -126,17 +142,19 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
               <option value="info">Info</option>
             </select>
           </div>
-          
+
           <div className="control-group">
             <label>Source:</label>
-            <select 
-              value={selectedSource} 
+            <select
+              value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
               className="filter-select"
             >
               <option value="all">All Sources</option>
-              {sources.map(source => (
-                <option key={source} value={source}>{source}</option>
+              {sources.map((source) => (
+                <option key={source} value={source}>
+                  {source}
+                </option>
               ))}
             </select>
           </div>
@@ -152,7 +170,7 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
             />
           </div>
 
-          <button 
+          <button
             onClick={refetch}
             className="refresh-button"
             title="Refresh logs"
@@ -163,14 +181,10 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
       </div>
 
       <div className="log-stats">
+        <span className="stat-item">Total: {logs.length}</span>
+        <span className="stat-item">Filtered: {filteredLogs.length}</span>
         <span className="stat-item">
-          Total: {logs.length}
-        </span>
-        <span className="stat-item">
-          Filtered: {filteredLogs.length}
-        </span>
-        <span className="stat-item">
-          Errors: {logs.filter(log => log.level === 'error').length}
+          Errors: {logs.filter((log) => log.level === "error").length}
         </span>
         <span className="stat-item">
           Auto-refresh: {refreshInterval / 1000}s
@@ -180,16 +194,17 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
       <div className="log-container" ref={logContainerRef}>
         {filteredLogs.length === 0 ? (
           <div className="no-logs">
-            {searchTerm || currentFilterLevel !== 'all' || selectedSource !== 'all' 
-              ? 'No logs match the current filters' 
-              : 'No logs available'
-            }
+            {searchTerm ||
+            currentFilterLevel !== "all" ||
+            selectedSource !== "all"
+              ? "No logs match the current filters"
+              : "No logs available"}
           </div>
         ) : (
           <div className="log-entries">
             {filteredLogs.map((log, index) => (
-              <div 
-                key={`${log.timestamp}-${index}`} 
+              <div
+                key={`${log.timestamp}-${index}`}
                 className={`log-entry ${log.level}`}
               >
                 {showTimestamp && (
@@ -197,18 +212,16 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
                     {formatTimestamp(log.timestamp)}
                   </span>
                 )}
-                
+
                 <span className="log-level-icon">
                   {getLevelIcon(log.level)}
                 </span>
-                
+
                 {showSource && (
-                  <span className="log-source">
-                    [{log.daemon || 'system'}]
-                  </span>
+                  <span className="log-source">[{log.daemon || "system"}]</span>
                 )}
-                
-                <span 
+
+                <span
                   className="log-message"
                   style={{ color: getLevelColor(log.level) }}
                 >
@@ -232,4 +245,4 @@ export const LogViewerPanel: React.FC<LogViewerPanelProps> = ({
   );
 };
 
-export default LogViewerPanel; 
+export default LogViewerPanel;

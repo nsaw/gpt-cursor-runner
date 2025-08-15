@@ -1,0 +1,4 @@
+- If systemd unit files exist, add them under /Users/sawyer (none detected).
+- .cursor-cache ROOT/.logs status JSON files may be missing if services not running at build time.
+- Provide stability notes and desired end-state answers in DESIRED_STATE.md.
+Updated log paths in config/ecosystem.config.js; backup at ecosystem.config.js.bak_20250808_114237

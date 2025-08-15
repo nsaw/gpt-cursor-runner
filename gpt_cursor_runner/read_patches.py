@@ -1,17 +1,50 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import json
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
 """
 Script to read and display saved patches from the patches/ directory.
 """
-
-import json
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
-from pathlib import Path
 
 
 class PatchReader:
     """Reads and displays saved patches."""
 
-    def __init__(self, patches_dir: str = "patches"):
+    def __init__(self, patches_dir: str = "patches") -> None:
         self.patches_dir = Path(patches_dir)
         self.patches_dir.mkdir(exist_ok=True)
 
@@ -126,8 +159,8 @@ class PatchReader:
             }
 
         # Count by role
-        roles = {}
-        authors = {}
+        roles: Dict[str, int] = {}
+        authors: Dict[str, int] = {}
 
         for patch in patches:
             role = patch.get("role", "unknown")
@@ -248,7 +281,7 @@ class PatchReader:
         print("-" * 80)
 
 
-def main():
+def main() -> None:
     """Main function to demonstrate patch reading."""
     reader = PatchReader()
 

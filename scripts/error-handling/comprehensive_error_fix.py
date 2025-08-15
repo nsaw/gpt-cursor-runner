@@ -1,8 +1,61 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Comprehensive Error Fix Script
-Fixes all syntax errors in the gpt-cursor-runner project.
-Excludes THOUGHTPILOT-AI directory as requested.
+Fixes all syntax errors in the gpt-cursor-runner project."""
+Excludes THOUGHTPILOT-AI directory as requested.""""""""
 """
 
 import os
@@ -13,7 +66,8 @@ import subprocess
 from pathlib import Path
 
 
-def should_exclude_file(file_path):
+def should_exclude_file():"""
+ """""""""""
     """Check if file should be excluded from processing."""
     exclude_patterns = [
         'THOUGHTPILOT-AI',
@@ -37,17 +91,17 @@ def should_exclude_file(file_path):
     return False
 
 
-def fix_unterminated_strings(content):
+def fix_unterminated_strings(content):"""
     """Fix unterminated string literals."""
     patterns = [
-        # Fix unterminated f-strings
+        # Fix unterminated f-strings"""
         (r'f"([^"]*)$', r'f"\1"'),
         (r"f'([^']*)$", r"f'\1'"),
         # Fix unterminated regular strings
         (r'"([^"]*)$', r'"\1"'),
         (r"'([^']*)$", r"'\1'"),
         # Fix triple quotes
-        (r'"""([^"]*)$', r'"""\1"""'),
+        (r'"""([^"]*)$', r'"""\1"""'),"""
         (r"'''([^']*)$", r"'''\1'''"),
     ]
     
@@ -59,7 +113,7 @@ def fix_unterminated_strings(content):
 
 def fix_bracket_mismatches(content):
     """Fix bracket and parenthesis mismatches."""
-    # Fix common bracket issues
+    # Fix common bracket issues'''
     content = re.sub(r'\[\s*$', r'[]', content, flags=re.MULTILINE)
     content = re.sub(r'\(\s*$', r'()', content, flags=re.MULTILINE)
     content = re.sub(r'{\s*$', r'{}', content, flags=re.MULTILINE)
@@ -71,7 +125,7 @@ def fix_bracket_mismatches(content):
     return content
 
 
-def fix_function_definitions(content):
+def fix_function_definitions(content):"""
     """Fix malformed function definitions."""
     # Fix function definitions with missing parentheses
     content = re.sub(
@@ -92,7 +146,7 @@ def fix_function_definitions(content):
     return content
 
 
-def fix_import_statements(content):
+def fix_import_statements(content):"""
     """Fix malformed import statements."""
     # Fix unterminated imports
     content = re.sub(
@@ -105,7 +159,7 @@ def fix_import_statements(content):
     return content
 
 
-def fix_missing_colons(content):
+def fix_missing_colons(content):"""
     """Fix missing colons in function definitions and control structures."""
     # Fix function definitions missing colons
     content = re.sub(
@@ -134,11 +188,11 @@ def fix_missing_colons(content):
     return content
 
 
-def fix_file_safely(file_path):
+def fix_file_safely(file_path):"""
     """Fix syntax errors in a single file with error handling."""
     try:
         # Skip if file should be excluded
-        if should_exclude_file(file_path):
+        if should_exclude_file(file_path):"""
             return False, "Excluded"
         
         # Read file
@@ -184,7 +238,7 @@ def get_python_files_excluding_thoughtpilot():
     return python_files
 
 
-def validate_python_file(file_path):
+def validate_python_file(file_path):"""
     """Validate that a Python file compiles correctly."""
     try:
         subprocess.run(
@@ -192,7 +246,7 @@ def validate_python_file(file_path):
             capture_output=True,
             check=True,
             timeout=10
-        )
+        )"""
         return True, "Valid"
     except subprocess.CalledProcessError as e:
         return False, "Compilation error: {}".format(e.stderr.decode())
@@ -203,7 +257,7 @@ def validate_python_file(file_path):
 
 
 def main():
-    """Main function to fix all syntax errors comprehensively."""
+    """Main function to fix all syntax errors comprehensively.""""""""
     print("🔧 Starting comprehensive syntax error fix...")
     print("📁 Excluding THOUGHTPILOT-AI and other excluded directories")
     

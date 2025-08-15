@@ -49,7 +49,17 @@ check_process() {
 
 # Start Python ghost runner
 start_python_runner() {
-    log "🚀 Starting Python ghost runner on port $PYTHON_PORT..."
+    # Defer to PM2-managed ghost-python if available; avoid double-spawn
+    if command -v pm2 >/dev/null 2>&1; then
+        if pm2 jlist 2>/dev/null | grep -q '"name":\s*"ghost-python"'; then
+            log "🚀 Dispatching PM2 start for ghost-python"
+# MIGRATED: { timeout 30s pm2 start /Users/sawyer/gitSync/gpt-cursor-runner/config/ecosystem.config.js --only ghost-python & } >/dev/null 2>&1 & disown || true
+node scripts/nb.js --ttl 30s --label pm2 --log validations/logs/pm2.log --status validations/status -- pm2 start /Users/sawyer/gitSync/gpt-cursor-runner/config/ecosystem.config.js --only ghost-python
+            sleep 5
+            return
+        fi
+    fi
+    log "🚀 Starting Python ghost runner on port $PYTHON_PORT (direct)..."
     cd /Users/sawyer/gitSync/gpt-cursor-runner
     python3 -m gpt_cursor_runner.main --daemon --port $PYTHON_PORT > logs/python-runner.log 2>&1 &
     sleep 5
@@ -108,7 +118,7 @@ main() {
     
     while true; do
         # Check Python ghost runner
-        if ! check_process "python3.*gpt_cursor_runner" "$PYTHON_PORT"; then
+    if ! check_process "python3.*gpt_cursor_runner" "$PYTHON_PORT"; then
             log "⚠️ Python ghost runner is down"
             if [ $python_restarts -lt $MAX_RESTARTS ]; then
                 ((python_restarts++))

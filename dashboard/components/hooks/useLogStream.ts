@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export interface LogEntry {
   timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'debug';
+  level: "info" | "warning" | "error" | "debug";
   message: string;
   daemon?: string;
   metadata?: Record<string, any>;
@@ -16,11 +16,12 @@ export interface LogStreamOptions {
   onNewLog?: (entry: LogEntry) => void;
 }
 
-const DEFAULT_OPTIONS: Required<Omit<LogStreamOptions, 'daemon' | 'onNewLog'>> = {
-  maxEntries: 100,
-  pollingInterval: 2000,
-  autoScroll: true
-};
+const DEFAULT_OPTIONS: Required<Omit<LogStreamOptions, "daemon" | "onNewLog">> =
+  {
+    maxEntries: 100,
+    pollingInterval: 2000,
+    autoScroll: true,
+  };
 
 export function useLogStream(options: LogStreamOptions = {}): {
   logs: LogEntry[];
@@ -30,57 +31,56 @@ export function useLogStream(options: LogStreamOptions = {}): {
   clearLogs: () => void;
 } {
   const config = { ...DEFAULT_OPTIONS, ...options };
-  
+
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const lastLogTimestamp = useRef<string>('');
+  const lastLogTimestamp = useRef<string>("");
 
   const fetchLogs = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
 
-      const url = config.daemon 
+      const url = config.daemon
         ? `/api/recent-logs?daemon=${encodeURIComponent(config.daemon)}`
-        : '/api/recent-logs';
+        : "/api/recent-logs";
 
       const response = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const logData: LogEntry[] = await response.json();
-      
-      const newLogs = logData.filter(log => 
-        log.timestamp > lastLogTimestamp.current
+
+      const newLogs = logData.filter(
+        (log) => log.timestamp > lastLogTimestamp.current,
       );
-      
+
       if (newLogs.length > 0) {
-        setLogs(prevLogs => {
+        setLogs((prevLogs) => {
           const updatedLogs = [...prevLogs, ...newLogs];
-          
+
           if (updatedLogs.length > config.maxEntries) {
             return updatedLogs.slice(-config.maxEntries);
           }
-          
+
           return updatedLogs;
         });
-        
+
         lastLogTimestamp.current = newLogs[newLogs.length - 1].timestamp;
-        
-        newLogs.forEach(log => {
+
+        newLogs.forEach((log) => {
           config.onNewLog?.(log);
         });
       }
-      
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
+      const error = err instanceof Error ? err : new Error("Unknown error");
       setError(error);
-      console.error('[useLogStream] Error fetching logs:', error);
+      console.error("[useLogStream] Error fetching logs:", error);
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ export function useLogStream(options: LogStreamOptions = {}): {
 
   const clearLogs = useCallback((): void => {
     setLogs([]);
-    lastLogTimestamp.current = '';
+    lastLogTimestamp.current = "";
   }, []);
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function useLogStream(options: LogStreamOptions = {}): {
     loading,
     error,
     refetch,
-    clearLogs
+    clearLogs,
   };
 }
 
@@ -123,18 +123,21 @@ export function useErrorLogs(options: LogStreamOptions = {}): {
   refetch: () => Promise<void>;
 } {
   const { logs, loading, error, refetch } = useLogStream(options);
-  
-  const errorLogs = logs.filter(log => log.level === 'error');
-  
+
+  const errorLogs = logs.filter((log) => log.level === "error");
+
   return {
     errorLogs,
     loading,
     error,
-    refetch
+    refetch,
   };
 }
 
-export function useDaemonLogs(daemonName: string, options: Omit<LogStreamOptions, 'daemon'> = {}): {
+export function useDaemonLogs(
+  daemonName: string,
+  options: Omit<LogStreamOptions, "daemon"> = {},
+): {
   logs: LogEntry[];
   loading: boolean;
   error: Error | null;

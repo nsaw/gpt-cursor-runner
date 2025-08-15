@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const path = require("path");
 
 const app = express();
 const PORT = 3001;
 
 // Simple OAuth redirect debug server
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send(`
     <html>
       <head><title>OAuth Redirect Debug</title></head>
@@ -21,24 +21,24 @@ app.get('/', (req, res) => {
   `);
 });
 
-app.get('/slack/oauth/callback', (req, res) => {
+app.get("/slack/oauth/callback", (req, res) => {
   const { code, state, error } = req.query;
-  
-  console.log('🔍 OAuth Callback Received:');
-  console.log('   URL:', req.url);
-  console.log('   Code:', code ? 'Present' : 'Missing');
-  console.log('   State:', state || 'None');
-  console.log('   Error:', error || 'None');
-  console.log('   Headers:', JSON.stringify(req.headers, null, 2));
-  
+
+  console.log("🔍 OAuth Callback Received:");
+  console.log("   URL:", req.url);
+  console.log("   Code:", code ? "Present" : "Missing");
+  console.log("   State:", state || "None");
+  console.log("   Error:", error || "None");
+  console.log("   Headers:", JSON.stringify(req.headers, null, 2));
+
   res.send(`
     <html>
       <head><title>OAuth Debug - Callback Received</title></head>
       <body>
         <h1>✅ OAuth Callback Captured!</h1>
-        <p><strong>Code:</strong> ${code ? 'Present' : 'Missing'}</p>
-        <p><strong>State:</strong> ${state || 'None'}</p>
-        <p><strong>Error:</strong> ${error || 'None'}</p>
+        <p><strong>Code:</strong> ${code ? "Present" : "Missing"}</p>
+        <p><strong>State:</strong> ${state || "None"}</p>
+        <p><strong>Error:</strong> ${error || "None"}</p>
         <p><strong>Full URL:</strong> ${req.url}</p>
         <p>Check the server console for detailed logs.</p>
       </body>
@@ -49,10 +49,10 @@ app.get('/slack/oauth/callback', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🔍 OAuth Debug Server running on http://localhost:${PORT}`);
   console.log(`🔗 Callback URL: http://localhost:${PORT}/slack/oauth/callback`);
-  console.log('');
-  console.log('📋 Instructions:');
-  console.log('1. Add this URL to your Slack app redirect URLs:');
+  console.log("");
+  console.log("📋 Instructions:");
+  console.log("1. Add this URL to your Slack app redirect URLs:");
   console.log(`   http://localhost:${PORT}/slack/oauth/callback`);
-  console.log('2. Test the OAuth flow with this redirect URL');
-  console.log('3. Check the console output for detailed information');
-}); 
+  console.log("2. Test the OAuth flow with this redirect URL");
+  console.log("3. Check the console output for detailed information");
+});

@@ -2538,11 +2538,7 @@
           },
           "metadata": {
             "author": "gpt-interface",
-            "tags": [
-              "test",
-              "gpt",
-              "interface"
-            ],
+            "tags": ["test", "gpt", "interface"],
             "dependencies": [],
             "estimatedDuration": "30s"
           }
@@ -2598,11 +2594,7 @@
           },
           "metadata": {
             "author": "gpt-interface",
-            "tags": [
-              "test",
-              "gpt",
-              "interface"
-            ],
+            "tags": ["test", "gpt", "interface"],
             "dependencies": [],
             "estimatedDuration": "30s"
           }
@@ -2661,11 +2653,7 @@
           },
           "metadata": {
             "author": "gpt-interface",
-            "tags": [
-              "test",
-              "gpt",
-              "interface"
-            ],
+            "tags": ["test", "gpt", "interface"],
             "dependencies": [],
             "estimatedDuration": "30s"
           }

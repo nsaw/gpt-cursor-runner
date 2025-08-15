@@ -3,15 +3,15 @@
 
 export class CliGptCmdBridge {
   constructor() {
-    console.log('[CliGptCmdBridge] Initialized');
+    console.log("[CliGptCmdBridge] Initialized");
   }
-  
+
   public async start(): Promise<void> {
-    console.log('[CliGptCmdBridge] Started');
+    console.log("[CliGptCmdBridge] Started");
   }
-  
+
   public async stop(): Promise<void> {
-    console.log('[CliGptCmdBridge] Stopped');
+    console.log("[CliGptCmdBridge] Stopped");
   }
 }
 

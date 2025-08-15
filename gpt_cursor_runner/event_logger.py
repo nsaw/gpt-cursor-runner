@@ -1,26 +1,70 @@
-#!/usr/bin/env python3
-"""
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Any, cast
+import os
+import json
+import time
+from datetime import datetime
+
+"""Company Confidential
+
 Event Logger for GPT-Cursor Runner.
 
 Provides logging and event tracking capabilities.
 """
 
-import os
-import json
-import time
-from datetime import datetime
-from typing import Dict, Any, Optional, List
-
 
 class EventLogger:
     """Centralized event logging system."""
 
-    def __init__(self, log_file: str = "data/event-log.json"):
+    def __init__(self, log_file: str = "data/event-log.json") -> None:
         self.log_file = log_file
         self.max_entries = 1000
         self.ensure_log_file()
 
-    def ensure_log_file(self):
+    def ensure_log_file(self) -> None:
         """Ensure log file exists with proper structure."""
         if not os.path.exists(self.log_file):
             initial_data = {
@@ -30,7 +74,7 @@ class EventLogger:
             }
             self._write_log(initial_data)
 
-    def _write_log(self, data: Dict[str, Any]):
+    def _write_log(self, data: Dict[str, Any]) -> None:
         """Write log data to file."""
         try:
             os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
@@ -43,7 +87,7 @@ class EventLogger:
         """Read log data from file."""
         try:
             with open(self.log_file, "r") as f:
-                return json.load(f)
+                return cast(Dict[str, Any], json.load(f))
         except Exception as e:
             print(f"Error reading log file: {e}")
             try:
@@ -55,18 +99,19 @@ class EventLogger:
                 )
             except Exception:
                 pass
-            return {
+            empty: Dict[str, Any] = {
                 "events": [],
                 "last_updated": datetime.now().isoformat(),
                 "total_events": 0,
             }
+            return empty
 
     def log_patch_event(
         self,
         event_type: str,
         patch_data: Dict[str, Any],
         result: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> None:
         """Log patch-related events."""
         event = {
             "id": f"patch_{int(time.time() * 1000)}",
@@ -87,7 +132,7 @@ class EventLogger:
         event_type: str,
         slack_data: Dict[str, Any],
         result: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> None:
         """Log Slack-related events."""
         event = {
             "id": f"slack_{int(time.time() * 1000)}",
@@ -102,7 +147,9 @@ class EventLogger:
         }
         self._add_event(event)
 
-    def log_system_event(self, event_type: str, data: Optional[Dict[str, Any]] = None):
+    def log_system_event(
+        self, event_type: str, data: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Log system events."""
         event = {
             "id": f"system_{int(time.time() * 1000)}",
@@ -113,7 +160,7 @@ class EventLogger:
         }
         self._add_event(event)
 
-    def _add_event(self, event: Dict[str, Any]):
+    def _add_event(self, event: Dict[str, Any]) -> None:
         """Add event to log."""
         log_data = self._read_log()
         log_data["events"].append(event)
@@ -128,7 +175,9 @@ class EventLogger:
     ) -> List[Dict[str, Any]]:
         """Get recent events, optionally filtered by type."""
         log_data = self._read_log()
-        events = log_data.get("events", [])
+        events: List[Dict[str, Any]] = cast(
+            List[Dict[str, Any]], log_data.get("events", [])
+        )
 
         if event_type:
             events = [e for e in events if e.get("event_type") == event_type]
@@ -141,7 +190,7 @@ class EventLogger:
         events = log_data.get("events", [])
 
         # Count events by type
-        event_counts = {}
+        event_counts: Dict[str, int] = {}
         for event in events:
             event_type = event.get("type", "unknown")
             event_counts[event_type] = event_counts.get(event_type, 0) + 1
@@ -160,7 +209,7 @@ class EventLogger:
         """Get recent Slack events."""
         return self.get_recent_events(limit, "slack_event")
 
-    def clear_old_events(self, days: int = 30):
+    def clear_old_events(self, days: int = 30) -> None:
         """Clear events older than specified days."""
         cutoff_time = datetime.now().timestamp() - (days * 24 * 60 * 60)
         log_data = self._read_log()

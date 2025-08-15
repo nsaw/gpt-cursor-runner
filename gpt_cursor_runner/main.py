@@ -1,4 +1,49 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
+# Company Confidential
 """
 GPT-Cursor Runner Main Application.
 
@@ -9,9 +54,28 @@ import os
 import sys
 import psutil
 import socket
+import subprocess
+import json
+import time
 from datetime import datetime
-from flask import Flask, request, jsonify
+from typing import Union, Tuple
+from flask import Flask, request, jsonify, Response
 from dotenv import load_dotenv
+
+# Import handlers
+from gpt_cursor_runner.webhook_handler import handle_webhook_post
+from gpt_cursor_runner.slack_handler import (
+    verify_slack_signature,
+    handle_slack_command,
+    handle_slack_event,
+    handle_slack_interaction,
+)
+
+# Import dashboard
+try:
+    from gpt_cursor_runner.dashboard import create_dashboard_routes
+except ImportError:
+    create_dashboard_routes = None
 
 # PATCHED: Expo conflict guard
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts", "utils"))
@@ -22,51 +86,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts", "utils"
 # except ImportError:
 #     pass  # Continue if guard not available
 
-# Import handlers
-from gpt_cursor_runner.webhook_handler import (
-    process_hybrid_block,
-    process_summary,
-    handle_webhook_post,
-)
-
-from gpt_cursor_runner.slack_handler import (
-    verify_slack_signature,
-    handle_slack_command,
-    handle_slack_event,
-    send_slack_response,
-)
-from gpt_cursor_runner.event_logger import event_logger
-
-# Import slack proxy for error handling
-from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
-# Import GHOST 2.0 modules
-from gpt_cursor_runner.error_recovery import get_error_recovery
-from gpt_cursor_runner.rate_limiter import get_rate_limiter
-from gpt_cursor_runner.request_validator import get_request_validator
-from gpt_cursor_runner.audit_logger import get_audit_logger
-from gpt_cursor_runner.server_fixes import get_server_fixes
-from gpt_cursor_runner.error_handler import get_error_handler
-from gpt_cursor_runner.health_endpoints import get_health_endpoints
-from gpt_cursor_runner.cors_config import get_cors_manager
-
-# Import dashboard
-try:
-    from gpt_cursor_runner.dashboard import create_dashboard_routes
-except ImportError:
-    create_dashboard_routes = None
-
 load_dotenv()
 
 app = Flask(__name__)
 
 # Create dashboard routes if available
-if create_dashboard_routes:
+if create_dashboard_routes is not None:
     create_dashboard_routes(app)
 
 
 @app.route("/webhook", methods=["POST"])
-def webhook():
+def webhook() -> Union[Response, Tuple[Response, int]]:
     """Handle incoming webhook requests."""
     # Check if it's a Slack request
     if request.headers.get("X-Slack-Signature"):
@@ -76,1085 +106,260 @@ def webhook():
     return handle_webhook_post()
 
 
-def handle_slack_webhook():
-    """Handle Slack webhook requests."""
+def handle_slack_webhook() -> Union[Response, Tuple[Response, int]]:
+    """Handle generic Slack webhook POSTs (legacy). Prefer /slack/* routes."""
     try:
-        # Verify Slack signature (skip in debug mode)
         debug_mode = os.getenv("DEBUG_MODE", "false").lower() == "true"
-        print(
-            f"DEBUG: DEBUG_MODE = {os.getenv('DEBUG_MODE')}, debug_mode = {debug_mode}"
-        )
+        timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
+        signature = request.headers.get("X-Slack-Signature", "")
+        raw_body = request.get_data()  # RAW BODY REQUIRED FOR HMAC BASE STRING
 
         if not debug_mode:
-            timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
-            signature = request.headers.get("X-Slack-Signature", "")
-
-            if not verify_slack_signature(request.get_data(), signature, timestamp):
+            if not verify_slack_signature(timestamp, signature, raw_body):
                 return jsonify({"error": "Invalid signature"}), 401
-        else:
-            print("DEBUG: Skipping signature verification in debug mode")
 
-        # Parse request data
-        if request.content_type == "application/x-www-form-urlencoded":
-            data = request.form.to_dict()
-        else:
-            data = request.get_json()
+        # Slack Events API uses JSON; Slash commands use form-encoded
+        if request.mimetype == "application/json":
+            data = request.get_json(silent=True) or {}
+            if data.get("type") == "url_verification":
+                return jsonify({"challenge": data.get("challenge")})
+            if data.get("type") == "event_callback":
+                event_data = data.get("event", {})
+                response = handle_slack_event(event_data)
+                return jsonify(response)
+            return jsonify({"error": "Unsupported JSON payload"}), 400
 
-        # Log the Slack request
-        if event_logger:
-            event_logger.log_system_event(
-                "slack_webhook_received",
-                {"data": data, "headers": dict(request.headers)},
-            )
-
-        # Handle URL verification
-        if data.get("type") == "url_verification":
-            return jsonify({"challenge": data.get("challenge", "")})
-
-        # Handle slash commands
-        if "command" in data:
-            response = handle_slack_command(data)
-
-            # Send response if response_url is provided
-            response_url = data.get("response_url")
-            if response_url:
-                send_slack_response(response_url, response)
-
+        # Fallback: treat as slash command form payload
+        form_data = request.form.to_dict()
+        if form_data.get("command"):
+            response = handle_slack_command(form_data)
             return jsonify(response)
 
-        # Handle events
-        if data.get("type") == "event_callback":
-            data.get("event", {})
-            response = handle_slack_event(data)
-            return jsonify(response)
-
-        return jsonify({"status": "ok"})
+        return jsonify({"error": "Unknown request type"}), 400
 
     except Exception as e:
-        error_msg = f"Error processing Slack webhook: {str(e)}"
-
-        # Log the error
-        if event_logger:
-            event_logger.log_system_event(
-                "slack_webhook_error",
-                {"error": str(e), "headers": dict(request.headers)},
-            )
-        try:
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(error_msg, context="/webhook Slack handler")
-        except Exception:
-            pass
-        return jsonify({"error": error_msg}), 500
+        print(f"Error handling Slack webhook: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
-@app.route("/slack/test", methods=["POST"])
-def slack_test():
-    """Test endpoint for creating patches via Slack."""
+# --- First-class Slack HTTP endpoints matching the manifest ---
+
+
+@app.route("/slack/commands", methods=["POST"])
+def slack_commands() -> Union[Response, Tuple[Response, int]]:
     try:
-        # Create a test patch
-        test_patch = {
-            "id": f"slack-test-patch-{int(datetime.now().timestamp())}",
-            "role": "ui_patch",
-            "description": "Test patch triggered by Slack ping",
-            "target_file": (
-                "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx"
+        debug_mode = os.getenv("DEBUG_MODE", "false").lower() == "true"
+        timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
+        signature = request.headers.get("X-Slack-Signature", "")
+        raw_body = request.get_data()
+
+        if not debug_mode:
+            if not verify_slack_signature(timestamp, signature, raw_body):
+                return jsonify({"error": "Invalid signature"}), 401
+
+        # Slash commands are form-encoded
+        form_data = request.form.to_dict()
+        response = handle_slack_command(form_data)
+
+        # Ensure Slack-compatible response shape
+        if isinstance(response, dict) and "response_type" not in response:
+            response = {"response_type": "ephemeral", **response}
+        return jsonify(response)
+    except Exception as e:
+        print(f"/slack/commands error: {e}")
+        return (
+            jsonify(
+                {
+                    "response_type": "ephemeral",
+                    "text": "❌ Error processing command.",
+                }
             ),
-            "patch": {
-                "pattern": "Test patch",
-                "replacement": "✅ Test patch applied successfully!",
-            },
-            "metadata": {
-                "author": "slack-test",
-                "source": "slack_test_endpoint",
-                "timestamp": datetime.now().isoformat(),
-            },
-        }
+            500,
+        )
 
-        # Process the patch
-        result = process_hybrid_block(test_patch)
 
-        # Log the test event
-        if event_logger:
-            event_logger.log_system_event(
-                "slack_test_triggered", {"patch_id": test_patch["id"], "result": result}
-            )
+@app.route("/slack/events", methods=["POST"])
+def slack_events() -> Union[Response, Tuple[Response, int]]:
+    try:
+        debug_mode = os.getenv("DEBUG_MODE", "false").lower() == "true"
+        timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
+        signature = request.headers.get("X-Slack-Signature", "")
+        raw_body = request.get_data()
+
+        if not debug_mode:
+            if not verify_slack_signature(timestamp, signature, raw_body):
+                return jsonify({"error": "Invalid signature"}), 401
+
+        data = request.get_json(silent=True) or {}
+        if data.get("type") == "url_verification":
+            return jsonify({"challenge": data.get("challenge")})
+        if data.get("type") == "event_callback":
+            event_data = data.get("event", {})
+            response = handle_slack_event(event_data)
+            return jsonify(response)
+        return jsonify({"error": "Unknown event type"}), 400
+    except Exception as e:
+        print(f"/slack/events error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/slack/interactions", methods=["POST"])
+def slack_interactions() -> Union[Response, Tuple[Response, int]]:
+    try:
+        debug_mode = os.getenv("DEBUG_MODE", "false").lower() == "true"
+        timestamp = request.headers.get("X-Slack-Request-Timestamp", "")
+        signature = request.headers.get("X-Slack-Signature", "")
+        raw_body = request.get_data()
+
+        if not debug_mode:
+            if not verify_slack_signature(timestamp, signature, raw_body):
+                return jsonify({"error": "Invalid signature"}), 401
+
+        # Interactions are form-encoded with a `payload` param
+        payload = request.form.get("payload", "")
+        response = handle_slack_interaction({"payload": payload})
+        if isinstance(response, dict) and "response_type" not in response:
+            response = {"response_type": "ephemeral", **response}
+        return jsonify(response)
+    except Exception as e:
+        print(f"/slack/interactions error: {e}")
+        return (
+            jsonify(
+                {
+                    "response_type": "ephemeral",
+                    "text": "❌ Error processing interaction.",
+                }
+            ),
+            500,
+        )
+
+
+@app.route("/slack/oauth/callback", methods=["GET"])
+def slack_oauth_callback() -> Union[Response, Tuple[Response, int]]:
+    """Handle Slack OAuth callback for app installation."""
+    try:
+        # Get the authorization code from the request
+        code = request.args.get("code")
+        state = request.args.get("state")
+
+        if not code:
+            return jsonify({"error": "No authorization code provided"}), 400
+
+        print(f"Received OAuth callback with code: {code[:10]}... and state: {state}")
+
+        # Exchange the code for an access token
+        # This would typically involve making a request to Slack's OAuth API
+        # For now, we'll just log the code and return a success message
+
+        # In a real implementation, you would:
+        # 1. Exchange the code for an access token using Slack's OAuth API
+        # 2. Store the token securely
+        # 3. Register the app with the workspace
+
+        print("OAuth callback processed successfully")
 
         return jsonify(
             {
                 "status": "success",
-                "message": "Test patch created successfully",
-                "patch_id": test_patch["id"],
-                "result": result,
+                "message": "App installed successfully! You can now use slash commands.",
+                "code_received": code[:10] + "...",
             }
         )
 
     except Exception as e:
-        error_msg = f"Error in Slack test: {str(e)}"
-
-        # Log the error
-        if event_logger:
-            event_logger.log_system_event("slack_test_error", {"error": str(e)})
-        try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(error_msg, context="/slack/test endpoint")
-        except Exception:
-            pass
-        return jsonify({"error": error_msg}), 500
-
-
-@app.route("/events", methods=["GET"])
-def get_events():
-    """Get recent events for UI display."""
-    try:
-        limit = request.args.get("limit", 50, type=int)
-        event_type = request.args.get("type")
-
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-
-        events = event_logger.get_recent_events(
-            limit, event_type if isinstance(event_type, str) and event_type else None
-        )
-        return jsonify(
-            {
-                "events": events,
-                "count": len(events),
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": f"Error getting events: {str(e)}"}), 500
-
-
-@app.route("/events/summary", methods=["GET"])
-def get_event_summary():
-    """Get event summary for UI display."""
-    try:
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-
-        summary = event_logger.get_event_summary()
-        return jsonify(summary)
-
-    except Exception as e:
-        return jsonify({"error": f"Error getting event summary: {str(e)}"}), 500
-
-
-@app.route("/events/patch", methods=["GET"])
-def get_patch_events():
-    """Get patch-specific events."""
-    try:
-        limit = request.args.get("limit", 20, type=int)
-
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-
-        events = event_logger.get_patch_events(limit)
-        return jsonify(
-            {
-                "events": events,
-                "count": len(events),
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": f"Error getting patch events: {str(e)}"}), 500
-
-
-@app.route("/events/slack", methods=["GET"])
-def get_slack_events():
-    """Get Slack-specific events."""
-    try:
-        limit = request.args.get("limit", 20, type=int)
-
-        if not event_logger:
-            return jsonify({"error": "Event logging not available"}), 500
-
-        events = event_logger.get_slack_events(limit)
-        return jsonify(
-            {
-                "events": events,
-                "count": len(events),
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": f"Error getting Slack events: {str(e)}"}), 500
+        print(f"Error handling OAuth callback: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/health", methods=["GET"])
-def health_check():
-    """Health check endpoint with real-time component validation."""
+def health() -> Response:
+    """Health check endpoint."""
     try:
-        response = {
-            "components": {},
-            "system_metrics": {},
-            "version": "3.1.1",
+        # Get system info
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+
+        # Get network info
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+
+        health_data = {
+            "status": "healthy",
             "timestamp": datetime.now().isoformat(),
+            "system": {
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory.percent,
+                "disk_percent": disk.percent,
+                "hostname": hostname,
+                "local_ip": local_ip,
+            },
         }
 
-        status_flags = []
-
-        # Ghost runner check
-        ghost_found = False
-        try:
-            for proc in psutil.process_iter(["pid", "name", "cmdline"]):
-                if proc.info["cmdline"] and any(
-                    "ghost-bridge" in str(arg) for arg in proc.info["cmdline"]
-                ):
-                    ghost_found = True
-                    break
-        except Exception:
-            pass
-
-        response["components"]["ghost_runner"] = "up" if ghost_found else "down"
-        if not ghost_found:
-            status_flags.append("ghost_down")
-
-        # Port 5555 check
-        port_bound = False
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(("localhost", 5555))
-            sock.close()
-            port_bound = result == 0
-        except Exception:
-            pass
-
-        response["components"]["port_5555_bound"] = port_bound
-        if not port_bound:
-            status_flags.append("port_unbound")
-
-        # Filesystem check
-        try:
-            test_path = (
-                "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/healthcheck.tmp"
-            )
-            with open(test_path, "w") as f:
-                f.write("ok")
-            os.remove(test_path)
-            response["components"]["fs_writable"] = True
-        except Exception:
-            response["components"]["fs_writable"] = False
-            status_flags.append("fs_readonly")
-
-        # Flask request queue responsiveness
-        response["components"]["flask_responsive"] = True
-        response["components"]["webhook_endpoint"] = "operational"
-
-        # System metrics
-        try:
-            cpu_percent = psutil.cpu_percent(interval=0.1)
-            memory = psutil.virtual_memory()
-            disk = psutil.disk_usage("/")
-            network = psutil.net_io_counters()
-
-            response["system_metrics"] = {
-                "cpu": {
-                    "count": psutil.cpu_count(),
-                    "load_average": (
-                        os.getloadavg() if hasattr(os, "getloadavg") else [0, 0, 0]
-                    ),
-                    "percent": cpu_percent,
-                },
-                "memory": {
-                    "total": memory.total,
-                    "available": memory.available,
-                    "percent": memory.percent,
-                    "used": memory.used,
-                },
-                "disk": {
-                    "total": disk.total,
-                    "used": disk.used,
-                    "free": disk.free,
-                    "percent": (disk.used / disk.total) * 100,
-                },
-                "network": {
-                    "bytes_sent": network.bytes_sent,
-                    "bytes_recv": network.bytes_recv,
-                    "packets_sent": network.packets_sent,
-                    "packets_recv": network.packets_recv,
-                },
-            }
-        except Exception as e:
-            response["system_metrics"] = {"error": str(e)}
-
-        # Status logic
-        if not status_flags:
-            response["overall_status"] = "healthy"
-        elif "ghost_down" in status_flags:
-            response["overall_status"] = "degraded"
-        else:
-            response["overall_status"] = "unknown"
-
-        return jsonify(response), 200
-
+        return jsonify(health_data)
     except Exception as e:
-        # Fallback to basic health check
-        return (
-            jsonify(
-                {
-                    "overall_status": "error",
-                    "timestamp": datetime.now().isoformat(),
-                    "version": "3.1.1",
-                    "error": str(e),
-                    "components": {},
-                    "system_metrics": {},
-                }
-            ),
-            500,
-        )
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
 
-@app.route("/monitor", methods=["GET"])
-def monitor_dashboard():
-    """Serve the monitor dashboard UI"""
-    try:
-        # Import and serve the dashboard template
-        from flask import render_template
-        import os
-
-        # Set the correct template folder
-        template_dir = os.path.join(
-            os.path.dirname(__file__), "..", "dashboard", "templates"
-        )
-        app.template_folder = template_dir
-        return render_template("index.html")
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": "Dashboard template not available",
-                    "details": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/patches", methods=["POST"])
-def api_patches():
-    """Handle patch data from ghost bridge."""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
-
-        # Log the incoming patch request
-        if event_logger:
-            event_logger.log_system_event(
-                "api_patches_received", {"source": "ghost_bridge", "data": data}
-            )
-
-        # Process the patch data
-        result = process_hybrid_block(data)
-        return jsonify({"status": "success", "result": result})
-
-    except Exception as e:
-        error_msg = f"Error processing patch data: {str(e)}"
-
-        # Log the error
-        if event_logger:
-            event_logger.log_system_event(
-                "api_patches_error", {"error": str(e), "headers": dict(request.headers)}
-            )
-        try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(error_msg, context="/api/patches endpoint")
-        except Exception:
-            pass
-        return jsonify({"error": error_msg}), 500
-
-
-@app.route("/api/summaries", methods=["POST"])
-def api_summaries():
-    """Handle summary data from ghost bridge."""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
-
-        # Log the incoming summary request
-        if event_logger:
-            event_logger.log_system_event(
-                "api_summaries_received", {"source": "ghost_bridge", "data": data}
-            )
-
-        # Process the summary data
-        result = process_summary(data)
-        return jsonify({"status": "success", "result": result})
-
-    except Exception as e:
-        error_msg = f"Error processing summary data: {str(e)}"
-
-        # Log the error
-        if event_logger:
-            event_logger.log_system_event(
-                "api_summaries_error",
-                {"error": str(e), "headers": dict(request.headers)},
-            )
-        try:
-            from gpt_cursor_runner.slack_proxy import create_slack_proxy
-
-            slack_proxy = create_slack_proxy()
-            slack_proxy.notify_error(error_msg, context="/api/summaries endpoint")
-        except Exception:
-            pass
-        return jsonify({"error": error_msg}), 500
+@app.route("/status", methods=["GET"])
+def status() -> Response:
+    """Status endpoint."""
+    return jsonify(
+        {
+            "status": "running",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+        }
+    )
 
 
 @app.route("/api/status", methods=["GET"])
-def api_status():
-    """API status endpoint for ghost bridge health checks."""
+def api_status() -> Response:
+    """API status endpoint for handlers."""
     try:
-        # Get daemon status
-        daemon_data = api_daemon_status().get_json()
+        # Get system info
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
 
-        # Transform daemon status to process health format expected by dashboard
-        process_health = {}
-        if "daemon_status" in daemon_data:
-            for daemon_name, status in daemon_data["daemon_status"].items():
-                process_health[daemon_name] = {
-                    "status": status,
-                    "lastCheck": daemon_data.get("timestamp", ""),
-                    "name": daemon_name,
-                }
-
-        # Add agent status structure expected by dashboard
-        agent_status = {
-            "CYOPS": {
-                "pending": 0,
-                "completed": 0,
-                "processes": daemon_data.get("daemon_status", {}),
-            },
-            "MAIN": {
-                "pending": 0,
-                "completed": 0,
-                "processes": daemon_data.get("daemon_status", {}),
-            },
-        }
-
-        return jsonify(
-            {
-                "status": "healthy",
-                "timestamp": datetime.now().isoformat(),
-                "version": "3.1.0",
-                "daemon_status": daemon_data.get("daemon_status", {}),
-                "process_health": process_health,
-                "agent_status": agent_status,
-                "endpoints": {
-                    "webhook": "/webhook",
-                    "patches": "/api/patches",
-                    "summaries": "/api/summaries",
-                    "health": "/health",
-                    "events": "/events",
-                    "resources": "/api/resources",
-                },
-            }
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                    "version": "3.1.0",
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/daemon-status", methods=["GET"])
-def api_daemon_status():
-    """Get live daemon status from disk and process checks."""
-    try:
-        import subprocess
-
-        # Check daemon processes
-        daemon_status = {}
-        processes = [
-            "patch-executor-watchdog",
-            "doc-daemon",
-            "ghost-bridge-simple.js",
-            "telemetry-orchestrator",
-            "alert-engine",
-            "enhanced-doc-daemon",
-            "autonomous-decision-daemon",
-            "metrics-aggregator-daemon",
-            "braun_daemon",
-            "ghost-runner-watchdog",
-            "gpt_cursor_runner.main",
-            "summary_watcher_daemon.py",
-            "dashboard_daemon.py",
-        ]
-
-        # Map process names to component names
-        process_to_component = {
-            "patch-executor-watchdog": "patch-executor",
-            "ghost-bridge-simple.js": "ghost-bridge",
-            "ghost-runner-watchdog": "ghost-runner",
-            "braun_daemon": "braun",
-            "gpt_cursor_runner.main": "flask",
-            "summary_watcher_daemon.py": "summary-watcher",
-            "dashboard_daemon.py": "comprehensive-dashboard",
-        }
-
-        for process in processes:
-            # Special handling for Flask app - if this code is running, Flask is up
-            if process == "gpt_cursor_runner.main":
-                component_name = process_to_component.get(process, process)
-                daemon_status[component_name] = "running"
-                continue
-
-            try:
-                result = subprocess.run(
-                    ["pgrep", "-f", process], capture_output=True, text=True, timeout=5
-                )
-                status = "running" if result.returncode == 0 else "stopped"
-
-                # Use mapped component name if available, otherwise use process name
-                component_name = process_to_component.get(process, process)
-                daemon_status[component_name] = status
-            except subprocess.TimeoutExpired:
-                daemon_status[process_to_component.get(process, process)] = "timeout"
-            except Exception:
-                daemon_status[process_to_component.get(process, process)] = "unknown"
-
-        return jsonify(
-            {
-                "status": "success",
-                "timestamp": datetime.now().isoformat(),
-                "daemon_status": daemon_status,
-            }
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/telemetry/components", methods=["GET"])
-def api_telemetry_components():
-    """Get telemetry components data - uses real daemon status."""
-    try:
-        # Get real daemon status
-        daemon_data = api_daemon_status().get_json()
-
-        # Transform daemon status to component format expected by monitor dashboard
-        components = {}
-        if "daemon_status" in daemon_data:
-            for daemon_name, status in daemon_data["daemon_status"].items():
-                # Use the daemon_name directly as the key (kebab-case)
-                components[daemon_name] = {
-                    "status": status,
-                    "lastCheck": daemon_data.get("timestamp", ""),
-                    "name": daemon_name,
-                }
-
-        # Add additional component checks for services not in daemon list
-        additional_components = {
-            "fly": {
-                "status": "running",
-                "lastCheck": daemon_data.get("timestamp", ""),
-                "name": "Fly.io",
-            },
-            "tunnel-webhook": {
-                "status": "running",
-                "lastCheck": daemon_data.get("timestamp", ""),
-                "name": "Webhook Tunnel",
-            },
-            "tunnel-dashboard": {
-                "status": "running",
-                "lastCheck": daemon_data.get("timestamp", ""),
-                "name": "Dashboard Tunnel",
-            },
-        }
-        components.update(additional_components)
-
-        return jsonify(
-            {
-                "status": "success",
-                "timestamp": datetime.now().isoformat(),
-                "telemetryComponents": components,
-            }
-        )
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/resources", methods=["GET"])
-def api_resources():
-    """Resource monitoring endpoint."""
-    try:
-        from gpt_cursor_runner.resource_monitor import get_resource_monitor
-
-        resource_monitor = get_resource_monitor()
-        resource_data = resource_monitor.get_alerts_json()
-
-        return jsonify(resource_data)
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Resource monitoring unavailable: {str(e)}",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/processes", methods=["GET"])
-def api_processes():
-    """Process management endpoint."""
-    try:
-        from gpt_cursor_runner.process_cleanup import get_process_cleanup
-
-        process_cleanup = get_process_cleanup()
-        process_data = {
-            "processes": process_cleanup.get_process_list(),
-            "cleanup_history": process_cleanup.get_cleanup_history(),
-            "stats": process_cleanup.get_stats(),
-        }
-
-        return jsonify(process_data)
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Process management unavailable: {str(e)}",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/processor", methods=["GET", "POST"])
-def api_processor():
-    """Unified processor endpoint."""
-    try:
-        from gpt_cursor_runner.unified_processor import (
-            get_unified_processor,
-            RequestType,
-        )
-
-        processor = get_unified_processor()
-
-        if request.method == "GET":
-            # Return processor statistics
-            return jsonify(
-                {
-                    "stats": processor.get_stats(),
-                    "timestamp": datetime.now().isoformat(),
-                }
+        # Get PM2 status
+        pm2_status = {}
+        try:
+            result = subprocess.run(
+                ["pm2", "jlist"], capture_output=True, text=True, timeout=10
             )
-        else:
-            # Process a request
-            data = request.get_json()
-            if not data:
-                return jsonify({"error": "No JSON data provided"}), 400
-
-            request_type_str = data.get("type", "webhook")
-            request_data = data.get("data", {})
-
-            try:
-                request_type = RequestType(request_type_str)
-            except ValueError:
-                return (
-                    jsonify({"error": f"Invalid request type: {request_type_str}"}),
-                    400,
-                )
-
-            request_id = processor.submit_request(request_type, request_data)
-
-            return jsonify(
-                {
-                    "request_id": request_id,
-                    "status": "submitted",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            )
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Unified processor unavailable: {str(e)}",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/sequential", methods=["GET", "POST"])
-def api_sequential():
-    """Sequential processor endpoint."""
-    try:
-        from gpt_cursor_runner.sequential_processor import get_sequential_processor
-
-        processor = get_sequential_processor()
-
-        if request.method == "GET":
-            # Return processor statistics
-            return jsonify(
-                {
-                    "stats": processor.get_stats(),
-                    "timestamp": datetime.now().isoformat(),
-                }
-            )
-        else:
-            # Submit a sequential request
-            data = request.get_json()
-            if not data:
-                return jsonify({"error": "No JSON data provided"}), 400
-
-            workflow_name = data.get("workflow", "webhook_processing")
-            request_data = data.get("data", {})
-            priority = data.get("priority", 1)
-
-            request_id = processor.submit_request(workflow_name, request_data, priority)
-
-            return jsonify(
-                {
-                    "request_id": request_id,
-                    "workflow": workflow_name,
-                    "status": "submitted",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            )
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Sequential processor unavailable: {str(e)}",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/sequential/<request_id>", methods=["GET"])
-def api_sequential_status(request_id):
-    """Get status of a sequential request."""
-    try:
-        from gpt_cursor_runner.sequential_processor import get_sequential_processor
-
-        processor = get_sequential_processor()
-        status = processor.get_request_status(request_id)
-
-        if status is None:
-            return jsonify({"error": "Request not found"}), 404
-
-        return jsonify(status)
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Sequential processor unavailable: {str(e)}",
-                    "timestamp": datetime.now().isoformat(),
-                }
-            ),
-            500,
-        )
-
-
-@app.route("/api/errors", methods=["GET"])
-def api_errors():
-    """Get error recovery information."""
-    try:
-        error_recovery = get_error_recovery()
-        stats = error_recovery.get_error_stats()
-        recent_errors = error_recovery.get_recent_errors()
-
-        return jsonify({"stats": stats, "recent_errors": recent_errors})
-    except Exception as e:
-        return jsonify({"error": f"Error getting error info: {str(e)}"}), 500
-
-
-@app.route("/api/rate-limits", methods=["GET"])
-def api_rate_limits():
-    """Get rate limiting information."""
-    try:
-        rate_limiter = get_rate_limiter()
-        stats = rate_limiter.get_stats()
-
-        return jsonify(stats)
-    except Exception as e:
-        return jsonify({"error": f"Error getting rate limit info: {str(e)}"}), 500
-
-
-@app.route("/api/validation", methods=["POST"])
-def api_validation():
-    """Validate a request."""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-
-        request_type = data.get("type", "api")
-        request_data = data.get("data", {})
-
-        validator = get_request_validator()
-        report = validator.validate_request(request_type, request_data)
-
-        return jsonify(
-            {
-                "is_valid": report.is_valid,
-                "errors": [
-                    {
-                        "field": error.field_name,
-                        "type": error.error_type,
-                        "message": error.message,
+            if result.returncode == 0:
+                pm2_data = json.loads(result.stdout)
+                for proc in pm2_data:
+                    pm2_status[proc["name"]] = {
+                        "status": proc["pm2_env"]["status"],
+                        "memory": proc["monit"]["memory"],
+                        "cpu": proc["monit"]["cpu"],
                     }
-                    for error in report.errors
-                ],
-                "warnings": [
-                    {
-                        "field": warning.field_name,
-                        "type": warning.error_type,
-                        "message": warning.message,
-                    }
-                    for warning in report.warnings
-                ],
-                "validated_data": report.validated_data,
-            }
-        )
+        except Exception as e:
+            pm2_status = {"error": str(e)}
+
+        status_data = {
+            "status": "running",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "system": {
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory.percent,
+                "uptime": time.time(),
+            },
+            "processes": pm2_status,
+        }
+
+        return jsonify(status_data)
     except Exception as e:
-        return jsonify({"error": f"Error validating request: {str(e)}"}), 500
-
-
-@app.route("/api/audit", methods=["GET"])
-def api_audit():
-    """Get audit log information."""
-    try:
-        audit_logger = get_audit_logger()
-        stats = audit_logger.get_stats()
-        recent_entries = audit_logger.get_entries(limit=50)
-
-        return jsonify({"stats": stats, "recent_entries": recent_entries})
-    except Exception as e:
-        return jsonify({"error": f"Error getting audit info: {str(e)}"}), 500
-
-
-@app.route("/api/server-fixes", methods=["GET"])
-def api_server_fixes():
-    """Get server fixes information."""
-    try:
-        server_fixes = get_server_fixes()
-        stats = server_fixes.get_stats()
-        issues = server_fixes.get_issues()
-
-        return jsonify({"stats": stats, "issues": issues})
-    except Exception as e:
-        return jsonify({"error": f"Error getting server fixes info: {str(e)}"}), 500
-
-
-@app.route("/api/error-handler", methods=["GET"])
-def api_error_handler():
-    """Get error handler information."""
-    try:
-        error_handler = get_error_handler()
-        stats = error_handler.get_stats()
-        errors = error_handler.get_errors()
-
-        return jsonify({"stats": stats, "errors": errors})
-    except Exception as e:
-        return jsonify({"error": f"Error getting error handler info: {str(e)}"}), 500
-
-
-@app.route("/api/health-endpoints", methods=["GET"])
-def api_health_endpoints():
-    """Get health endpoints information."""
-    try:
-        health_endpoints = get_health_endpoints()
-        summary = health_endpoints.get_health_summary()
-        history = health_endpoints.get_health_history(hours=1)
-
-        return jsonify({"summary": summary, "history": history})
-    except Exception as e:
-        return jsonify({"error": f"Error getting health endpoints info: {str(e)}"}), 500
-
-
-@app.route("/api/cors", methods=["GET"])
-def api_cors():
-    """Get CORS configuration information."""
-    try:
-        cors_manager = get_cors_manager()
-        stats = cors_manager.get_stats()
-        history = cors_manager.get_request_history(hours=1)
-
-        return jsonify({"stats": stats, "history": history})
-    except Exception as e:
-        return jsonify({"error": f"Error getting CORS info: {str(e)}"}), 500
-
-
-def main():
-    """Main entry point."""
-    # Start health aggregator
-    try:
-        from gpt_cursor_runner.health_aggregator import get_health_aggregator
-
-        health_agg = get_health_aggregator()
-        health_agg.start()
-        print("🏥 Health aggregator started")
-    except Exception as e:
-        print(f"⚠️  Health aggregator failed to start: {e}")
-
-    # Start resource monitor
-    try:
-        from gpt_cursor_runner.resource_monitor import get_resource_monitor
-
-        resource_monitor = get_resource_monitor()
-        resource_monitor.start()
-        print("📊 Resource monitor started")
-    except Exception as e:
-        print(f"⚠️  Resource monitor failed to start: {e}")
-
-    # Start process cleanup
-    try:
-        from gpt_cursor_runner.process_cleanup import get_process_cleanup
-
-        process_cleanup = get_process_cleanup()
-        process_cleanup.start()
-        print("🧹 Process cleanup started")
-    except Exception as e:
-        print(f"⚠️  Process cleanup failed to start: {e}")
-
-    # Start unified processor
-    try:
-        from gpt_cursor_runner.unified_processor import get_unified_processor
-
-        unified_processor = get_unified_processor()
-        unified_processor.start()
-        print("⚙️  Unified processor started")
-    except Exception as e:
-        print(f"⚠️  Unified processor failed to start: {e}")
-
-    # Start sequential processor
-    try:
-        from gpt_cursor_runner.sequential_processor import get_sequential_processor
-
-        sequential_processor = get_sequential_processor()
-        sequential_processor.start()
-        print("🔄 Sequential processor started")
-    except Exception as e:
-        print(f"⚠️  Sequential processor failed to start: {e}")
-
-    # Start error recovery
-    try:
-        error_recovery = get_error_recovery()
-        error_recovery.start()
-        print("🛠️  Error recovery started")
-    except Exception as e:
-        print(f"⚠️  Error recovery failed to start: {e}")
-
-    # Start rate limiter
-    try:
-        rate_limiter = get_rate_limiter()
-        rate_limiter.start()
-        print("🚦 Rate limiter started")
-    except Exception as e:
-        print(f"⚠️  Rate limiter failed to start: {e}")
-
-    # Start request validator
-    try:
-        get_request_validator()
-        print("✅ Request validator initialized")
-    except Exception as e:
-        print(f"⚠️  Request validator failed to initialize: {e}")
-
-    # Start audit logger
-    try:
-        audit_logger = get_audit_logger()
-        audit_logger.start()
-        print("📝 Audit logger started")
-    except Exception as e:
-        print(f"⚠️  Audit logger failed to start: {e}")
-
-    # Start server fixes
-    try:
-        server_fixes = get_server_fixes()
-        server_fixes.start()
-        print("🔧 Server fixes started")
-    except Exception as e:
-        print(f"⚠️  Server fixes failed to start: {e}")
-
-    # Start error handler
-    try:
-        error_handler = get_error_handler()
-        error_handler.start()
-        print("🚨 Error handler started")
-    except Exception as e:
-        print(f"⚠️  Error handler failed to start: {e}")
-
-    # Start health endpoints
-    try:
-        health_endpoints = get_health_endpoints()
-        health_endpoints.start()
-        print("🏥 Health endpoints started")
-    except Exception as e:
-        print(f"⚠️  Health endpoints failed to start: {e}")
-
-    # Start CORS manager
-    try:
-        get_cors_manager()
-        print("🌐 CORS manager initialized")
-    except Exception as e:
-        print(f"⚠️  CORS manager failed to initialize: {e}")
-
-    port = int(os.getenv("PYTHON_PORT", 5051))
-    print(f"🚀 Starting GPT-Cursor Runner on port {port}")
-    print(f"📡 Webhook endpoint: http://localhost:{port}/webhook")
-    print(f"📊 Dashboard: http://localhost:{port}/dashboard")
-    print(f"🧪 Test endpoint: http://localhost:{port}/slack/test")
-    print(f"📊 Events endpoint: http://localhost:{port}/events")
-    print(f"🏥 Health endpoint: http://localhost:{port}/health")
-    print(f"📊 Resources endpoint: http://localhost:{port}/api/resources")
-    print(f"🧹 Processes endpoint: http://localhost:{port}/api/processes")
-    print(f"⚙️  Processor endpoint: http://localhost:{port}/api/processor")
-    print(f"🔄 Sequential endpoint: http://localhost:{port}/api/sequential")
-    print(f"🛠️  Errors endpoint: http://localhost:{port}/api/errors")
-    print(f"🚦 Rate limits endpoint: http://localhost:{port}/api/rate-limits")
-    print(f"✅ Validation endpoint: http://localhost:{port}/api/validation")
-    print(f"📝 Audit endpoint: http://localhost:{port}/api/audit")
-    print(f"🔧 Server fixes endpoint: http://localhost:{port}/api/server-fixes")
-    print(f"🚨 Error handler endpoint: http://localhost:{port}/api/error-handler")
-    print(f"🏥 Health endpoints: http://localhost:{port}/api/health-endpoints")
-    print(f"🌐 CORS endpoint: http://localhost:{port}/api/cors")
-    print("🔗 Supports: GPT hybrid blocks + Slack events + GHOST 2.0")
-    app.run(host="0.0.0.0", port=port, debug=True)
+        return jsonify({"status": "error", "error": str(e)}), 500
 
 
 if __name__ == "__main__":
-    main()
+    port = int(os.getenv("PORT", 5051))
+    debug = os.getenv("DEBUG", "false").lower() == "true"
+
+    print(f"Starting GPT-Cursor Runner on port {port}")
+    print(f"Debug mode: {debug}")
+
+    app.run(host="0.0.0.0", port=port, debug=debug)

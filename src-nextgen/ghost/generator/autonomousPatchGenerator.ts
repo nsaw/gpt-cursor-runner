@@ -3,15 +3,15 @@
 
 export class AutonomousPatchGenerator {
   constructor() {
-    console.log('[AutonomousPatchGenerator] Initialized');
+    console.log("[AutonomousPatchGenerator] Initialized");
   }
-  
+
   public async start(): Promise<void> {
-    console.log('[AutonomousPatchGenerator] Started');
+    console.log("[AutonomousPatchGenerator] Started");
   }
-  
+
   public async stop(): Promise<void> {
-    console.log('[AutonomousPatchGenerator] Stopped');
+    console.log("[AutonomousPatchGenerator] Stopped");
   }
 }
 

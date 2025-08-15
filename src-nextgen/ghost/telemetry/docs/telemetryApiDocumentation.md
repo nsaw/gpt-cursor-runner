@@ -14,6 +14,7 @@ The GHOST Telemetry API provides comprehensive access to telemetry data, metrics
 Currently, the API operates without authentication in development mode. For production deployments, API key authentication will be required.
 
 ### Headers
+
 ```
 Content-Type: application/json
 Accept: application/json
@@ -22,11 +23,13 @@ Accept: application/json
 ## Base Endpoints
 
 ### Health Check
+
 **GET** `/api/telemetry/health`
 
 Returns the overall health status of the telemetry system.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -44,11 +47,13 @@ Returns the overall health status of the telemetry system.
 ```
 
 ### System Information
+
 **GET** `/api/telemetry/info`
 
 Returns system information and configuration details.
 
 **Response:**
+
 ```json
 {
   "system": {
@@ -76,17 +81,20 @@ Returns system information and configuration details.
 ## Telemetry Data Endpoints
 
 ### Get All Telemetry Data
+
 **GET** `/api/telemetry/data`
 
 Returns aggregated telemetry data from all components.
 
 **Query Parameters:**
+
 - `component` (optional): Filter by specific component
 - `startTime` (optional): Start time in ISO format
 - `endTime` (optional): End time in ISO format
 - `limit` (optional): Maximum number of records (default: 100)
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -107,14 +115,17 @@ Returns aggregated telemetry data from all components.
 ```
 
 ### Get Component Telemetry
+
 **GET** `/api/telemetry/data/{component}`
 
 Returns telemetry data for a specific component.
 
 **Path Parameters:**
+
 - `component`: Component name (dashboard, api, orchestrator, metrics, alerts)
 
 **Response:**
+
 ```json
 {
   "component": "dashboard",
@@ -136,16 +147,19 @@ Returns telemetry data for a specific component.
 ## Metrics Endpoints
 
 ### Get Aggregated Metrics
+
 **GET** `/api/telemetry/metrics`
 
 Returns aggregated metrics across all components.
 
 **Query Parameters:**
+
 - `interval` (optional): Aggregation interval in seconds (default: 60)
 - `startTime` (optional): Start time in ISO format
 - `endTime` (optional): End time in ISO format
 
 **Response:**
+
 ```json
 {
   "metrics": {
@@ -176,11 +190,13 @@ Returns aggregated metrics across all components.
 ```
 
 ### Get Component Metrics
+
 **GET** `/api/telemetry/metrics/{component}`
 
 Returns metrics for a specific component.
 
 **Response:**
+
 ```json
 {
   "component": "dashboard",
@@ -205,16 +221,19 @@ Returns metrics for a specific component.
 ## Alert Endpoints
 
 ### Get All Alerts
+
 **GET** `/api/telemetry/alerts`
 
 Returns all active and recent alerts.
 
 **Query Parameters:**
+
 - `severity` (optional): Filter by severity level (info, warning, error, critical)
 - `status` (optional): Filter by status (active, resolved)
 - `limit` (optional): Maximum number of alerts (default: 50)
 
 **Response:**
+
 ```json
 {
   "alerts": [
@@ -236,11 +255,13 @@ Returns all active and recent alerts.
 ```
 
 ### Get Component Alerts
+
 **GET** `/api/telemetry/alerts/{component}`
 
 Returns alerts for a specific component.
 
 **Response:**
+
 ```json
 {
   "component": "dashboard",
@@ -260,11 +281,13 @@ Returns alerts for a specific component.
 ```
 
 ### Create Alert
+
 **POST** `/api/telemetry/alerts`
 
 Creates a new alert.
 
 **Request Body:**
+
 ```json
 {
   "component": "dashboard",
@@ -276,6 +299,7 @@ Creates a new alert.
 ```
 
 **Response:**
+
 ```json
 {
   "id": "alert-002",
@@ -292,11 +316,13 @@ Creates a new alert.
 ## Event Endpoints
 
 ### Submit Event
+
 **POST** `/api/telemetry/event`
 
 Submits a telemetry event.
 
 **Request Body:**
+
 ```json
 {
   "component": "dashboard",
@@ -310,6 +336,7 @@ Submits a telemetry event.
 ```
 
 **Response:**
+
 ```json
 {
   "id": "event-001",
@@ -321,11 +348,13 @@ Submits a telemetry event.
 ```
 
 ### Get Events
+
 **GET** `/api/telemetry/events`
 
 Returns telemetry events.
 
 **Query Parameters:**
+
 - `component` (optional): Filter by component
 - `eventType` (optional): Filter by event type
 - `startTime` (optional): Start time in ISO format
@@ -333,6 +362,7 @@ Returns telemetry events.
 - `limit` (optional): Maximum number of events (default: 100)
 
 **Response:**
+
 ```json
 {
   "events": [
@@ -355,11 +385,13 @@ Returns telemetry events.
 ## Configuration Endpoints
 
 ### Get Configuration
+
 **GET** `/api/telemetry/config`
 
 Returns current telemetry configuration.
 
 **Response:**
+
 ```json
 {
   "telemetry": {
@@ -382,11 +414,13 @@ Returns current telemetry configuration.
 ```
 
 ### Update Configuration
+
 **PUT** `/api/telemetry/config`
 
 Updates telemetry configuration.
 
 **Request Body:**
+
 ```json
 {
   "telemetry": {
@@ -398,6 +432,7 @@ Updates telemetry configuration.
 ```
 
 **Response:**
+
 ```json
 {
   "status": "updated",
@@ -409,6 +444,7 @@ Updates telemetry configuration.
 ## Error Responses
 
 ### Standard Error Format
+
 ```json
 {
   "error": {
@@ -425,6 +461,7 @@ Updates telemetry configuration.
 ```
 
 ### Common Error Codes
+
 - `400` - Bad Request: Invalid parameters or request body
 - `404` - Not Found: Resource not found
 - `500` - Internal Server Error: Server error
@@ -433,6 +470,7 @@ Updates telemetry configuration.
 ## Rate Limiting
 
 The API implements rate limiting to prevent abuse:
+
 - Default limit: 100 requests per minute per IP
 - Rate limit headers included in responses:
   - `X-RateLimit-Limit`: Request limit per window
@@ -442,36 +480,41 @@ The API implements rate limiting to prevent abuse:
 ## CORS Support
 
 CORS is enabled for the following origins:
+
 - `http://localhost:3000`
 - `http://localhost:5050`
 
 ## Usage Examples
 
 ### JavaScript/Node.js
+
 ```javascript
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 // Get health status
-const health = await fetch('http://localhost:5051/api/telemetry/health')
-  .then(res => res.json());
+const health = await fetch("http://localhost:5051/api/telemetry/health").then(
+  (res) => res.json(),
+);
 
 // Get telemetry data
-const data = await fetch('http://localhost:5051/api/telemetry/data?limit=10')
-  .then(res => res.json());
+const data = await fetch(
+  "http://localhost:5051/api/telemetry/data?limit=10",
+).then((res) => res.json());
 
 // Submit event
-const event = await fetch('http://localhost:5051/api/telemetry/event', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const event = await fetch("http://localhost:5051/api/telemetry/event", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    component: 'dashboard',
-    eventType: 'user_action',
-    data: { action: 'refresh' }
-  })
-}).then(res => res.json());
+    component: "dashboard",
+    eventType: "user_action",
+    data: { action: "refresh" },
+  }),
+}).then((res) => res.json());
 ```
 
 ### cURL
+
 ```bash
 # Health check
 curl http://localhost:5051/api/telemetry/health
@@ -486,6 +529,7 @@ curl -X POST http://localhost:5051/api/telemetry/event \
 ```
 
 ### Python
+
 ```python
 import requests
 
@@ -493,11 +537,11 @@ import requests
 health = requests.get('http://localhost:5051/api/telemetry/health').json()
 
 # Get telemetry data
-data = requests.get('http://localhost:5051/api/telemetry/data', 
+data = requests.get('http://localhost:5051/api/telemetry/data',
                    params={'limit': 10}).json()
 
 # Submit event
-event = requests.post('http://localhost:5051/api/telemetry/event', 
+event = requests.post('http://localhost:5051/api/telemetry/event',
                      json={
                          'component': 'dashboard',
                          'eventType': 'user_action',
@@ -508,12 +552,15 @@ event = requests.post('http://localhost:5051/api/telemetry/event',
 ## Monitoring and Logging
 
 ### Log Files
+
 - API logs: `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-api.log`
 - Access logs: `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-api-access.log`
 - Error logs: `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-api-error.log`
 
 ### Metrics
+
 The API exposes its own metrics at `/api/telemetry/metrics/api` including:
+
 - Request count and rate
 - Response times
 - Error rates
@@ -542,7 +589,9 @@ The API exposes its own metrics at `/api/telemetry/metrics/api` including:
    - Check Content-Type header is set to application/json
 
 ### Debug Mode
+
 Enable debug logging by setting the log level to 'debug' in the configuration:
+
 ```json
 {
   "telemetry": {
@@ -563,6 +612,7 @@ Enable debug logging by setting the log level to 'debug' in the configuration:
 ## Support
 
 For issues and questions:
+
 - Check the logs in `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/`
 - Review the configuration in `/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/`
-- Monitor the health endpoint for system status 
+- Monitor the health endpoint for system status

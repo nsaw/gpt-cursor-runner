@@ -1,17 +1,20 @@
 // GHOST Heartbeat Visualizer — Phase 8A P8.03.00
 // Real-time heartbeat monitoring and visualization system
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import * as crypto from 'crypto';
+import * as fs from "fs";
+import * as path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as crypto from "crypto";
 
 const execAsync = promisify(exec);
-const heartbeatLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/heartbeat-visualizer.log';
-const heartbeatStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/heartbeat-state.json';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/heartbeat-config.json';
-const heartbeatDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat';
+const heartbeatLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/heartbeat-visualizer.log";
+const heartbeatStatePath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/heartbeat-state.json";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/heartbeat-config.json";
+const heartbeatDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat";
 const logDir = path.dirname(heartbeatLogPath);
 
 // Ensure directories exist
@@ -31,10 +34,29 @@ if (!fs.existsSync(heartbeatDir)) {
 interface HeartbeatEvent {
   id: string;
   timestamp: string;
-  eventType: 'heartbeat' | 'clock_sync' | 'daemon_check' | 'system_status' | 'anomaly' | 'error' | 'system_startup' | 'config_error' | 'state_error' | 'heartbeat_error' | 'clock_sync_error' | 'anomaly_error' | 'dashboard_integration' | 'dashboard_error' | 'monitoring_error' | 'system_error' | 'system_shutdown' | 'config_update' | 'system_maintenance';
+  eventType:
+    | "heartbeat"
+    | "clock_sync"
+    | "daemon_check"
+    | "system_status"
+    | "anomaly"
+    | "error"
+    | "system_startup"
+    | "config_error"
+    | "state_error"
+    | "heartbeat_error"
+    | "clock_sync_error"
+    | "anomaly_error"
+    | "dashboard_integration"
+    | "dashboard_error"
+    | "monitoring_error"
+    | "system_error"
+    | "system_shutdown"
+    | "config_update"
+    | "system_maintenance";
   component: string;
   data: any;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  severity: "info" | "warning" | "error" | "critical";
   message: string;
 }
 
@@ -48,13 +70,13 @@ interface HeartbeatStatus {
   heartbeatInterval: number;
   lastPingTime: string;
   pingLatency: number;
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'critical';
+  status: "healthy" | "degraded" | "unhealthy" | "critical";
 }
 
 interface DaemonHeartbeat {
   id: string;
   name: string;
-  status: 'running' | 'failed' | 'restarted' | 'paused' | 'unknown';
+  status: "running" | "failed" | "restarted" | "paused" | "unknown";
   lastHeartbeat: string;
   uptime: number;
   restartCount: number;
@@ -72,7 +94,7 @@ interface ClockSyncStatus {
   lastSync: string;
   syncInterval: number;
   driftThreshold: number;
-  status: 'synced' | 'drift_warning' | 'drift_critical' | 'sync_failed';
+  status: "synced" | "drift_warning" | "drift_critical" | "sync_failed";
 }
 
 interface HeartbeatConfig {
@@ -140,20 +162,20 @@ class GhostHeartbeatVisualizer {
     this.startTime = new Date();
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'Heartbeat visualizer started', 'info');
+    this.logEvent("system_startup", "Heartbeat visualizer started", "info");
   }
 
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        const configData = fs.readFileSync(configPath, 'utf8');
+        const configData = fs.readFileSync(configPath, "utf8");
         this.config = JSON.parse(configData);
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`);
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
       this.config = this.getDefaultConfig();
     }
   }
@@ -165,40 +187,40 @@ class GhostHeartbeatVisualizer {
         enabled: true,
         intervalMs: 5000,
         maxRetries: 3,
-        timeoutMs: 10000
+        timeoutMs: 10000,
       },
       visualization: {
         enabled: true,
         updateInterval: 5000,
         maxHistorySize: 1000,
-        retentionDays: 7
+        retentionDays: 7,
       },
       alerts: {
         enabled: true,
         clockDriftThreshold: 30,
         heartbeatTimeout: 60,
         daemonFailureThreshold: 3,
-        systemUptimeThreshold: 3600
+        systemUptimeThreshold: 3600,
       },
       integration: {
         dashboard: {
           enabled: true,
           updateInterval: 5000,
           sendMetrics: true,
-          sendEvents: true
+          sendEvents: true,
         },
         telemetry: {
           enabled: true,
           sendHeartbeats: true,
-          sendClockSync: true
-        }
+          sendClockSync: true,
+        },
       },
       security: {
         enabled: true,
         validateHeartbeats: true,
         auditLogging: true,
-        sanitizeData: true
-      }
+        sanitizeData: true,
+      },
     };
   }
 
@@ -206,20 +228,20 @@ class GhostHeartbeatVisualizer {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('component_error', `Failed to save config: ${error}`);
+      this.logEvent("system_error", `Failed to save config: ${error}`, "error");
     }
   }
 
   private initializeState(): void {
     try {
       if (fs.existsSync(heartbeatStatePath)) {
-        const stateData = fs.readFileSync(heartbeatStatePath, 'utf8');
+        const stateData = fs.readFileSync(heartbeatStatePath, "utf8");
         this.state = JSON.parse(stateData);
       } else {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`);
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
       this.state = this.getInitialState();
     }
   }
@@ -238,7 +260,7 @@ class GhostHeartbeatVisualizer {
         heartbeatInterval: 5000,
         lastPingTime: new Date().toISOString(),
         pingLatency: 0,
-        status: 'healthy'
+        status: "healthy",
       },
       daemonHeartbeats: [],
       clockSyncStatus: {
@@ -248,18 +270,18 @@ class GhostHeartbeatVisualizer {
         lastSync: new Date().toISOString(),
         syncInterval: 300000,
         driftThreshold: 30,
-        status: 'synced'
+        status: "synced",
       },
       lastUpdate: new Date().toISOString(),
-      version: '1.0.0'
+      version: "1.0.0",
     };
   }
 
   private logEvent(
-    eventType: HeartbeatEvent['eventType'],
+    eventType: HeartbeatEvent["eventType"],
     message: string,
-    severity: HeartbeatEvent['severity'],
-    data: any = {}
+    severity: HeartbeatEvent["severity"],
+    data: any = {},
   ): void {
     if (!this.config.enabled) return;
 
@@ -267,14 +289,14 @@ class GhostHeartbeatVisualizer {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       eventType,
-      component: 'heartbeat-visualizer',
+      component: "heartbeat-visualizer",
       data,
       severity,
-      message
+      message,
     };
 
     this.state.events.push(event);
-    
+
     if (this.state.events.length > this.maxEventHistory) {
       this.state.events = this.state.events.slice(-this.maxEventHistory);
     }
@@ -284,25 +306,33 @@ class GhostHeartbeatVisualizer {
       eventType: event.eventType,
       severity: event.severity,
       message,
-      data: this.config.security.sanitizeData ? this.sanitizeData(data) : data
+      data: this.config.security.sanitizeData ? this.sanitizeData(data) : data,
     };
 
-    fs.appendFileSync(heartbeatLogPath, JSON.stringify(logEntry) + '\n');
+    fs.appendFileSync(heartbeatLogPath, JSON.stringify(logEntry) + "\n");
   }
 
   private sanitizeData(data: any): any {
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       return data
-        .replace(/api[_-]?key[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'api_key: [REDACTED]')
-        .replace(/token[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'token: [REDACTED]')
-        .replace(/password[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'password: [REDACTED]');
+        .replace(
+          /api[_-]?key[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "api_key: [REDACTED]",
+        )
+        .replace(/token[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, "token: [REDACTED]")
+        .replace(
+          /password[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "password: [REDACTED]",
+        );
     }
-    if (typeof data === 'object' && data !== null) {
+    if (typeof data === "object" && data !== null) {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(data)) {
-        if (this.config.security.sanitizeData && 
-            ['apiKey', 'token', 'password', 'secret'].includes(key.toLowerCase())) {
-          sanitized[key] = '[REDACTED]';
+        if (
+          this.config.security.sanitizeData &&
+          ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
+        ) {
+          sanitized[key] = "[REDACTED]";
         } else {
           sanitized[key] = this.sanitizeData(value);
         }
@@ -314,28 +344,29 @@ class GhostHeartbeatVisualizer {
 
   private async collectHeartbeatStatus(): Promise<HeartbeatStatus> {
     try {
-      const clockStatusPath = path.join(heartbeatDir, '.clock-status.md');
-      const ghostRelayLogPath = path.join(heartbeatDir, '.ghost-relay.log');
-      
+      const clockStatusPath = path.join(heartbeatDir, ".clock-status.md");
+      const ghostRelayLogPath = path.join(heartbeatDir, ".ghost-relay.log");
+
       let systemTime = new Date().toISOString();
       let clockDrift = 0;
       let lastHeartbeat = new Date().toISOString();
       let heartbeatInterval = 5000;
-      
+
       // Read clock status
       if (fs.existsSync(clockStatusPath)) {
-        const content = fs.readFileSync(clockStatusPath, 'utf8');
-        const lines = content.split('\n');
-        
+        const content = fs.readFileSync(clockStatusPath, "utf8");
+        const lines = content.split("\n");
+
         for (const line of lines) {
-          if (line.includes('System Time:')) {
-            systemTime = line.split('System Time:')[1].trim();
-          } else if (line.includes('Clock Drift:')) {
-            clockDrift = parseFloat(line.split('Clock Drift:')[1].trim()) || 0;
-          } else if (line.includes('Last Heartbeat:')) {
-            lastHeartbeat = line.split('Last Heartbeat:')[1].trim();
-          } else if (line.includes('Heartbeat Interval:')) {
-            heartbeatInterval = parseFloat(line.split('Heartbeat Interval:')[1].trim()) || 5000;
+          if (line.includes("System Time:")) {
+            systemTime = line.split("System Time:")[1].trim();
+          } else if (line.includes("Clock Drift:")) {
+            clockDrift = parseFloat(line.split("Clock Drift:")[1].trim()) || 0;
+          } else if (line.includes("Last Heartbeat:")) {
+            lastHeartbeat = line.split("Last Heartbeat:")[1].trim();
+          } else if (line.includes("Heartbeat Interval:")) {
+            heartbeatInterval =
+              parseFloat(line.split("Heartbeat Interval:")[1].trim()) || 5000;
           }
         }
       }
@@ -343,10 +374,12 @@ class GhostHeartbeatVisualizer {
       // Count daemons
       const daemonHeartbeats = await this.collectDaemonHeartbeats();
       const daemonCount = daemonHeartbeats.length;
-      const healthyDaemons = daemonHeartbeats.filter(d => d.status === 'running').length;
-      
+      const healthyDaemons = daemonHeartbeats.filter(
+        (d) => d.status === "running",
+      ).length;
+
       // Calculate system uptime
-      const { stdout } = await execAsync('uptime');
+      const { stdout } = await execAsync("uptime");
       const uptimeMatch = stdout.match(/up\s+(.+?),/);
       const systemUptime = uptimeMatch ? this.parseUptime(uptimeMatch[1]) : 0;
 
@@ -355,18 +388,18 @@ class GhostHeartbeatVisualizer {
       const lastPingTime = new Date().toISOString();
 
       // Determine status
-      let status: 'healthy' | 'degraded' | 'unhealthy' | 'critical' = 'healthy';
-      
+      let status: "healthy" | "degraded" | "unhealthy" | "critical" = "healthy";
+
       if (Math.abs(clockDrift) > this.config.alerts.clockDriftThreshold) {
-        status = 'degraded';
+        status = "degraded";
       }
-      
+
       if (healthyDaemons < daemonCount * 0.8) {
-        status = 'unhealthy';
+        status = "unhealthy";
       }
-      
+
       if (healthyDaemons < daemonCount * 0.5) {
-        status = 'critical';
+        status = "critical";
       }
 
       return {
@@ -379,10 +412,14 @@ class GhostHeartbeatVisualizer {
         heartbeatInterval,
         lastPingTime,
         pingLatency,
-        status
+        status,
       };
     } catch (error) {
-      this.logEvent('heartbeat_error', `Failed to collect heartbeat status: ${error}`, 'error');
+      this.logEvent(
+        "heartbeat_error",
+        `Failed to collect heartbeat status: ${error}`,
+        "error",
+      );
       return {
         systemTime: new Date().toISOString(),
         clockDrift: 0,
@@ -393,71 +430,86 @@ class GhostHeartbeatVisualizer {
         heartbeatInterval: 5000,
         lastPingTime: new Date().toISOString(),
         pingLatency: 0,
-        status: 'critical'
+        status: "critical",
       };
     }
   }
 
   private async collectDaemonHeartbeats(): Promise<DaemonHeartbeat[]> {
     const daemons = [
-      'relayCore', 'watchdog', 'executor', 'healer',
-      'validationEngine', 'messageQueue', 'healthAggregator', 'decisionEngine'
+      "relayCore",
+      "watchdog",
+      "executor",
+      "healer",
+      "validationEngine",
+      "messageQueue",
+      "healthAggregator",
+      "decisionEngine",
     ];
 
-    const heartbeatPromises = daemons.map(daemon => this.checkDaemonHeartbeat(daemon));
+    const heartbeatPromises = daemons.map((daemon) =>
+      this.checkDaemonHeartbeat(daemon),
+    );
     return Promise.all(heartbeatPromises);
   }
 
-  private async checkDaemonHeartbeat(daemonName: string): Promise<DaemonHeartbeat> {
+  private async checkDaemonHeartbeat(
+    daemonName: string,
+  ): Promise<DaemonHeartbeat> {
     try {
       const startTime = Date.now();
-      
+
       // Check if daemon process is running
       const { stdout } = await execAsync(`pgrep -f "${daemonName}"`);
-      const pids = stdout.trim().split('\n').filter(pid => pid.length > 0);
-      
+      const pids = stdout
+        .trim()
+        .split("\n")
+        .filter((pid) => pid.length > 0);
+
       const responseTime = Date.now() - startTime;
-      
+
       if (pids.length === 0) {
         return {
           id: crypto.randomUUID(),
           name: daemonName,
-          status: 'failed',
+          status: "failed",
           lastHeartbeat: new Date().toISOString(),
           uptime: 0,
           restartCount: 0,
           memoryUsage: 0,
           cpuUsage: 0,
           responseTime,
-          error: 'Process not found'
+          error: "Process not found",
         };
       }
 
       const pid = parseInt(pids[0]);
-      
+
       // Get process stats
-      const { stdout: psOutput } = await execAsync(`ps -p ${pid} -o pid,ppid,etime,pcpu,pmem,comm`);
-      const lines = psOutput.trim().split('\n');
-      
+      const { stdout: psOutput } = await execAsync(
+        `ps -p ${pid} -o pid,ppid,etime,pcpu,pmem,comm`,
+      );
+      const lines = psOutput.trim().split("\n");
+
       if (lines.length < 2) {
         return {
           id: crypto.randomUUID(),
           name: daemonName,
-          status: 'unknown',
+          status: "unknown",
           lastHeartbeat: new Date().toISOString(),
           uptime: 0,
           restartCount: 0,
           pid,
           memoryUsage: 0,
           cpuUsage: 0,
-          responseTime
+          responseTime,
         };
       }
 
       const stats = lines[1].trim().split(/\s+/);
       const cpuUsage = parseFloat(stats[3]) || 0;
       const memoryUsage = parseFloat(stats[4]) || 0;
-      
+
       // Calculate uptime from etime
       const etime = stats[2];
       const uptime = this.parseEtime(etime);
@@ -465,27 +517,34 @@ class GhostHeartbeatVisualizer {
       return {
         id: crypto.randomUUID(),
         name: daemonName,
-        status: 'running',
+        status: "running",
         lastHeartbeat: new Date().toISOString(),
         uptime,
         restartCount: 0, // Would need to track this separately
         pid,
         memoryUsage,
         cpuUsage,
-        responseTime
+        responseTime,
       };
     } catch (error) {
       return {
         id: crypto.randomUUID(),
         name: daemonName,
-        status: 'failed',
+        status: "failed",
         lastHeartbeat: new Date().toISOString(),
         uptime: 0,
         restartCount: 0,
         memoryUsage: 0,
         cpuUsage: 0,
         responseTime: 0,
-        error: error instanceof Error ? error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) : 'Unknown error'
+        error:
+          error instanceof Error
+            ? error instanceof Error
+              ? error instanceof Error
+                ? error.message
+                : String(error)
+              : String(error)
+            : "Unknown error",
       };
     }
   }
@@ -495,19 +554,32 @@ class GhostHeartbeatVisualizer {
       const systemTime = new Date();
       const ntpTime = await this.getNtpTime();
       const clockDrift = systemTime.getTime() - ntpTime.getTime();
-      
-      let status: 'synced' | 'drift_warning' | 'drift_critical' | 'sync_failed' = 'synced';
-      
-      if (Math.abs(clockDrift) > this.config.alerts.clockDriftThreshold * 1000) {
-        status = 'drift_warning';
+
+      let status:
+        | "synced"
+        | "drift_warning"
+        | "drift_critical"
+        | "sync_failed" = "synced";
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 1000
+      ) {
+        status = "drift_warning";
       }
-      
-      if (Math.abs(clockDrift) > this.config.alerts.clockDriftThreshold * 2000) {
-        status = 'drift_critical';
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 2000
+      ) {
+        status = "drift_critical";
       }
-      
-      if (Math.abs(clockDrift) > this.config.alerts.clockDriftThreshold * 5000) {
-        status = 'sync_failed';
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 5000
+      ) {
+        status = "sync_failed";
       }
 
       return {
@@ -517,10 +589,14 @@ class GhostHeartbeatVisualizer {
         lastSync: new Date().toISOString(),
         syncInterval: 300000, // 5 minutes
         driftThreshold: this.config.alerts.clockDriftThreshold * 1000,
-        status
+        status,
       };
     } catch (error) {
-      this.logEvent('clock_sync_error', `Failed to collect clock sync status: ${error}`, 'error');
+      this.logEvent(
+        "clock_sync_error",
+        `Failed to collect clock sync status: ${error}`,
+        "error",
+      );
       return {
         systemTime: new Date().toISOString(),
         ntpTime: new Date().toISOString(),
@@ -528,7 +604,7 @@ class GhostHeartbeatVisualizer {
         lastSync: new Date().toISOString(),
         syncInterval: 300000,
         driftThreshold: this.config.alerts.clockDriftThreshold * 1000,
-        status: 'sync_failed'
+        status: "sync_failed",
       };
     }
   }
@@ -536,7 +612,7 @@ class GhostHeartbeatVisualizer {
   private async getNtpTime(): Promise<Date> {
     try {
       // Use a simple NTP server query (simplified for this implementation)
-      const { stdout } = await execAsync('date -u +%s');
+      const { stdout } = await execAsync("date -u +%s");
       const timestamp = parseInt(stdout.trim()) * 1000;
       return new Date(timestamp);
     } catch (_error) {
@@ -548,7 +624,7 @@ class GhostHeartbeatVisualizer {
   private async measurePingLatency(): Promise<number> {
     try {
       const startTime = Date.now();
-      await execAsync('ping -c 1 8.8.8.8');
+      await execAsync("ping -c 1 8.8.8.8");
       return Date.now() - startTime;
     } catch (_error) {
       return 0;
@@ -556,70 +632,102 @@ class GhostHeartbeatVisualizer {
   }
 
   private parseEtime(etime: string): number {
-    const parts = etime.split('-');
+    const parts = etime.split("-");
     let days = 0;
     let time = parts[0];
-    
+
     if (parts.length > 1) {
       days = parseInt(parts[0]);
       time = parts[1];
     }
-    
-    const timeParts = time.split(':');
+
+    const timeParts = time.split(":");
     const hours = parseInt(timeParts[0]) || 0;
     const minutes = parseInt(timeParts[1]) || 0;
     const seconds = parseInt(timeParts[2]) || 0;
-    
-    return (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60) + seconds;
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
   }
 
   private parseUptime(uptimeStr: string): number {
     const daysMatch = uptimeStr.match(/(\d+)\s+days?/);
     const hoursMatch = uptimeStr.match(/(\d+)\s+hours?/);
     const minutesMatch = uptimeStr.match(/(\d+)\s+minutes?/);
-    
+
     const days = daysMatch ? parseInt(daysMatch[1]) : 0;
     const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
     const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
-    
-    return (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60);
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60;
   }
 
   private async detectAnomalies(): Promise<void> {
     try {
       // Check for clock drift
-      if (Math.abs(this.state.heartbeatStatus.clockDrift) > this.config.alerts.clockDriftThreshold) {
-        this.logEvent('anomaly', `Clock drift detected: ${this.state.heartbeatStatus.clockDrift}s`, 'warning', {
-          clockDrift: this.state.heartbeatStatus.clockDrift,
-          threshold: this.config.alerts.clockDriftThreshold
-        });
+      if (
+        Math.abs(this.state.heartbeatStatus.clockDrift) >
+        this.config.alerts.clockDriftThreshold
+      ) {
+        this.logEvent(
+          "anomaly",
+          `Clock drift detected: ${this.state.heartbeatStatus.clockDrift}s`,
+          "warning",
+          {
+            clockDrift: this.state.heartbeatStatus.clockDrift,
+            threshold: this.config.alerts.clockDriftThreshold,
+          },
+        );
       }
 
       // Check for daemon failures
-      const failedDaemons = this.state.daemonHeartbeats.filter(d => d.status === 'failed');
+      const failedDaemons = this.state.daemonHeartbeats.filter(
+        (d) => d.status === "failed",
+      );
       if (failedDaemons.length > this.config.alerts.daemonFailureThreshold) {
-        this.logEvent('anomaly', `${failedDaemons.length} daemon(s) failed`, 'error', {
-          failedDaemons: failedDaemons.map(d => d.name),
-          threshold: this.config.alerts.daemonFailureThreshold
-        });
+        this.logEvent(
+          "anomaly",
+          `${failedDaemons.length} daemon(s) failed`,
+          "error",
+          {
+            failedDaemons: failedDaemons.map((d) => d.name),
+            threshold: this.config.alerts.daemonFailureThreshold,
+          },
+        );
       }
 
       // Check for system uptime
-      if (this.state.heartbeatStatus.systemUptime < this.config.alerts.systemUptimeThreshold) {
-        this.logEvent('anomaly', `System uptime below threshold: ${this.state.heartbeatStatus.systemUptime}s`, 'warning', {
-          systemUptime: this.state.heartbeatStatus.systemUptime,
-          threshold: this.config.alerts.systemUptimeThreshold
-        });
+      if (
+        this.state.heartbeatStatus.systemUptime <
+        this.config.alerts.systemUptimeThreshold
+      ) {
+        this.logEvent(
+          "anomaly",
+          `System uptime below threshold: ${this.state.heartbeatStatus.systemUptime}s`,
+          "warning",
+          {
+            systemUptime: this.state.heartbeatStatus.systemUptime,
+            threshold: this.config.alerts.systemUptimeThreshold,
+          },
+        );
       }
 
       // Check for high ping latency
       if (this.state.heartbeatStatus.pingLatency > 1000) {
-        this.logEvent('anomaly', `High ping latency: ${this.state.heartbeatStatus.pingLatency}ms`, 'warning', {
-          pingLatency: this.state.heartbeatStatus.pingLatency
-        });
+        this.logEvent(
+          "anomaly",
+          `High ping latency: ${this.state.heartbeatStatus.pingLatency}ms`,
+          "warning",
+          {
+            pingLatency: this.state.heartbeatStatus.pingLatency,
+          },
+        );
       }
     } catch (error) {
-      this.logEvent('anomaly_error', `Failed to detect anomalies: ${error}`, 'error');
+      this.logEvent(
+        "anomaly_error",
+        `Failed to detect anomalies: ${error}`,
+        "error",
+      );
     }
   }
 
@@ -629,17 +737,21 @@ class GhostHeartbeatVisualizer {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(heartbeatStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`);
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
     }
   }
 
   private async sendToDashboard(): Promise<void> {
     try {
       if (this.config.integration.dashboard.enabled) {
-        this.logEvent('error', 'Component error detected', 'error');
+        this.logEvent("system_error", "Component error detected", "error");
       }
     } catch (error) {
-      this.logEvent('component_error', `Failed to send to dashboard: ${error}`, 'error');
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send to dashboard: ${error}`,
+        "error",
+      );
     }
   }
 
@@ -650,23 +762,29 @@ class GhostHeartbeatVisualizer {
         this.state.heartbeatStatus = await this.collectHeartbeatStatus();
         this.state.daemonHeartbeats = await this.collectDaemonHeartbeats();
         this.state.clockSyncStatus = await this.collectClockSyncStatus();
-        
+
         // Detect anomalies
         await this.detectAnomalies();
-        
+
         // Save state
         await this.saveState();
-        
+
         // Send to dashboard
         await this.sendToDashboard();
-        
+
         // Log heartbeat event
-        this.logEvent('heartbeat', 'Heartbeat check completed', 'info');
-        
-        await new Promise(resolve => setTimeout(resolve, this.config.monitoring.intervalMs));
+        this.logEvent("heartbeat", "Heartbeat check completed", "info");
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.monitoring.intervalMs),
+        );
       } catch (error) {
-        this.logEvent('component_error', `Monitoring loop error: ${error}`, 'error');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.logEvent(
+          "monitoring_error",
+          `Monitoring loop error: ${error}`,
+          "error",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
@@ -675,16 +793,20 @@ class GhostHeartbeatVisualizer {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'Heartbeat visualizer started', 'info');
+    this.logEvent("system_startup", "Heartbeat visualizer started", "info");
 
-    this.monitoringLoop().catch(error => {
-      this.logEvent('component_error', `Monitoring loop failed: ${error}`, 'critical');
+    this.monitoringLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Monitoring loop failed: ${error}`,
+        "critical",
+      );
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'info', 'info');
+    this.logEvent("system_shutdown", "Heartbeat visualizer stopped", "info");
     await this.saveState();
   }
 
@@ -699,7 +821,7 @@ class GhostHeartbeatVisualizer {
   public updateConfig(newConfig: Partial<HeartbeatConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'newConfig', 'info');
+    this.logEvent("config_update", "Configuration updated", "info");
   }
 
   public getHeartbeatStatus(): HeartbeatStatus {
@@ -719,12 +841,15 @@ class GhostHeartbeatVisualizer {
   }
 
   public isHealthy(): boolean {
-    return this.state.heartbeatStatus.status === 'healthy' || this.state.heartbeatStatus.status === 'degraded';
+    return (
+      this.state.heartbeatStatus.status === "healthy" ||
+      this.state.heartbeatStatus.status === "degraded"
+    );
   }
 
   public clearHistory(): void {
     this.state.events = [];
-    this.logEvent('error', 'Component error detected', 'error');
+    this.logEvent("error", "Component error detected", "error");
   }
 }
 
@@ -756,5 +881,5 @@ export type {
   DaemonHeartbeat,
   ClockSyncStatus,
   HeartbeatConfig,
-  HeartbeatState
-}; 
+  HeartbeatState,
+};

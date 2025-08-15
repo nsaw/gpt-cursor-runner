@@ -1,9 +1,9 @@
 name: Dashboard Green-State
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 jobs:
   playwright-green-state:
     runs-on: ubuntu-latest
@@ -20,4 +20,4 @@ jobs:
       - name: Run dashboard green-state check (headless)
         env:
           DASHBOARD_URL: "https://gpt-cursor-runner.thoughtmarks.app/monitor"
-        run: yarn test:dashboard 
+        run: yarn test:dashboard

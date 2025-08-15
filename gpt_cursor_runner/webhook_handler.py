@@ -1,19 +1,61 @@
-#!/usr/bin/env python3
-"""
-Webhook Handler for GPT-Cursor Runner.
-
-Handles incoming webhook requests from GPT and other sources.
-"""
-
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, Union, Any, Tuple
 import os
+import time
 import json
 import datetime
 import traceback
+from flask import jsonify, request, Response
 import requests
-import time
-from typing import Dict, Any
-from flask import request, jsonify
 
+"""Company Confidential"""
+"""Webhook Handler for GPT-Cursor Runner.
+
+Handles incoming webhook requests from GPT and other sources.
+"""
 # Import notification system
 try:
     from .slack_proxy import create_slack_proxy
@@ -49,7 +91,8 @@ def forward_to_local_runner(patch_path: str, patch_id: str) -> bool:
                 )
                 if r.ok:
                     print(
-                        f"[WEBHOOK] ✅ Forwarded {patch_id} to local runner (attempt {attempt + 1})"
+                        f"[WEBHOOK] ✅ Forwarded {patch_id} to local runner (attempt "
+                        f"{attempt + 1})"
                     )
                     return True
                 else:
@@ -58,7 +101,6 @@ def forward_to_local_runner(patch_path: str, patch_id: str) -> bool:
                     )
             except Exception as e:
                 print(f"[WEBHOOK] ⚠️  Local forward error (attempt {attempt + 1}): {e}")
-
             if attempt < RETRY_COUNT:
                 time.sleep(1)
 
@@ -224,8 +266,9 @@ def process_summary(summary_data: Dict[str, Any]) -> Dict[str, Any]:
         raise
 
 
-def handle_webhook_post() -> tuple:
-    """Handle POST requests to the webhook endpoint with enhanced logging and error handling."""
+def handle_webhook_post() -> Union[Response, Tuple[Response, int]]:
+    """Handle POST requests to the webhook endpoint with enhanced logging and error hand
+    ling."""
     try:
         # Log incoming request
         print(f"[WEBHOOK] 🚀 POST request received at {datetime.datetime.utcnow()}")
@@ -282,7 +325,7 @@ def handle_webhook_post() -> tuple:
             jsonify(
                 {
                     "status": "error",
-                    "message": "Internal server error occurred while processing request",
+                    "message": "Internal server error while processing request",
                 }
             ),
             500,

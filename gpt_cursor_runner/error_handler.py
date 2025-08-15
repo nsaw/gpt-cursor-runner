@@ -1,3 +1,19 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Union, Any, Tuple
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Error Handler Module for GHOST 2.0.
@@ -5,16 +21,6 @@ Error Handler Module for GHOST 2.0.
 Provides comprehensive error handling and recovery.
 """
 
-import threading
-import time
-import traceback
-import sys
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass, field
-from enum import Enum
-import logging
-import functools
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +100,7 @@ class ErrorHandlerConfig:
 class ErrorHandler:
     """Comprehensive error handling system."""
 
-    def __init__(self, config: ErrorHandlerConfig = None):
+    def __init__(self, config: ErrorHandlerConfig = None) -> None:
         self.config = config or ErrorHandlerConfig()
         self.errors: List[ErrorRecord] = []
         self.error_handlers: Dict[ErrorType, List[Callable]] = {}
@@ -106,7 +112,7 @@ class ErrorHandler:
         # Register default error handlers
         self._register_default_handlers()
 
-    def _register_default_handlers(self):
+    def _register_default_handlers(self) -> None:
         """Register default error handlers."""
         # System errors - restart service
         self.recovery_strategies[ErrorType.SYSTEM] = RecoveryAction.RESTART
@@ -132,7 +138,7 @@ class ErrorHandler:
         # Unknown errors - escalate
         self.recovery_strategies[ErrorType.UNKNOWN] = RecoveryAction.ESCALATE
 
-    def start(self):
+    def start(self) -> None:
         """Start the error handler cleanup thread."""
         if self._cleanup_thread is None or not self._cleanup_thread.is_alive():
             self._stop_event.clear()
@@ -142,14 +148,14 @@ class ErrorHandler:
             self._cleanup_thread.start()
             logger.info("Error handler started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the error handler cleanup thread."""
         self._stop_event.set()
         if self._cleanup_thread and self._cleanup_thread.is_alive():
             self._cleanup_thread.join(timeout=5)
             logger.info("Error handler stopped")
 
-    def _cleanup_loop(self):
+    def _cleanup_loop(self) -> None:
         """Background loop for error cleanup."""
         while not self._stop_event.is_set():
             try:
@@ -160,7 +166,7 @@ class ErrorHandler:
             # Wait before next cleanup cycle
             self._stop_event.wait(3600)  # Run every hour
 
-    def _cleanup_old_errors(self):
+    def _cleanup_old_errors(self) -> None:
         """Clean up old error records."""
         cutoff_date = datetime.now() - timedelta(days=7)
 
@@ -316,7 +322,7 @@ class ErrorHandler:
             global_variables=global_vars,
         )
 
-    def _log_error(self, error_record: ErrorRecord):
+    def _log_error(self, error_record: ErrorRecord) -> None:
         """Log an error record."""
         logger.error(
             f"Error {error_record.error_id}: {error_record.message} "
@@ -325,7 +331,7 @@ class ErrorHandler:
             f"{error_record.context.line_number}"
         )
 
-    def _notify_critical_error(self, error_record: ErrorRecord):
+    def _notify_critical_error(self, error_record: ErrorRecord) -> None:
         """Notify about critical errors."""
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
@@ -344,7 +350,7 @@ class ErrorHandler:
         except Exception as e:
             logger.error(f"Failed to notify about critical error: {e}")
 
-    def _attempt_recovery(self, error_record: ErrorRecord):
+    def _attempt_recovery(self, error_record: ErrorRecord) -> None:
         """Attempt to recover from an error."""
         recovery_action = self.recovery_strategies.get(error_record.error_type)
 
@@ -368,7 +374,7 @@ class ErrorHandler:
                 f"Failed to attempt recovery for error {error_record.error_id}: {e}"
             )
 
-    def _retry_operation(self, error_record: ErrorRecord):
+    def _retry_operation(self, error_record: ErrorRecord) -> None:
         """Retry an operation."""
         if error_record.retry_count >= self.config.max_retries:
             logger.warning(f"Max retries reached for error {error_record.error_id}")
@@ -385,11 +391,11 @@ class ErrorHandler:
             f"Retrying operation for error {error_record.error_id} (attempt {error_record.retry_count})"
         )
 
-    def _fallback_operation(self, error_record: ErrorRecord):
+    def _fallback_operation(self, error_record: ErrorRecord) -> None:
         """Use fallback operation."""
         logger.info(f"Using fallback operation for error {error_record.error_id}")
 
-    def _restart_service(self, error_record: ErrorRecord):
+    def _restart_service(self, error_record: ErrorRecord) -> None:
         """Restart a service."""
         try:
             import subprocess
@@ -403,7 +409,7 @@ class ErrorHandler:
                 f"Failed to restart service for error {error_record.error_id}: {e}"
             )
 
-    def _escalate_error(self, error_record: ErrorRecord):
+    def _escalate_error(self, error_record: ErrorRecord) -> None:
         """Escalate error to higher level."""
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
@@ -433,6 +439,7 @@ class ErrorHandler:
 
         if error_type:
             filtered_errors = [e for e in filtered_errors if e.error_type == error_type]
+    
 
         if severity:
             filtered_errors = [e for e in filtered_errors if e.severity == severity]
@@ -492,7 +499,7 @@ class ErrorHandler:
                 "recovery_strategies": len(self.recovery_strategies),
             }
 
-    def add_error_handler(self, error_type: ErrorType, handler: Callable):
+    def add_error_handler(self, error_type: ErrorType, handler: Callable) -> None:
         """Add a custom error handler."""
         if error_type not in self.error_handlers:
             self.error_handlers[error_type] = []
@@ -500,12 +507,12 @@ class ErrorHandler:
         self.error_handlers[error_type].append(handler)
         logger.info(f"Added error handler for {error_type.value}")
 
-    def add_recovery_strategy(self, error_type: ErrorType, action: RecoveryAction):
+    def add_recovery_strategy(self, error_type: ErrorType, action: RecoveryAction) -> None:
         """Add a custom recovery strategy."""
         self.recovery_strategies[error_type] = action
         logger.info(f"Added recovery strategy for {error_type.value}: {action.value}")
 
-    def clear_old_errors(self, days: int = 7):
+    def clear_old_errors(self, days: int = 7) -> None:
         """Clear errors older than specified days."""
         cutoff_date = datetime.now() - timedelta(days=days)
         with self._lock:
@@ -526,7 +533,7 @@ def handle_errors(func: Callable) -> Callable:
     """Decorator to handle errors in functions."""
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> None:
         try:
             return func(*args, **kwargs)
         except Exception as e:

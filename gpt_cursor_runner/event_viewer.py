@@ -1,3 +1,36 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Event Viewer for GPT-Cursor Runner.
@@ -7,7 +40,7 @@ Provides event viewing and analysis capabilities.
 
 import json
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Optional, Any
 
 # Import dependencies
 try:
@@ -39,7 +72,7 @@ def format_timestamp(timestamp_str: str) -> str:
     return timestamp_str
 
 
-def display_event(event: Dict[str, Any], show_details: bool = False):
+def display_event(event: Dict[str, Any], show_details: bool = False) -> None:
     """Display a single event."""
     event_type = event.get("type", "unknown")
     event_id = event.get("id", "unknown")
@@ -123,7 +156,7 @@ def list_events(
             pass
 
 
-def search_events(query: str, limit: int = 50, show_details: bool = False):
+def search_events(query: str, limit: int = 50, show_details: bool = False) -> None:
     """Search events by query string."""
     if not event_logger:
         print("❌ Event logger not available")
@@ -177,7 +210,7 @@ def search_events(query: str, limit: int = 50, show_details: bool = False):
             pass
 
 
-def get_event_summary():
+def get_event_summary() -> None:
     """Get summary of events."""
     if not event_logger:
         print("❌ Event logger not available")
@@ -206,7 +239,7 @@ def get_event_summary():
             pass
 
 
-def get_event_analytics():
+def get_event_analytics() -> None:
     """Get analytics for events."""
     if not event_logger:
         print("❌ Event logger not available")
@@ -278,7 +311,7 @@ def get_event_analytics():
             pass
 
 
-def main():
+def main() -> None:
     """Main function for event viewer."""
     import argparse
 

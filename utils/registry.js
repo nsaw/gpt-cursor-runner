@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = 'services/registry/registry.json';
+const fs = require("fs");
+const path = "services/registry/registry.json";
 let counter = 0;
 
 module.exports.register = (name, port) => {
@@ -19,4 +19,4 @@ module.exports.roundRobin = (name) => {
   const service = services[counter % services.length];
   counter++;
   return service[1];
-}; 
+};

@@ -1,10 +1,5 @@
 {
-  "project_directories": [
-    ".",
-    "./gpt_cursor_runner",
-    "./server",
-    "./scripts"
-  ],
+  "project_directories": [".", "./gpt_cursor_runner", "./server", "./scripts"],
   "ignore_patterns": [
     ".git",
     "__pycache__",
@@ -60,4 +55,4 @@
     "backup_files": true,
     "dry_run_first": false
   }
-} 
+}

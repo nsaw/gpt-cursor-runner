@@ -6,7 +6,7 @@ module.exports = async ({ command, ack, respond }) => {
   try {
     await respond({
       response_type: 'in_channel',
-      text: '🛑 *Emergency Stop - Killing Runner*\n\n' +
+      text: '🛑 *Emergency Stop - Killing Runner*\n\n'
             'Force stopping the GPT-Cursor Runner service.'
     });
     
@@ -20,23 +20,23 @@ module.exports = async ({ command, ack, respond }) => {
         try {
           // Verify runner is stopped
           const axios = require('axios');
-          await axios.get('http://runner.thoughtmarks.app/health', {
+          await axios.get('https://gpt-cursor-runner.thoughtmarks.app/api/status', {
             timeout: 2000
           });
           
           await respond({
             response_type: 'in_channel',
-            text: '⚠️ *Kill Command Executed*\n\n' +
-                  '• Status: Runner process killed\n' +
-                  '• Note: Runner server may still be responding\n' +
+            text: '⚠️ *Kill Command Executed*\n\n'
+                  '• Status: Runner process killed\n'
+                  '• Note: Runner server may still be responding\n'
                   '• Use `/restart-runner` to restart when ready.'
           });
         } catch (error) {
           await respond({
             response_type: 'in_channel',
-            text: '✅ *Runner Successfully Killed*\n\n' +
-                  '• Status: Runner is now stopped\n' +
-                  '• Server is not responding\n' +
+            text: '✅ *Runner Successfully Killed*\n\n'
+                  '• Status: Runner is now stopped\n'
+                  '• Server is not responding\n'
                   '• Use `/restart-runner` to restart when ready.'
           });
         }
@@ -47,8 +47,8 @@ module.exports = async ({ command, ack, respond }) => {
     console.error('Kill command failed:', error);
     await respond({
       response_type: 'in_channel',
-      text: '❌ *Kill Command Failed*\n\n' +
-            `• Error: ${error.message}\n` +
+      text: '❌ *Kill Command Failed*\n\n'
+            `• Error: ${error.message}\n`
             '• Runner may still be running.'
     });
   }

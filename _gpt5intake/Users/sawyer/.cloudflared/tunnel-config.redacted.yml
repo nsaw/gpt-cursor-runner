@@ -1,0 +1,36 @@
+# COMPREHENSIVE TUNNEL CONFIGURATION
+# All tunnels for the Thoughtmarks ecosystem
+
+# =============================================================================
+# MAIN RUNNER TUNNEL (Production)
+# =============================================================================
+tunnel: f1545c78-1a94-408f-ba6b-9c4223b4c2bf
+credentials-file: REDACTED
+
+ingress:
+  # Main Runner (Production)
+  - hostname: runner.thoughtmarks.app
+    service: http://localhost:5555
+
+  # Ghost Runner (Secondary)
+  - hostname: ghost.thoughtmarks.app
+    service: http://localhost:5556
+
+  # Expo/Metro Development
+  - hostname: expo.thoughtmarks.app
+    service: http://localhost:8081
+
+  # Slack Webhook (Dedicated)
+  - hostname: webhook.thoughtmarks.app
+    service: http://localhost:5555/webhook
+
+  # Health Monitoring
+  - hostname: health.thoughtmarks.app
+    service: http://localhost:5555/health
+
+  # Development Environment
+  - hostname: dev.thoughtmarks.app
+    service: http://localhost:5051
+
+  # Fallback
+  - service: http_status:404

@@ -1,15 +1,17 @@
-#!/usr/bin/env python3""""
+#!/usr/bin/env python3
+"""
 AutoLinter - Continuous Linter Error Fixing System
 
 This script continuously monitors Python files for linter errors and automatically fixes
-them,
-while ignoring all MD lint errors as requested.
+them, while ignoring all MD lint errors as requested.
 
-Features in - Continuous file monitoring
+Features:
+- Continuous file monitoring
 - Automatic error detection and fixing
 - MD lint error ignoring
-- Real-time notifications"""
-- Logging and statistics"""
+- Real-time notifications
+- Logging and statistics
+"""
 
 import os
 import sys
@@ -17,177 +19,214 @@ import time
 import subprocess
 import logging
 from pathlib import Path
-from typing import List, Dict, Set, Tuple
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import threading
-import json
-from datetime import datetime"""
-class AutoLinter import ""Continuous linter error fixing system."""
+from typing import List, Dict, Optional
+from datetime import datetime
 
-    def __init__(self, project_dirs List[str], ignore_patterns 0,'
-            'last_run' import None,'
-            'errors_by_type' {},
-        }
-        self.setup_logging()"""
-    def setup_logging(self)
-        ""Setup logging configuration.""""
+
+class AutoLinter:
+    """Continuous linter error fixing system."""
+
+    def __init__(
+        self, project_dirs: List[str], ignore_patterns: Optional[List[str]] = None
+    ):
+        self.project_dirs = project_dirs
+        self.ignore_patterns = ignore_patterns or []
+        self.last_run: Optional[datetime] = None
+        self.errors_by_type: Dict[str, int] = {}
+        self.setup_logging()
+
+    def setup_logging(self) -> None:
+        """Setup logging configuration."""
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
 
         logging.basicConfig(
-            level=logging.INFO,'
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=["
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            handlers=[
                 logging.FileHandler(log_dir / "autolinter.log"),
                 logging.StreamHandler(sys.stdout),
             ],
         )
-        self.logger = logging.getLogger(__name__)"
-def should_ignore_file(self, file_path
-        str) -> bool """Check if file should be"
-ignored.""" path = Path(file_path) # Ignore non-Python files if not path.suffix =='
-'.py'
-        return True # Check ignore patterns for pattern in self.ignore_patterns
-        if
-pattern in str(path)
-                return True
+        self.logger = logging.getLogger(__name__)
 
-        return False""
-def get_linter_errors(self, file_path
-        str) -> List[str] """Get linter errors for a"
-file, excluding MD errors.""" try cmd = [ "flake8", file_path,--select=E501,F541,F821,F841,W291,W292,W293,W391", "--count", ] result =
-subprocess.run(cmd, capture_output=True, text=True, timeout=30) if result.returncode =='
-0
-        return [] errors = [] for line in result.stdout.split('\n')
-        '
-                if '' in line and any(
-                    error in line
-                    for error in [ in '
-                        'E501','
-                        'F541','
-                        'F821','
-                        'F841','
-                        'W291','
-                        'W292','
-                        'W293','
-                        'W391',
-                    ]
-                )":                         # Handle f-strings                         fixed_line = self.break_f_string(line)                         if fixed_line != line
-        modified = True                             fixed_lines.append(fixed_line)                         else                             fixed_lines.append(line)                     elif 'import' in line and len(line) > 88:                         # Simple line break                         words = line.split()                         if len(words) > 1
-        current_line = ""                             for word in words                                 if len(current_line + " " + word) > 88 in if current_line:                                 fixed_lines.append(current_line)                             modified = True                         else
-        fixed_lines.append(line)                 else                     fixed_lines.append(line)              if modified: 0, 'errors_after': 0, } # Get
-initial error count initial_errors = self.get_linter_errors(file_path)'
-results['errors_before'] = len(initial_errors) if results['errors_before'] == 0
-        return
-results # Try black first if self.fix_file_with_black(file_path)'
-            results['black_fixes'] = 1
+    def should_ignore_file(self, file_path: str) -> bool:
+        """Check if file should be ignored."""
+        path = Path(file_path)
 
-        # Try autopep8
-        if self.fix_file_with_autopep8(file_path)
-        '
-            results['manual_fixes'] = 1
-
-        # Get final error count
-        final_errors = self.get_linter_errors(file_path)'
-        results['errors_after'] = len(final_errors)
-
-        return results""
-def process_file(self, file_path
-        str) -> bool """Process a single file for linter"
-errors.""" if self.should_ignore_file(file_path)
-        return False""
-        self.logger.info(f"Processing
-        {file_path}")
-
-        file_results = self.fix_file_systematically(file_path)
-'
-        if file_results['errors_after'] < file_results['errors_before']'
-            errors_fixed = file_results['errors_before'] - file_results['errors_after']'
-            self.error_stats['total_errors_fixed'] += errors_fixed'
-            self.error_stats['files_processed'] += 1
-
-            self.logger.info("
-                f"✅ Fixed {errors_fixed} errors in {file_path} ""'
-                f"({file_results['errors_before']} → {file_results['errors_after']})"
-            )
-
-            # Update error type statistics'
-            for error_type in ['black_fixes', 'autopep8_fixes', 'manual_fixes']
-                if file_results[error_type] > 0 in '
-                    self.error_stats['errors_by_type'][error_type] = ('
-                        self.error_stats['errors_by_type'].get(error_type, 0) + 1
-                    )
-
+        # Ignore non-Python files
+        if path.suffix != ".py":
             return True
+
+        # Check ignore patterns
+        for pattern in self.ignore_patterns:
+            if pattern in str(path):
+                return True
 
         return False
 
-    def scan_all_files(self)
-        ""Scan all Python files in project directories.""""
-        self.logger.info("🔍 Scanning all files for linter errors...")
+    def get_linter_errors(self, file_path: str) -> List[str]:
+        """Get linter errors for a file, excluding MD errors."""
+        try:
+            cmd = [
+                "flake8",
+                file_path,
+                "--select=E501,F541,F821,F841,W291,W292,W293,W391",
+                "--count",
+            ]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
 
-        files_processed = 0
-        files_fixed = 0
+            if result.returncode == 0:
+                return []
 
-        for project_dir in self.project_dirs
-            if not os.path.exists(project_dir)
-        "
-                self.logger.warning(f"Project directory not found {project_dir}")
-                continue
+            errors = []
+            for line in result.stdout.split("\n"):
+                line = line.strip()
+                if line and not line.startswith("MD"):  # Ignore MD lint errors
+                    errors.append(line)
 
-            for root, dirs, files in os.walk(project_dir)] = [d for d in dirs if d not in self.ignore_patterns]
+            return errors
+        except subprocess.TimeoutExpired:
+            self.logger.error(f"Linter timeout for {file_path}")
+            return []
+        except Exception as e:
+            self.logger.error(f"Error running linter on {file_path}: {e}")
+            return []
 
-                for file in files in '
-                    if file.endswith('.py')
-        ""Save error statistics to file.""""
-        stats_file = Path("logs/autolinter_stats.json")
-        stats_file.parent.mkdir(exist_ok=True)
-'
-        with open(stats_file, 'w') as f
-        json.dump(self.error_stats, f, indent=2)
+    def fix_linter_errors(self, file_path: str, errors: List[str]) -> bool:
+        """Attempt to fix linter errors in a file."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
 
-    def load_stats(self)""Load error statistics from file.""""
-        stats_file = Path("logs/autolinter_stats.json")
-        if stats_file.exists()
-        '
-            with open(stats_file, 'r') as f
-                self.error_stats = json.load(f)
+            original_content = content
+            fixed = False
+
+            for error in errors:
+                # Parse error line and column
+                parts = error.split(":")
+                if len(parts) >= 3:
+                    line_num = int(parts[1])
+                    col_num = int(parts[2])
+                    error_code = parts[3].split()[0] if len(parts) > 3 else ""
+
+                    # Apply fixes based on error code
+                    if error_code == "E501":  # Line too long
+                        content = self._fix_line_length(content, line_num)
+                        fixed = True
+                    elif error_code == "F821":  # Undefined name
+                        content = self._fix_undefined_name(content, line_num, col_num)
+                        fixed = True
+                    elif error_code == "F841":  # Unused variable
+                        content = self._fix_unused_variable(content, line_num)
+                        fixed = True
+
+            if fixed and content != original_content:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(content)
+                self.logger.info(f"Fixed errors in {file_path}")
+                return True
+
+            return False
+        except Exception as e:
+            self.logger.error(f"Error fixing {file_path}: {e}")
+            return False
+
+    def _fix_line_length(self, content: str, line_num: int) -> str:
+        """Fix line length issues."""
+        lines = content.split("\n")
+        if line_num <= len(lines):
+            line = lines[line_num - 1]
+            if len(line) > 120:
+                # Simple fix: break at spaces
+                words = line.split()
+                if len(words) > 1:
+                    mid = len(words) // 2
+                    lines[line_num - 1] = " ".join(words[:mid])
+                    lines.insert(line_num, "    " + " ".join(words[mid:]))
+        return "\n".join(lines)
+
+    def _fix_undefined_name(self, content: str, line_num: int, col_num: int) -> str:
+        """Fix undefined name issues."""
+        # This is a placeholder - would need more sophisticated analysis
+        return content
+
+    def _fix_unused_variable(self, content: str, line_num: int) -> str:
+        """Fix unused variable issues."""
+        lines = content.split("\n")
+        if line_num <= len(lines):
+            line = lines[line_num - 1]
+            # Add underscore prefix to indicate unused variable
+            if "=" in line and not line.strip().startswith("_"):
+                parts = line.split("=")
+                if len(parts) == 2:
+                    var_name = parts[0].strip()
+                    if not var_name.startswith("_"):
+                        lines[line_num - 1] = line.replace(var_name, f"_{var_name}")
+        return "\n".join(lines)
+
+    def scan_project(self) -> Dict[str, List[str]]:
+        """Scan entire project for linter errors."""
+        all_errors: Dict[str, List[str]] = {}
+
+        for project_dir in self.project_dirs:
+            for root, dirs, files in os.walk(project_dir):
+                for file in files:
+                    if file.endswith(".py"):
+                        file_path = os.path.join(root, file)
+                        if not self.should_ignore_file(file_path):
+                            errors = self.get_linter_errors(file_path)
+                            if errors:
+                                all_errors[file_path] = errors
+
+        return all_errors
+
+    def run(self) -> None:
+        """Run the autolinter."""
+        self.logger.info("Starting AutoLinter...")
+
+        while True:
+            try:
+                errors = self.scan_project()
+                total_errors = sum(len(errs) for errs in errors.values())
+
+                if total_errors > 0:
+                    self.logger.info(
+                        f"Found {total_errors} errors across {len(errors)} files"
+                    )
+
+                    for file_path, file_errors in errors.items():
+                        self.fix_linter_errors(file_path, file_errors)
+                else:
+                    self.logger.info("No linter errors found")
+
+                self.last_run = datetime.now()
+                time.sleep(60)  # Check every minute
+
+            except KeyboardInterrupt:
+                self.logger.info("AutoLinter stopped by user")
+                break
+            except Exception as e:
+                self.logger.error(f"Error in autolinter loop: {e}")
+                time.sleep(60)
 
 
-class FileChangeHandler(FileSystemEventHandler)
-        ""Handle file system changes for auto-linting."""
+def main() -> None:
+    """Main entry point."""
+    project_dirs = ["."]  # Current directory
+    ignore_patterns = [
+        "__pycache__",
+        ".git",
+        "node_modules",
+        "venv",
+        ".venv",
+        "env",
+        ".env",
+    ]
 
-    def __init__(self, autolinter AutoLinter) import self.autolinter = autolinter
-        self.debounce_timer = None
-        self.debounce_delay = 2.0  # seconds"""
-    def on_modified(self, event)
-        ""Handle file modification events."""
-        if event.is_directory
-            return
-'
-        if not event.src_path.endswith('.py')
-            return
+    autolinter = AutoLinter(project_dirs, ignore_patterns)
+    autolinter.run()
 
-        # Debounce rapid file changes
-        if self.debounce_timer as self.debounce_timer.cancel()
 
-        self.debounce_timer = threading.Timer(
-            self.debounce_delay, lambda
-        self.autolinter.process_file(event.src_path)
-        )
-        self.debounce_timer.start()"""
-    def on_created(self, event)""Handle file creation events."""
-        if event.is_directory in return
-'
-        if not event.src_path.endswith('.py') {autolinter.error_stats['total_errors_fixed']}")
-        "'
-        print(f"   Files processed {autolinter.error_stats['files_processed']}")"'
-        print(f"   Last run {autolinter.error_stats['last_run']}")
-        "'
-        print(f"   Fixes by type {autolinter.error_stats['errors_by_type']}")"
-        print("\n✅ AutoLinter stopped successfully!")
-        "
-if __name__ == "__main__" None,
+if __name__ == "__main__":
     main()
-"'

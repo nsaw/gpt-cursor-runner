@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.gpt.flylog</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/sawyer/gitSync/gpt-cursor-runner/scripts/safe-fly-logs.sh</string>
+        <string>start</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/sawyer/gitSync/gpt-cursor-runner</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/sawyer/gitSync/gpt-cursor-runner/logs/fly/flylog-plist-stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/sawyer/gitSync/gpt-cursor-runner/logs/fly/flylog-plist-stderr.log</string>
+    
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    
+    <key>StartInterval</key>
+    <integer>30</integer>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>FLYLOG_MODE</key>
+        <string>launchd</string>
+        <key>FLYLOG_INSTALLATION_UUID</key>
+        <string>fe8b82a3-fde2-41a5-b5d8-c0694027bc60</string>
+        <key>PROJECT_NAME</key>
+        <string>gpt-cursor-runner</string>
+        <key>FLY_APP_NAME</key>
+        <string>gpt-cursor-runner</string>
+    </dict>
+    
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/sawyer/gitSync/gpt-cursor-runner/logs/fly</string>
+        <string>/Users/sawyer/gitSync/gpt-cursor-runner/logs/fly-log-daemon.pid</string>
+    </array>
+    
+    <key>QueueDirectories</key>
+    <array>
+        <string>/Users/sawyer/gitSync/gpt-cursor-runner/logs</string>
+    </array>
+</dict>
+</plist>

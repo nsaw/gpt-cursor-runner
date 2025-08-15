@@ -1,31 +1,36 @@
 #!/usr/bin/env node
 
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config({ path: './config/webhook-thoughtmarks.env' });
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config({ path: "./config/webhook-thoughtmarks.env" });
 
-const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID || '9175632787408.9142323012087';
+const SLACK_CLIENT_ID =
+  process.env.SLACK_CLIENT_ID || "9175632787408.9142323012087";
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 const SLACK_APP_TOKEN = process.env.SLACK_APP_TOKEN;
 
-console.log('🚀 Force Installing Slack App via API');
-console.log('=====================================');
-console.log('');
+console.log("🚀 Force Installing Slack App via API");
+console.log("=====================================");
+console.log("");
 
 // Test 1: Validate app token
 async function testAppToken() {
-  console.log('🔑 Test 1: Validating App Token...');
+  console.log("🔑 Test 1: Validating App Token...");
   try {
-    const response = await axios.post('https://slack.com/api/apps.connections.open', {}, {
-      headers: {
-        'Authorization': `Bearer ${SLACK_APP_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
+    const response = await axios.post(
+      "https://slack.com/api/apps.connections.open",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${SLACK_APP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
     if (response.data.ok) {
-      console.log('   ✅ App token is valid');
+      console.log("   ✅ App token is valid");
       return true;
     } else {
       console.log(`   ❌ App token error: ${response.data.error}`);
@@ -39,15 +44,15 @@ async function testAppToken() {
 
 // Test 2: Check app info
 async function checkAppInfo() {
-  console.log('📋 Test 2: Checking App Information...');
+  console.log("📋 Test 2: Checking App Information...");
   try {
-    const response = await axios.get('https://slack.com/api/apps.info', {
+    const response = await axios.get("https://slack.com/api/apps.info", {
       headers: {
-        'Authorization': `Bearer ${SLACK_APP_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${SLACK_APP_TOKEN}`,
+        "Content-Type": "application/json",
+      },
     });
-    
+
     if (response.data.ok) {
       const app = response.data.app;
       console.log(`   ✅ App Name: ${app.name}`);
@@ -66,17 +71,20 @@ async function checkAppInfo() {
 
 // Test 3: Try to get installation info
 async function getInstallationInfo() {
-  console.log('🔧 Test 3: Checking Installation Status...');
+  console.log("🔧 Test 3: Checking Installation Status...");
   try {
-    const response = await axios.get('https://slack.com/api/apps.connections.open', {
-      headers: {
-        'Authorization': `Bearer ${SLACK_APP_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
+    const response = await axios.get(
+      "https://slack.com/api/apps.connections.open",
+      {
+        headers: {
+          Authorization: `Bearer ${SLACK_APP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
     if (response.data.ok) {
-      console.log('   ✅ App is connected to workspace');
+      console.log("   ✅ App is connected to workspace");
       return true;
     } else {
       console.log(`   ❌ App not connected: ${response.data.error}`);
@@ -90,21 +98,25 @@ async function getInstallationInfo() {
 
 // Test 4: Try to send a test message using app token
 async function testAppMessage() {
-  console.log('💬 Test 4: Testing Message Sending...');
+  console.log("💬 Test 4: Testing Message Sending...");
   try {
-    const response = await axios.post('https://slack.com/api/chat.postMessage', {
-      channel: '#cursor-thoughtmarks-native-build',
-      text: '🤖 Test message from webhook-thoughtmarks app (via app token)',
-      unfurl_links: false
-    }, {
-      headers: {
-        'Authorization': `Bearer ${SLACK_APP_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
+    const response = await axios.post(
+      "https://slack.com/api/chat.postMessage",
+      {
+        channel: "#cursor-thoughtmarks-native-build",
+        text: "🤖 Test message from webhook-thoughtmarks app (via app token)",
+        unfurl_links: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${SLACK_APP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
     if (response.data.ok) {
-      console.log('   ✅ Message sent successfully via app token');
+      console.log("   ✅ Message sent successfully via app token");
       return true;
     } else {
       console.log(`   ❌ Message failed: ${response.data.error}`);
@@ -118,53 +130,53 @@ async function testAppMessage() {
 
 // Main execution
 async function main() {
-  console.log('📊 Starting Force Installation Process...');
-  console.log('');
-  
+  console.log("📊 Starting Force Installation Process...");
+  console.log("");
+
   const appTokenValid = await testAppToken();
-  console.log('');
-  
+  console.log("");
+
   const appInfo = await checkAppInfo();
-  console.log('');
-  
+  console.log("");
+
   const isInstalled = await getInstallationInfo();
-  console.log('');
-  
+  console.log("");
+
   const messageSent = await testAppMessage();
-  console.log('');
-  
-  console.log('📋 Installation Summary:');
-  console.log('========================');
-  console.log(`   App Token Valid: ${appTokenValid ? '✅' : '❌'}`);
-  console.log(`   App Info Retrieved: ${appInfo ? '✅' : '❌'}`);
-  console.log(`   App Installed: ${isInstalled ? '✅' : '❌'}`);
-  console.log(`   Message Sending: ${messageSent ? '✅' : '❌'}`);
-  console.log('');
-  
+  console.log("");
+
+  console.log("📋 Installation Summary:");
+  console.log("========================");
+  console.log(`   App Token Valid: ${appTokenValid ? "✅" : "❌"}`);
+  console.log(`   App Info Retrieved: ${appInfo ? "✅" : "❌"}`);
+  console.log(`   App Installed: ${isInstalled ? "✅" : "❌"}`);
+  console.log(`   Message Sending: ${messageSent ? "✅" : "❌"}`);
+  console.log("");
+
   if (appTokenValid && appInfo && isInstalled && messageSent) {
-    console.log('🎉 SUCCESS: App is fully functional!');
-    console.log('');
-    console.log('📝 Next Steps:');
-    console.log('   1. The app is now working with app token');
-    console.log('   2. You can test slash commands');
-    console.log('   3. The webhook-thoughtmarks server should work');
+    console.log("🎉 SUCCESS: App is fully functional!");
+    console.log("");
+    console.log("📝 Next Steps:");
+    console.log("   1. The app is now working with app token");
+    console.log("   2. You can test slash commands");
+    console.log("   3. The webhook-thoughtmarks server should work");
   } else {
-    console.log('⚠️  PARTIAL SUCCESS: Some components are working');
-    console.log('');
-    console.log('🔧 Recommendations:');
+    console.log("⚠️  PARTIAL SUCCESS: Some components are working");
+    console.log("");
+    console.log("🔧 Recommendations:");
     if (!appTokenValid) {
-      console.log('   • Check the app token in webhook-thoughtmarks.env');
+      console.log("   • Check the app token in webhook-thoughtmarks.env");
     }
     if (!appInfo) {
-      console.log('   • Verify the app is properly configured in Slack');
+      console.log("   • Verify the app is properly configured in Slack");
     }
     if (!isInstalled) {
-      console.log('   • The app may need manual installation');
+      console.log("   • The app may need manual installation");
     }
     if (!messageSent) {
-      console.log('   • Check channel permissions and app scopes');
+      console.log("   • Check channel permissions and app scopes");
     }
   }
 }
 
-main().catch(console.error); 
+main().catch(console.error);

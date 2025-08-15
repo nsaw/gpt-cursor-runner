@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 export default function Monitor() {
   const [state, setState] = useState(null);
@@ -6,12 +6,12 @@ export default function Monitor() {
   useEffect(() => {
     const fetchState = async () => {
       try {
-        const res = await fetch('/state/systemState.json');
-        if (!res.ok) throw new Error('Failed to fetch');
+        const res = await fetch("/state/systemState.json");
+        if (!res.ok) throw new Error("Failed to fetch");
         const json = await res.json();
         setState(json);
       } catch (e) {
-        console.error('Hydration fetch failed:', e);
+        console.error("Hydration fetch failed:", e);
       }
     };
     fetchState();

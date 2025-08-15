@@ -6,6 +6,29 @@ mkdir -p $(dirname "$LOG")
 
 # Enhanced logging
 exec 2>> "$LOG"
+# Resolve timeout binary (prefer coreutils gtimeout on macOS if available)
+resolve_timeout_bin() {
+  if command -v timeout >/dev/null 2>&1; then
+    echo "timeout"
+  elif command -v gtimeout >/dev/null 2>&1; then
+    echo "gtimeout"
+  else
+    echo ""
+  fi
+}
+
+TIMEOUT_BIN="$(resolve_timeout_bin)"
+
+# Generic non-blocking runner with disown and optional timeout (defaults to 30s)
+nb() {
+  local cmd_str="$1"
+  local t=${2:-30}
+  if [ -n "$TIMEOUT_BIN" ]; then
+    { $TIMEOUT_BIN ${t}s bash -lc "$cmd_str" & } >/dev/null 2>&1 & disown || true
+  else
+    { bash -lc "$cmd_str" & } >/dev/null 2>&1 & disown || true
+  fi
+}
 
 # Test result tracking
 TOTAL_TESTS=0
@@ -64,7 +87,8 @@ test_pm2_processes() {
   echo "==================="
   
   # Test PM2 list command
-  run_test "PM2 List Command" "{ timeout 15s pm2 list & } >/dev/null 2>&1 & disown" 20
+# MIGRATED: run_test "PM2 List Command" "{ timeout 15s pm2 list & } >/dev/null 2>&1 & disown" 20
+node scripts/nb.js --ttl 15s --label pm2 --log validations/logs/pm2.log --status validations/status -- pm2 list
   
   # Test specific PM2 processes
   local pm2_processes=(
@@ -85,7 +109,8 @@ test_pm2_processes() {
   )
   
   for process in "${pm2_processes[@]}"; do
-    run_test "PM2 Process: $process" "{ timeout 15s pm2 describe $process & } >/dev/null 2>&1 & disown" 15
+# MIGRATED: run_test "PM2 Process: $process" "{ timeout 15s pm2 describe $process & } >/dev/null 2>&1 & disown" 15
+node scripts/nb.js --ttl 15s --label pm2 --log validations/logs/pm2.log --status validations/status -- pm2 describe $process
   done
 }
 
@@ -96,15 +121,13 @@ test_port_services() {
   
   # Test critical ports
   local port_tests=(
-    "5555:Flask App"
-    "5053:Ghost Runner"
-    "3002:Comprehensive Dashboard"
-    "8787:Dual Monitor Server"
-    "4000:Backend API"
+    "5051:Ghost Bridge"
+    "8787:Flask Dashboard"
+    "8788:Telemetry API"
+    "8789:Telemetry Orchestrator"
     "8081:Expo Development Server"
-    "8088:Expo Web Server"
-    "8789:Real-Time Status API"
-    "8790:Autonomous Patch Trigger"
+    "4000:Backend API"
+    "3001:Ghost Relay"
   )
   
   for port_test in "${port_tests[@]}"; do
@@ -120,12 +143,11 @@ test_health_endpoints() {
   
   # Test health endpoints
   local health_tests=(
-    "Flask App Health:http://localhost:5555/health"
-    "Ghost Runner Health:http://localhost:5053/health"
-    "Comprehensive Dashboard:http://localhost:3002"
-    "Dual Monitor API:http://localhost:8787/api/status"
-    "Real-Time Status API:http://localhost:8789/health"
-    "Autonomous Patch Trigger:http://localhost:8790/health"
+    "Flask Dashboard Health:http://localhost:8787/api/health"
+    "Ghost Bridge Health:http://localhost:5051/health"
+    "Dashboard API Status:http://localhost:8787/api/status"
+    "Telemetry Orchestrator Health:http://localhost:8789/health"
+    "Telemetry API Health:http://localhost:8788/health"
   )
   
   for health_test in "${health_tests[@]}"; do
@@ -160,7 +182,8 @@ test_cloudflare_tunnels() {
   echo "=========================="
   
   # Test tunnel list command
-  run_test "Cloudflare Tunnel List" "{ timeout 15s cloudflared tunnel list & } >/dev/null 2>&1 & disown" 20
+# MIGRATED: run_test "Cloudflare Tunnel List" "{ timeout 15s cloudflared tunnel list & } >/dev/null 2>&1 & disown" 20
+node scripts/nb.js --ttl 15s --label cloudflared --log validations/logs/cloudflared.log --status validations/status -- cloudflared tunnel list
   
   # Test specific tunnels
   local tunnels=(
@@ -174,7 +197,8 @@ test_cloudflare_tunnels() {
   )
   
   for tunnel in "${tunnels[@]}"; do
-    run_test "Tunnel: $tunnel" "{ timeout 15s cloudflared tunnel info $tunnel & } >/dev/null 2>&1 & disown" 20
+# MIGRATED: run_test "Tunnel: $tunnel" "{ timeout 15s cloudflared tunnel info $tunnel & } >/dev/null 2>&1 & disown" 20
+node scripts/nb.js --ttl 15s --label cloudflared --log validations/logs/cloudflared.log --status validations/status -- cloudflared tunnel info $tunnel
   done
 }
 
@@ -291,7 +315,7 @@ test_watchdog_processes() {
   
   # Test watchdog processes
   local watchdog_tests=(
-    "Unified Watchdog:unified-watchdog"
+    "Unified Manager Watchdog:unified-manager-watchdog"
     "BRAUN Watchdog:braun-watchdog"
     "Ghost Runner Watchdog:ghost-runner-watchdog"
     "Patch Executor Watchdog:patch-executor-watchdog"

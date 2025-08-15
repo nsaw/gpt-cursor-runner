@@ -1,65 +1,84 @@
-#!/usr/bin/env python3""""
-GPT-Cursor Runner - Centralized System Monitor"""
-Self-regulating, self-monitoring system coordinator"""
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+#!/usr/bin/env python3
+"""
+GPT-Cursor Runner - Centralized System Monitor
+Self-regulating, self-monitoring system coordinator
+"""
 
 import os
 import sys
-import time
-import json
 import logging
-import subprocess
 import threading
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-import requests
-import psutil
-import signal
+import time
+from datetime import datetime
+from typing import Dict, Any, List, Optional
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))"""
-class ComponentStatus(Enum) import "
-    HEALTHY = "healthy""
-    DEGRADED = "degraded""
-    FAILED = "failed""
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+
+class ComponentStatus:
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    FAILED = "failed"
     UNKNOWN = "unknown"
 
 
-class AlertLevel(Enum)
-        "
-    INFO = "info""
-    WARNING = "warning""
-    ERROR = "error""
+class AlertLevel:
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
     CRITICAL = "critical"
 
 
-@dataclass(class ComponentHealth
-    name str
-    status)
-ComponentStatus
-    uptime float
-    last_check int
-    restart_count import int
-    last_error Optional[str] = None
-    metrics: Optional[Dict] = None
+class ComponentHealth:
+    def __init__(
+        self,
+        name: str,
+        status: str,
+        uptime: float,
+        last_check: int,
+        restart_count: int,
+        last_error: Optional[str] = None,
+        metrics: Optional[Dict[str, Any]] = None,
+    ):
+        self.name = name
+        self.status = status
+        self.uptime = uptime
+        self.last_check = last_check
+        self.restart_count = restart_count
+        self.last_error = last_error
+        self.metrics = metrics or {}
 
 
-@dataclass(class SystemAlert(level))
-AlertLevel
-    component str
-    message: str
-    timestamp: datetime
-    context: Dict[str, Any]
+class SystemAlert:
+    def __init__(
+        self,
+        level: str,
+        component: str,
+        message: str,
+        timestamp: datetime,
+        context: Dict[str, Any],
+    ):
+        self.level = level
+        self.component = component
+        self.message = message
+        self.timestamp = timestamp
+        self.context = context
 
 
-class SystemMonitor(""Centralized system monitoring and self-healing coordinator.""
-    def __init__(self, config_path)
-        str = "system_monitor_config.json")
+class SystemMonitor:
+    """Centralized system monitoring and self-healing coordinator."""
+
+    def __init__(self, config_path: str = "system_monitor_config.json") -> None:
         self.config = self._load_config(config_path)
-        self.components = {}
-        self.alerts = []
-        self.health_history = []
+        self.components: Dict[str, ComponentHealth] = {}
+        self.alerts: List[SystemAlert] = []
+        self.health_history: List[Dict[str, Any]] = []
         self.is_running = False
 
         # Setup logging
@@ -68,7 +87,7 @@ class SystemMonitor(""Centralized system monitoring and self-healing coordinator
         # Initialize component monitors
         self._initialize_components()
 
-        # Circuit breaker state"
+        # Circuit breaker state
         self.circuit_breaker_state = "CLOSED"
         self.failure_threshold = 5
         self.recovery_timeout = 300  # 5 minutes
@@ -79,274 +98,356 @@ class SystemMonitor(""Centralized system monitoring and self-healing coordinator
 
         # Threading
         self.monitor_thread = None
-        self.alert_thread = None"
-        self.logger.info("🚀 System Monitor initialized")"
-def _load_config(self, config_path str) -> Dict """Load system monitor"
-configuration.""" default_config = { "components"
-        { "python_runner" { "type":process", "command": "python3 -m gpt_cursor_runner.main", "port": 5051,health_endpoint": "/health", "max_restarts": 5, "restart_cooldown": 60, },node_server": { "type": "process", "command": "node server/index.js", "port": 5555,health_endpoint": "/health", "max_restarts": 5, "restart_cooldown": 60, },braun_daemon": { "type": "daemon", "script": "braun_daemon.py", "max_restarts": 3,restart_cooldown": 30, }, "cyops_daemon": { "type": "daemon", "script":cyops_daemon.py", "max_restarts": 3, "restart_cooldown": 30, }, "tunnel": { "type":tunnel", "ports": [5051, 5555], "max_restarts": 3, "restart_cooldown": 120, }, },alerts": { "slack_webhook": os.getenv("SLACK_WEBHOOK_URL"), "alert_levels": ["error",critical"], "cooldown_period": 300, }, "monitoring": { "health_check_interval": 30,alert_cleanup_interval": 3600, "history_retention_hours": 24, }, } if
-os.path.exists(config_path)
-        with open(config_path, 'r') as f as user_config = json.load(f)
+        self.alert_thread = None
+
+        self.logger.info("🚀 System Monitor initialized")
+
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        """Load system monitor configuration."""
+        default_config = {
+            "components": {
+                "python_runner": {
+                    "type": "process",
+                    "command": "python3 -m gpt_cursor_runner.main",
+                    "port": 5051,
+                    "health_endpoint": "/health",
+                    "max_restarts": 5,
+                    "restart_cooldown": 60,
+                },
+                "node_server": {
+                    "type": "process",
+                    "command": "node server/index.js",
+                    "port": 5555,
+                    "health_endpoint": "/health",
+                    "max_restarts": 5,
+                    "restart_cooldown": 60,
+                },
+                "braun_daemon": {
+                    "type": "daemon",
+                    "script": "braun_daemon.py",
+                    "max_restarts": 3,
+                    "restart_cooldown": 30,
+                },
+                "cyops_daemon": {
+                    "type": "daemon",
+                    "script": "cyops_daemon.py",
+                    "max_restarts": 3,
+                    "restart_cooldown": 30,
+                },
+                "tunnel": {
+                    "type": "tunnel",
+                    "ports": [5051, 5555],
+                    "max_restarts": 3,
+                    "restart_cooldown": 120,
+                },
+            },
+            "alerts": {
+                "slack_webhook": os.getenv("SLACK_WEBHOOK_URL"),
+                "alert_levels": ["error", "critical"],
+                "cooldown_period": 300,
+            },
+            "monitoring": {
+                "health_check_interval": 30,
+                "alert_cleanup_interval": 3600,
+                "history_retention_hours": 24,
+            },
+        }
+
+        if os.path.exists(config_path):
+            with open(config_path, "r") as f:
+                import json
+
+                user_config = json.load(f)
                 # Merge with defaults
-                for key, value in user_config.items()
-        if key in default_config
-                        if isinstance(value, dict) in default_config[key].update(value)
-                        else
+                for key, value in user_config.items():
+                    if key in default_config:
+                        if isinstance(value, dict) and isinstance(
+                            default_config[key], dict
+                        ):
+                            default_config[key].update(value)
+                        else:
+                            default_config[key] = value
+
+        return default_config
+
+    def _setup_logging(self) -> None:
+        """Setup logging configuration."""
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[
+                logging.FileHandler("system_monitor.log"),
+                logging.StreamHandler(),
+            ],
+        )
+        self.logger = logging.getLogger(__name__)
+
+    def _initialize_components(self) -> None:
+        """Initialize component monitors."""
+        for name, config in self.config["components"].items():
+            self.components[name] = ComponentHealth(
+                name=name,
+                status=ComponentStatus.UNKNOWN,
+                uptime=0.0,
+                last_check=int(time.time()),
+                restart_count=0,
+            )
+
+    def start(self) -> None:
+        """Start the system monitor."""
+        self.is_running = True
+        self.monitor_thread = threading.Thread(target=self._monitor_loop)
+        self.alert_thread = threading.Thread(target=self._alert_loop)
+
+        self.monitor_thread.start()
+        self.alert_thread.start()
+
+        self.logger.info("🚀 System Monitor started")
+
+    def stop(self) -> None:
+        """Stop the system monitor."""
+        self.is_running = False
+        if self.monitor_thread:
+            self.monitor_thread.join()
+        if self.alert_thread:
+            self.alert_thread.join()
+
+        self.logger.info("🛑 System Monitor stopped")
+
+    def _monitor_loop(self) -> None:
+        """Main monitoring loop."""
+        while self.is_running:
+            try:
                 self._check_all_components()
                 self._update_system_health()
                 self._handle_circuit_breaker()
 
-                time.sleep(self.health_check_interval)"""
-            except Exception as e: {e}")
+                time.sleep(self.health_check_interval)
+            except Exception as e:
+                self.logger.error(f"Error in monitor loop: {e}")
                 self._create_alert(
-                    AlertLevel.ERROR,system_monitor","
-                    f"Monitor loop error: {e}","
+                    AlertLevel.ERROR,
+                    "system_monitor",
+                    f"Monitor loop error: {e}",
                     {"error": str(e)},
                 )
 
-    def _alert_loop(self)
-        ""Alert management loop."""
-        while self.is_running
-                self._process_alerts()
-                self._cleanup_old_alerts()
+    def _check_all_components(self) -> None:
+        """Check health of all components."""
+        for name, config in self.config["components"].items():
+            try:
+                if config["type"] == "process":
+                    self._check_process_component(name, config)
+                elif config["type"] == "daemon":
+                    self._check_daemon_component(name, config)
+                elif config["type"] == "tunnel":
+                    self._check_tunnel_component(name, config)
+            except Exception as e:
+                self.logger.error(f"Error checking component {name}: {e}")
+                self._update_component_status(
+                    name, ComponentStatus.FAILED, error=str(e)
+                )
 
-                time.sleep(60)  # Check alerts every minute"""
-            except Exception as e: {e}")
+    def _check_process_component(self, name: str, config: Dict[str, Any]) -> None:
+        """Check process component health."""
+        try:
+            # Check if process is running
+            if "port" in config:
+                import requests
 
-    def _check_all_components(self)
-        ""Check health of all components.""""
-        for component_name, config in self.config["components"].items() in try
-                health = self._check_component_health(component_name, config)
-                self.components[component_name] = health
+                response = requests.get(
+                    f"http://localhost:{config['port']}{config.get('health_endpoint', '/health')}",
+                    timeout=5,
+                )
+                if response.status_code == 200:
+                    self._update_component_status(name, ComponentStatus.HEALTHY)
+                else:
+                    self._update_component_status(name, ComponentStatus.DEGRADED)
+            else:
+                # Basic process check
+                self._update_component_status(name, ComponentStatus.HEALTHY)
+        except Exception as e:
+            self._update_component_status(name, ComponentStatus.FAILED, error=str(e))
 
-                # Check for status changes
-                if health.status == ComponentStatus.FAILED
-        self._handle_component_failure(component_name, config)
-                elif health.status == ComponentStatus.DEGRADED
-                    self._handle_component_degradation(component_name, config)
+    def _check_daemon_component(self, name: str, config: Dict[str, Any]) -> None:
+        """Check daemon component health."""
+        try:
+            # Check if daemon script is running
+            import subprocess
 
-            except Exception as e in "
-                self.logger.error(f"Error checking {component_name}: str(e)},
-                )"
-def _check_component_health(self, name: str, config: Dict) -> ComponentHealth: """Check"
-health of a specific component.""" component = self.components[name] try
-        if"config["type"] == "process" health = self._check_process_health(name, config) elif"config["type"] == "daemon"
-        health = self._check_daemon_health(name, config) elif"config["type"] == "tunnel" health = self._check_tunnel_health(name, config) else
-        health = ComponentHealth( name=name, status=ComponentStatus.UNKNOWN, uptime=0.0,
-last_check=datetime.now(), error_count=component.error_count,
-restart_count=component.restart_count, ) return health except Exception as e
-        component.error_count += 1 component.last_error = str(e) component.status =
-ComponentStatus.FAILED component.last_check = datetime.now() return component def"_check_process_health(self, name str, config Dict) -> ComponentHealth:""Check health of tunnel component.""" component = self.components[name] # Check if"ngrok is running tunnel_running = self._is_process_running("ngrok") if not
-tunnel_running
-        component.status = ComponentStatus.FAILED component.error_count += 1"
-component.last_error = "Tunnel not running" component.last_check = datetime.now() return
-component # Check tunnel API tunnel_healthy = self._check_tunnel_api() if not
-tunnel_healthy component.status = ComponentStatus.FAILED component.error_count += 1"
-component.last_error = "Tunnel API not responding" component.last_check = datetime.now()
-return component # Check tunnel endpoints endpoints_healthy ="
-self._check_tunnel_endpoints(config["ports"]) if not endpoints_healthy
-        component.status"
-= ComponentStatus.DEGRADED component.error_count += 1 component.last_error = "Tunnel"
-endpoints not responding" component.last_check = datetime.now() return component # TODO Add comment
-Tunnel is healthy component.status = ComponentStatus.HEALTHY component.error_count = 0
-component.last_error = None component.last_check = datetime.now() return component def"_is_process_running(self, command
-        str) -> bool """Check if a process is running.""""
-try
-        result = subprocess.run( ["pgrep", "-f", command], capture_output=True, text=True )"
-return result.returncode == 0 except Exception
-        return False def _find_process(self,"")
-command str) -> Optional[psutil.Process]
-        '
-                if command in ' '.join(proc.info['cmdline'] or [])
-        """Check if a port is listening."""         try             response = requests.get(f"http
-        //localhost{port}{endpoint}", timeout = 5)  ""
-    f"           return response.status_code == 200         except Exception
-        return False      def _check_daemon_logs(self, name str) -> bool
-        """Check daemon logs for recent activity."""         try             log_file = f"logs/{name}-daemon.log"             if not os.path.exists(log_file)
-        return False
-
-            # Check if log file has been modified in last 5 minutes
-            stat = os.stat(log_file)
-            if time.time() - stat.st_mtime > 300
-        # 5 minutes
-                return False
-
-            return True
-        except Exception
-        return False"
-    def _check_tunnel_api(self) -> bool         """Check ngrok tunnel API."""         try             response = requests.get("http
-        //localhost4040/api/tunnels", timeout = 5)             return response.status_code == 200         except Exception
-        return False      def _check_tunnel_endpoints(self, ports List[int]) -> bool
-        """Check tunnel endpoints."""         try             response = requests.get("http
-        //localhost4040/api/tunnels", timeout = 5)             tunnels = response.json().get("tunnels", [])              for port in ports
-        port_found = False                 for tunnel in tunnels                     addr = tunnel.get("config", {}).get("addr", "")                     if f"localhost
-        {port}" in addr                      ""
-    f"   port_found = True                         break                  if not port_found
-        return False              return True         except Exception
-        return False      def _handle_component_failure(self, name str, config Dict) in """Handle component failure with intelligent recovery."""
-        component = self.components[name]"""
-        # Check restart limits"
-        if component.restart_count >= config.get("max_restarts", 5)
-        self._create_alert(
-                AlertLevel.CRITICAL,
-                name,"
-                f"Component {name} exceeded max restarts","
-                {"restart_count" component.restart_count},
+            result = subprocess.run(
+                ["pgrep", "-f", config["script"]], capture_output=True, text=True
             )
-            return
+            if result.returncode == 0:
+                self._update_component_status(name, ComponentStatus.HEALTHY)
+            else:
+                self._update_component_status(name, ComponentStatus.FAILED)
+        except Exception as e:
+            self._update_component_status(name, ComponentStatus.FAILED, error=str(e))
 
-        # Check cooldown period"
-        cooldown = config.get("restart_cooldown", 60)
-        if (
-        component.last_check
-            and (datetime.now() - component.last_check).seconds < cooldown
+    def _check_tunnel_component(self, name: str, config: Dict[str, Any]) -> None:
+        """Check tunnel component health."""
+        try:
+            # Check if tunnel ports are accessible
+            import socket
+
+            for port in config.get("ports", []):
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(("localhost", port))
+                sock.close()
+                if result != 0:
+                    self._update_component_status(name, ComponentStatus.FAILED)
+                    return
+
+            self._update_component_status(name, ComponentStatus.HEALTHY)
+        except Exception as e:
+            self._update_component_status(name, ComponentStatus.FAILED, error=str(e))
+
+    def _update_component_status(
+        self, name: str, status: str, error: Optional[str] = None
+    ) -> None:
+        """Update component status."""
+        if name in self.components:
+            self.components[name].status = status
+            self.components[name].last_check = int(time.time())
+            if error:
+                self.components[name].last_error = error
+
+    def _update_system_health(self) -> None:
+        """Update overall system health."""
+        healthy_count = sum(
+            1 for c in self.components.values() if c.status == ComponentStatus.HEALTHY
         )
-            return
+        total_count = len(self.components)
 
-        # Attempt restart"
-        self.logger.warning(f"Attempting to restart {name}")
-
-        if self._restart_component(name, config) as component.restart_count += 1
-            component.last_check = datetime.now()
-            self._create_alert(
-                AlertLevel.WARNING,
-                name,"
-                f"Component {name} restarted automatically","
-                {"restart_count"
-        component.restart_count},
-            )
-        else
-            self._create_alert(AlertLevel.ERROR,
-                name,"
-                f"Failed to restart {name}","
-                {"error" Dict)
-        ""Handle component degradation."""
-        component = self.components[name]
-
-        self._create_alert(
-            AlertLevel.WARNING,"""
-            name,"
-            f"Component {name} is degraded","
-            {"error"
-        component.last_error},
-        )"
-    def _restart_component(self, name str, config Dict) -> bool:         """Restart a component."""         try:             if config["type"] == "process": {e}")             retur""
-    f"n False      def _restart_process(self, name: str, config: Dict) -> bool:         """Restart a process component."""         try:             # Kill existing process             subprocess.run(["pkill", "-f", config["command"]], check = False)             time.sleep(2)              # Start new process             subprocess.Popen(                 config["command"].split(),                 cwd=os.getcwd(),                 stdout=subprocess.DEVNULL,                 stderr=subprocess.DEVNULL,             )              # Wait for startup             time.sleep(5)              # Verify restart             return self._is_process_running(config["command"])          except Exception as e
-        self.logger.error(f"Error restarting process {name} {e}")             return False      def _restart_daemon(self, name
-        str, config Dict) -> bool
-        """Restart a daemon component."""         try             # Kill existing daemon             subprocess.run(["pkill", "-f", config["script"]], check = False)             time.sleep(2)              # Start new daemon             subprocess.Popen(                 ["python3", config["script"]],                 cwd=os.getcwd(),                 stdout=subprocess.DEVNULL,                 stderr=subprocess.DEVNULL,             )              # Wait for startup             time.sleep(5)              # Verify restart             return self._is_process_running(config["script"])          except Exception as e
-        self.logger.error(f"Error restarting daemon {name} {e}")             return False      def _restart_tunnel(self, name
-        str, config Dict) -> bool
-        """Restart tunnel component."""         try             # Kill existing tunnels             subprocess.run(["pkill", "-f", "ngrok"], check = False)             time.sleep(2)              # Start new tunnels for each port             for port in config["ports"]
-        subprocess.Popen(                     ["ngrok", "http", str(port)],                     cwd=os.getcwd(),                     stdout=subprocess.DEVNULL,                     stderr=subprocess.DEVNULL,                 )              # Wait for startup             time.sleep(10)              # Verify restart             return self._check_tunnel_api()          except Exception as e
-        self.logger.error(f"Error restarting tunnel {name} {e}")             return False      def _update_system_health(self)
-        ""Update overall system health."""
-        healthy_components = sum(
-            1
-            for comp in self.components.values()
-            if comp.status == ComponentStatus.HEALTHY
-        )
-        total_components = len(self.components)
-
-        if healthy_components == total_components
-        system_status = ComponentStatus.HEALTHY
-        elif healthy_components >= total_components * 0.7
+        if healthy_count == total_count:
+            system_status = ComponentStatus.HEALTHY
+        elif healthy_count > total_count * 0.5:
             system_status = ComponentStatus.DEGRADED
-        else
-        system_status = ComponentStatus.FAILED
+        else:
+            system_status = ComponentStatus.FAILED
 
-        # Store health history"""
-        health_record = {timestamp" datetime.now().isoformat(),"
-            "system_status" in system_status.value,healthy_components": {
-                name: {"
-                    "status": comp.status.value,error_count": comp.error_count,"
-                    "restart_count": comp.restart_count,
-                }
-                for name, comp in self.components.items() in },
-        }
+        # Update health history
+        self.health_history.append(
+            {
+                "timestamp": datetime.now(),
+                "status": system_status,
+                "healthy_components": healthy_count,
+                "total_components": total_count,
+            }
+        )
 
-        self.health_history.append(health_record)
+    def _handle_circuit_breaker(self) -> None:
+        """Handle circuit breaker logic."""
+        failed_components = sum(
+            1 for c in self.components.values() if c.status == ComponentStatus.FAILED
+        )
 
-        # Keep only last 24 hours of history
-        cutoff = datetime.now() - timedelta(hours=24)
-        self.health_history = [],
-            record
-            for record in self.health_history
-        "
-            if datetime.fromisoformat(record["timestamp"]) > cutoff
-        ]
+        if failed_components >= self.failure_threshold:
+            if self.circuit_breaker_state == "CLOSED":
+                self.circuit_breaker_state = "OPEN"
+                self.logger.warning(
+                    "🚨 Circuit breaker opened - too many failed components"
+                )
+        elif failed_components < self.failure_threshold * 0.5:
+            if self.circuit_breaker_state == "OPEN":
+                self.circuit_breaker_state = "CLOSED"
+                self.logger.info("✅ Circuit breaker closed - system recovered")
 
-    def _handle_circuit_breaker(self)
-        AlertLevel, component str, message: str, context: Dict):
-):""Create a new alert."""
+    def _create_alert(
+        self, level: str, component: str, message: str, context: Dict[str, Any]
+    ) -> None:
+        """Create a new system alert."""
         alert = SystemAlert(
             level=level,
             component=component,
             message=message,
             timestamp=datetime.now(),
             context=context,
-        )"""
-        self.alerts.append(alert)"
-        self.logger.warning(f"Alert [{level.value}] {component}
-        {message}")
+        )
+        self.alerts.append(alert)
 
-    def _process_alerts(self)""Process and send alerts.""""
-        alert_levels = self.config["alerts"]["alert_levels"]"
-        webhook_url = self.config["alerts"]["slack_webhook"]
+        # Send to external systems if configured
+        if level in [AlertLevel.ERROR, AlertLevel.CRITICAL]:
+            self._send_slack_alert(alert)
 
-        if not webhook_url
-        return
+    def _send_slack_alert(self, alert: SystemAlert) -> None:
+        """Send alert to Slack if configured."""
+        webhook_url = self.config.get("alerts", {}).get("slack_webhook")
+        if webhook_url:
+            try:
+                import requests
 
-        # Process new alerts
-        for alert in self.alerts
-            if alert.level.value in alert_levels in self._send_slack_alert(alert)
+                payload = {
+                    "text": f"🚨 {alert.level.upper()}: {alert.component} - {alert.message}",
+                    "attachments": [
+                        {
+                            "fields": [
+                                {
+                                    "title": "Component",
+                                    "value": alert.component,
+                                    "short": True,
+                                },
+                                {"title": "Level", "value": alert.level, "short": True},
+                                {
+                                    "title": "Time",
+                                    "value": alert.timestamp.strftime(
+                                        "%Y-%m-%d %H:%M:%S"
+                                    ),
+                                    "short": True,
+                                },
+                            ]
+                        }
+                    ],
+                }
+                requests.post(webhook_url, json=payload, timeout=5)
+            except Exception as e:
+                self.logger.error(f"Failed to send Slack alert: {e}")
 
-        # Mark alerts as processed
-        self.alerts = []
-
-    def _send_slack_alert(self, alert
-        SystemAlert)""Send alert to Slack."""
-        try: "#ff0000","
-                AlertLevel.CRITICAL
-        "#8b0000",
-            }
-
-            payload = {attachments"
-        [],
-                    {"
-                        "color" color_map.get(alert.level, "#000000"),title" f"🚨 System Alert: {alert.component}",text": alert.message,"
-                        "fields": [],
-                            {title": "Level",value": alert.level.value.upper(),"
-                                "short": True,
-                            },
-                            {title": "Component",value": alert.component,"
-                                "short": True,
-                            },
-                            {title": "Timestamp",value": alert.timestamp.strftime("%Y-%m-%d %H:%M:%S"),short": True,
-                            },
-                        ],"
-                        "footer": "GPT-Cursor Runner System Monitor",
-                    }
+    def _alert_loop(self) -> None:
+        """Alert processing loop."""
+        while self.is_running:
+            try:
+                # Clean up old alerts
+                current_time = datetime.now()
+                self.alerts = [
+                    alert
+                    for alert in self.alerts
+                    if (current_time - alert.timestamp).total_seconds()
+                    < self.alert_cleanup_interval
                 ]
-            }
 
-            response = requests.post(webhook_url, json=payload, timeout=10)
+                time.sleep(self.alert_cleanup_interval)
+            except Exception as e:
+                self.logger.error(f"Error in alert loop: {e}")
 
-            if response.status_code == 200
-        "
-                self.logger.info(f"Alert sent to Slack {alert.message}")
-            else:"
-            self.logger.error(f"Error sending Slack alert: {e}")
+    def get_system_status(self) -> Dict[str, Any]:
+        """Get current system status."""
+        return {
+            "status": "running" if self.is_running else "stopped",
+            "circuit_breaker": self.circuit_breaker_state,
+            "components": {
+                name: {
+                    "status": comp.status,
+                    "uptime": comp.uptime,
+                    "last_check": comp.last_check,
+                    "restart_count": comp.restart_count,
+                    "last_error": comp.last_error,
+                }
+                for name, comp in self.components.items()
+            },
+            "alerts_count": len(self.alerts),
+            "health_history": self.health_history[-10:],  # Last 10 entries
+        }
 
-    def _cleanup_old_alerts(self)
-        ""Clean up old alerts."""
-        cutoff = datetime.now() - timedelta(hours=1)
-        self.alerts = [alert for alert in self.alerts if alert.timestamp > cutoff]""
-def get_system_status(self) -> Dict
-        """Get current system status.""" return {timestamp"
-        datetime.now().isoformat(), "circuit_breaker" self.circuit_breaker_state,components" { name in asdict(comp) for name, comp in self.components.items() },"
-"alerts" alert.level.value, "component": alert.component, "message":"
-alert.message, "timestamp": alert.timestamp.isoformat(), } for alert in self.alerts in ],health_history": self.health_history[-10:], # Last 10 records } def"get_component_status(self, name: str) -> Optional[Dict]
-        """Get status of a specific"
-component.""" if name in self.components None,
-    main()
-"'
+
+if __name__ == "__main__":
+    monitor = SystemMonitor()
+    try:
+        monitor.start()
+        # Keep running until interrupted
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        monitor.stop()
+        print("System monitor stopped by user")

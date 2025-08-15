@@ -1,13 +1,46 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import json
+import time
+from dataclasses import dataclass, asdict
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+
 """
 Patch Metrics for GPT-Cursor Runner.
 Tracks time-to-apply, matches found, patch complexity, and performance metrics.
 """
-
-import time
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -44,7 +77,7 @@ class PerformanceMetrics:
 class PatchMetricsTracker:
     """Tracks and analyzes patch metrics."""
 
-    def __init__(self, metrics_file: str = "patch_metrics.json"):
+    def __init__(self, metrics_file: str = "patch_metrics.json") -> None:
         self.metrics_file = metrics_file
         self.metrics: List[PatchMetrics] = []
         self.start_time = datetime.now()
@@ -144,7 +177,7 @@ class PatchMetricsTracker:
         recent_metrics = [m for m in self.metrics if m.timestamp >= cutoff_time]
 
         # Group by hour
-        hourly_data = {}
+        hourly_data: Dict[datetime, List[int]] = {}
         for metric in recent_metrics:
             hour_key = metric.timestamp.replace(minute=0, second=0, microsecond=0)
             if hour_key not in hourly_data:
@@ -173,10 +206,13 @@ class PatchMetricsTracker:
             if m.timestamp >= cutoff_time and not m.success and m.error_message
         ]
 
-        error_counts = {}
+        error_counts: Dict[str, int] = {}
         for metric in recent_metrics:
-            error_type = self._categorize_error(metric.error_message)
-            error_counts[error_type] = error_counts.get(error_type, 0) + 1
+            if (
+                metric.error_message
+            ):  # Check for None before passing to _categorize_error
+                error_type = self._categorize_error(metric.error_message)
+                error_counts[error_type] = error_counts.get(error_type, 0) + 1
 
         return error_counts
 

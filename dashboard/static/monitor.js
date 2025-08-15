@@ -2,9 +2,9 @@
 
 async function loadStatus() {
   try {
-    const _res = await fetch('/api/status');
+    const _res = await fetch("/api/status");
     const _data = await res.json();
-    const _div = document.getElementById('status');
+    const _div = document.getElementById("status");
     div.innerHTML = `
       <h2>🔄 Refresh Status</h2>
       <p>Last Updated: ${new Date().toLocaleTimeString()}</p>
@@ -12,8 +12,9 @@ async function loadStatus() {
       <pre>${JSON.stringify(data, null, 2)}</pre>
     `;
   } catch (_e) {
-    document.getElementById('status').innerHTML = '<p style="color:red">❌ Failed to load status</p>';
+    document.getElementById("status").innerHTML =
+      '<p style="color:red">❌ Failed to load status</p>';
   }
 }
 window.onload = loadStatus;
-setInterval(loadStatus, 10000); 
+setInterval(loadStatus, 10000);

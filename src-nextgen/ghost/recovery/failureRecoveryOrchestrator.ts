@@ -3,15 +3,15 @@
 
 export class FailureRecoveryOrchestrator {
   constructor() {
-    console.log('[FailureRecoveryOrchestrator] Initialized');
+    console.log("[FailureRecoveryOrchestrator] Initialized");
   }
-  
+
   public async start(): Promise<void> {
-    console.log('[FailureRecoveryOrchestrator] Started');
+    console.log("[FailureRecoveryOrchestrator] Started");
   }
-  
+
   public async stop(): Promise<void> {
-    console.log('[FailureRecoveryOrchestrator] Stopped');
+    console.log("[FailureRecoveryOrchestrator] Stopped");
   }
 }
 

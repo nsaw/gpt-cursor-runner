@@ -1,13 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import crypto from 'crypto';
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import crypto from "crypto";
 
 const execAsync = promisify(exec);
-const relayLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/gpt-relay.log';
-const relayStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/relay/relay-state.json';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-config.json';
+const relayLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/gpt-relay.log";
+const relayStatePath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/relay/relay-state.json";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-config.json";
 const logDir = path.dirname(relayLogPath);
 
 // Ensure directories exist
@@ -26,7 +29,7 @@ interface GptRequest {
   timestamp: string;
   command: string;
   context: any;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   timeout: number;
   maxRetries: number;
   retryCount: number;
@@ -113,13 +116,13 @@ class GhostGptRelayCore {
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        this.config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      console.error('[GhostGptRelayCorerror] Error loading config:', error);
+      console.error("[GhostGptRelayCorerror] Error loading config:", error);
       this.config = this.getDefaultConfig();
     }
   }
@@ -127,11 +130,11 @@ class GhostGptRelayCore {
   private getDefaultConfig(): RelayConfig {
     return {
       api: {
-        endpoint: 'https://api.openai.com/v1/chat/completions',
-        apiKey: process.env.OPENAI_API_KEY || '',
-        model: 'gpt-4',
+        endpoint: "https://api.openai.com/v1/chat/completions",
+        apiKey: process.env.OPENAI_API_KEY || "",
+        model: "gpt-4",
         maxTokens: 2048,
-        temperature: 0.7
+        temperature: 0.7,
       },
       safety: {
         enabled: true,
@@ -139,14 +142,14 @@ class GhostGptRelayCore {
         maxRetries: 3,
         retryDelayMs: 5000,
         maxConcurrentRequests: 5,
-        rateLimitPerMinute: 60
+        rateLimitPerMinute: 60,
       },
       sanitization: {
         enabled: true,
         removeScripts: true,
         removeCommands: true,
         maxResponseLength: 10000,
-        allowedCommands: ['help', 'status', 'info', 'version'],
+        allowedCommands: ["help", "status", "info", "version"],
         blockedPatterns: [
           /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
           /javascript:/gi,
@@ -154,15 +157,15 @@ class GhostGptRelayCore {
           /on\w+\s*=/gi,
           /eval\s*\(/gi,
           /exec\s*\(/gi,
-          /system\s*\(/gi
-        ]
+          /system\s*\(/gi,
+        ],
       },
       monitoring: {
         enabled: true,
         logAllRequests: true,
         logResponses: true,
-        metricsCollection: true
-      }
+        metricsCollection: true,
+      },
     };
   }
 
@@ -170,7 +173,7 @@ class GhostGptRelayCore {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      console.error('[GhostGptRelayCorerror] Error saving config:', error);
+      console.error("[GhostGptRelayCorerror] Error saving config:", error);
     }
   }
 
@@ -183,7 +186,7 @@ class GhostGptRelayCore {
       currentConcurrentRequests: 0,
       rateLimitHits: 0,
       lastRequestTime: new Date().toISOString(),
-      uptime: 0
+      uptime: 0,
     };
   }
 
@@ -191,7 +194,7 @@ class GhostGptRelayCore {
     this.rateLimiter = {
       requests: [],
       limit: this.config.safety.rateLimitPerMinute,
-      windowMs: 60000 // 1 minute
+      windowMs: 60000, // 1 minute
     };
   }
 
@@ -202,12 +205,12 @@ class GhostGptRelayCore {
   private isRateLimited(): boolean {
     const now = Date.now();
     const windowStart = now - this.rateLimiter.windowMs;
-    
+
     // Remove old requests outside the window
     this.rateLimiter.requests = this.rateLimiter.requests.filter(
-      req => req.timestamp > windowStart
+      (req) => req.timestamp > windowStart,
     );
-    
+
     return this.rateLimiter.requests.length >= this.rateLimiter.limit;
   }
 
@@ -215,7 +218,10 @@ class GhostGptRelayCore {
     this.rateLimiter.requests.push({ timestamp: Date.now() });
   }
 
-  private sanitizeResponse(content: string): { sanitized: string; wasSanitized: boolean } {
+  private sanitizeResponse(content: string): {
+    sanitized: string;
+    wasSanitized: boolean;
+  } {
     if (!this.config.sanitization.enabled) {
       return { sanitized: content, wasSanitized: false };
     }
@@ -226,16 +232,17 @@ class GhostGptRelayCore {
     // Remove blocked patterns
     for (const pattern of this.config.sanitization.blockedPatterns) {
       if (pattern.test(sanitized)) {
-        sanitized = sanitized.replace(pattern, '[SANITIZED]');
+        sanitized = sanitized.replace(pattern, "[SANITIZED]");
         wasSanitized = true;
       }
     }
 
     // Remove scripts if enabled
     if (this.config.sanitization.removeScripts) {
-      const scriptPattern = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+      const scriptPattern =
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
       if (scriptPattern.test(sanitized)) {
-        sanitized = sanitized.replace(scriptPattern, '[SCRIPT_REMOVED]');
+        sanitized = sanitized.replace(scriptPattern, "[SCRIPT_REMOVED]");
         wasSanitized = true;
       }
     }
@@ -248,10 +255,10 @@ class GhostGptRelayCore {
         for (const match of matches) {
           const command = match.slice(1, -1);
           const isAllowed = this.config.sanitization.allowedCommands.some(
-            allowed => command.toLowerCase().includes(allowed.toLowerCase())
+            (allowed) => command.toLowerCase().includes(allowed.toLowerCase()),
           );
           if (!isAllowed) {
-            sanitized = sanitized.replace(match, '[COMMAND_REMOVED]');
+            sanitized = sanitized.replace(match, "[COMMAND_REMOVED]");
             wasSanitized = true;
           }
         }
@@ -260,7 +267,11 @@ class GhostGptRelayCore {
 
     // Truncate if too long
     if (sanitized.length > this.config.sanitization.maxResponseLength) {
-      sanitized = sanitized.substring(0, this.config.sanitization.maxResponseLength) + '...[TRUNCATED]';
+      sanitized = sanitized.substring(
+        0,
+        this.config.sanitization.maxResponseLength,
+      );
+      ("...[TRUNCATED]");
       wasSanitized = true;
     }
 
@@ -269,17 +280,20 @@ class GhostGptRelayCore {
 
   private async makeGptRequest(request: GptRequest): Promise<GptResponse> {
     const startTime = Date.now();
-    
+
     try {
       // Check rate limiting
       if (this.isRateLimited()) {
         this.metrics.rateLimitHits++;
-        throw new Error('Rate limit exceeded');
+        throw new Error("Rate limit exceeded");
       }
 
       // Check concurrent request limit
-      if (this.metrics.currentConcurrentRequests >= this.config.safety.maxConcurrentRequests) {
-        throw new Error('Too many concurrent requests');
+      if (
+        this.metrics.currentConcurrentRequests >=
+        this.config.safety.maxConcurrentRequests
+      ) {
+        throw new Error("Too many concurrent requests");
       }
 
       this.metrics.currentConcurrentRequests++;
@@ -290,40 +304,46 @@ class GhostGptRelayCore {
         model: this.config.api.model,
         messages: [
           {
-            role: 'system',
-            content: 'You are a helpful AI assistant integrated with the GHOST system. Provide clear, actionable responses.'
+            role: "system",
+            content:
+              "You are a helpful AI assistant integrated with the GHOST system. Provide clear, actionable responses.",
           },
           {
-            role: 'user',
-            content: request.command
-          }
+            role: "user",
+            content: request.command,
+          },
         ],
         max_tokens: this.config.api.maxTokens,
-        temperature: this.config.api.temperature
+        temperature: this.config.api.temperature,
       };
 
       // Make API call with timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.safety.timeoutMs);
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this.config.safety.timeoutMs,
+      );
 
       const response = await fetch(this.config.api.endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.api.apiKey}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.config.api.apiKey}`,
         },
         body: JSON.stringify(payload),
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
+      const content = data.choices?.[0]?.message?.content || "";
 
       // Sanitize response
       const { sanitized, wasSanitized } = this.sanitizeResponse(content);
@@ -338,31 +358,30 @@ class GhostGptRelayCore {
         content: sanitized,
         processingTime,
         tokensUsed: data.usage?.total_tokens,
-        sanitized: wasSanitized
+        sanitized: wasSanitized,
       };
 
       // Update metrics
       this.metrics.successfulRequests++;
-      this.metrics.averageResponseTime = 
+      this.metrics.averageResponseTime =
         (this.metrics.averageResponseTime + processingTime) / 2;
       this.metrics.lastRequestTime = gptResponse.timestamp;
 
       return gptResponse;
-
     } catch (error) {
       const processingTime = Date.now() - startTime;
-      
+
       this.metrics.failedRequests++;
-      
+
       const gptResponse: GptResponse = {
         id: `resp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         requestId: request.id,
         timestamp: new Date().toISOString(),
         success: false,
-        content: '',
+        content: "",
         error: error instanceof Error ? error.message : String(error),
         processingTime,
-        sanitized: false
+        sanitized: false,
       };
 
       return gptResponse;
@@ -384,7 +403,7 @@ class GhostGptRelayCore {
 
       // Log response
       if (this.config.monitoring.logResponses) {
-        const logEntry = `[${response.timestamp}] RESPONSE: ${response.id} | Success: ${response.success} | Time: ${response.processingTime}ms${response.sanitized ? ' | SANITIZED' : ''}\n`;
+        const logEntry = `[${response.timestamp}] RESPONSE: ${response.id} | Success: ${response.success} | Time: ${response.processingTime}ms${response.sanitized ? " | SANITIZED" : ""}\n`;
         fs.appendFileSync(relayLogPath, logEntry);
       }
 
@@ -398,18 +417,22 @@ class GhostGptRelayCore {
 
       // Remove from active requests
       this.activeRequests.delete(request.id);
-
     } catch (error) {
-      console.error(`[GhostGptRelayCorerror] Error processing request ${request.id}:`, error);
+      console.error(
+        `[GhostGptRelayCorerror] Error processing request ${request.id}:`,
+        error,
+      );
       this.activeRequests.delete(request.id);
     }
   }
 
   private async processQueue(): Promise<void> {
     try {
-      while (this.requestQueue.length > 0 && 
-             this.metrics.currentConcurrentRequests < this.config.safety.maxConcurrentRequests) {
-        
+      while (
+        this.requestQueue.length > 0 &&
+        this.metrics.currentConcurrentRequests <
+          this.config.safety.maxConcurrentRequests
+      ) {
         const request = this.requestQueue.shift();
         if (request) {
           this.activeRequests.set(request.id, request);
@@ -417,17 +440,20 @@ class GhostGptRelayCore {
         }
       }
     } catch (error) {
-      console.error('[GhostGptRelayCorerror] Error processing queuerror:', error);
+      console.error(
+        "[GhostGptRelayCorerror] Error processing queuerror:",
+        error,
+      );
     }
   }
 
   public async sendCommand(
     command: string,
     context: any = {},
-    priority: 'low' | 'medium' | 'high' | 'critical' = 'medium',
+    priority: "low" | "medium" | "high" | "critical" = "medium",
     timeout: number = this.config.safety.timeoutMs,
     maxRetries: number = this.config.safety.maxRetries,
-    source: string = 'unknown'
+    source: string = "unknown",
   ): Promise<string> {
     const request: GptRequest = {
       id: this.generateRequestId(),
@@ -438,7 +464,7 @@ class GhostGptRelayCore {
       timeout,
       maxRetries,
       retryCount: 0,
-      source
+      source,
     };
 
     this.metrics.totalRequests++;
@@ -450,10 +476,10 @@ class GhostGptRelayCore {
 
   public async start(): Promise<void> {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
-    console.log('[GhostGptRelayCorerror] Starting GPT relay corerror...');
-    
+    console.log("[GhostGptRelayCorerror] Starting GPT relay corerror...");
+
     // Start queue processing
     setInterval(async () => {
       if (this.isRunning) {
@@ -464,7 +490,7 @@ class GhostGptRelayCore {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    console.log('[GhostGptRelayCorerror] Stopping GPT relay corerror...');
+    console.log("[GhostGptRelayCorerror] Stopping GPT relay corerror...");
   }
 
   public getConfig(): RelayConfig {
@@ -489,7 +515,11 @@ class GhostGptRelayCore {
   }
 
   public isHealthy(): boolean {
-    return this.isRunning && this.metrics.failedRequests / Math.max(this.metrics.totalRequests, 1) < 0.1;
+    return (
+      this.isRunning &&
+      this.metrics.failedRequests / Math.max(this.metrics.totalRequests, 1) <
+        0.1
+    );
   }
 }
 

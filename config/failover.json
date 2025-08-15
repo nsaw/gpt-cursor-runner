@@ -1,0 +1,23 @@
+{
+  "slack": [
+    "ghost-bridge.example.com",
+    "ghost-bridge-2.example.com",
+    "ghost-bridge-3.example.com"
+  ],
+  "dashboard": [
+    "ghost-dashboard.example.com",
+    "ghost-dashboard-2.example.com",
+    "ghost-dashboard-3.example.com"
+  ],
+  "expo": [
+    "ghost-expo.example.com",
+    "ghost-expo-2.example.com",
+    "ghost-expo-3.example.com"
+  ],
+  "health": {
+    "slack": "http://127.0.0.1:5051/health",
+    "dashboard": "http://127.0.0.1:8787/health",
+    "expo": "http://127.0.0.1:19000/status"
+  },
+  "cooldowns": { "primaryMs": 5000, "secondaryMs": 8000, "tertiaryMs": 12000 }
+}

@@ -1,3 +1,56 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Dashboard Daemon
@@ -6,8 +59,8 @@ Dashboard Daemon
 A proper daemon entry point for the comprehensive dashboard that provides
 system monitoring and management capabilities.
 
-Author: ThoughtPilot Team
-Version: 1.0.0
+Author: ThoughtPilot Team"""
+Version: 1.0.0""""""""
 """
 
 import os
@@ -26,8 +79,8 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from gpt_cursor_runner.dashboard import create_dashboard_routes
-except ImportError as e:
+    from gpt_cursor_runner.dashboard import create_dashboard_routes"""
+except ImportError as e:""""""""
     print(f"Import error: {e}")
     print("Make sure all required modules are available")
     sys.exit(1)
@@ -46,7 +99,7 @@ logger = logging.getLogger(__name__)
 
 class DashboardDaemon:
     """Main daemon class for dashboard management."""
-    
+    """
     def __init__(self, port: int = 3002, host: str = "localhost"):
         self.port = port
         self.host = host
@@ -61,7 +114,7 @@ class DashboardDaemon:
     
     def start(self):
         """Start the dashboard daemon."""
-        self.running = True
+        self.running = True"""
         logger.info("Dashboard Daemon started")
         
         # Set up signal handlers
@@ -94,7 +147,7 @@ class DashboardDaemon:
         self.running = False
         if self.dashboard:
             try:
-                self.dashboard.shutdown()
+                self.dashboard.shutdown()"""
                 logger.info("Dashboard shutdown completed")
             except Exception as e:
                 logger.error(f"Error during dashboard shutdown: {e}")
@@ -102,7 +155,7 @@ class DashboardDaemon:
         logger.info("Dashboard Daemon stopped")
     
     def _signal_handler(self, signum, frame):
-        """Handle shutdown signals."""
+        """Handle shutdown signals.""""""""
         logger.info(f"Received signal {signum}, shutting down...")
         self.stop()
     
@@ -113,7 +166,7 @@ class DashboardDaemon:
             from flask import Flask
             self.app = Flask(__name__)
             create_dashboard_routes(self.app)
-            
+            """
             logger.info("Dashboard initialized successfully")
             
         except Exception as e:
@@ -122,7 +175,7 @@ class DashboardDaemon:
     
     def _run_dashboard(self):
         """Run the dashboard in a separate thread."""
-        try:
+        try:"""
             logger.info(f"Starting dashboard on {self.host}:{self.port}")
             self.app.run(host=self.host, port=self.port, debug=False)
         except Exception as e:
@@ -133,7 +186,7 @@ class DashboardDaemon:
         """Perform health check on dashboard."""
         try:
             # Simple health check - if app exists, consider it healthy
-            if hasattr(self, 'app') and self.app:
+            if hasattr(self, 'app') and self.app:"""
                 logger.debug("Dashboard health check: OK")
             else:
                 logger.warning("Dashboard health check: FAILED")
@@ -144,7 +197,7 @@ class DashboardDaemon:
     
     def _restart_dashboard(self):
         """Restart the dashboard."""
-        try:
+        try:"""
             logger.info("Restarting dashboard...")
             
             # Reinitialize dashboard
@@ -162,7 +215,7 @@ class DashboardDaemon:
 
 
 def main():
-    """Main entry point."""
+    """Main entry point.""""""""
     parser = argparse.ArgumentParser(description="Dashboard Daemon")
     parser.add_argument(
         "--port",

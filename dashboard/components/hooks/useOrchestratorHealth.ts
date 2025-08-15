@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 export interface OrchestrationComponent {
-  status: 'active' | 'idle' | 'error' | 'unknown';
+  status: "active" | "idle" | "error" | "unknown";
   lastCheck: string;
   error?: string;
 }
@@ -38,7 +38,7 @@ export interface OrchestrationData {
   executor: ExecutorState;
   selfcheck: SelfCheckState;
   lifecycle: LifecycleState;
-  overallHealth: 'healthy' | 'warning' | 'critical';
+  overallHealth: "healthy" | "warning" | "critical";
   activeComponents: number;
   errorComponents: number;
   totalComponents: number;
@@ -56,21 +56,24 @@ const DEFAULT_OPTIONS: Required<UseOrchestratorHealthOptions> = {
   pollingInterval: 10000, // 10 seconds for orchestration
   retryAttempts: 3,
   retryDelay: 2000,
-  onError: (error) => console.error('[useOrchestratorHealth] Error:', error)
+  onError: (error) => console.error("[useOrchestratorHealth] Error:", error),
 };
 
 function calculateBackoffDelay(attempt: number, baseDelay: number): number {
   return Math.min(baseDelay * Math.pow(2, attempt), 30000);
 }
 
-async function fetchWithTimeout(url: string, timeout: number = 10000): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  timeout: number = 10000,
+): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     clearTimeout(timeoutId);
     return response;
@@ -80,14 +83,16 @@ async function fetchWithTimeout(url: string, timeout: number = 10000): Promise<R
   }
 }
 
-export function useOrchestratorHealth(options: UseOrchestratorHealthOptions = {}): {
+export function useOrchestratorHealth(
+  options: UseOrchestratorHealthOptions = {},
+): {
   data: OrchestrationData | null;
   loading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 } {
   const config = { ...DEFAULT_OPTIONS, ...options };
-  
+
   const [data, setData] = useState<OrchestrationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -98,30 +103,32 @@ export function useOrchestratorHealth(options: UseOrchestratorHealthOptions = {}
       setLoading(true);
       setError(null);
 
-      const response = await fetchWithTimeout('/api/orchestrator/status', 10000);
-      
+      const response = await fetchWithTimeout(
+        "/api/orchestrator/status",
+        10000,
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const responseData = await response.json();
-      
-      if (responseData.status === 'success') {
+
+      if (responseData.status === "success") {
         setData(responseData.data);
         setRetryCount(0);
       } else {
-        throw new Error(responseData.error || 'Unknown orchestration error');
+        throw new Error(responseData.error || "Unknown orchestration error");
       }
-      
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
+      const error = err instanceof Error ? err : new Error("Unknown error");
       setError(error);
-      
+
       if (retryCount < config.retryAttempts) {
         const delay = calculateBackoffDelay(retryCount, config.retryDelay);
-        
+
         setTimeout(() => {
-          setRetryCount(prev => prev + 1);
+          setRetryCount((prev) => prev + 1);
           fetchOrchestratorHealth();
         }, delay);
       } else {
@@ -153,45 +160,55 @@ export function useOrchestratorHealth(options: UseOrchestratorHealthOptions = {}
     data,
     loading,
     error,
-    refetch
+    refetch,
   };
 }
 
-export function useComponentHealth(componentName: keyof OrchestrationData, options: UseOrchestratorHealthOptions = {}): {
+export function useComponentHealth(
+  componentName: keyof OrchestrationData,
+  options: UseOrchestratorHealthOptions = {},
+): {
   component: OrchestrationComponent | null;
   loading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 } {
   const { data, loading, error, refetch } = useOrchestratorHealth(options);
-  
-  const component = data && componentName in data ? data[componentName] as OrchestrationComponent : null;
-  
+
+  const component =
+    data && componentName in data
+      ? (data[componentName] as OrchestrationComponent)
+      : null;
+
   return {
     component,
     loading,
     error,
-    refetch
+    refetch,
   };
 }
 
-export function useOrchestrationHealth(options: UseOrchestratorHealthOptions = {}): {
-  health: 'healthy' | 'warning' | 'critical' | null;
+export function useOrchestrationHealth(
+  options: UseOrchestratorHealthOptions = {},
+): {
+  health: "healthy" | "warning" | "critical" | null;
   loading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 } {
   const { data, loading, error, refetch } = useOrchestratorHealth(options);
-  
+
   return {
     health: data?.overallHealth || null,
     loading,
     error,
-    refetch
+    refetch,
   };
 }
 
-export function useOrchestrationStats(options: UseOrchestratorHealthOptions = {}): {
+export function useOrchestrationStats(
+  options: UseOrchestratorHealthOptions = {},
+): {
   stats: {
     activeComponents: number;
     errorComponents: number;
@@ -203,18 +220,22 @@ export function useOrchestrationStats(options: UseOrchestratorHealthOptions = {}
   refetch: () => Promise<void>;
 } {
   const { data, loading, error, refetch } = useOrchestratorHealth(options);
-  
-  const stats = data ? {
-    activeComponents: data.activeComponents,
-    errorComponents: data.errorComponents,
-    totalComponents: data.totalComponents,
-    healthPercentage: Math.round((data.activeComponents / data.totalComponents) * 100)
-  } : null;
-  
+
+  const stats = data
+    ? {
+        activeComponents: data.activeComponents,
+        errorComponents: data.errorComponents,
+        totalComponents: data.totalComponents,
+        healthPercentage: Math.round(
+          (data.activeComponents / data.totalComponents) * 100,
+        ),
+      }
+    : null;
+
   return {
     stats,
     loading,
     error,
-    refetch
+    refetch,
   };
-} 
+}

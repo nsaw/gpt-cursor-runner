@@ -3,54 +3,52 @@ module.exports = {
     node: true,
     es2021: true,
   },
-  extends: [
-    'eslint:recommended',
-  ],
+  extends: ["eslint:recommended"],
   parserOptions: {
     ecmaVersion: 2021,
-    sourceType: 'module',
+    sourceType: "module",
   },
   rules: {
     // Code style
-    'indent': ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    
+    indent: ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    quotes: ["error", "single"],
+    semi: ["error", "always"],
+
     // Best practices
-    'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
-    'no-console': 'off', // Allow console.log for scripts
-    'no-debugger': 'warn',
-    
+    "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "no-console": "off", // Allow console.log for scripts
+    "no-debugger": "warn",
+
     // Node.js specific
-    'no-process-exit': 'warn',
-    'no-path-concat': 'error',
-    
+    "no-process-exit": "warn",
+    "no-path-concat": "error",
+
     // ES6+
-    'prefer-const': 'error',
-    'no-var': 'error',
-    'arrow-spacing': 'error',
-    
+    "prefer-const": "error",
+    "no-var": "error",
+    "arrow-spacing": "error",
+
     // Code quality
-    'complexity': ['warn', 10],
-    'max-depth': ['warn', 4],
-    'max-lines': ['warn', 300],
-    'max-params': ['warn', 5],
-    
+    complexity: ["warn", 10],
+    "max-depth": ["warn", 4],
+    "max-lines": ["warn", 300],
+    "max-params": ["warn", 5],
+
     // Allow async/await
-    'require-await': 'warn',
-    
+    "require-await": "warn",
+
     // Allow template literals
-    'prefer-template': 'error',
-    
+    "prefer-template": "error",
+
     // Allow object shorthand
-    'object-shorthand': 'error',
+    "object-shorthand": "error",
   },
   globals: {
     // Common globals for Node.js scripts
-    'process': 'readonly',
-    'Buffer': 'readonly',
-    '__dirname': 'readonly',
-    '__filename': 'readonly',
+    process: "readonly",
+    Buffer: "readonly",
+    __dirname: "readonly",
+    __filename: "readonly",
   },
-}; 
+};

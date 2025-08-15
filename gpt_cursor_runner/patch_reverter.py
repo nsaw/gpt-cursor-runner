@@ -1,19 +1,52 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import os
+import shutil
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
 """
 Patch Reverter for GPT-Cursor Runner.
 Reverts patches by patch_id or timestamp with automatic backup management.
 """
 
-import os
-import shutil
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from pathlib import Path
-
 
 class PatchReverter:
     """Handles patch reversion with backup management."""
 
-    def __init__(self, backup_dir: str = "backups", max_backups: int = 100):
+    def __init__(self, backup_dir: str = "backups", max_backups: int = 100) -> None:
         self.backup_dir = Path(backup_dir)
         self.max_backups = max_backups
         self.backup_dir.mkdir(exist_ok=True)
@@ -198,7 +231,7 @@ class PatchReverter:
             except Exception:
                 pass  # Ignore errors during cleanup
 
-    def list_backups(self, target_file: str = None) -> List[Dict[str, Any]]:
+    def list_backups(self, target_file: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         List available backups.
 
@@ -242,7 +275,7 @@ class PatchReverter:
                 continue
 
         # Sort by modification time (newest first)
-        backups.sort(key=lambda x: x["modified"], reverse=True)
+        backups.sort(key=lambda x: str(x["modified"]), reverse=True)
         return backups
 
     def get_backup_info(self, backup_file: str) -> Optional[Dict[str, Any]]:

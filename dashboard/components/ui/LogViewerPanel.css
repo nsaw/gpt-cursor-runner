@@ -137,7 +137,7 @@
 }
 
 .log-entries {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 12px;
   line-height: 1.4;
 }
@@ -246,22 +246,22 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .log-controls {
     justify-content: space-between;
   }
-  
+
   .control-group {
     flex: 1;
   }
-  
+
   .log-stats {
     justify-content: space-between;
   }
-  
+
   .panel-footer {
     flex-direction: column;
     gap: 4px;
     text-align: center;
   }
-} 
+}

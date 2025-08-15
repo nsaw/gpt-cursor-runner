@@ -1,3 +1,10 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Union, Any, Tuple
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 File Watcher Daemon for GPT-Cursor Runner.
@@ -5,12 +12,6 @@ File Watcher Daemon for GPT-Cursor Runner.
 Monitors Cursor files for changes and triggers appropriate actions.
 """
 
-import os
-import time
-import argparse
-from datetime import datetime
-from typing import List, Optional
-from watchdog.events import FileSystemEventHandler
 
 # Import logging system
 try:
@@ -56,27 +57,27 @@ class CursorFileHandler(FileSystemEventHandler):
                 return False
         return True
 
-    def on_created(self, event):
+    def on_created(self, event) -> None:
         """Handle file creation events."""
         if not event.is_directory and self.should_watch_file(event.src_path):
             self._handle_file_event("created", event.src_path)
 
-    def on_modified(self, event):
+    def on_modified(self, event) -> None:
         """Handle file modification events."""
         if not event.is_directory and self.should_watch_file(event.src_path):
             self._handle_file_event("modified", event.src_path)
 
-    def on_deleted(self, event):
+    def on_deleted(self, event) -> None:
         """Handle file deletion events."""
         if not event.is_directory and self.should_watch_file(event.src_path):
             self._handle_file_event("deleted", event.src_path)
 
-    def on_moved(self, event):
+    def on_moved(self, event) -> None:
         """Handle file move/rename events."""
         if not event.is_directory and self.should_watch_file(event.src_path):
             self._handle_file_event("moved", event.src_path)
 
-    def _handle_file_event(self, event_type: str, file_path: str):
+    def _handle_file_event(self, event_type: str, file_path: str) -> None:
         """Handle file events with deduplication."""
         current_time = time.time()
         event_key = f"{event_type}_{file_path}"
@@ -100,13 +101,14 @@ class CursorFileHandler(FileSystemEventHandler):
         # Trigger appropriate actions
         self._trigger_actions(event_type, file_path)
 
-    def _log_file_event(self, event_type: str, file_path: str):
+    def _log_file_event(self, event_type: str, file_path: str) -> None:
         """Log file event."""
         event_data = {
             "timestamp": datetime.now().isoformat(),
             "event_type": event_type,
             "file_path": file_path,
             "file_size": os.path.getsize(file_path) if os.path.exists(file_path) else 0,
+    
         }
 
         if EVENT_LOGGER:
@@ -114,7 +116,7 @@ class CursorFileHandler(FileSystemEventHandler):
         else:
             print(f"File event: {event_type} - {file_path}")
 
-    def _trigger_actions(self, event_type: str, file_path: str):
+    def _trigger_actions(self, event_type: str, file_path: str) -> None:
         """Trigger appropriate actions based on file event."""
         try:
             # Notify Slack for important changes
@@ -141,7 +143,7 @@ class CursorFileHandler(FileSystemEventHandler):
         """Check if file should trigger test run."""
         return "test" in file_path.lower() or file_path.endswith("_test.py")
 
-    def _trigger_auto_patch(self, file_path: str):
+    def _trigger_auto_patch(self, file_path: str) -> None:
         """Trigger auto-patch for file."""
         try:
             patch_data = {
@@ -167,7 +169,7 @@ class CursorFileHandler(FileSystemEventHandler):
         except Exception as e:
             print(f"Error in auto-patch for {file_path}: {e}")
 
-    def _trigger_test_run(self, file_path: str):
+    def _trigger_test_run(self, file_path: str) -> None:
         """Trigger test run for file."""
         try:
             print(f"🧪 Test run triggered for {file_path}")
@@ -179,13 +181,13 @@ class CursorFileHandler(FileSystemEventHandler):
 class SummaryWatcher:
     """Summary watcher for monitoring summary files."""
 
-    def __init__(self, summary_directories: List[str], check_interval: int = 30):
+    def __init__(self, summary_directories: List[str], check_interval: int = 30) -> None:
         self.summary_directories = summary_directories
         self.check_interval = check_interval
         self.running = False
         self.last_check = {}
 
-    def start(self):
+    def start(self) -> None:
         """Start the summary watcher."""
         self.running = True
         print("📝 Summary Watcher started")
@@ -194,12 +196,12 @@ class SummaryWatcher:
             self._check_summaries()
             time.sleep(self.check_interval)
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the summary watcher."""
         self.running = False
         print("📝 Summary Watcher stopped")
 
-    def _check_summaries(self):
+    def _check_summaries(self) -> None:
         """Check for new summaries and post them."""
         for directory in self.summary_directories:
             try:
@@ -226,7 +228,7 @@ class SummaryWatcher:
             except Exception as e:
                 print(f"Error checking summaries in {directory}: {e}")
 
-    def _process_summary(self, file_path: str, filename: str):
+    def _process_summary(self, file_path: str, filename: str) -> None:
         """Process a summary file."""
         try:
             print(f"📝 Processing summary: {filename}")
@@ -236,7 +238,7 @@ class SummaryWatcher:
             print(f"Error processing summary {filename}: {e}")
 
 
-def main():
+def main() -> None:
     """Main entry point for summary watcher."""
     parser = argparse.ArgumentParser(description="Summary Watcher")
     parser.add_argument(

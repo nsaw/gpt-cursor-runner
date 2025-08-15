@@ -1,3 +1,21 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 GHOST RUNNER Dashboard
@@ -5,7 +23,7 @@ Flask-based web dashboard for real-time monitoring
 Simple, dark, modern UI with no authentication required
 """
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, redirect, request
 import json
 import os
 import time
@@ -26,7 +44,29 @@ CONFIG = {
     "CYOPS_SUMMARIES": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
     "MAIN_PATCHES": "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches",
     "MAIN_SUMMARIES": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries",
-    "TELEMETRY_API_URL": "http://localhost:8789",
+    "TELEMETRY_API_URL": "http://localhost:8788",
+}
+
+# Tunnel Failover Configuration
+TUNNEL_FAILOVER = {
+    "dashboard": {
+        "primary": "https://gpt-cursor-runner.thoughtmarks.app",
+        "secondary": "https://health-thoughtmarks.thoughtmarks.app",
+        "tertiary": "https://ghost-thoughtmarks.thoughtmarks.app",
+        "local": "http://localhost:8787",
+    },
+    "slack": {
+        "primary": "https://slack.thoughtmarks.app",
+        "secondary": "https://webhook-thoughtmarks.thoughtmarks.app",
+        "tertiary": "https://ghost-thoughtmarks.thoughtmarks.app",
+        "local": "http://localhost:5051",
+    },
+    "expo": {
+        "primary": "https://expo-thoughtmarks.thoughtmarks.app",
+        "secondary": "https://deciding-externally-caiman.ngrok-free.app",
+        "tertiary": "https://dev-thoughtmarks.thoughtmarks.app",
+        "local": "http://localhost:9091",
+    },
 }
 
 
@@ -242,7 +282,7 @@ def index() -> str:
 
 @app.route("/monitor")
 def monitor() -> str:
-    return render_template("dashboard.html")
+    return render_template("monitor-enhanced.html")
 
 
 @app.route("/api/status")
@@ -253,6 +293,12 @@ def get_status() -> Any:
 
 @app.route("/api/health")
 def health_check() -> Any:
+    return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
+
+
+@app.route("/health")
+def health_check_alias() -> Any:
+    """Alias to /api/health for standard health probes"""
     return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
 
 
@@ -969,6 +1015,140 @@ def get_service_logs() -> Any:
         )
 
 
+# Error Handlers for Tunnel Failover
+@app.errorhandler(503)
+def handle_cloudflare_error(error: Any) -> Any:
+    """Handle Cloudflare Error 1033 and tunnel failures"""
+    try:
+        # Log the error
+        error_log = {
+            "error": "Cloudflare Error 1033 or tunnel failure",
+            "timestamp": datetime.now().isoformat(),
+            "path": request.path,
+            "method": request.method,
+            "user_agent": request.headers.get("User-Agent", ""),
+        }
+
+        # Write to error log
+        with open(
+            "/Users/sawyer/gitSync/gpt-cursor-runner/logs/tunnel-errors.log", "a"
+        ) as f:
+            f.write(json.dumps(error_log) + "\n")
+
+        # Determine which tunnel to try based on the request path
+        if "/monitor" in request.path or "/api/" in request.path:
+            tunnel_config = TUNNEL_FAILOVER["dashboard"]
+        elif "/slack/" in request.path or "/webhook" in request.path:
+            tunnel_config = TUNNEL_FAILOVER["slack"]
+        elif "/expo" in request.path or "/metro" in request.path:
+            tunnel_config = TUNNEL_FAILOVER["expo"]
+        else:
+            tunnel_config = TUNNEL_FAILOVER["dashboard"]
+
+        # Try secondary tunnel
+        try:
+            secondary_url = f"{tunnel_config['secondary']}{request.path}"
+            response = requests.get(secondary_url, timeout=10)
+            if response.status_code == 200:
+                return redirect(secondary_url, code=302)
+        except Exception:
+            pass
+
+        # Try tertiary tunnel
+        try:
+            tertiary_url = f"{tunnel_config['tertiary']}{request.path}"
+            response = requests.get(tertiary_url, timeout=10)
+            if response.status_code == 200:
+                return redirect(tertiary_url, code=302)
+        except Exception:
+            pass
+
+        # All tunnels failed - return error with retry info
+        return (
+            jsonify(
+                {
+                    "error": "All tunnels unavailable",
+                    "retry_after": 30,
+                    "fallback_urls": [
+                        tunnel_config["secondary"],
+                        tunnel_config["tertiary"],
+                    ],
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            503,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": f"Tunnel failover error: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            503,
+        )
+
+
+@app.errorhandler(502)
+def handle_bad_gateway(error: Any) -> Any:
+    """Handle 502 Bad Gateway (tunnel connectivity issues)"""
+    return handle_cloudflare_error(error)
+
+
+@app.errorhandler(504)
+def handle_gateway_timeout(error: Any) -> Any:
+    """Handle 504 Gateway Timeout (tunnel timeout issues)"""
+    return handle_cloudflare_error(error)
+
+
+# Tunnel Health Check Endpoint
+@app.route("/api/tunnel-health")
+def get_tunnel_health() -> Any:
+    """Check health of all tunnel endpoints"""
+    try:
+        tunnel_health = {}
+
+        for service, config in TUNNEL_FAILOVER.items():
+            service_health = {}
+
+            for tunnel_type, url in config.items():
+                try:
+                    response = requests.get(f"{url}/health", timeout=10)
+                    service_health[tunnel_type] = {
+                        "status": (
+                            "healthy" if response.status_code == 200 else "unhealthy"
+                        ),
+                        "response_time": response.elapsed.total_seconds(),
+                        "status_code": response.status_code,
+                    }
+                except Exception as e:
+                    service_health[tunnel_type] = {
+                        "status": "unhealthy",
+                        "error": str(e),
+                        "response_time": None,
+                        "status_code": None,
+                    }
+
+            tunnel_health[service] = service_health
+
+        return jsonify(
+            {"tunnel_health": tunnel_health, "timestamp": datetime.now().isoformat()}
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": f"Error checking tunnel health: {str(e)}",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
 def start_background_updates() -> None:
     """Start background thread for updating dashboard data"""
 
@@ -988,3 +1168,56 @@ def start_background_updates() -> None:
 if __name__ == "__main__":
     start_background_updates()
     app.run(host="0.0.0.0", port=8787, debug=False)
+
+
+@app.route("/monitor")
+def g2o_monitor_min():
+    from flask import render_template
+
+    return render_template("g2o_monitor.html")
+
+
+# === G2O_NOSTORE_START ===
+@app.after_request
+def g2o_no_store_headers(resp):
+    try:
+        path = request.path or ""
+        if path.startswith("/api/") or "text/html" in (
+            resp.headers.get("Content-Type", "").lower()
+        ):
+            resp.headers["Cache-Control"] = (
+                "no-store, no-cache, must-revalidate, max-age=0"
+            )
+            resp.headers["Pragma"] = "no-cache"
+            resp.headers["Expires"] = "0"
+    except Exception:
+        pass
+    return resp
+
+
+# === G2O_NOSTORE_END ===
+
+# === G2O MONITOR ROUTE (idempotent) ===
+try:
+    from flask import jsonify
+except Exception:
+    pass
+
+
+@app.route("/g2o/monitor")
+def g2o_monitor():
+    import os
+    import json
+
+    meta = "/Users/sawyer/gitSync/_GPTsync/meta/visual_validation.json"
+    png = "/Users/sawyer/gitSync/.cursor-cache/ROOT/.screenshots/g2o-monitor.png"
+    data = {"status": "UNKNOWN", "ts": None, "screenshot": None}
+    if os.path.exists(meta):
+        try:
+            with open(meta, "r") as f:
+                data = json.load(f)
+        except Exception:
+            pass
+    if os.path.exists(png):
+        data["screenshot"] = png
+    return jsonify(data)

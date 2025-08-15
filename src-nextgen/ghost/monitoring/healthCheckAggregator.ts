@@ -1,13 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
 
 const execAsync = promisify(exec);
-const aggregatorLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/health-aggregator.log';
-const healthStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/health/health-state.json';
-const dependencyMapPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/health/dependency-map.json';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/health-config.json';
+const aggregatorLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/health-aggregator.log";
+const healthStatePath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/health/health-state.json";
+const dependencyMapPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/health/dependency-map.json";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/health-config.json";
 const logDir = path.dirname(aggregatorLogPath);
 
 // Ensure directories exist
@@ -24,7 +28,7 @@ if (!fs.existsSync(path.dirname(configPath))) {
 interface ComponentHealth {
   id: string;
   name: string;
-  status: 'healthy' | 'degraded' | 'critical' | 'failed' | 'unknown';
+  status: "healthy" | "degraded" | "critical" | "failed" | "unknown";
   healthScore: number; // 0-100
   lastCheck: string;
   responseTime: number;
@@ -50,7 +54,7 @@ interface ComponentHealth {
 interface HealthAlert {
   id: string;
   timestamp: string;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  severity: "info" | "warning" | "error" | "critical";
   message: string;
   component: string;
   metric: string;
@@ -62,18 +66,18 @@ interface HealthAlert {
 interface DependencyNode {
   id: string;
   name: string;
-  type: 'component' | 'service' | 'external';
+  type: "component" | "service" | "external";
   health: ComponentHealth;
   dependencies: string[];
   dependents: string[];
-  criticality: 'low' | 'medium' | 'high' | 'critical';
+  criticality: "low" | "medium" | "high" | "critical";
   failureImpact: string[];
 }
 
 interface SystemHealth {
   timestamp: string;
   overallScore: number;
-  status: 'healthy' | 'degraded' | 'critical' | 'failed';
+  status: "healthy" | "degraded" | "critical" | "failed";
   components: Map<string, ComponentHealth>;
   alerts: HealthAlert[];
   dependencies: Map<string, DependencyNode>;
@@ -84,7 +88,7 @@ interface SystemHealth {
 interface HealthPrediction {
   id: string;
   component: string;
-  prediction: 'stable' | 'degrading' | 'failing' | 'recovering';
+  prediction: "stable" | "degrading" | "failing" | "recovering";
   confidence: number;
   timeToFailure?: number;
   timeToRecovery?: number;
@@ -169,13 +173,13 @@ class HealthCheckAggregator {
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        this.config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      console.error('[HealthCheckAggregator] Error loading config:', error);
+      console.error("[HealthCheckAggregator] Error loading config:", error);
       this.config = this.getDefaultConfig();
     }
   }
@@ -186,7 +190,7 @@ class HealthCheckAggregator {
         enabled: true,
         checkInterval: 30000,
         timeout: 10000,
-        maxConcurrentChecks: 10
+        maxConcurrentChecks: 10,
       },
       scoring: {
         enabled: true,
@@ -195,38 +199,38 @@ class HealthCheckAggregator {
           errorRate: 0.3,
           throughput: 0.2,
           resourceUsage: 0.2,
-          uptime: 0.1
+          uptime: 0.1,
         },
         thresholds: {
           healthy: 80,
           degraded: 60,
-          critical: 30
-        }
+          critical: 30,
+        },
       },
       dependencies: {
         enabled: true,
         autoDiscovery: true,
         cascadeDetection: true,
-        impactAnalysis: true
+        impactAnalysis: true,
       },
       prediction: {
         enabled: true,
         historicalDataPoints: 100,
         predictionWindow: 300000,
-        confidenceThreshold: 0.7
+        confidenceThreshold: 0.7,
       },
       routing: {
         enabled: true,
         healthBasedRouting: true,
         loadBalancing: true,
-        failover: true
+        failover: true,
       },
       dashboard: {
         enabled: true,
         realTimeUpdates: true,
         historicalTrends: true,
-        alerting: true
-      }
+        alerting: true,
+      },
     };
   }
 
@@ -234,7 +238,7 @@ class HealthCheckAggregator {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      console.error('[HealthCheckAggregator] Error saving config:', error);
+      console.error("[HealthCheckAggregator] Error saving config:", error);
     }
   }
 
@@ -242,12 +246,12 @@ class HealthCheckAggregator {
     this.systemHealth = {
       timestamp: new Date().toISOString(),
       overallScore: 100,
-      status: 'healthy',
+      status: "healthy",
       components: new Map(),
       alerts: [],
       dependencies: new Map(),
       predictions: [],
-      recommendations: []
+      recommendations: [],
     };
   }
 
@@ -255,76 +259,79 @@ class HealthCheckAggregator {
     // Initialize with known Ghost components
     const ghostComponents = [
       {
-        id: 'ghost-sentinel-guard',
-        name: 'Ghost Sentinel Guard',
-        type: 'component' as const,
-        criticality: 'critical' as const,
+        id: "ghost-sentinel-guard",
+        name: "Ghost Sentinel Guard",
+        type: "component" as const,
+        criticality: "critical" as const,
         dependencies: [],
-        dependents: ['ghost-watchdog-loop', 'ghost-executor-unifier']
+        dependents: ["ghost-watchdog-loop", "ghost-executor-unifier"],
       },
       {
-        id: 'ghost-watchdog-loop',
-        name: 'Ghost Watchdog Loop',
-        type: 'component' as const,
-        criticality: 'high' as const,
-        dependencies: ['ghost-sentinel-guard'],
-        dependents: ['ghost-lifecycle-governor']
+        id: "ghost-watchdog-loop",
+        name: "Ghost Watchdog Loop",
+        type: "component" as const,
+        criticality: "high" as const,
+        dependencies: ["ghost-sentinel-guard"],
+        dependents: ["ghost-lifecycle-governor"],
       },
       {
-        id: 'ghost-executor-unifier',
-        name: 'Ghost Executor Unifier',
-        type: 'component' as const,
-        criticality: 'high' as const,
-        dependencies: ['ghost-sentinel-guard'],
-        dependents: ['ghost-self-check-core']
+        id: "ghost-executor-unifier",
+        name: "Ghost Executor Unifier",
+        type: "component" as const,
+        criticality: "high" as const,
+        dependencies: ["ghost-sentinel-guard"],
+        dependents: ["ghost-self-check-core"],
       },
       {
-        id: 'ghost-self-check-core',
-        name: 'Ghost Self Check Core',
-        type: 'component' as const,
-        criticality: 'medium' as const,
-        dependencies: ['ghost-executor-unifier'],
-        dependents: ['ghost-lifecycle-governor']
+        id: "ghost-self-check-core",
+        name: "Ghost Self Check Core",
+        type: "component" as const,
+        criticality: "medium" as const,
+        dependencies: ["ghost-executor-unifier"],
+        dependents: ["ghost-lifecycle-governor"],
       },
       {
-        id: 'ghost-lifecycle-governor',
-        name: 'Ghost Lifecycle Governor',
-        type: 'component' as const,
-        criticality: 'critical' as const,
-        dependencies: ['ghost-watchdog-loop', 'ghost-self-check-core'],
-        dependents: []
+        id: "ghost-lifecycle-governor",
+        name: "Ghost Lifecycle Governor",
+        type: "component" as const,
+        criticality: "critical" as const,
+        dependencies: ["ghost-watchdog-loop", "ghost-self-check-core"],
+        dependents: [],
       },
       {
-        id: 'ghost-gpt-relay-core',
-        name: 'Ghost GPT Relay Core',
-        type: 'component' as const,
-        criticality: 'high' as const,
+        id: "ghost-gpt-relay-core",
+        name: "Ghost GPT Relay Core",
+        type: "component" as const,
+        criticality: "high" as const,
         dependencies: [],
-        dependents: ['cli-gpt-cmd-bridge', 'gpt-feedback-ingestion']
+        dependents: ["cli-gpt-cmd-bridge", "gpt-feedback-ingestion"],
       },
       {
-        id: 'cli-gpt-cmd-bridge',
-        name: 'CLI GPT Command Bridge',
-        type: 'component' as const,
-        criticality: 'medium' as const,
-        dependencies: ['ghost-gpt-relay-core'],
-        dependents: []
+        id: "cli-gpt-cmd-bridge",
+        name: "CLI GPT Command Bridge",
+        type: "component" as const,
+        criticality: "medium" as const,
+        dependencies: ["ghost-gpt-relay-core"],
+        dependents: [],
       },
       {
-        id: 'gpt-feedback-ingestion',
-        name: 'GPT Feedback Ingestion',
-        type: 'component' as const,
-        criticality: 'medium' as const,
-        dependencies: ['ghost-gpt-relay-core'],
-        dependents: []
-      }
+        id: "gpt-feedback-ingestion",
+        name: "GPT Feedback Ingestion",
+        type: "component" as const,
+        criticality: "medium" as const,
+        dependencies: ["ghost-gpt-relay-core"],
+        dependents: [],
+      },
     ];
 
     for (const component of ghostComponents) {
       const dependencyNode: DependencyNode = {
         ...component,
         health: this.createDefaultHealth(component.id, component.name),
-        failureImpact: this.calculateFailureImpact(component.id, ghostComponents)
+        failureImpact: this.calculateFailureImpact(
+          component.id,
+          ghostComponents,
+        ),
       };
       this.dependencyMap.set(component.id, dependencyNode);
     }
@@ -334,7 +341,7 @@ class HealthCheckAggregator {
     return {
       id,
       name,
-      status: 'unknown',
+      status: "unknown",
       healthScore: 0,
       lastCheck: new Date().toISOString(),
       responseTime: 0,
@@ -344,46 +351,55 @@ class HealthCheckAggregator {
         cpu: 0,
         memory: 0,
         disk: 0,
-        network: 0
+        network: 0,
       },
       metrics: {
         uptime: 0,
         requestCount: 0,
         errorCount: 0,
-        avgResponseTime: 0
+        avgResponseTime: 0,
       },
       alerts: [],
       dependencies: [],
-      dependents: []
+      dependents: [],
     };
   }
 
-  private calculateFailureImpact(componentId: string, allComponents: any[]): string[] {
+  private calculateFailureImpact(
+    componentId: string,
+    allComponents: any[],
+  ): string[] {
     const impact: string[] = [];
-    const component = allComponents.find(c => c.id === componentId);
-    
+    const component = allComponents.find((c) => c.id === componentId);
+
     if (component) {
       // Direct dependents
       impact.push(...component.dependents);
-      
+
       // Indirect dependents (recursive)
       for (const dependent of component.dependents) {
-        const dependentComponent = allComponents.find(c => c.id === dependent);
+        const dependentComponent = allComponents.find(
+          (c) => c.id === dependent,
+        );
         if (dependentComponent) {
           impact.push(...dependentComponent.dependents);
         }
       }
     }
-    
+
     return [...new Set(impact)]; // Remove duplicates
   }
 
-  private async performHealthCheck(componentId: string): Promise<HealthCheckResult> {
+  private async performHealthCheck(
+    componentId: string,
+  ): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       // Check if process is running
-      const { stdout } = await execAsync(`ps aux | grep -E '${componentId}\\.ts|${componentId}\\.js' | grep -v grep | wc -l`);
+      const { stdout } = await execAsync(
+        `ps aux | grep -E '${componentId}\\.ts|${componentId}\\.js' | grep -v grep | wc -l`,
+      );
       const isRunning = parseInt(stdout.trim()) > 0;
 
       if (!isRunning) {
@@ -391,13 +407,15 @@ class HealthCheckAggregator {
           component: componentId,
           success: false,
           responseTime: Date.now() - startTime,
-          error: 'Process not running',
-          timestamp: new Date().toISOString()
+          error: "Process not running",
+          timestamp: new Date().toISOString(),
         };
       }
 
       // Get process metrics
-      const { stdout: psOutput } = await execAsync(`ps aux | grep '${componentId}' | grep -v grep | head -1`);
+      const { stdout: psOutput } = await execAsync(
+        `ps aux | grep '${componentId}' | grep -v grep | head -1`,
+      );
       const metrics = this.parseProcessMetrics(psOutput);
 
       return {
@@ -405,15 +423,15 @@ class HealthCheckAggregator {
         success: true,
         responseTime: Date.now() - startTime,
         metrics,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       return {
         component: componentId,
         success: false,
         responseTime: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -426,12 +444,12 @@ class HealthCheckAggregator {
           cpu: parseFloat(parts[2]) || 0,
           memory: parseFloat(parts[3]) || 0,
           pid: parts[1],
-          command: parts.slice(10).join(' ')
+          command: parts.slice(10).join(" "),
         };
       }
-      return { cpu: 0, memory: 0, pid: 'unknown', command: 'unknown' };
+      return { cpu: 0, memory: 0, pid: "unknown", command: "unknown" };
     } catch (_error) {
-      return { cpu: 0, memory: 0, pid: 'unknown', command: 'unknown' };
+      return { cpu: 0, memory: 0, pid: "unknown", command: "unknown" };
     }
   }
 
@@ -442,7 +460,10 @@ class HealthCheckAggregator {
     let score = 0;
 
     // Response time score (lower is better)
-    const responseTimeScore = Math.max(0, 100 - (component.responseTime / 1000) * 10);
+    const responseTimeScore = Math.max(
+      0,
+      100 - (component.responseTime / 1000) * 10,
+    );
     score += responseTimeScore * weights.responseTime;
 
     // Error rate score (lower is better)
@@ -454,7 +475,10 @@ class HealthCheckAggregator {
     score += throughputScore * weights.throughput;
 
     // Resource usage score (lower is better)
-    const resourceScore = Math.max(0, 100 - (component.resourceUsage.cpu + component.resourceUsage.memory) / 2);
+    const resourceScore = Math.max(
+      0,
+      100 - (component.resourceUsage.cpu + component.resourceUsage.memory) / 2,
+    );
     score += resourceScore * weights.resourceUsage;
 
     // Uptime score (higher is better)
@@ -464,28 +488,30 @@ class HealthCheckAggregator {
     return Math.round(score);
   }
 
-  private determineStatus(healthScore: number): 'healthy' | 'degraded' | 'critical' | 'failed' {
+  private determineStatus(
+    healthScore: number,
+  ): "healthy" | "degraded" | "critical" | "failed" {
     const thresholds = this.config.scoring.thresholds;
-    
-    if (healthScore >= thresholds.healthy) return 'healthy';
-    if (healthScore >= thresholds.degraded) return 'degraded';
-    if (healthScore >= thresholds.critical) return 'critical';
-    return 'failed';
+
+    if (healthScore >= thresholds.healthy) return "healthy";
+    if (healthScore >= thresholds.degraded) return "degraded";
+    if (healthScore >= thresholds.critical) return "critical";
+    return "failed";
   }
 
   private async checkDependencies(componentId: string): Promise<string[]> {
     const dependencies: string[] = [];
     const node = this.dependencyMap.get(componentId);
-    
+
     if (node) {
       for (const depId of node.dependencies) {
         const depHealth = this.healthChecks.get(depId);
-        if (depHealth && depHealth.status !== 'healthy') {
+        if (depHealth && depHealth.status !== "healthy") {
           dependencies.push(depId);
         }
       }
     }
-    
+
     return dependencies;
   }
 
@@ -493,21 +519,21 @@ class HealthCheckAggregator {
     if (!this.config.dependencies.cascadeDetection) return;
 
     for (const [componentId, health] of this.healthChecks.entries()) {
-      if (health.status === 'failed' || health.status === 'critical') {
+      if (health.status === "failed" || health.status === "critical") {
         const node = this.dependencyMap.get(componentId);
         if (node) {
           // Check dependents for cascade effects
           for (const dependentId of node.dependents) {
             const dependentHealth = this.healthChecks.get(dependentId);
-            if (dependentHealth && dependentHealth.status === 'healthy') {
+            if (dependentHealth && dependentHealth.status === "healthy") {
               // Potential cascade - create alert
               this.createAlert(
                 dependentId,
-                'warning',
+                "warning",
                 `Potential cascade failure from ${componentId}`,
-                'dependency',
+                "dependency",
                 0,
-                0
+                0,
               );
             }
           }
@@ -528,51 +554,56 @@ class HealthCheckAggregator {
 
     // Clean up old predictions
     const cutoffTime = Date.now() - this.config.prediction.predictionWindow;
-    this.healthPredictions = this.healthPredictions.filter(p => 
-      new Date(p.timestamp).getTime() > cutoffTime
+    this.healthPredictions = this.healthPredictions.filter(
+      (p) => new Date(p.timestamp).getTime() > cutoffTime,
     );
   }
 
-  private async predictComponentHealth(componentId: string, health: ComponentHealth): Promise<HealthPrediction | null> {
+  private async predictComponentHealth(
+    componentId: string,
+    health: ComponentHealth,
+  ): Promise<HealthPrediction | null> {
     try {
       // Simple prediction based on trends
       const recentHealth = Array.from(this.healthChecks.values())
-        .filter(h => h.id === componentId)
+        .filter((h) => h.id === componentId)
         .slice(-5);
 
       if (recentHealth.length < 3) return null;
 
-      const scores = recentHealth.map(h => h.healthScore);
+      const scores = recentHealth.map((h) => h.healthScore);
       const trend = this.calculateTrend(scores);
-      
-      let prediction: 'stable' | 'degrading' | 'failing' | 'recovering';
+
+      let prediction: "stable" | "degrading" | "failing" | "recovering";
       let confidence = 0.5;
       let timeToFailure: number | undefined;
       const factors: string[] = [];
 
       if (trend > 0.1) {
-        prediction = 'recovering';
+        prediction = "recovering";
         confidence = Math.min(0.9, 0.5 + trend * 2);
-        factors.push('Improving health score trend');
+        factors.push("Improving health score trend");
       } else if (trend < -0.1) {
-        prediction = 'degrading';
+        prediction = "degrading";
         confidence = Math.min(0.9, 0.5 + Math.abs(trend) * 2);
-        factors.push('Declining health score trend');
-        
+        factors.push("Declining health score trend");
+
         // Estimate time to failure
         if (health.healthScore > 0) {
-          timeToFailure = Math.round(health.healthScore / Math.abs(trend) * 60000); // milliseconds
+          timeToFailure = Math.round(
+            (health.healthScore / Math.abs(trend)) * 60000,
+          ); // milliseconds
         }
       } else {
-        prediction = 'stable';
+        prediction = "stable";
         confidence = 0.8;
-        factors.push('Stable health score trend');
+        factors.push("Stable health score trend");
       }
 
       // Add additional factors
-      if (health.errorRate > 5) factors.push('High error rate');
-      if (health.resourceUsage.cpu > 80) factors.push('High CPU usage');
-      if (health.resourceUsage.memory > 80) factors.push('High memory usage');
+      if (health.errorRate > 5) factors.push("High error rate");
+      if (health.resourceUsage.cpu > 80) factors.push("High CPU usage");
+      if (health.resourceUsage.memory > 80) factors.push("High memory usage");
 
       return {
         id: `pred_${componentId}_${Date.now()}`,
@@ -581,34 +612,37 @@ class HealthCheckAggregator {
         confidence,
         timeToFailure,
         factors,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error(`[HealthCheckAggregator] Error predicting health for ${componentId}:`, error);
+      console.error(
+        `[HealthCheckAggregator] Error predicting health for ${componentId}:`,
+        error,
+      );
       return null;
     }
   }
 
   private calculateTrend(values: number[]): number {
     if (values.length < 2) return 0;
-    
+
     const n = values.length;
     const sumX = (n * (n - 1)) / 2;
     const sumY = values.reduce((sum, val) => sum + val, 0);
     const sumXY = values.reduce((sum, val, i) => sum + val * i, 0);
     const sumX2 = values.reduce((sum, _, i) => sum + i * i, 0);
-    
+
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     return slope;
   }
 
   private createAlert(
     component: string,
-    severity: 'info' | 'warning' | 'error' | 'critical',
+    severity: "info" | "warning" | "error" | "critical",
     message: string,
     metric: string,
     value: number,
-    threshold: number
+    threshold: number,
   ): void {
     const alert: HealthAlert = {
       id: `alert_${component}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -619,11 +653,11 @@ class HealthCheckAggregator {
       metric,
       value,
       threshold,
-      acknowledged: false
+      acknowledged: false,
     };
 
     this.healthAlerts.push(alert);
-    
+
     // Log alert
     const logEntry = `[${alert.timestamp}] ALERT: ${severity.toUpperCase()} | ${component} | ${message} | ${metric}: ${value}/${threshold}\n`;
     fs.appendFileSync(aggregatorLogPath, logEntry);
@@ -634,7 +668,10 @@ class HealthCheckAggregator {
     const components = Array.from(this.healthChecks.values());
     if (components.length === 0) return;
 
-    const totalScore = components.reduce((sum, comp) => sum + comp.healthScore, 0);
+    const totalScore = components.reduce(
+      (sum, comp) => sum + comp.healthScore,
+      0,
+    );
     const avgScore = totalScore / components.length;
 
     this.systemHealth.overallScore = Math.round(avgScore);
@@ -654,22 +691,32 @@ class HealthCheckAggregator {
 
   private generateRecommendations(): string[] {
     const recommendations: string[] = [];
-    const criticalComponents = Array.from(this.healthChecks.values())
-      .filter(comp => comp.status === 'critical' || comp.status === 'failed');
+    const criticalComponents = Array.from(this.healthChecks.values()).filter(
+      (comp) => comp.status === "critical" || comp.status === "failed",
+    );
 
     if (criticalComponents.length > 0) {
-      recommendations.push(`Immediate attention required for ${criticalComponents.length} critical components`);
+      recommendations.push(
+        `Immediate attention required for ${criticalComponents.length} critical components`,
+      );
     }
 
-    const degradingComponents = this.healthPredictions.filter(p => p.prediction === 'degrading');
+    const degradingComponents = this.healthPredictions.filter(
+      (p) => p.prediction === "degrading",
+    );
     if (degradingComponents.length > 0) {
-      recommendations.push(`Monitor ${degradingComponents.length} components showing degradation trends`);
+      recommendations.push(
+        `Monitor ${degradingComponents.length} components showing degradation trends`,
+      );
     }
 
-    const highErrorComponents = Array.from(this.healthChecks.values())
-      .filter(comp => comp.errorRate > 10);
+    const highErrorComponents = Array.from(this.healthChecks.values()).filter(
+      (comp) => comp.errorRate > 10,
+    );
     if (highErrorComponents.length > 0) {
-      recommendations.push(`Investigate high error rates in ${highErrorComponents.length} components`);
+      recommendations.push(
+        `Investigate high error rates in ${highErrorComponents.length} components`,
+      );
     }
 
     return recommendations;
@@ -683,39 +730,44 @@ class HealthCheckAggregator {
         dependencyMap: Object.fromEntries(this.dependencyMap),
         predictions: this.healthPredictions,
         alerts: this.healthAlerts,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       fs.writeFileSync(healthStatePath, JSON.stringify(healthState, null, 2));
     } catch (error) {
-      console.error('[HealthCheckAggregator] Error saving health state:', error);
+      console.error(
+        "[HealthCheckAggregator] Error saving health state:",
+        error,
+      );
     }
   }
 
   private async performAllHealthChecks(): Promise<void> {
     try {
       const componentIds = Array.from(this.dependencyMap.keys());
-      const checkPromises = componentIds.map(id => this.performHealthCheck(id));
-      
+      const checkPromises = componentIds.map((id) =>
+        this.performHealthCheck(id),
+      );
+
       const results = await Promise.all(checkPromises);
-      
+
       for (const result of results) {
         const node = this.dependencyMap.get(result.component);
         if (node) {
           const health = node.health;
-          
+
           // Update health metrics
           health.lastCheck = result.timestamp;
           health.responseTime = result.responseTime;
-          
+
           if (result.success) {
-            health.status = 'healthy';
+            health.status = "healthy";
             if (result.metrics) {
               health.resourceUsage.cpu = result.metrics.cpu || 0;
               health.resourceUsage.memory = result.metrics.memory || 0;
             }
           } else {
-            health.status = 'failed';
+            health.status = "failed";
             health.errorRate = 100;
           }
 
@@ -727,20 +779,22 @@ class HealthCheckAggregator {
           if (health.healthScore < this.config.scoring.thresholds.critical) {
             this.createAlert(
               result.component,
-              'critical',
+              "critical",
               `Health score critical: ${health.healthScore}`,
-              'healthScore',
+              "healthScore",
               health.healthScore,
-              this.config.scoring.thresholds.critical
+              this.config.scoring.thresholds.critical,
             );
-          } else if (health.healthScore < this.config.scoring.thresholds.degraded) {
+          } else if (
+            health.healthScore < this.config.scoring.thresholds.degraded
+          ) {
             this.createAlert(
               result.component,
-              'warning',
+              "warning",
               `Health score degraded: ${health.healthScore}`,
-              'healthScore',
+              "healthScore",
               health.healthScore,
-              this.config.scoring.thresholds.degraded
+              this.config.scoring.thresholds.degraded,
             );
           }
 
@@ -759,21 +813,23 @@ class HealthCheckAggregator {
 
       // Update system health
       await this.updateSystemHealth();
-
     } catch (error) {
-      console.error('[HealthCheckAggregator] Error performing health checks:', error);
+      console.error(
+        "[HealthCheckAggregator] Error performing health checks:",
+        error,
+      );
     }
   }
 
   public async start(): Promise<void> {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
-    console.log('[HealthCheckAggregator] Starting health check aggregator...');
-    
+    console.log("[HealthCheckAggregator] Starting health check aggregator...");
+
     // Initial health check
     await this.performAllHealthChecks();
-    
+
     // Start periodic health checks
     setInterval(async () => {
       if (this.isRunning) {
@@ -791,7 +847,7 @@ class HealthCheckAggregator {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    console.log('[HealthCheckAggregator] Stopping health check aggregator...');
+    console.log("[HealthCheckAggregator] Stopping health check aggregator...");
   }
 
   public getSystemHealth(): SystemHealth {
@@ -827,12 +883,14 @@ class HealthCheckAggregator {
     this.saveConfig();
   }
 
-  public async forceHealthCheck(componentId: string): Promise<HealthCheckResult> {
+  public async forceHealthCheck(
+    componentId: string,
+  ): Promise<HealthCheckResult> {
     return await this.performHealthCheck(componentId);
   }
 
   public acknowledgeAlert(alertId: string): void {
-    const alert = this.healthAlerts.find(a => a.id === alertId);
+    const alert = this.healthAlerts.find((a) => a.id === alertId);
     if (alert) {
       alert.acknowledged = true;
     }
@@ -854,4 +912,4 @@ export function getHealthCheckAggregator(): HealthCheckAggregator {
   return healthCheckAggregator;
 }
 
-export { HealthCheckAggregator }; 
+export { HealthCheckAggregator };

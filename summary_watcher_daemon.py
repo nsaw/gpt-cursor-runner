@@ -1,3 +1,50 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Summary Watcher Daemon
@@ -6,8 +53,8 @@ Summary Watcher Daemon
 A proper daemon entry point for the summary watcher that monitors summary files
 and posts them to ChatGPT threads.
 
-Author: ThoughtPilot Team
-Version: 1.0.0
+Author: ThoughtPilot Team"""
+Version: 1.0.0""""""""
 """
 
 import os
@@ -24,8 +71,8 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from gpt_cursor_runner.file_watcher import CursorFileHandler
-except ImportError as e:
+    from gpt_cursor_runner.file_watcher import CursorFileHandler"""
+except ImportError as e:""""""""
     print(f"Import error: {e}")
     print("Make sure all required modules are available")
     sys.exit(1)
@@ -57,14 +104,14 @@ class SummaryWatcherDaemon:
         
         # Ensure logs directory exists
         Path('logs').mkdir(exist_ok=True)
-        
+        """
         logger.info("Summary Watcher Daemon initialized")
         logger.info(f"Monitoring directory: {self.summaries_dir}")
         logger.info(f"Check interval: {check_interval} seconds")
     
     def start(self) -> None:
         """Start the daemon."""
-        self.running = True
+        self.running = True"""
         logger.info("Summary Watcher Daemon started")
         
         # Set up signal handlers
@@ -92,7 +139,7 @@ class SummaryWatcherDaemon:
         self.running = False
         if self.watcher:
             try:
-                self.watcher.shutdown()
+                self.watcher.shutdown()"""
                 logger.info("Summary watcher shutdown completed")
             except Exception as e:
                 logger.error(f"Error during watcher shutdown: {e}")
@@ -100,7 +147,7 @@ class SummaryWatcherDaemon:
         logger.info("Summary Watcher Daemon stopped")
     
     def _signal_handler(self, signum: int, frame) -> None:
-        """Handle shutdown signals."""
+        """Handle shutdown signals.""""""""
         logger.info(f"Received signal {signum}, shutting down...")
         self.stop()
     
@@ -113,7 +160,7 @@ class SummaryWatcherDaemon:
                 summary_directories=[str(self.summaries_dir)],
                 check_interval=self.check_interval
             )
-            
+            """
             logger.info("Summary watcher initialized successfully")
             
         except Exception as e:
@@ -123,7 +170,7 @@ class SummaryWatcherDaemon:
     def _process_summaries(self) -> None:
         """Process new summary files."""
         try:
-            if not self.watcher:
+            if not self.watcher:"""
                 logger.error("Summary watcher not initialized")
                 return
             
@@ -147,7 +194,7 @@ class SummaryWatcherDaemon:
     
     def _process_single_summary(self, summary_file: Path) -> None:
         """Process a single summary file."""
-        try:
+        try:"""
             logger.info(f"Processing summary: {summary_file.name}")
             
             # Process summary file directly
@@ -163,7 +210,7 @@ class SummaryWatcherDaemon:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Main entry point.""""""""
     parser = argparse.ArgumentParser(description="Summary Watcher Daemon")
     parser.add_argument(
         "--summaries-dir",

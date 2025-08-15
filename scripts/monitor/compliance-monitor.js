@@ -1,8 +1,8 @@
-const { exec } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const ValidationRunner = require('../validate/validation-runner');
-const AgentTraining = require('../compliance/agent-training');
+const { exec } = require("child_process");
+const fs = require("fs").promises;
+const path = require("path");
+const ValidationRunner = require("../validate/validation-runner");
+const AgentTraining = require("../compliance/agent-training");
 
 class ComplianceMonitor {
   constructor() {
@@ -14,17 +14,17 @@ class ComplianceMonitor {
       validationRuns: 0,
       violationsDetected: 0,
       averageValidationTime: 0,
-      lastRun: null
+      lastRun: null,
     };
   }
 
   async startMonitoring() {
     if (this.monitoringActive) {
-      console.log('⚠️  Monitoring already active');
+      console.log("⚠️  Monitoring already active");
       return;
     }
 
-    console.log('🚀 Starting Compliance Monitoring System...');
+    console.log("🚀 Starting Compliance Monitoring System...");
     this.monitoringActive = true;
 
     // Initial validation run
@@ -35,7 +35,7 @@ class ComplianceMonitor {
   }
 
   async stopMonitoring() {
-    console.log('🛑 Stopping Compliance Monitoring System...');
+    console.log("🛑 Stopping Compliance Monitoring System...");
     this.monitoringActive = false;
   }
 
@@ -52,7 +52,9 @@ class ComplianceMonitor {
 
   async runValidationCycle() {
     const startTime = Date.now();
-    console.log(`\n🔍 Starting validation cycle at ${new Date().toISOString()}`);
+    console.log(
+      `\n🔍 Starting validation cycle at ${new Date().toISOString()}`,
+    );
 
     try {
       // Run comprehensive validation
@@ -62,9 +64,12 @@ class ComplianceMonitor {
       // Update performance metrics
       this.performanceMetrics.validationRuns++;
       this.performanceMetrics.lastRun = new Date().toISOString();
-      this.performanceMetrics.averageValidationTime = 
-        (this.performanceMetrics.averageValidationTime * (this.performanceMetrics.validationRuns - 1) + 
-         (Date.now() - startTime)) / this.performanceMetrics.validationRuns;
+      this.performanceMetrics.averageValidationTime =
+        (this.performanceMetrics.averageValidationTime *
+          (this.performanceMetrics.validationRuns - 1)(
+            Date.now() - startTime,
+          )) /
+        this.performanceMetrics.validationRuns;
 
       // Check for violations
       await this.checkForViolations(results);
@@ -72,11 +77,12 @@ class ComplianceMonitor {
       // Generate monitoring report
       await this.generateMonitoringReport(results);
 
-      console.log(`✅ Validation cycle completed in ${Date.now() - startTime}ms`);
-
+      console.log(
+        `✅ Validation cycle completed in ${Date.now() - startTime}ms`,
+      );
     } catch (_error) {
-      console.error('❌ Validation cycle failed:', error.message);
-      await this.recordViolation('VALIDATION_FAILURE', error.message);
+      console.error("❌ Validation cycle failed:", error.message);
+      await this.recordViolation("VALIDATION_FAILURE", error.message);
     }
   }
 
@@ -86,30 +92,36 @@ class ComplianceMonitor {
     // Check command validation violations
     if (results.commandValidation?.failed > 0) {
       violations.push({
-        type: 'COMMAND_PATTERN_VIOLATION',
-        severity: 'HIGH',
+        type: "COMMAND_PATTERN_VIOLATION",
+        severity: "HIGH",
         count: results.commandValidation.failed,
-        details: results.commandValidation.details.filter(d => d.status === 'FAIL')
+        details: results.commandValidation.details.filter(
+          (d) => d.status === "FAIL",
+        ),
       });
     }
 
     // Check runtime validation violations
     if (results.runtimeValidation?.failed > 0) {
       violations.push({
-        type: 'RUNTIME_VIOLATION',
-        severity: 'MEDIUM',
+        type: "RUNTIME_VIOLATION",
+        severity: "MEDIUM",
         count: results.runtimeValidation.failed,
-        details: results.runtimeValidation.details.filter(d => d.status === 'FAIL')
+        details: results.runtimeValidation.details.filter(
+          (d) => d.status === "FAIL",
+        ),
       });
     }
 
     // Check compliance violations
     if (results.complianceCheck?.failed > 0) {
       violations.push({
-        type: 'COMPLIANCE_VIOLATION',
-        severity: 'HIGH',
+        type: "COMPLIANCE_VIOLATION",
+        severity: "HIGH",
         count: results.complianceCheck.failed,
-        details: results.complianceCheck.details.filter(d => d.status === 'FAIL')
+        details: results.complianceCheck.details.filter(
+          (d) => d.status === "FAIL",
+        ),
       });
     }
 
@@ -129,7 +141,7 @@ class ComplianceMonitor {
       type,
       details,
       timestamp: new Date().toISOString(),
-      severity: details.severity || 'MEDIUM'
+      severity: details.severity || "MEDIUM",
     };
 
     this.violationLog.push(violation);
@@ -137,27 +149,27 @@ class ComplianceMonitor {
 
     // Keep only recent violations (last 30 days)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    this.violationLog = this.violationLog.filter(v => 
-      new Date(v.timestamp) > thirtyDaysAgo
+    this.violationLog = this.violationLog.filter(
+      (v) => new Date(v.timestamp) > thirtyDaysAgo,
     );
 
     console.log(`⚠️  Violation recorded: ${type} (${violation.severity})`);
   }
 
   async triggerAlert() {
-    console.log('🚨 VIOLATION THRESHOLD EXCEEDED - TRIGGERING ALERT');
-    
+    console.log("🚨 VIOLATION THRESHOLD EXCEEDED - TRIGGERING ALERT");
+
     const alert = {
       timestamp: new Date().toISOString(),
-      type: 'VIOLATION_THRESHOLD_EXCEEDED',
+      type: "VIOLATION_THRESHOLD_EXCEEDED",
       violations: this.violationLog.slice(-this.violationThreshold),
-      performanceMetrics: this.performanceMetrics
+      performanceMetrics: this.performanceMetrics,
     };
 
     // Save alert
-    const alertDir = './logs/alerts';
+    const alertDir = "./logs/alerts";
     await fs.mkdir(alertDir, { recursive: true });
-    
+
     const alertFile = path.join(alertDir, `alert-${Date.now()}.json`);
     await fs.writeFile(alertFile, JSON.stringify(alert, null, 2));
 
@@ -170,9 +182,11 @@ class ComplianceMonitor {
   async sendNotification(alert) {
     // Placeholder for actual notification system
     // This could integrate with Slack, email, or other notification systems
-    console.log('📢 SENDING ALERT NOTIFICATION');
+    console.log("📢 SENDING ALERT NOTIFICATION");
     console.log(`🚨 ${alert.violations.length} violations detected`);
-    console.log(`📊 Performance metrics: ${JSON.stringify(alert.performanceMetrics)}`);
+    console.log(
+      `📊 Performance metrics: ${JSON.stringify(alert.performanceMetrics)}`,
+    );
   }
 
   async generateMonitoringReport(results) {
@@ -183,15 +197,18 @@ class ComplianceMonitor {
       violationSummary: {
         total: this.violationLog.length,
         byType: this.groupViolationsByType(),
-        bySeverity: this.groupViolationsBySeverity()
+        bySeverity: this.groupViolationsBySeverity(),
       },
-      recommendations: await this.generateRecommendations()
+      recommendations: await this.generateRecommendations(),
     };
 
-    const reportDir = './logs/monitoring';
+    const reportDir = "./logs/monitoring";
     await fs.mkdir(reportDir, { recursive: true });
-    
-    const reportFile = path.join(reportDir, `monitoring-report-${Date.now()}.json`);
+
+    const reportFile = path.join(
+      reportDir,
+      `monitoring-report-${Date.now()}.json`,
+    );
     await fs.writeFile(reportFile, JSON.stringify(report, null, 2));
 
     console.log(`📄 Monitoring report saved to: ${reportFile}`);
@@ -200,7 +217,7 @@ class ComplianceMonitor {
 
   groupViolationsByType() {
     const grouped = {};
-    this.violationLog.forEach(violation => {
+    this.violationLog.forEach((violation) => {
       grouped[violation.type] = (grouped[violation.type] || 0) + 1;
     });
     return grouped;
@@ -208,7 +225,7 @@ class ComplianceMonitor {
 
   groupViolationsBySeverity() {
     const grouped = {};
-    this.violationLog.forEach(violation => {
+    this.violationLog.forEach((violation) => {
       grouped[violation.severity] = (grouped[violation.severity] || 0) + 1;
     });
     return grouped;
@@ -220,30 +237,31 @@ class ComplianceMonitor {
     // Check for training compliance
     const training = new AgentTraining();
     const complianceReport = await training.generateComplianceReport();
-    
+
     if (complianceReport.complianceRate < 100) {
       recommendations.push({
-        priority: 'HIGH',
-        action: 'Complete agent training for untrained agents',
-        details: `Compliance rate: ${complianceReport.complianceRate.toFixed(1)}%`
+        priority: "HIGH",
+        action: "Complete agent training for untrained agents",
+        details: `Compliance rate: ${complianceReport.complianceRate.toFixed(1)}%`,
       });
     }
 
     // Check for performance issues
-    if (this.performanceMetrics.averageValidationTime > 30000) { // 30 seconds
+    if (this.performanceMetrics.averageValidationTime > 30000) {
+      // 30 seconds
       recommendations.push({
-        priority: 'MEDIUM',
-        action: 'Optimize validation performance',
-        details: `Average validation time: ${this.performanceMetrics.averageValidationTime.toFixed(0)}ms`
+        priority: "MEDIUM",
+        action: "Optimize validation performance",
+        details: `Average validation time: ${this.performanceMetrics.averageValidationTime.toFixed(0)}ms`,
       });
     }
 
     // Check for frequent violations
     if (this.violationLog.length > 10) {
       recommendations.push({
-        priority: 'HIGH',
-        action: 'Review and fix recurring violations',
-        details: `${this.violationLog.length} violations in last 30 days`
+        priority: "HIGH",
+        action: "Review and fix recurring violations",
+        details: `${this.violationLog.length} violations in last 30 days`,
       });
     }
 
@@ -255,8 +273,9 @@ class ComplianceMonitor {
       active: this.monitoringActive,
       performanceMetrics: this.performanceMetrics,
       violationCount: this.violationLog.length,
-      nextRun: this.monitoringActive ? 
-        new Date(Date.now() + this.monitoringInterval).toISOString() : null
+      nextRun: this.monitoringActive
+        ? new Date(Date.now() + this.monitoringInterval).toISOString()
+        : null,
     };
   }
 
@@ -274,25 +293,27 @@ class ComplianceMonitor {
 // CLI interface
 if (require.main === module) {
   const monitor = new ComplianceMonitor();
-  
+
   const command = process.argv[2];
-  
+
   switch (command) {
-  case 'start':
-    monitor.startMonitoring().catch(console.error);
-    break;
-  case 'stop':
-    monitor.stopMonitoring();
-    break;
-  case 'status':
-    monitor.getMonitoringStatus().then(console.log).catch(console.error);
-    break;
-  case 'validate':
-    monitor.runValidationCycle().catch(console.error);
-    break;
-  default:
-    console.log('Usage: node compliance-monitor.js [start|stop|status|validate]');
+    case "start":
+      monitor.startMonitoring().catch(console.error);
+      break;
+    case "stop":
+      monitor.stopMonitoring();
+      break;
+    case "status":
+      monitor.getMonitoringStatus().then(console.log).catch(console.error);
+      break;
+    case "validate":
+      monitor.runValidationCycle().catch(console.error);
+      break;
+    default:
+      console.log(
+        "Usage: node compliance-monitor.js [start|stop|status|validate]",
+      );
   }
 }
 
-module.exports = ComplianceMonitor; 
+module.exports = ComplianceMonitor;

@@ -6,4 +6,4 @@
     "pattern": "<Text>This text will be patched.</Text>",
     "replacement": "<Text>✅ PATCHED</Text>"
   }
-} 
+}

@@ -1,14 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import crypto from 'crypto';
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import crypto from "crypto";
 
 const execAsync = promisify(exec);
-const queueLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/message-queue.log';
-const queueDataPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/queue/data';
-const deadLetterPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/queue/dead-letter';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/queue-config.json';
+const queueLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/message-queue.log";
+const queueDataPath = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/queue/data";
+const deadLetterPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/queue/dead-letter";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/queue-config.json";
 const logDir = path.dirname(queueLogPath);
 
 // Ensure directories exist
@@ -28,10 +31,10 @@ if (!fs.existsSync(path.dirname(configPath))) {
 interface QueueMessage {
   id: string;
   timestamp: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   source: string;
   destination: string;
-  type: 'status' | 'command' | 'response' | 'error' | 'heartbeat' | 'data';
+  type: "status" | "command" | "response" | "error" | "heartbeat" | "data";
   payload: any;
   headers: {
     [key: string]: string;
@@ -141,13 +144,13 @@ class MessageQueueSystem {
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        this.config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      console.error('[MessageQueueSystem] Error loading config:', error);
+      console.error("[MessageQueueSystem] Error loading config:", error);
       this.config = this.getDefaultConfig();
     }
   }
@@ -158,7 +161,7 @@ class MessageQueueSystem {
         enabled: true,
         syncInterval: 5000,
         compression: true,
-        encryption: false
+        encryption: false,
       },
       delivery: {
         enabled: true,
@@ -166,31 +169,31 @@ class MessageQueueSystem {
         exactlyOnce: true,
         maxRetries: 3,
         retryDelay: 5000,
-        backoffMultiplier: 2
+        backoffMultiplier: 2,
       },
       ordering: {
         enabled: true,
         maxOutOfOrder: 10,
-        reorderTimeout: 30000
+        reorderTimeout: 30000,
       },
       deadLetter: {
         enabled: true,
         maxRetries: 3,
         quarantinePeriod: 3600000, // 1 hour
-        autoCleanup: true
+        autoCleanup: true,
       },
       performance: {
         maxQueueSize: 10000,
         maxMessageSize: 1024 * 1024, // 1MB
         batchSize: 10,
-        processingInterval: 1000
+        processingInterval: 1000,
       },
       monitoring: {
         enabled: true,
         metricsCollection: true,
         healthChecks: true,
-        alerting: true
-      }
+        alerting: true,
+      },
     };
   }
 
@@ -198,7 +201,7 @@ class MessageQueueSystem {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      console.error('[MessageQueueSystem] Error saving config:', error);
+      console.error("[MessageQueueSystem] Error saving config:", error);
     }
   }
 
@@ -213,67 +216,77 @@ class MessageQueueSystem {
       throughput: 0,
       errorRate: 0,
       lastProcessed: new Date().toISOString(),
-      uptime: 0
+      uptime: 0,
     };
   }
 
   private initializeProcessors(): void {
     this.processors = [
       {
-        id: 'status-processor',
-        name: 'Status Message Processor',
+        id: "status-processor",
+        name: "Status Message Processor",
         pattern: /^status$/,
         handler: async (message: QueueMessage) => {
-          console.log(`[MessageQueueSystem] Processing status message: ${message.id}`);
+          console.log(
+            `[MessageQueueSystem] Processing status message: ${message.id}`,
+          );
           return true;
         },
         enabled: true,
-        priority: 1
+        priority: 1,
       },
       {
-        id: 'command-processor',
-        name: 'Command Message Processor',
+        id: "command-processor",
+        name: "Command Message Processor",
         pattern: /^command$/,
         handler: async (message: QueueMessage) => {
-          console.log(`[MessageQueueSystem] Processing command message: ${message.id}`);
+          console.log(
+            `[MessageQueueSystem] Processing command message: ${message.id}`,
+          );
           return true;
         },
         enabled: true,
-        priority: 2
+        priority: 2,
       },
       {
-        id: 'response-processor',
-        name: 'Response Message Processor',
+        id: "response-processor",
+        name: "Response Message Processor",
         pattern: /^response$/,
         handler: async (message: QueueMessage) => {
-          console.log(`[MessageQueueSystem] Processing response message: ${message.id}`);
+          console.log(
+            `[MessageQueueSystem] Processing response message: ${message.id}`,
+          );
           return true;
         },
         enabled: true,
-        priority: 3
+        priority: 3,
       },
       {
-        id: 'error-processor',
-        name: 'Error Message Processor',
+        id: "error-processor",
+        name: "Error Message Processor",
         pattern: /^error$/,
         handler: async (message: QueueMessage) => {
-          console.log(`[MessageQueueSystem] Processing error message: ${message.id}`);
+          console.log(
+            `[MessageQueueSystem] Processing error message: ${message.id}`,
+          );
           return true;
         },
         enabled: true,
-        priority: 4
+        priority: 4,
       },
       {
-        id: 'heartbeat-processor',
-        name: 'Heartbeat Message Processor',
+        id: "heartbeat-processor",
+        name: "Heartbeat Message Processor",
         pattern: /^heartbeat$/,
         handler: async (message: QueueMessage) => {
-          console.log(`[MessageQueueSystem] Processing heartbeat message: ${message.id}`);
+          console.log(
+            `[MessageQueueSystem] Processing heartbeat message: ${message.id}`,
+          );
           return true;
         },
         enabled: true,
-        priority: 5
-      }
+        priority: 5,
+      },
     ];
   }
 
@@ -288,17 +301,28 @@ class MessageQueueSystem {
     return next;
   }
 
-  private validateMessage(message: QueueMessage): { valid: boolean; error?: string } {
+  private validateMessage(message: QueueMessage): {
+    valid: boolean;
+    error?: string;
+  } {
     try {
       // Basic validation
-      if (!message.id || !message.timestamp || !message.source || !message.destination) {
-        return { valid: false, error: 'Missing required fields' };
+      if (
+        !message.id ||
+        !message.timestamp ||
+        !message.source ||
+        !message.destination
+      ) {
+        return { valid: false, error: "Missing required fields" };
       }
 
       // Size validation
       const messageSize = JSON.stringify(message).length;
       if (messageSize > this.config.performance.maxMessageSize) {
-        return { valid: false, error: `Message too large: ${messageSize} bytes` };
+        return {
+          valid: false,
+          error: `Message too large: ${messageSize} bytes`,
+        };
       }
 
       // TTL validation
@@ -306,13 +330,13 @@ class MessageQueueSystem {
         const messageTime = new Date(message.timestamp).getTime();
         const now = Date.now();
         if (now - messageTime > message.ttl) {
-          return { valid: false, error: 'Message expired' };
+          return { valid: false, error: "Message expired" };
         }
       }
 
       // Retry count validation
       if (message.retryCount > this.config.delivery.maxRetries) {
-        return { valid: false, error: 'Max retries exceeded' };
+        return { valid: false, error: "Max retries exceeded" };
       }
 
       return { valid: true };
@@ -321,7 +345,10 @@ class MessageQueueSystem {
     }
   }
 
-  private async persistMessage(message: QueueMessage, queueName: string): Promise<void> {
+  private async persistMessage(
+    message: QueueMessage,
+    queueName: string,
+  ): Promise<void> {
     try {
       if (!this.config.persistence.enabled) return;
 
@@ -334,12 +361,12 @@ class MessageQueueSystem {
       const messageData = {
         message,
         queueName,
-        persistedAt: new Date().toISOString()
+        persistedAt: new Date().toISOString(),
       };
 
       fs.writeFileSync(messageFile, JSON.stringify(messageData, null, 2));
     } catch (error) {
-      console.error('[MessageQueueSystem] Error persisting message:', error);
+      console.error("[MessageQueueSystem] Error persisting message:", error);
     }
   }
 
@@ -347,50 +374,73 @@ class MessageQueueSystem {
     try {
       if (!this.config.persistence.enabled) return;
 
-      const queueDirs = fs.readdirSync(queueDataPath, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name);
+      const queueDirs = fs
+        .readdirSync(queueDataPath, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
 
       for (const queueName of queueDirs) {
         const queueDir = path.join(queueDataPath, queueName);
-        const messageFiles = fs.readdirSync(queueDir)
-          .filter(file => file.endsWith('.json'));
+        const messageFiles = fs
+          .readdirSync(queueDir)
+          .filter((file) => file.endsWith(".json"));
 
         const queue: QueueMessage[] = [];
         for (const file of messageFiles) {
           try {
             const filePath = path.join(queueDir, file);
-            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
             queue.push(data.message);
           } catch (error) {
-            console.error(`[MessageQueueSystem] Error loading message file ${file}:`, error);
+            console.error(
+              `[MessageQueueSystem] Error loading message file ${file}:`,
+              error,
+            );
           }
         }
 
         if (queue.length > 0) {
           this.queues.set(queueName, queue);
-          console.log(`[MessageQueueSystem] Loaded ${queue.length} messages for queue: ${queueName}`);
+          console.log(
+            `[MessageQueueSystem] Loaded ${queue.length} messages for queue: ${queueName}`,
+          );
         }
       }
     } catch (error) {
-      console.error('[MessageQueueSystem] Error loading persisted data:', error);
+      console.error(
+        "[MessageQueueSystem] Error loading persisted data:",
+        error,
+      );
     }
   }
 
-  private async removePersistedMessage(messageId: string, queueName: string): Promise<void> {
+  private async removePersistedMessage(
+    messageId: string,
+    queueName: string,
+  ): Promise<void> {
     try {
       if (!this.config.persistence.enabled) return;
 
-      const messageFile = path.join(queueDataPath, queueName, `${messageId}.json`);
+      const messageFile = path.join(
+        queueDataPath,
+        queueName,
+        `${messageId}.json`,
+      );
       if (fs.existsSync(messageFile)) {
         fs.unlinkSync(messageFile);
       }
     } catch (error) {
-      console.error('[MessageQueueSystem] Error removing persisted message:', error);
+      console.error(
+        "[MessageQueueSystem] Error removing persisted message:",
+        error,
+      );
     }
   }
 
-  private async moveToDeadLetter(message: QueueMessage, reason: string): Promise<void> {
+  private async moveToDeadLetter(
+    message: QueueMessage,
+    reason: string,
+  ): Promise<void> {
     try {
       if (!this.config.deadLetter.enabled) return;
 
@@ -400,35 +450,53 @@ class MessageQueueSystem {
         failureReason: reason,
         failureTimestamp: new Date().toISOString(),
         retryCount: message.retryCount,
-        quarantineUntil: new Date(Date.now() + this.config.deadLetter.quarantinePeriod).toISOString()
+        quarantineUntil: new Date(
+          Date.now() + this.config.deadLetter.quarantinePeriod,
+        ).toISOString(),
       };
 
       this.deadLetterQueue.push(deadLetterMessage);
       this.metrics.deadLetterMessages++;
 
       // Persist dead letter message
-      const deadLetterFile = path.join(deadLetterPath, `${deadLetterMessage.id}.json`);
-      fs.writeFileSync(deadLetterFile, JSON.stringify(deadLetterMessage, null, 2));
+      const deadLetterFile = path.join(
+        deadLetterPath,
+        `${deadLetterMessage.id}.json`,
+      );
+      fs.writeFileSync(
+        deadLetterFile,
+        JSON.stringify(deadLetterMessage, null, 2),
+      );
 
-      console.log(`[MessageQueueSystem] Message moved to dead letter: ${message.id} - ${reason}`);
+      console.log(
+        `[MessageQueueSystem] Message moved to dead letter: ${message.id} - ${reason}`,
+      );
     } catch (error) {
-      console.error('[MessageQueueSystem] Error moving message to dead letter:', error);
+      console.error(
+        "[MessageQueueSystem] Error moving message to dead letter:",
+        error,
+      );
     }
   }
 
-  private async processMessage(message: QueueMessage, queueName: string): Promise<boolean> {
+  private async processMessage(
+    message: QueueMessage,
+    queueName: string,
+  ): Promise<boolean> {
     const startTime = Date.now();
     this.processingMessages.add(message.id);
 
     try {
       // Find appropriate processor
-      const processor = this.processors.find(p => 
-        p.enabled && p.pattern.test(message.type)
+      const processor = this.processors.find(
+        (p) => p.enabled && p.pattern.test(message.type),
       );
 
       if (!processor) {
-        console.warn(`[MessageQueueSystem] No processor found for message type: ${message.type}`);
-        await this.moveToDeadLetter(message, 'No processor found');
+        console.warn(
+          `[MessageQueueSystem] No processor found for message type: ${message.type}`,
+        );
+        await this.moveToDeadLetter(message, "No processor found");
         return false;
       }
 
@@ -439,13 +507,13 @@ class MessageQueueSystem {
       if (success) {
         // Update metrics
         this.metrics.processedMessages++;
-        this.metrics.averageProcessingTime = 
+        this.metrics.averageProcessingTime =
           (this.metrics.averageProcessingTime + processingTime) / 2;
         this.metrics.lastProcessed = new Date().toISOString();
 
         // Remove from queue and persistence
         const queue = this.queues.get(queueName) || [];
-        const index = queue.findIndex(m => m.id === message.id);
+        const index = queue.findIndex((m) => m.id === message.id);
         if (index !== -1) {
           queue.splice(index, 1);
           this.queues.set(queueName, queue);
@@ -454,7 +522,9 @@ class MessageQueueSystem {
         await this.removePersistedMessage(message.id, queueName);
         this.pendingAcks.delete(message.id);
 
-        console.log(`[MessageQueueSystem] Message processed successfully: ${message.id} (${processingTime}ms)`);
+        console.log(
+          `[MessageQueueSystem] Message processed successfully: ${message.id} (${processingTime}ms)`,
+        );
         return true;
       } else {
         // Handle processing failure
@@ -462,12 +532,16 @@ class MessageQueueSystem {
         this.metrics.failedMessages++;
 
         if (message.retryCount >= this.config.delivery.maxRetries) {
-          await this.moveToDeadLetter(message, 'Max retries exceeded');
+          await this.moveToDeadLetter(message, "Max retries exceeded");
         } else {
           // Re-queue with backoff
-          const backoffDelay = this.config.delivery.retryDelay * 
-            Math.pow(this.config.delivery.backoffMultiplier, message.retryCount - 1);
-          
+          const backoffDelay =
+            this.config.delivery.retryDelay *
+            Math.pow(
+              this.config.delivery.backoffMultiplier,
+              message.retryCount - 1,
+            );
+
           setTimeout(() => {
             this.enqueueMessage(message, queueName);
           }, backoffDelay);
@@ -476,8 +550,11 @@ class MessageQueueSystem {
         return false;
       }
     } catch (error) {
-      console.error(`[MessageQueueSystem] Error processing message ${message.id}:`, error);
-      
+      console.error(
+        `[MessageQueueSystem] Error processing message ${message.id}:`,
+        error,
+      );
+
       message.retryCount++;
       this.metrics.failedMessages++;
 
@@ -485,9 +562,13 @@ class MessageQueueSystem {
         await this.moveToDeadLetter(message, `Processing error: ${error}`);
       } else {
         // Re-queue with backoff
-        const backoffDelay = this.config.delivery.retryDelay * 
-          Math.pow(this.config.delivery.backoffMultiplier, message.retryCount - 1);
-        
+        const backoffDelay =
+          this.config.delivery.retryDelay *
+          Math.pow(
+            this.config.delivery.backoffMultiplier,
+            message.retryCount - 1,
+          );
+
         setTimeout(() => {
           this.enqueueMessage(message, queueName);
         }, backoffDelay);
@@ -507,44 +588,59 @@ class MessageQueueSystem {
       // Sort by priority and timestamp
       queue.sort((a, b) => {
         const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityDiff =
+          priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
-        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        return (
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
       });
 
       // Process messages in batch
       const batch = queue.slice(0, this.config.performance.batchSize);
-      const processingPromises = batch.map(message => this.processMessage(message, queueName));
-      
+      const processingPromises = batch.map((message) =>
+        this.processMessage(message, queueName),
+      );
+
       await Promise.all(processingPromises);
 
       // Update queue depth
-      this.metrics.queueDepth = Array.from(this.queues.values()).reduce((sum, q) => sum + q.length, 0);
+      this.metrics.queueDepth = Array.from(this.queues.values()).reduce(
+        (sum, q) => sum + q.length,
+        0,
+      );
     } catch (error) {
-      console.error(`[MessageQueueSystem] Error processing queue ${queueName}:`, error);
+      console.error(
+        `[MessageQueueSystem] Error processing queue ${queueName}:`,
+        error,
+      );
     }
   }
 
   private async processAllQueues(): Promise<void> {
     try {
       const queueNames = Array.from(this.queues.keys());
-      const processingPromises = queueNames.map(queueName => this.processQueue(queueName));
-      
+      const processingPromises = queueNames.map((queueName) =>
+        this.processQueue(queueName),
+      );
+
       await Promise.all(processingPromises);
 
       // Update throughput
       const now = Date.now();
-      const timeDiff = (now - new Date(this.metrics.lastProcessed).getTime()) / 1000;
+      const timeDiff =
+        (now - new Date(this.metrics.lastProcessed).getTime()) / 1000;
       if (timeDiff > 0) {
         this.metrics.throughput = this.metrics.processedMessages / timeDiff;
       }
 
       // Update error rate
       if (this.metrics.totalMessages > 0) {
-        this.metrics.errorRate = (this.metrics.failedMessages / this.metrics.totalMessages) * 100;
+        this.metrics.errorRate =
+          (this.metrics.failedMessages / this.metrics.totalMessages) * 100;
       }
     } catch (error) {
-      console.error('[MessageQueueSystem] Error processing all queues:', error);
+      console.error("[MessageQueueSystem] Error processing all queues:", error);
     }
   }
 
@@ -555,8 +651,8 @@ class MessageQueueSystem {
       const now = Date.now();
       const cutoffTime = now - this.config.deadLetter.quarantinePeriod;
 
-      this.deadLetterQueue = this.deadLetterQueue.filter(dl => {
-        const quarantineTime = new Date(dl.quarantineUntil || '0').getTime();
+      this.deadLetterQueue = this.deadLetterQueue.filter((dl) => {
+        const quarantineTime = new Date(dl.quarantineUntil || "0").getTime();
         if (quarantineTime < cutoffTime) {
           // Remove dead letter file
           const deadLetterFile = path.join(deadLetterPath, `${dl.id}.json`);
@@ -568,7 +664,10 @@ class MessageQueueSystem {
         return true;
       });
     } catch (error) {
-      console.error('[MessageQueueSystem] Error cleaning up dead letter queue:', error);
+      console.error(
+        "[MessageQueueSystem] Error cleaning up dead letter queue:",
+        error,
+      );
     }
   }
 
@@ -583,11 +682,14 @@ class MessageQueueSystem {
         }
       }
     } catch (error) {
-      console.error('[MessageQueueSystem] Error syncing to disk:', error);
+      console.error("[MessageQueueSystem] Error syncing to disk:", error);
     }
   }
 
-  public async enqueueMessage(message: QueueMessage, queueName: string = 'default'): Promise<string> {
+  public async enqueueMessage(
+    message: QueueMessage,
+    queueName: string = "default",
+  ): Promise<string> {
     try {
       // Validate message
       const validation = this.validateMessage(message);
@@ -625,22 +727,29 @@ class MessageQueueSystem {
 
       // Update metrics
       this.metrics.totalMessages++;
-      this.metrics.queueDepth = Array.from(this.queues.values()).reduce((sum, q) => sum + q.length, 0);
+      this.metrics.queueDepth = Array.from(this.queues.values()).reduce(
+        (sum, q) => sum + q.length,
+        0,
+      );
 
       // Add to pending acks if guaranteed delivery is enabled
       if (this.config.delivery.guaranteedDelivery) {
         this.pendingAcks.add(message.id);
       }
 
-      console.log(`[MessageQueueSystem] Message enqueued: ${message.id} -> ${queueName}`);
+      console.log(
+        `[MessageQueueSystem] Message enqueued: ${message.id} -> ${queueName}`,
+      );
       return message.id;
     } catch (error) {
-      console.error('[MessageQueueSystem] Error enqueuing message:', error);
+      console.error("[MessageQueueSystem] Error enqueuing message:", error);
       throw error;
     }
   }
 
-  public async dequeueMessage(queueName: string = 'default'): Promise<QueueMessage | null> {
+  public async dequeueMessage(
+    queueName: string = "default",
+  ): Promise<QueueMessage | null> {
     try {
       const queue = this.queues.get(queueName) || [];
       if (queue.length === 0) return null;
@@ -648,9 +757,12 @@ class MessageQueueSystem {
       // Sort by priority and timestamp
       queue.sort((a, b) => {
         const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityDiff =
+          priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
-        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        return (
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
       });
 
       const message = queue.shift()!;
@@ -659,10 +771,12 @@ class MessageQueueSystem {
       // Remove from persistence
       await this.removePersistedMessage(message.id, queueName);
 
-      console.log(`[MessageQueueSystem] Message dequeued: ${message.id} from ${queueName}`);
+      console.log(
+        `[MessageQueueSystem] Message dequeued: ${message.id} from ${queueName}`,
+      );
       return message;
     } catch (error) {
-      console.error('[MessageQueueSystem] Error dequeuing message:', error);
+      console.error("[MessageQueueSystem] Error dequeuing message:", error);
       return null;
     }
   }
@@ -672,13 +786,15 @@ class MessageQueueSystem {
       this.pendingAcks.delete(messageId);
       console.log(`[MessageQueueSystem] Message acknowledged: ${messageId}`);
     } catch (error) {
-      console.error('[MessageQueueSystem] Error acknowledging message:', error);
+      console.error("[MessageQueueSystem] Error acknowledging message:", error);
     }
   }
 
   public async replayDeadLetterMessage(deadLetterId: string): Promise<boolean> {
     try {
-      const deadLetter = this.deadLetterQueue.find(dl => dl.id === deadLetterId);
+      const deadLetter = this.deadLetterQueue.find(
+        (dl) => dl.id === deadLetterId,
+      );
       if (!deadLetter) return false;
 
       // Reset retry count
@@ -688,7 +804,9 @@ class MessageQueueSystem {
       await this.enqueueMessage(deadLetter.originalMessage);
 
       // Remove from dead letter queue
-      const index = this.deadLetterQueue.findIndex(dl => dl.id === deadLetterId);
+      const index = this.deadLetterQueue.findIndex(
+        (dl) => dl.id === deadLetterId,
+      );
       if (index !== -1) {
         this.deadLetterQueue.splice(index, 1);
       }
@@ -699,20 +817,25 @@ class MessageQueueSystem {
         fs.unlinkSync(deadLetterFile);
       }
 
-      console.log(`[MessageQueueSystem] Dead letter message replayed: ${deadLetterId}`);
+      console.log(
+        `[MessageQueueSystem] Dead letter message replayed: ${deadLetterId}`,
+      );
       return true;
     } catch (error) {
-      console.error('[MessageQueueSystem] Error replaying dead letter message:', error);
+      console.error(
+        "[MessageQueueSystem] Error replaying dead letter message:",
+        error,
+      );
       return false;
     }
   }
 
   public async start(): Promise<void> {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
-    console.log('[MessageQueueSystem] Starting message queue system...');
-    
+    console.log("[MessageQueueSystem] Starting message queue system...");
+
     // Start message processing
     setInterval(async () => {
       if (this.isRunning) {
@@ -737,8 +860,8 @@ class MessageQueueSystem {
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    console.log('[MessageQueueSystem] Stopping message queue system...');
-    
+    console.log("[MessageQueueSystem] Stopping message queue system...");
+
     // Final sync to disk
     await this.syncToDisk();
   }
@@ -780,7 +903,7 @@ class MessageQueueSystem {
   }
 
   public removeProcessor(processorId: string): void {
-    const index = this.processors.findIndex(p => p.id === processorId);
+    const index = this.processors.findIndex((p) => p.id === processorId);
     if (index !== -1) {
       this.processors.splice(index, 1);
     }
@@ -815,4 +938,4 @@ export function getMessageQueueSystem(): MessageQueueSystem {
   return messageQueueSystem;
 }
 
-export { MessageQueueSystem }; 
+export { MessageQueueSystem };

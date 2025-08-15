@@ -169,6 +169,7 @@ node_modules/
 .cursor-cache/
 .env
 .env.*
+*.env
 
 # Credentials and Secrets
 *.key
@@ -288,3 +289,4 @@ __pycache__/
 .log-audit-warnings.log
 .ghost-relay.log
 .patch-runner.log
+_gpt5intake/

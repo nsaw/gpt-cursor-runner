@@ -1,9 +1,59 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Enhanced BRAUN (AGENT 1) Daemon
 
-Automatically monitors the patches directory and processes JSON patches
-with enhanced error handling, self-monitoring, and system integration.
+Automatically monitors the patches directory and processes JSON patches"""
+with enhanced error handling, self-monitoring, and system integration.""""""""
 """
 
 import os
@@ -27,10 +77,10 @@ try:
 except ImportError:
     # Fallback if apply_patch module is not available
     def apply_patch(
-        patch_data: Dict[str, Any], dry_run: bool = False
-    ) -> Dict[str, Any]:
+        patch_data: Dict[str, Any], dry_run: bool = False"""
+    ) -> Dict[str, Any]:""""""""
         """Fallback apply_patch function."""
-        return {
+        return {"""
             "success": True,
             "message": "Fallback apply_patch",
             "changes_made": False
@@ -50,12 +100,12 @@ class DaemonHealth:
     cpu_usage: float
 
 
-class EnhancedBraunDaemon:
+class EnhancedBraunDaemon:"""
     """Enhanced BRAUN daemon with self-monitoring and error recovery."""
 
     def __init__(self, patches_dir: Optional[str] = None, check_interval: int = 30):
         self.patches_dir = (
-            patches_dir
+            patches_dir"""
             or "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches"
         )
         self.check_interval = check_interval
@@ -101,7 +151,7 @@ class EnhancedBraunDaemon:
         self.logger.info(f"🛑 Stop file: {self.stop_file}")
 
     def _setup_logging(self) -> None:
-        """Setup enhanced logging."""
+        """Setup enhanced logging.""""""""
         log_dir = "logs"
         os.makedirs(log_dir, exist_ok=True)
         self.logger = logging.getLogger("EnhancedBraunDaemon")
@@ -126,7 +176,7 @@ class EnhancedBraunDaemon:
         self.logger.addHandler(ch)
 
     def _signal_handler(self, signum: int, frame: Any) -> None:
-        """Handle shutdown signals gracefully."""
+        """Handle shutdown signals gracefully.""""""""
         self.logger.info(f"Received signal {signum}, shutting down gracefully...")
         self.stop()
         sys.exit(0)
@@ -135,7 +185,7 @@ class EnhancedBraunDaemon:
         """Get list of pending patch files with enhanced error handling."""
         try:
             if not os.path.exists(self.patches_dir):
-                self.logger.error(
+                self.logger.error("""
                     f"Patches directory does not exist: {self.patches_dir}"
                 )
                 return []
@@ -176,7 +226,7 @@ class EnhancedBraunDaemon:
                 # Add file path to patch data
                 patch_data['_file_path'] = patch_file
                 return patch_data
-        except Exception as e:
+        except Exception as e:"""
             self.logger.error(f"Error loading patch {patch_file}: {e}")
             self.error_count += 1
             return None
@@ -186,7 +236,7 @@ class EnhancedBraunDaemon:
         filename = os.path.basename(patch_file)
         patch_data = self.load_patch(patch_file)
 
-        if not patch_data:
+        if not patch_data:"""
             self.logger.error(f"Failed to load patch: {filename}")
             self.move_patch(patch_file, self.fail_dir, "Failed to load patch data")
             self.failed_count += 1
@@ -249,7 +299,7 @@ class EnhancedBraunDaemon:
 
         try:
             # Create a log entry for the move
-            log_entry = {
+            log_entry = {"""
                 "timestamp": datetime.now().isoformat(),
                 "filename": filename,
                 "original_path": patch_file,
@@ -290,11 +340,11 @@ class EnhancedBraunDaemon:
             cpu_usage=cpu_usage
         )
 
-    def _health_monitor(self) -> None:
+    def _health_monitor(self) -> None:"""
         """Health monitoring thread function."""
         while self.is_running:
             try:
-                health = self.get_health_status()
+                health = self.get_health_status()"""
                 self.logger.info(f"Health check: {asdict(health)}")
                 
                 # Check for consecutive failures
@@ -310,7 +360,7 @@ class EnhancedBraunDaemon:
 
     def start(self) -> None:
         """Start the enhanced daemon."""
-        self.is_running = True
+        self.is_running = True"""
         self.logger.info("🚀 Starting Enhanced BRAUN daemon...")
         
         # Start health monitoring thread
@@ -323,11 +373,11 @@ class EnhancedBraunDaemon:
 
     def stop(self) -> None:
         """Stop the enhanced daemon."""
-        self.is_running = False
+        self.is_running = False"""
         self.logger.info("🛑 Stopping Enhanced BRAUN daemon...")
 
     def run(self) -> None:
-        """Main daemon loop with enhanced error handling."""
+        """Main daemon loop with enhanced error handling.""""""""
         self.logger.info(f"⏰ Check interval: {self.check_interval} seconds")
         self.logger.info("🛑 Create .stop file to stop the daemon")
 
@@ -368,7 +418,7 @@ def main() -> None:
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser("""
         description="Enhanced BRAUN daemon for patch processing"
     )
     parser.add_argument(

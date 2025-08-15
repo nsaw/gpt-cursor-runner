@@ -6,7 +6,8 @@
   border-radius: 8px;
   box-shadow: 0 1px 3px 0 rgba(12, 2, 29, 0.294);
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .daemon-status-panel.error {
@@ -280,4 +281,4 @@
   .log-type {
     min-width: auto;
   }
-} 
+}

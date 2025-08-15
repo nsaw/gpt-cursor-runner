@@ -1,3 +1,53 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import json
+import os
+import glob
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+
 #!/usr/bin/env python3
 """
 Patch Viewer for GPT-Cursor Runner.
@@ -5,11 +55,6 @@ Patch Viewer for GPT-Cursor Runner.
 Provides patch viewing and management capabilities.
 """
 
-import os
-import json
-import glob
-from datetime import datetime
-from typing import Dict, Any, List, Optional
 
 # Import dependencies
 try:

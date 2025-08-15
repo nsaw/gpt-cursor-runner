@@ -1,77 +1,82 @@
-const fs = require('fs/promises');
-const writeLog = require('../utils/log');
-const redis = require('../utils/redis');
+const fs = require("fs/promises");
+const writeLog = require("../utils/log");
+const redis = require("../utils/redis");
 const rateLimit = new Map();
 
 module.exports = async function processPatch(filePath) {
   // Check rate limit
   const now = Date.now();
-  const lastRun = rateLimit.get('patch:cooldown') || 0;
+  const lastRun = rateLimit.get("patch:cooldown") || 0;
   const cooldownMs = 10000; // 10 seconds
-  
+
   if (now - lastRun < cooldownMs) {
-    console.log('[RATE] Skipped — cooldown active');
+    console.log("[RATE] Skipped — cooldown active");
     return;
   }
-  
+
   // Set rate limit
-  rateLimit.set('patch:cooldown', now);
-  
+  rateLimit.set("patch:cooldown", now);
+
   // Check for existing lock
   try {
-    await fs.access('.patch-lock');
-    console.log('[SKIP] Lock held - another patch is running');
+    await fs.access(".patch-lock");
+    console.log("[SKIP] Lock held - another patch is running");
     return;
   } catch (_error) {
     // Lock file doesn't exist, continue
   }
-  
+
   // Check Redis cache for duplicate patch
-  const id = filePath.split('/').pop();
+  const id = filePath.split("/").pop();
   try {
     if (await redis.get(`patch:${id}`)) {
-      console.log('[CACHE] Skipped duplicate');
+      console.log("[CACHE] Skipped duplicate");
       return;
     }
   } catch (_error) {
-    console.log('[CACHE] Redis not available, continuing without cache');
+    console.log("[CACHE] Redis not available, continuing without cache");
   }
-  
+
   try {
     // Create lock file
-    await fs.writeFile('.patch-lock', 'locked');
-    console.log('[LOCK] Patch lock acquired');
-    
+    await fs.writeFile(".patch-lock", "locked");
+    console.log("[LOCK] Patch lock acquired");
+
     // Import and run the patch runner
-    const runner = require('./runner');
+    const runner = require("./runner");
     await runner(filePath);
-    
+
     // Cache patch execution in Redis
     try {
-      await redis.set(`patch:${id}`, 1, 'EX', 3600);
+      await redis.set(`patch:${id}`, 1, "EX", 3600);
     } catch (_error) {
-      console.log('[CACHE] Failed to cache patch, continuing');
+      console.log("[CACHE] Failed to cache patch, continuing");
     }
-    
+
     // Log successful patch execution
-    await writeLog('logs/audit.log', `[${new Date().toISOString()}] SUCCESS: Ran patch: ${filePath}`);
-    
-    console.log('[LOCK] Patch completed successfully');
-    
+    await writeLog(
+      "logs/audit.log",
+      `[${new Date().toISOString()}] SUCCESS: Ran patch: ${filePath}`,
+    );
+
+    console.log("[LOCK] Patch completed successfully");
   } catch (_error) {
-    console.error('[ASYNC ERROR] Patch processing failed:', error.message);
-    
+    console.error("[ASYNC ERROR] Patch processing failed:", error.message);
+
     // Log failed patch execution
-    await writeLog('logs/audit.log', `[${new Date().toISOString()}] ERROR: Failed patch: ${filePath} - ${error.message}`);
-    
+    await writeLog(
+      "logs/audit.log",
+      `[${new Date().toISOString()}] ERROR: Failed patch: ${filePath} - ${error.message}`,
+    );
+
     throw error;
   } finally {
     // Always remove lock file
     try {
-      await fs.unlink('.patch-lock');
-      console.log('[LOCK] Patch lock released');
+      await fs.unlink(".patch-lock");
+      console.log("[LOCK] Patch lock released");
     } catch (_error) {
       // Lock file may not exist, ignore error
     }
   }
-}; 
+};

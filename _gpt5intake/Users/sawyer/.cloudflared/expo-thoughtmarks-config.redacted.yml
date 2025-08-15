@@ -1,0 +1,7 @@
+tunnel: c1bdbf69-73be-4c59-adce-feb2163b550a
+credentials-file: REDACTED
+
+ingress:
+  - hostname: expo-thoughtmarks.thoughtmarks.app
+    service: http://localhost:8081
+  - service: http_status:404

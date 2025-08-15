@@ -4,22 +4,21 @@
  * Uses unified GHOST_STATUS_PATH from constants
  */
 
-import { GHOST_STATUS_PATH } from '../constants/paths.js';
-import fs from 'fs';
+import { GHOST_STATUS_PATH } from "../constants/paths.js";
+import fs from "fs";
 
 try {
   if (!fs.existsSync(GHOST_STATUS_PATH)) {
     console.error(`❌ Ghost status file not found at: ${GHOST_STATUS_PATH}`);
     process.exit(1);
   }
-  
-  const statusData = fs.readFileSync(GHOST_STATUS_PATH, 'utf-8');
+
+  const statusData = fs.readFileSync(GHOST_STATUS_PATH, "utf-8");
   const status = JSON.parse(statusData);
-  
-  console.log('✅ Ghost Status:');
+
+  console.log("✅ Ghost Status:");
   console.log(JSON.stringify(status, null, 2));
-  
 } catch (_error) {
   console.error(`❌ Failed to read ghost status: ${error.message}`);
   process.exit(1);
-} 
+}

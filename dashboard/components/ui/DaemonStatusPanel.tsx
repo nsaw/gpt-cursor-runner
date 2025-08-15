@@ -1,6 +1,6 @@
-import React from 'react';
-import { useDaemonHealth, useLogStream } from '../hooks';
-import './DaemonStatusPanel.css';
+import React from "react";
+import { useDaemonHealth, useLogStream } from "../hooks";
+import "./DaemonStatusPanel.css";
 
 interface DaemonStatusPanelProps {
   className?: string;
@@ -9,27 +9,37 @@ interface DaemonStatusPanelProps {
 }
 
 export const DaemonStatusPanel: React.FC<DaemonStatusPanelProps> = ({
-  className = '',
+  className = "",
   showLogs = true,
-  refreshInterval = 5000
+  refreshInterval = 5000,
 }) => {
-  const { data, loading, error } = useDaemonHealth({ pollingInterval: refreshInterval });
+  const { data, loading, error } = useDaemonHealth({
+    pollingInterval: refreshInterval,
+  });
 
   const getHealthColor = (health: string) => {
     switch (health) {
-      case 'healthy': return '#10B981';
-      case 'warning': return '#F59E0B';
-      case 'critical': return '#EF4444';
-      default: return '#6B7280';
+      case "healthy":
+        return "#10B981";
+      case "warning":
+        return "#F59E0B";
+      case "critical":
+        return "#EF4444";
+      default:
+        return "#6B7280";
     }
   };
 
   const getHealthIcon = (health: string) => {
     switch (health) {
-      case 'healthy': return '🟢';
-      case 'warning': return '🟡';
-      case 'critical': return '🔴';
-      default: return '⚪';
+      case "healthy":
+        return "🟢";
+      case "warning":
+        return "🟡";
+      case "critical":
+        return "🔴";
+      default:
+        return "⚪";
     }
   };
 
@@ -39,9 +49,7 @@ export const DaemonStatusPanel: React.FC<DaemonStatusPanelProps> = ({
         <div className="panel-header">
           <h3>Daemon Status</h3>
         </div>
-        <div className="loading-message">
-          Loading daemon status...
-        </div>
+        <div className="loading-message">Loading daemon status...</div>
       </div>
     );
   }
@@ -66,15 +74,13 @@ export const DaemonStatusPanel: React.FC<DaemonStatusPanelProps> = ({
         <div className="panel-header">
           <h3>Daemon Status</h3>
         </div>
-        <div className="error-message">
-          No daemon data available
-        </div>
+        <div className="error-message">No daemon data available</div>
       </div>
     );
   }
 
   const { daemons, overallHealth, lastUpdate } = data;
-  const runningCount = daemons.filter(d => d.running).length;
+  const runningCount = daemons.filter((d) => d.running).length;
   const totalCount = daemons.length;
 
   return (
@@ -83,7 +89,10 @@ export const DaemonStatusPanel: React.FC<DaemonStatusPanelProps> = ({
         <h3>Daemon Status</h3>
         <div className="health-summary">
           <span className="health-icon">{getHealthIcon(overallHealth)}</span>
-          <span className="health-text" style={{ color: getHealthColor(overallHealth) }}>
+          <span
+            className="health-text"
+            style={{ color: getHealthColor(overallHealth) }}
+          >
             {overallHealth.toUpperCase()}
           </span>
           <span className="daemon-count">
@@ -126,11 +135,9 @@ interface DaemonCardProps {
 
 const DaemonCard: React.FC<DaemonCardProps> = ({ daemon }) => {
   return (
-    <div className={`daemon-card ${daemon.running ? 'running' : 'stopped'}`}>
+    <div className={`daemon-card ${daemon.running ? "running" : "stopped"}`}>
       <div className="daemon-header">
-        <span className="status-indicator">
-          {daemon.running ? '🟢' : '🔴'}
-        </span>
+        <span className="status-indicator">{daemon.running ? "🟢" : "🔴"}</span>
         <h4 className="daemon-name">{daemon.name}</h4>
       </div>
 
@@ -138,7 +145,7 @@ const DaemonCard: React.FC<DaemonCardProps> = ({ daemon }) => {
         <div className="detail-row">
           <span className="label">Status:</span>
           <span className="value">
-            {daemon.running ? 'Running' : 'Stopped'}
+            {daemon.running ? "Running" : "Stopped"}
           </span>
         </div>
 
@@ -185,11 +192,14 @@ const LogStream: React.FC = () => {
       ) : (
         <div className="log-entries">
           {logs.slice(0, 5).map((log, index) => (
-            <div key={index} className={`log-entry ${log.level === 'error' ? 'error' : ''}`}>
+            <div
+              key={index}
+              className={`log-entry ${log.level === "error" ? "error" : ""}`}
+            >
               <span className="log-timestamp">
                 {new Date(log.timestamp).toLocaleTimeString()}
               </span>
-              <span className="log-type">[{log.daemon || 'system'}]</span>
+              <span className="log-type">[{log.daemon || "system"}]</span>
               <span className="log-message">{log.message}</span>
             </div>
           ))}
@@ -199,4 +209,4 @@ const LogStream: React.FC = () => {
   );
 };
 
-export default DaemonStatusPanel; 
+export default DaemonStatusPanel;

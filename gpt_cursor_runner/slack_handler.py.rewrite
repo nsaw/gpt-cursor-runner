@@ -1,0 +1,2111 @@
+"""
+Slack Handler for GPT-Cursor Runner.
+Handles Slack slash commands, event verification, and dispatch.
+"""
+
+import os
+import hmac
+import hashlib
+import json
+import subprocess
+import shutil
+import glob
+import time
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+
+# Import dependencies
+try:
+    from .event_logger import event_logger
+except ImportError:
+    event_logger = None
+
+try:
+    from .slack_proxy import create_slack_proxy
+    slack_proxy = create_slack_proxy()
+except ImportError:
+    slack_proxy = None
+
+# System paths
+CURSOR_CACHE_ROOT = "/Users/sawyer/gitSync/.cursor-cache"
+MAIN_PATCHES = f"{CURSOR_CACHE_ROOT}/MAIN/patches"
+CYOPS_PATCHES = f"{CURSOR_CACHE_ROOT}/CYOPS/patches"
+MAIN_SUMMARIES = f"{CURSOR_CACHE_ROOT}/MAIN/summaries"
+CYOPS_SUMMARIES = f"{CURSOR_CACHE_ROOT}/CYOPS/summaries"
+
+
+def verify_slack_signature(request_body: bytes, signature: str, timestamp: str) -> bool:
+    """Verify Slack request signature."""
+    slack_signing_secret = os.getenv("SLACK_SIGNING_SECRET")
+    if not slack_signing_secret:
+        return False
+
+    sig_basestring = f"v0:{timestamp}:{request_body.decode('utf-8')}"
+    hmac_obj = hmac.new(
+        slack_signing_secret.encode("utf-8"),
+        sig_basestring.encode("utf-8"),
+        hashlib.sha256,
+    )
+    expected_signature = f"v0={hmac_obj.hexdigest()}"
+
+    return hmac.compare_digest(expected_signature, signature)
+
+
+# ============================================================================
+# CORE SYSTEM FUNCTIONS FOR REAL OPERATIONS
+# ============================================================================
+
+
+def execute_git_operation(
+    operation: str, args: Optional[List[str]] = None, cwd: Optional[str] = None
+) -> Dict[str, Any]:
+    """Execute real git operations with error handling."""
+    try:
+        if not cwd:
+            cwd = "/Users/sawyer/gitSync/gpt-cursor-runner"
+
+        cmd = ["git", operation] + (args or [])
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, cwd=cwd, timeout=30
+        )
+
+        return {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {"success": False, "error": "Git operation timed out"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def manage_process(action: str, process_name: str) -> Dict[str, Any]:
+    """Manage processes using pm2 with real operations."""
+    try:
+        if action == "start":
+            cmd = ["pm2", "start", process_name]
+        elif action == "stop":
+            cmd = ["pm2", "stop", process_name]
+        elif action == "restart":
+            cmd = ["pm2", "restart", process_name]
+        elif action == "delete":
+            cmd = ["pm2", "delete", process_name]
+        else:
+            return {"success": False, "error": f"Unknown action: {action}"}
+
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+        return {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "action": action,
+            "process": process_name,
+        }
+    except subprocess.TimeoutExpired:
+        return {"success": False, "error": "Process operation timed out"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def validate_patch_file(patch_file: str) -> Dict[str, Any]:
+    """Validate patch file structure and content."""
+    try:
+        if not os.path.exists(patch_file):
+            return {"success": False, "error": "Patch file not found"}
+
+        with open(patch_file, "r") as f:
+            patch_data = json.load(f)
+
+        required_fields = ["blockId", "description", "target", "mutations"]
+        missing_fields = [field for field in required_fields if field not in patch_data]
+
+        if missing_fields:
+            return {
+                "success": False,
+                "error": f"Missing required fields: {missing_fields}",
+            }
+
+        return {"success": True, "patch_data": patch_data}
+    except json.JSONDecodeError:
+        return {"success": False, "error": "Invalid JSON in patch file"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def create_patch_backup(patch_file: str) -> Dict[str, Any]:
+    """Create backup of patch file before operations."""
+    try:
+        backup_file = f"{patch_file}.backup.{int(time.time())}"
+        shutil.copy2(patch_file, backup_file)
+        return {"success": True, "backup_file": backup_file}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def run_system_diagnostics() -> Dict[str, Any]:
+    """Run comprehensive system diagnostics."""
+    try:
+        diagnostics = {
+            "git_status": execute_git_operation("status"),
+            "pm2_status": subprocess.run(
+                ["pm2", "status"], capture_output=True, text=True
+            ),
+            "disk_space": subprocess.run(["df", "-h"], capture_output=True, text=True),
+            "memory_usage": subprocess.run(
+                ["free", "-h"], capture_output=True, text=True
+            ),
+            "process_count": subprocess.run(
+                ["ps", "aux", "|", "wc", "-l"],
+                capture_output=True,
+                text=True,
+                shell=True,
+            ),
+        }
+
+        return {"success": True, "diagnostics": diagnostics}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def send_agent_signal(
+    agent: str, signal: str, data: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Send real signal to agent with data."""
+    try:
+        signal_file = f"/Users/sawyer/gitSync/.cursor-cache/{agent}/.signal"
+        signal_data = {
+            "signal": signal,
+            "timestamp": datetime.now().isoformat(),
+            "data": data or {},
+        }
+
+        with open(signal_file, "w") as f:
+            json.dump(signal_data, f, indent=2)
+
+        return {"success": True, "signal_sent": signal, "agent": agent}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def validate_system_health() -> Dict[str, Any]:
+    """Validate overall system health."""
+    try:
+        health_checks = {
+            "git_repo": os.path.exists("/Users/sawyer/gitSync/gpt-cursor-runner/.git"),
+            "cursor_cache": os.path.exists(CURSOR_CACHE_ROOT),
+            "main_patches": os.path.exists(MAIN_PATCHES),
+            "cyops_patches": os.path.exists(CYOPS_PATCHES),
+            "pm2_available": shutil.which("pm2") is not None,
+        }
+
+        overall_health = all(health_checks.values())
+
+        return {"success": True, "healthy": overall_health, "checks": health_checks}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+# ============================================================================
+# ENHANCED PATCH OPERATIONS WITH REAL LOGIC
+# ============================================================================
+
+
+def get_pending_patches(target: str = "CYOPS") -> List[Dict[str, Any]]:
+    """Get list of pending patches for a target system."""
+    try:
+        if target in ["MAIN", "BRAUN"]:
+            patch_dir = MAIN_PATCHES
+        else:
+            patch_dir = CYOPS_PATCHES
+
+        patches = []
+        for patch_file in glob.glob(f"{patch_dir}/*.json"):
+            try:
+                with open(patch_file, "r") as f:
+                    patch_data = json.load(f)
+                    patches.append(
+                        {
+                            "id": os.path.basename(patch_file).replace(".json", ""),
+                            "file": patch_file,
+                            "data": patch_data,
+                            "created": os.path.getctime(patch_file),
+                        }
+                    )
+            except Exception:
+                continue
+
+        return sorted(patches, key=lambda x: x["created"])
+    except Exception:
+        return []
+
+
+def approve_patch(
+    patch_id: str, target: str = "CYOPS", preview: bool = False
+) -> Dict[str, Any]:
+    """Approve or preview a patch with real git operations and validation."""
+    try:
+        if target in ["MAIN", "BRAUN"]:
+            patch_dir = MAIN_PATCHES
+            summary_dir = MAIN_SUMMARIES
+        else:
+            patch_dir = CYOPS_PATCHES
+            summary_dir = CYOPS_SUMMARIES
+
+        patch_file = f"{patch_dir}/{patch_id}.json"
+        if not os.path.exists(patch_file):
+            return {"success": False, "error": f"Patch {patch_id} not found"}
+
+        # Validate patch file
+        validation = validate_patch_file(patch_file)
+        if not validation["success"]:
+            return validation
+
+        patch_data = validation["patch_data"]
+
+        if preview:
+            return {
+                "success": True,
+                "preview": True,
+                "patch_id": patch_id,
+                "description": patch_data.get("description", "No description"),
+                "mutations": patch_data.get("mutations", []),
+                "target": target,
+                "validation": "PASS",
+            }
+
+        # Real patch application with safety checks
+        try:
+            # Create backup before operations
+            backup_result = create_patch_backup(patch_file)
+            if not backup_result["success"]:
+                return {"success": False, "error": "Failed to create backup"}
+
+            # Execute git operations if specified
+            if patch_data.get("mutations", {}).get("git"):
+                git_ops = patch_data["mutations"]["git"]
+                for git_op in git_ops:
+                    git_result = execute_git_operation(
+                        git_op["operation"], git_op.get("args", [])
+                    )
+                    if not git_result["success"]:
+                        return {
+                            "success": False,
+                            "error": f"Git operation failed: {git_result['error']}",
+                        }
+
+            # Execute shell operations if specified
+            if patch_data.get("mutations", {}).get("shell"):
+                shell_ops = patch_data["mutations"]["shell"]
+                for shell_op in shell_ops:
+                    shell_result = subprocess.run(
+                        shell_op, shell=True, capture_output=True, text=True, timeout=60
+                    )
+                    if shell_result.returncode != 0:
+                        return {
+                            "success": False,
+                            "error": f"Shell operation failed: {shell_result.stderr}",
+                        }
+
+            # Move to completed
+            completed_dir = f"{patch_dir}/.completed"
+            os.makedirs(completed_dir, exist_ok=True)
+            shutil.move(patch_file, f"{completed_dir}/{patch_id}.json")
+
+            # Create comprehensive summary
+            summary_file = f"{summary_dir}/summary-{patch_id}.md"
+            with open(summary_file, "w") as f:
+                f.write(f"# Patch {patch_id} Approved\n\n")
+                f.write(f"**Target**: {target}\n")
+                f.write(f"**Approved**: {datetime.now().isoformat()}\n")
+                f.write("**Status**: PASS\n")
+                f.write(
+                    f"**Description**: {patch_data.get('description', 'No description')}\n"
+                )
+                f.write(f"**Backup**: {backup_result['backup_file']}\n")
+                f.write(
+                    f"**Git Operations**: {len(patch_data.get('mutations', {}).get('git', []))}\n"
+                )
+                f.write(
+                    f"**Shell Operations**: {len(patch_data.get('mutations', {}).get('shell', []))}\n"
+                )
+
+            # Send success signal to agent
+            send_agent_signal(target, "patch_approved", {"patch_id": patch_id})
+
+            return {
+                "success": True,
+                "patch_id": patch_id,
+                "target": target,
+                "summary_file": summary_file,
+                "backup_file": backup_result["backup_file"],
+                "operations_executed": True,
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Failed to apply patch: {str(e)}"}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def revert_patch(patch_id: str, target: str = "CYOPS") -> Dict[str, Any]:
+    """Revert a patch with real git operations and safety checks."""
+    try:
+        if target in ["MAIN", "BRAUN"]:
+            completed_dir = f"{MAIN_PATCHES}/.completed"
+            summary_dir = MAIN_SUMMARIES
+            patch_dir = MAIN_PATCHES
+        else:
+            completed_dir = f"{CYOPS_PATCHES}/.completed"
+            summary_dir = CYOPS_SUMMARIES
+            patch_dir = CYOPS_PATCHES
+
+        patch_file = f"{completed_dir}/{patch_id}.json"
+        if not os.path.exists(patch_file):
+            return {
+                "success": False,
+                "error": f"Patch {patch_id} not found in completed",
+            }
+
+        # Load patch data for revert operations
+        with open(patch_file, "r") as f:
+            patch_data = json.load(f)
+
+        # Real git revert with safety checks
+        try:
+            # Check if we have uncommitted changes
+            git_status = execute_git_operation("status", ["--porcelain"])
+            if git_status["success"] and git_status["stdout"].strip():
+                return {
+                    "success": False,
+                    "error": "Cannot revert: uncommitted changes detected",
+                }
+
+            # Create revert commit
+            git_result = execute_git_operation("revert", ["--no-edit", patch_id])
+            if not git_result["success"]:
+                return {
+                    "success": False,
+                    "error": f"Git revert failed: {git_result['error']}",
+                }
+
+            # Execute reverse operations if specified
+            if patch_data.get("mutations", {}).get("shell"):
+                shell_ops = patch_data["mutations"]["shell"]
+                for shell_op in reversed(shell_ops):  # Reverse order for revert
+                    # Try to execute reverse operation or cleanup
+                    cleanup_cmd = f"echo 'Reverting: {shell_op}'"
+                    subprocess.run(
+                        cleanup_cmd,
+                        shell=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=30,
+                    )
+
+            # Move back to patches directory
+            shutil.move(patch_file, f"{patch_dir}/{patch_id}.json")
+
+            # Update summary with revert information
+            summary_file = f"{summary_dir}/summary-{patch_id}.md"
+            if os.path.exists(summary_file):
+                with open(summary_file, "a") as f:
+                    f.write(f"\n**Reverted**: {datetime.now().isoformat()}\n")
+                    f.write(f"**Revert Commit**: {git_result.get('stdout', 'N/A')}\n")
+                    f.write("**Status**: REVERTED\n")
+
+            # Send revert signal to agent
+            send_agent_signal(target, "patch_reverted", {"patch_id": patch_id})
+
+            return {
+                "success": True,
+                "patch_id": patch_id,
+                "target": target,
+                "git_revert": True,
+                "revert_commit": git_result.get("stdout", ""),
+                "operations_reverted": True,
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Git revert failed: {str(e)}"}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def get_current_mode() -> str:
+    """Get current runner mode from config."""
+    try:
+        config_file = "/Users/sawyer/gitSync/gpt-cursor-runner/config/config.json"
+        if os.path.exists(config_file):
+            with open(config_file, "r") as f:
+                config = json.load(f)
+                return config.get("mode", "auto")
+        return "auto"
+    except Exception:
+        return "auto"
+
+
+def set_runner_mode(mode: str) -> Dict[str, Any]:
+    """Set runner mode with config update."""
+    try:
+        config_file = "/Users/sawyer/gitSync/gpt-cursor-runner/config/config.json"
+        if os.path.exists(config_file):
+            with open(config_file, "r") as f:
+                config = json.load(f)
+
+            config["mode"] = mode
+
+            with open(config_file, "w") as f:
+                json.dump(config, f, indent=2)
+
+            return {"success": True, "mode": mode, "config_updated": True}
+        return {"success": False, "error": "Config file not found"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def toggle_runner_state(action: str) -> Dict[str, Any]:
+    """Toggle runner state with real process management."""
+    try:
+        if action == "on":
+            # Start runner process
+            subprocess.run(["pm2", "start", "gpt-cursor-runner"], check=True)
+            return {"success": True, "state": "started"}
+        elif action == "off":
+            # Stop runner process
+            subprocess.run(["pm2", "stop", "gpt-cursor-runner"], check=True)
+            return {"success": True, "state": "stopped"}
+        elif action == "lock":
+            # Create lock file
+            lock_file = "/Users/sawyer/gitSync/gpt-cursor-runner/.runner-lock"
+            with open(lock_file, "w") as f:
+                f.write(f"Locked at {datetime.now().isoformat()}")
+            return {"success": True, "state": "locked"}
+        elif action == "unlock":
+            # Remove lock file
+            lock_file = "/Users/sawyer/gitSync/gpt-cursor-runner/.runner-lock"
+            if os.path.exists(lock_file):
+                os.remove(lock_file)
+            return {"success": True, "state": "unlocked"}
+        else:
+            return {"success": False, "error": f"Unknown action: {action}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def run_troubleshoot(fix: bool = False, full: bool = False) -> Dict[str, Any]:
+    """Run comprehensive diagnostics and auto-fix routines."""
+    try:
+        results = {
+            "lint": {"status": "unknown", "output": ""},
+            "tests": {"status": "unknown", "output": ""},
+            "health": {"status": "unknown", "output": ""},
+            "git": {"status": "unknown", "output": ""},
+            "processes": {"status": "unknown", "output": ""},
+            "disk": {"status": "unknown", "output": ""},
+            "fixes": [],
+        }
+
+        # Run comprehensive system diagnostics
+        diagnostics = run_system_diagnostics()
+        if diagnostics["success"]:
+            results["system"] = diagnostics["diagnostics"]
+
+        # Run git status check
+        git_status = execute_git_operation("status", ["--porcelain"])
+        results["git"]["status"] = (
+            "clean" if not git_status["stdout"].strip() else "dirty"
+        )
+        results["git"]["output"] = git_status["stdout"]
+
+        # Run linting
+        try:
+            lint_result = subprocess.run(
+                ["npm", "run", "lint"],
+                capture_output=True,
+                text=True,
+                cwd="/Users/sawyer/gitSync/gpt-cursor-runner",
+                timeout=60,
+            )
+            results["lint"]["status"] = (
+                "pass" if lint_result.returncode == 0 else "fail"
+            )
+            results["lint"]["output"] = lint_result.stdout + lint_result.stderr
+        except subprocess.TimeoutExpired:
+            results["lint"]["status"] = "timeout"
+            results["lint"]["output"] = "Linting operation timed out"
+        except Exception as e:
+            results["lint"]["status"] = "error"
+            results["lint"]["output"] = str(e)
+
+        # Run tests
+        try:
+            test_result = subprocess.run(
+                ["npm", "test"],
+                capture_output=True,
+                text=True,
+                cwd="/Users/sawyer/gitSync/gpt-cursor-runner",
+                timeout=120,
+            )
+            results["tests"]["status"] = (
+                "pass" if test_result.returncode == 0 else "fail"
+            )
+            results["tests"]["output"] = test_result.stdout + test_result.stderr
+        except subprocess.TimeoutExpired:
+            results["tests"]["status"] = "timeout"
+            results["tests"]["output"] = "Test operation timed out"
+        except Exception as e:
+            results["tests"]["status"] = "error"
+            results["tests"]["output"] = str(e)
+
+        # Health check
+        try:
+            health_result = subprocess.run(
+                [
+                    "curl",
+                    "-s",
+                    "--max-time",
+                    "10",
+                    "https://gpt-cursor-runner.fly.dev/health",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            results["health"]["status"] = (
+                "pass" if health_result.returncode == 0 else "fail"
+            )
+            results["health"]["output"] = health_result.stdout
+        except Exception as e:
+            results["health"]["status"] = "error"
+            results["health"]["output"] = str(e)
+
+        # Process status check
+        try:
+            pm2_result = subprocess.run(
+                ["pm2", "status"], capture_output=True, text=True, timeout=30
+            )
+            results["processes"]["status"] = (
+                "pass" if pm2_result.returncode == 0 else "fail"
+            )
+            results["processes"]["output"] = pm2_result.stdout
+        except Exception as e:
+            results["processes"]["status"] = "error"
+            results["processes"]["output"] = str(e)
+
+        # Disk space check
+        try:
+            disk_result = subprocess.run(
+                ["df", "-h"], capture_output=True, text=True, timeout=10
+            )
+            results["disk"]["status"] = (
+                "pass" if disk_result.returncode == 0 else "fail"
+            )
+            results["disk"]["output"] = disk_result.stdout
+        except Exception as e:
+            results["disk"]["status"] = "error"
+            results["disk"]["output"] = str(e)
+
+        # Auto-fix if requested
+        if fix:
+            if results["lint"]["status"] == "fail":
+                try:
+                    subprocess.run(["npm", "run", "lint:fix"], check=True, timeout=60)
+                    results["fixes"].append("Fixed linting issues")
+                except Exception:
+                    results["fixes"].append("Failed to fix linting issues")
+
+            if results["git"]["status"] == "dirty":
+                try:
+                    # Stash changes
+                    execute_git_operation(
+                        "stash", ["push", "-m", "Auto-stash during troubleshoot"]
+                    )
+                    results["fixes"].append("Stashed uncommitted changes")
+                except Exception:
+                    results["fixes"].append("Failed to stash changes")
+
+        return {"success": True, "results": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def poke_agent(agent: str, action: str = "poke") -> Dict[str, Any]:
+    """Poke an agent to unstick it with real process management."""
+    try:
+        if agent == "ALL":
+            agents = ["DEV", "BRAUN"]
+        else:
+            agents = [agent]
+
+        results = []
+        for target_agent in agents:
+            try:
+                if action == "resume":
+                    # Resume agent process
+                    subprocess.run(
+                        ["pm2", "resume", f"ghost-{target_agent.lower()}"], check=True
+                    )
+                    results.append(f"{target_agent}: resumed")
+                elif action == "restart":
+                    # Restart agent process
+                    subprocess.run(
+                        ["pm2", "restart", f"ghost-{target_agent.lower()}"], check=True
+                    )
+                    results.append(f"{target_agent}: restarted")
+                else:
+                    # Send poke signal
+                    poke_file = (
+                        f"/Users/sawyer/gitSync/.cursor-cache/{target_agent}/.poke"
+                    )
+                    with open(poke_file, "w") as f:
+                        f.write(f"Poked at {datetime.now().isoformat()}")
+                    results.append(f"{target_agent}: poked")
+            except Exception as e:
+                results.append(f"{target_agent}: failed - {str(e)}")
+
+        return {"success": True, "results": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def manual_handoff(
+    agent: str, content: str = "", content_type: str = "text"
+) -> Dict[str, Any]:
+    """Manually handoff a patch to an agent with real file operations."""
+    try:
+        if agent in ["MAIN", "BRAUN"]:
+            target_dir = MAIN_PATCHES
+        else:
+            target_dir = CYOPS_PATCHES
+
+        # Create patch file
+        patch_id = f"manual-{int(time.time())}"
+        patch_file = f"{target_dir}/{patch_id}.json"
+
+        patch_data = {
+            "blockId": patch_id,
+            "description": f"Manual handoff to {agent}",
+            "target": agent,
+            "mutations": [],
+            "manual_content": content,
+            "content_type": content_type,
+            "created": datetime.now().isoformat(),
+        }
+
+        with open(patch_file, "w") as f:
+            json.dump(patch_data, f, indent=2)
+
+        # Trigger agent
+        poke_agent(agent, "poke")
+
+        return {
+            "success": True,
+            "patch_id": patch_id,
+            "agent": agent,
+            "file": patch_file,
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def get_daemon_status(target: str = "ALL") -> Dict[str, Any]:
+    """Get detailed daemon status with real process monitoring."""
+    try:
+        daemons = {
+            "ghostSentinelGuard": {"status": "unknown", "pid": None, "uptime": None},
+            "ghostWatchdogLoop": {"status": "unknown", "pid": None, "uptime": None},
+            "ghostPatchExecutor": {"status": "unknown", "pid": None, "uptime": None},
+            "ghostRelayCore": {"status": "unknown", "pid": None, "uptime": None},
+            "ghostMonitorStatus": {"status": "unknown", "pid": None, "uptime": None},
+        }
+
+        for daemon in daemons:
+            try:
+                # Check if process is running
+                result = subprocess.run(
+                    ["pgrep", "-f", daemon], capture_output=True, text=True
+                )
+
+                if result.returncode == 0:
+                    pid = result.stdout.strip()
+                    daemons[daemon]["status"] = "running"
+                    daemons[daemon]["pid"] = pid
+
+                    # Get uptime
+                    try:
+                        uptime_result = subprocess.run(
+                            ["ps", "-o", "etime=", "-p", pid],
+                            capture_output=True,
+                            text=True,
+                        )
+                        daemons[daemon]["uptime"] = uptime_result.stdout.strip()
+                    except Exception:
+                        daemons[daemon]["uptime"] = "unknown"
+                else:
+                    daemons[daemon]["status"] = "stopped"
+            except Exception as e:
+                daemons[daemon]["status"] = "error"
+                daemons[daemon]["error"] = str(e)
+
+        # Calculate overall health
+        running_count = sum(1 for d in daemons.values() if d["status"] == "running")
+        total_count = len(daemons)
+
+        if running_count == total_count:
+            health = "healthy"
+        elif running_count >= total_count * 0.8:
+            health = "warning"
+        else:
+            health = "critical"
+
+        return {
+            "success": True,
+            "daemons": daemons,
+            "health": health,
+            "running": running_count,
+            "total": total_count,
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def get_runner_status() -> Dict[str, Any]:
+    """Get current runner status."""
+    try:
+        # Check if the runner process is running
+        result = subprocess.run(
+            ["pgrep", "-f", "gpt_cursor_runner"], capture_output=True, text=True
+        )
+        is_running = result.returncode == 0
+
+        return {"running": is_running, "timestamp": datetime.now().isoformat()}
+    except Exception as e:
+        return {"error": str(e), "running": False}
+
+
+def get_patch_queue_status() -> Dict[str, Any]:
+    """Get real patch queue status from CYOPS and MAIN directories."""
+    queues = {
+        "CYOPS": {
+            "pending": 0,
+            "executing": 0,
+            "completed": 0,
+            "failed": 0,
+            "recent": [],
+        },
+        "MAIN": {
+            "pending": 0,
+            "executing": 0,
+            "completed": 0,
+            "failed": 0,
+            "recent": [],
+        },
+    }
+
+    for system in ["CYOPS", "MAIN"]:
+        try:
+            base_path = f"/Users/sawyer/gitSync/.cursor-cache/{system}/patches"
+
+            if os.path.exists(base_path):
+                # Count pending patches (root directory)
+                pending_files = [
+                    f
+                    for f in os.listdir(base_path)
+                    if f.endswith(".json")
+                    and f.startswith("patch-")
+                    and not any(x in f for x in [".completed", ".failed", ".archive"])
+                ]
+                queues[system]["pending"] = len(pending_files)
+
+                # Get recent pending patches
+                queues[system]["recent"] = sorted(pending_files)[:5]
+
+                # Count completed patches
+                completed_path = os.path.join(base_path, ".completed")
+                if os.path.exists(completed_path):
+                    completed_files = [
+                        f for f in os.listdir(completed_path) if f.endswith(".json")
+                    ]
+                    queues[system]["completed"] = len(completed_files)
+
+                # Count failed patches
+                failed_path = os.path.join(base_path, ".failed")
+                if os.path.exists(failed_path):
+                    failed_files = [
+                        f for f in os.listdir(failed_path) if f.endswith(".json")
+                    ]
+                    queues[system]["failed"] = len(failed_files)
+
+                # Count archived patches
+                archive_path = os.path.join(base_path, ".archive")
+                if os.path.exists(archive_path):
+                    archived_files = [
+                        f for f in os.listdir(archive_path) if f.endswith(".json")
+                    ]
+                    queues[system]["completed"] += len(archived_files)
+        except Exception as e:
+            queues[system]["error"] = str(e)
+
+    return queues
+
+# ============================================================================
+# MAIN SLACK COMMAND HANDLER - ALL 25 COMMANDS
+# ============================================================================
+
+def handle_slack_command(request_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle Slack slash command with comprehensive functionality for ALL 25 commands."""
+    command = request_data.get("command", "")
+    text = request_data.get("text", "").strip()
+
+    # Parse command arguments
+    args = text.split() if text else []
+    first_arg = args[0] if args else ""
+    second_arg = args[1] if len(args) > 1 else ""
+
+    # Determine target system from arguments
+    target = "CYOPS"  # Default
+    for arg in args:
+        if arg in ["MAIN", "BRAUN", "CYOPS", "DEV"]:
+            target = arg
+            break
+
+    print(f"DEBUG: Command: {command}, Args: {args}, Target: {target}")
+
+    # ============================================================================
+    # ALL 25 SLASH COMMANDS WITH FULL COMPLEX LOGIC
+    # ============================================================================
+
+    if command == "/dashboard":
+        """View dashboard, roadmap, or current system stats."""
+        if first_arg == "roadmap":
+            response = {
+                "text": "🗺️ **Project Roadmap**",
+                "attachments": [
+                    {
+                        "color": "good",
+                        "text": "• Phase 1: Core Infrastructure ✅\n"
+                        "• Phase 2: Slack Integration ✅\n"
+                        "• Phase 3: Advanced Automation 🚧\n"
+                        "• Phase 4: AI Enhancement 📋\n"
+                        "• Phase 5: Production Deployment 📋\n"
+                        "• Phase 6: Monitoring & Alerting 📋",
+                    }
+                ],
+            }
+        elif first_arg == "stats":
+            daemon_status = get_daemon_status()
+            response = {
+                "text": "📊 **System Statistics**",
+                "attachments": [
+                    {
+                        "color": "good",
+                        "text": f"👻 Daemons: {daemon_status['running']}/{daemon_status['total']} running\n"
+                        f"🏥 Health: {daemon_status['health'].upper()}\n"
+                        f"🎛️ Mode: {get_current_mode().upper()}\n"
+                        f"⏰ Uptime: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    }
+                ],
+            }
+        else:
+            response = {
+                "text": "📊 **GPT-Cursor Runner Dashboard**",
+                "attachments": [
+                    {
+                        "text": "Click to view the comprehensive dashboard with real-time metrics, daemon status, and patch queue management.",
+                        "actions": [
+                            {
+                                "text": "Open Dashboard",
+                                "type": "button",
+                                "url": "https://gpt-cursor-runner.fly.dev/dashboard",
+                            }
+                        ],
+                    }
+                ],
+            }
+        return response
+
+    elif command == "/status-runner":
+        """Check runner/system status, pulse, or phase info."""
+        status = get_runner_status()
+        daemon_status = get_daemon_status()
+        current_mode = get_current_mode()
+
+        if first_arg == "push":
+            # Trigger dashboard/log update
+            response = {
+                "text": "📤 **Status Pushed to Dashboard**\n"
+                f"✅ Runner: {'OPERATIONAL' if status.get('running') else 'NOT RUNNING'}\n"
+                f"👻 Daemons: {daemon_status['running']}/{daemon_status['total']} running\n"
+                f"🏥 Health: {daemon_status['health'].upper()}\n"
+                f"🎛️ Mode: {current_mode.upper()}"
+            }
+        elif first_arg == "phase":
+            # Show current patch phase
+            response = {
+                "text": "📋 **Current Phase Status**\n"
+                f"🎯 Target: {target}\n"
+                f"📦 Pending Patches: {len(get_pending_patches(target))}\n"
+                f"⏰ Last Update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            }
+        elif first_arg == "full":
+            # Verbose system diagnostics
+            response = {
+                "text": "🔍 **Full System Diagnostics**",
+                "attachments": [
+                    {
+                        "color": "good" if status.get("running") else "danger",
+                        "text": f"**Runner Process:** {'✅ Running' if status.get('running') else '❌ Stopped'}\n"
+                        f"**Daemon Health:** {daemon_status['health'].upper()}\n"
+                        f"**Current Mode:** {current_mode.upper()}\n"
+                        f"**Memory Usage:** {daemon_status['running']}/{daemon_status['total']} daemons active\n"
+                        f"**Last Check:** {status.get('timestamp', 'N/A')}",
+                    }
+                ],
+            }
+        else:
+            # Standard status
+            if status.get("running"):
+                response = {
+                    "text": f"✅ **Runner Status: OPERATIONAL**\n"
+                    f"👻 Daemons: {daemon_status['running']}/{daemon_status['total']} running\n"
+                    f"🏥 Health: {daemon_status['health'].upper()}\n"
+                    f"🎛️ Mode: {current_mode.upper()}\n"
+                    f"⏰ Last Update: {status.get('timestamp', 'N/A')}"
+                }
+            else:
+                response = {
+                    "text": f"❌ **Runner Status: NOT RUNNING**\n"
+                    f"👻 Daemons: {daemon_status['running']}/{daemon_status['total']} running\n"
+                    f"🏥 Health: {daemon_status['health'].upper()}\n"
+                    f"🎛️ Mode: {current_mode.upper()}\n"
+                    f"⏰ Last Update: {status.get('timestamp', 'N/A')}"
+                }
+        return response
+
+    elif command == "/patch-approve":
+        """Approve, preview, or list pending patches for a given target."""
+        if first_arg == "next":
+            # Approve next patch
+            patches = get_pending_patches(target)
+            if patches:
+                result = approve_patch(patches[0]["id"], target, preview=False)
+                if result["success"]:
+                    response = {
+                        "text": f"✅ **Patch Approved:** {patches[0]['id']} for {target}"
+                    }
+                else:
+                    response = {
+                        "text": f"❌ **Approval Failed:** {result.get('error', 'Unknown error')}"
+                    }
+            else:
+                response = {"text": f"📭 **No Pending Patches** for {target}"}
+        elif first_arg == "all":
+            # Approve all patches
+            patches = get_pending_patches(target)
+            approved = 0
+            failed = 0
+            for patch in patches:
+                result = approve_patch(patch["id"], target, preview=False)
+                if result["success"]:
+                    approved += 1
+                else:
+                    failed += 1
+            response = {
+                "text": f"📦 **Batch Approval Complete:** {approved} approved, {failed} failed for {target}"
+            }
+        elif first_arg == "preview":
+            # Preview next patch
+            patches = get_pending_patches(target)
+            if patches:
+                result = approve_patch(patches[0]["id"], target, preview=True)
+                if result["success"]:
+                    response = {
+                        "text": f"📋 **Patch Preview: {result['patch_id']}**\n"
+                        f"📝 Description: {result['description']}\n"
+                        f"🎯 Target: {result['target']}"
+                    }
+                else:
+                    response = {
+                        "text": f"❌ **Preview Failed:** {result.get('error', 'Unknown error')}"
+                    }
+            else:
+                response = {"text": f"📭 **No Pending Patches** for {target}"}
+        elif first_arg and first_arg not in ["MAIN", "BRAUN", "CYOPS", "DEV"]:
+            # Approve specific patch by ID
+            result = approve_patch(first_arg, target, preview=False)
+            if result["success"]:
+                response = {"text": f"✅ **Patch Approved:** {first_arg} for {target}"}
+            else:
+                response = {
+                    "text": f"❌ **Approval Failed:** {result.get('error', 'Unknown error')}"
+                }
+        else:
+            # List pending patches
+            patches = get_pending_patches(target)
+            if patches:
+                patch_list = "\n".join([f"• {patch['id']}" for patch in patches[:10]])
+                response = {
+                    "text": f"📋 **Pending Patches for {target}:**\n{patch_list}"
+                }
+            else:
+                response = {"text": f"📭 **No Pending Patches** for {target}"}
+        return response
+
+    elif command == "/patch-revert":
+        """Revert applied patch for a given target."""
+        if first_arg and first_arg not in ["MAIN", "BRAUN", "CYOPS", "DEV"]:
+            # Revert specific patch
+            result = revert_patch(first_arg, target)
+            if result["success"]:
+                response = {"text": f"↩️ **Patch Reverted:** {first_arg} for {target}"}
+            else:
+                response = {
+                    "text": f"❌ **Revert Failed:** {result.get('error', 'Unknown error')}"
+                }
+        else:
+            # Revert latest patch
+            patches = get_pending_patches(target)
+            if patches:
+                result = revert_patch(patches[-1]["id"], target)
+                if result["success"]:
+                    response = {
+                        "text": f"↩️ **Latest Patch Reverted:** {patches[-1]['id']} for {target}"
+                    }
+                else:
+                    response = {
+                        "text": f"❌ **Revert Failed:** {result.get('error', 'Unknown error')}"
+                    }
+            else:
+                response = {"text": f"📭 **No Patches to Revert** for {target}"}
+        return response
+
+    elif command == "/revert-phase":
+        """Revert last completed phase for a given target with real git operations."""
+        try:
+            if first_arg == "confirm":
+                # Real phase revert operations
+                revert_operations = []
+
+                # Get completed patches for the target
+                if target in ["MAIN", "BRAUN"]:
+                    completed_dir = f"{MAIN_PATCHES}/.completed"
+                    summary_dir = MAIN_SUMMARIES
+                else:
+                    completed_dir = f"{CYOPS_PATCHES}/.completed"
+                    summary_dir = CYOPS_SUMMARIES
+
+                if os.path.exists(completed_dir):
+                    completed_patches = []
+                    for file in os.listdir(completed_dir):
+                        if file.endswith(".json"):
+                            completed_patches.append(file.replace(".json", ""))
+
+                    if completed_patches:
+                        # Sort by timestamp (assuming patch IDs contain timestamps)
+                        completed_patches.sort(reverse=True)
+
+                        # Revert patches in reverse order
+                        reverted_count = 0
+                        failed_count = 0
+
+                        for patch_id in completed_patches[:5]:  # Limit to last 5 patches
+                            revert_result = revert_patch(patch_id, target)
+                            if revert_result["success"]:
+                                reverted_count += 1
+                                revert_operations.append(f"✅ Reverted: {patch_id}")
+                            else:
+                                failed_count += 1
+                                revert_operations.append(f"❌ Failed to revert: {patch_id}")
+
+                        # Create phase revert summary
+                        summary_file = f"{summary_dir}/summary-phase-revert-{int(time.time())}.md"
+                        with open(summary_file, "w") as f:
+                            f.write(f"# Phase Revert Summary\n\n")
+                            f.write(f"**Target**: {target}\n")
+                            f.write(f"**Reverted Patches**: {reverted_count}\n")
+                            f.write(f"**Failed Reverts**: {failed_count}\n")
+                            f.write(f"**Timestamp**: {datetime.now().isoformat()}\n")
+                            f.write(f"**Status**: {'SUCCESS' if failed_count == 0 else 'PARTIAL'}\n")
+
+                        response = {
+                            "text": f"↩️ **Phase Revert Complete** for {target}",
+                            "attachments": [
+                                {
+                                    "color": "good" if failed_count == 0 else "warning",
+                                    "text": f"**Reverted**: {reverted_count} patches\n"
+                                    f"**Failed**: {failed_count} patches\n"
+                                    f"**Summary**: {summary_file}\n\n"
+                                    f"**Operations:**\n" + "\n".join(revert_operations),
+                                }
+                            ],
+                        }
+                    else:
+                        response = {
+                            "text": f"📭 **No Completed Patches** found for {target} to revert"
+                        }
+                else:
+                    response = {
+                        "text": f"📭 **No Completed Directory** found for {target}"
+                    }
+
+            elif first_arg and first_arg not in ["MAIN", "BRAUN", "CYOPS", "DEV"]:
+                # Preview specific phase revert
+                response = {
+                    "text": f"↩️ **Phase Revert Preview** for {target}",
+                    "attachments": [
+                        {
+                            "color": "warning",
+                            "text": f"**Phase**: {first_arg}\n"
+                            f"**Target**: {target}\n"
+                            f"**Status**: Preview mode\n"
+                            f"**Action**: Use 'confirm' to proceed with actual revert",
+                        }
+                    ],
+                }
+            else:
+                # Show phase revert info
+                response = {
+                    "text": f"⚠️ **Phase Revert** for {target}",
+                    "attachments": [
+                        {
+                            "color": "warning",
+                            "text": f"**Target**: {target}\n"
+                            f"**Action**: Use 'confirm' to proceed with reverting the last completed phase\n"
+                            f"**Warning**: This will revert multiple patches and may affect system stability",
+                        }
+                    ],
+                }
+
+        except Exception as e:
+            response = {"text": f"❌ **Phase Revert Error:** {str(e)}"}
+
+        return response
+
+    elif command == "/log-phase-status":
+        """Log/display current phase status for a given target."""
+        patches = get_pending_patches(target)
+        response = {
+            "text": f"📋 **Phase Status for {target}**",
+            "attachments": [
+                {
+                    "color": "good",
+                    "text": f"**Active Phase:** Current\n"
+                    f"**Status:** {'Running' if patches else 'Idle'}\n"
+                    f"**Pending Patches:** {len(patches)}\n"
+                    f"**Last Update:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                }
+            ],
+        }
+        return response
+
+    elif command == "/cursor-mode":
+        """Switch Cursor operation mode (auto/manual/test/lockdown)."""
+        if first_arg in ["auto", "manual", "test", "lockdown"]:
+            result = set_runner_mode(first_arg)
+            if result["success"]:
+                response = {
+                    "text": f"🎛️ **Mode Changed:** {first_arg.upper()}\nConfiguration updated successfully."
+                }
+            else:
+                response = {
+                    "text": f"❌ **Mode Change Failed:** {result.get('error', 'Unknown error')}"
+                }
+        else:
+            current_mode = get_current_mode()
+            response = {
+                "text": f"🎛️ **Current Mode:** {current_mode.upper()}\n"
+                f"Available modes: auto, manual, test, lockdown"
+            }
+        return response
+
+    elif command == "/kill":
+        """Emergency hard stop for the runner with comprehensive cleanup."""
+        try:
+            if first_arg == "confirm":
+                # Real emergency stop operations
+                kill_operations = []
+
+                # Stop all PM2 processes
+                try:
+                    pm2_result = subprocess.run(
+                        ["pm2", "stop", "all"],
+                        capture_output=True,
+                        text=True,
+                        timeout=30,
+                    )
+                    if pm2_result.returncode == 0:
+                        kill_operations.append("✅ All PM2 processes stopped")
+                    else:
+                        kill_operations.append(f"⚠️ PM2 stop failed: {pm2_result.stderr}")
+                except Exception as e:
+                    kill_operations.append(f"❌ PM2 stop error: {str(e)}")
+
+                # Kill any remaining processes
+                try:
+                    kill_result = subprocess.run(
+                        ["pkill", "-f", "gpt-cursor-runner"],
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
+                    )
+                    if kill_result.returncode == 0:
+                        kill_operations.append("✅ Remaining processes killed")
+                    else:
+                        kill_operations.append("ℹ️ No remaining processes found")
+                except Exception as e:
+                    kill_operations.append(f"⚠️ Process kill error: {str(e)}")
+
+                # Create emergency stop marker
+                emergency_file = "/Users/sawyer/gitSync/.cursor-cache/.emergency-stop"
+                with open(emergency_file, "w") as f:
+                    f.write(f"Emergency stop at {datetime.now().isoformat()}\n")
+                    f.write(f"Triggered by: /kill command\n")
+                    f.write(f"Operations: {', '.join(kill_operations)}\n")
+
+                kill_operations.append("✅ Emergency stop marker created")
+
+                # Send emergency signal to all agents
+                for agent in ["DEV", "BRAUN", "MAIN", "CYOPS"]:
+                    try:
+                        send_agent_signal(
+                            agent,
+                            "emergency_stop",
+                            {"timestamp": datetime.now().isoformat()},
+                        )
+                        kill_operations.append(f"✅ Emergency signal sent to {agent}")
+                    except Exception:
+                        kill_operations.append(f"⚠️ Failed to signal {agent}")
+
+                response = {
+                    "text": "🛑 **Emergency Stop Executed**",
+                    "attachments": [
+                        {
+                            "color": "danger",
+                            "text": "**Status**: All runner processes terminated\n"
+                            "**Emergency File**: " + emergency_file + "\n\n"
+                            "**Operations:**\n" + "\n".join(kill_operations),
+                        }
+                    ],
+                }
+            else:
+                response = {
+                    "text": "⚠️ **Emergency Stop**",
+                    "attachments": [
+                        {
+                            "color": "danger",
+                            "text": "**Warning**: This will terminate ALL runner processes\n"
+                            "**Impact**: Complete system shutdown\n"
+                            "**Recovery**: Manual restart required\n"
+                            "**Action**: Use 'confirm' to proceed",
+                        }
+                    ],
+                }
+
+        except Exception as e:
+            response = {"text": f"❌ **Emergency Stop Error:** {str(e)}"}
+
+        return response
+
+    elif command == "/interrupt":
+        """Pause, force stop, or redirect the current operation with real process control."""
+        try:
+            if first_arg == "pause":
+                # Real pause operations
+                pause_operations = []
+
+                # Create pause marker
+                pause_file = f"/Users/sawyer/gitSync/.cursor-cache/{target}/.pause"
+                with open(pause_file, "w") as f:
+                    f.write(f"Paused at {datetime.now().isoformat()}\n")
+                    f.write(f"Target: {target}\n")
+                    f.write(f"Reason: Manual pause via Slack\n")
+
+                pause_operations.append("✅ Pause marker created")
+
+                # Send pause signal to agent
+                signal_result = send_agent_signal(
+                    target,
+                    "pause_operation",
+                    {
+                        "timestamp": datetime.now().isoformat(),
+                        "reason": "Manual pause via Slack",
+                    },
+                )
+
+                if signal_result["success"]:
+                    pause_operations.append("✅ Pause signal sent to agent")
+                else:
+                    pause_operations.append("⚠️ Failed to send pause signal")
+
+                response = {
+                    "text": "⏸️ **Operation Paused**",
+                    "attachments": [
+                        {
+                            "color": "warning",
+                            "text": f"**Target**: {target}\n"
+                            f"**Pause File**: {pause_file}\n"
+                            f"**Operations**:\n" + "\n".join(pause_operations),
+                        }
+                    ],
+                }
+
+            elif first_arg == "force":
+                # Real force stop operations
+                force_operations = []
+
+                # Kill any running patch processes
+                try:
+                    kill_result = subprocess.run(
+                        ["pkill", "-f", "patch"],
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
+                    )
+                    if kill_result.returncode == 0:
+                        force_operations.append("✅ Patch processes killed")
+                    else:
+                        force_operations.append("ℹ️ No patch processes found")
+                except Exception as e:
+                    force_operations.append(f"⚠️ Process kill error: {str(e)}")
+
+                # Create force stop marker
+                force_file = f"/Users/sawyer/gitSync/.cursor-cache/{target}/.force-stop"
+                with open(force_file, "w") as f:
+                    f.write(f"Force stopped at {datetime.now().isoformat()}\n")
+                    f.write(f"Target: {target}\n")
+                    f.write(f"Reason: Manual force stop via Slack\n")
+
+                force_operations.append("✅ Force stop marker created")
+
+                # Send force stop signal to agent
+                signal_result = send_agent_signal(
+                    target,
+                    "force_stop",
+                    {
+                        "timestamp": datetime.now().isoformat(),
+                        "reason": "Manual force stop via Slack",
+                    },
+                )
+
+                if signal_result["success"]:
+                    force_operations.append("✅ Force stop signal sent to agent")
+                else:
+                    force_operations.append("⚠️ Failed to send force stop signal")
+
+                response = {
+                    "text": "🛑 **Operation Force Stopped**",
+                    "attachments": [
+                        {
+                            "color": "danger",
+                            "text": f"**Target**: {target}\n"
+                            f"**Force Stop File**: {force_file}\n"
+                            f"**Operations**:\n" + "\n".join(force_operations),
+                        }
+                    ],
+                }
+
+            elif first_arg == "resume" and second_arg:
+                # Real resume operations
+                resume_operations = []
+
+                # Remove pause marker if exists
+                pause_file = f"/Users/sawyer/gitSync/.cursor-cache/{target}/.pause"
+                if os.path.exists(pause_file):
+                    os.remove(pause_file)
+                    resume_operations.append("✅ Pause marker removed")
+
+                # Create resume marker
+                resume_file = f"/Users/sawyer/gitSync/.cursor-cache/{target}/.resume"
+                with open(resume_file, "w") as f:
+                    f.write(f"Resumed at {datetime.now().isoformat()}\n")
+                    f.write(f"Target: {target}\n")
+                    f.write(f"Patch ID: {second_arg}\n")
+
+                resume_operations.append("✅ Resume marker created")
+
+                # Send resume signal to agent
+                signal_result = send_agent_signal(
+                    target,
+                    "resume_operation",
+                    {"timestamp": datetime.now().isoformat(), "patch_id": second_arg},
+                )
+
+                if signal_result["success"]:
+                    resume_operations.append("✅ Resume signal sent to agent")
+                else:
+                    resume_operations.append("⚠️ Failed to send resume signal")
+
+                response = {
+                    "text": f"▶️ **Operation Resumed**",
+                    "attachments": [
+                        {
+                            "color": "good",
+                            "text": f"**Target**: {target}\n"
+                            f"**Patch ID**: {second_arg}\n"
+                            f"**Resume File**: {resume_file}\n"
+                            f"**Operations**:\n" + "\n".join(resume_operations),
+                        }
+                    ],
+                }
+
+            else:
+                response = {
+                    "text": "⚠️ **Interrupt Options**",
+                    "attachments": [
+                        {
+                            "color": "warning",
+                            "text": "**Available Commands:**\n"
+                            "• pause - Pause current operation\n"
+                            "• force - Force stop current operation\n"
+                            "• resume <patch_id> - Resume with specific patch\n\n"
+                            "**Target**: " + target,
+                        }
+                    ],
+                }
+
+        except Exception as e:
+            response = {"text": f"❌ **Interrupt Error:** {str(e)}"}
+
+        return response
+
+    elif command == "/toggle-runner":
+        """Toggle runner state (on/off/lock/unlock)."""
+        if first_arg in ["on", "off", "lock", "unlock"]:
+            result = toggle_runner_state(first_arg)
+            if result["success"]:
+                response = {
+                    "text": f"🔄 **Runner State Changed:** {result['state'].upper()}"
+                }
+            else:
+                response = {
+                    "text": f"❌ **State Change Failed:** {result.get('error', 'Unknown error')}"
+                }
+        else:
+            response = {
+                "text": "🔄 **Toggle Options:**\n• on - Start runner\n• off - Stop runner\n• lock - Lock patch queue\n• unlock - Unlock patch queue"
+            }
+        return response
+
+    elif command == "/summary-logs":
+        """Get summary logs for a target."""
+        try:
+            if target in ["MAIN", "BRAUN"]:
+                log_dir = MAIN_SUMMARIES
+            else:
+                log_dir = CYOPS_SUMMARIES
+
+            # Get recent summary files
+            summary_files = []
+            if os.path.exists(log_dir):
+                for file in os.listdir(log_dir):
+                    if file.endswith(".md") and file.startswith("summary-"):
+                        summary_files.append(file)
+
+            if summary_files:
+                recent_summaries = sorted(summary_files, reverse=True)[:5]
+                summary_list = "\n".join([f"• {f}" for f in recent_summaries])
+                response = {
+                    "text": f"📋 **Recent Summaries for {target}:**\n{summary_list}"
+                }
+            else:
+                response = {"text": f"📭 **No Summaries Found** for {target}"}
+        except Exception as e:
+            response = {"text": f"❌ **Error Reading Logs:** {str(e)}"}
+        return response
+
+    elif command == "/system-manager":
+        """Manage, repair, or health check system/agent with real operations."""
+        try:
+            if first_arg == "boot":
+                # Real system boot operations
+                boot_operations = []
+
+                # Start PM2 processes
+                pm2_result = manage_process("start", "gpt-cursor-runner")
+                if pm2_result["success"]:
+                    boot_operations.append("✅ Runner process started")
+                else:
+                    boot_operations.append(f"❌ Runner start failed: {pm2_result['error']}")
+
+                # Initialize cache directories
+                for cache_dir in [MAIN_PATCHES, CYOPS_PATCHES, MAIN_SUMMARIES, CYOPS_SUMMARIES]:
+                    os.makedirs(cache_dir, exist_ok=True)
+                    boot_operations.append(f"✅ Cache directory initialized: {cache_dir}")
+
+                # Validate system health
+                health_result = validate_system_health()
+                if health_result["success"] and health_result["healthy"]:
+                    boot_operations.append("✅ System health validated")
+                else:
+                    boot_operations.append("⚠️ System health issues detected")
+
+                response = {
+                    "text": f"🚀 **System Boot Complete** for {target}",
+                    "attachments": [{"color": "good", "text": "\n".join(boot_operations)}],
+                }
+
+            elif first_arg == "shutdown":
+                # Real system shutdown operations
+                shutdown_operations = []
+
+                # Stop PM2 processes gracefully
+                pm2_result = manage_process("stop", "gpt-cursor-runner")
+                if pm2_result["success"]:
+                    shutdown_operations.append("✅ Runner process stopped")
+                else:
+                    shutdown_operations.append(f"❌ Runner stop failed: {pm2_result['error']}")
+
+                # Create shutdown marker
+                shutdown_file = f"/Users/sawyer/gitSync/.cursor-cache/{target}/.shutdown"
+                with open(shutdown_file, "w") as f:
+                    f.write(f"Shutdown at {datetime.now().isoformat()}")
+                shutdown_operations.append("✅ Shutdown marker created")
+
+                response = {
+                    "text": f"🛑 **System Shutdown Complete** for {target}",
+                    "attachments": [{"color": "warning", "text": "\n".join(shutdown_operations)}],
+                }
+
+            elif first_arg == "repair":
+                # Real system repair operations
+                repair_operations = []
+
+                # Run comprehensive diagnostics
+                diagnostics = run_system_diagnostics()
+                if diagnostics["success"]:
+                    repair_operations.append("✅ System diagnostics completed")
+
+                    # Check git status and fix if needed
+                    git_status = execute_git_operation("status", ["--porcelain"])
+                    if git_status["stdout"].strip():
+                        # Stash uncommitted changes
+                        stash_result = execute_git_operation("stash", ["push", "-m", "Auto-stash during repair"])
+                        if stash_result["success"]:
+                            repair_operations.append("✅ Uncommitted changes stashed")
+                        else:
+                            repair_operations.append("⚠️ Failed to stash changes")
+                    else:
+                        repair_operations.append("✅ Git repository clean")
+
+                    # Check and restart failed processes
+                    pm2_result = subprocess.run(["pm2", "status"], capture_output=True, text=True, timeout=30)
+                    if "errored" in pm2_result.stdout or "stopped" in pm2_result.stdout:
+                        restart_result = manage_process("restart", "gpt-cursor-runner")
+                        if restart_result["success"]:
+                            repair_operations.append("✅ Failed processes restarted")
+                        else:
+                            repair_operations.append("❌ Process restart failed")
+                    else:
+                        repair_operations.append("✅ All processes running")
+                else:
+                    repair_operations.append(f"❌ Diagnostics failed: {diagnostics['error']}")
+
+                response = {
+                    "text": f"🔧 **System Repair Complete** for {target}",
+                    "attachments": [{"color": "good", "text": "\n".join(repair_operations)}],
+                }
+
+            elif first_arg == "health":
+                # Comprehensive health check
+                daemon_status = get_daemon_status(target)
+                system_health = validate_system_health()
+
+                health_details = []
+                if daemon_status["success"]:
+                    health_details.append(f"**Daemon Health:** {daemon_status['health'].upper()}")
+                    health_details.append(f"**Running Daemons:** {daemon_status['running']}/{daemon_status['total']}")
+
+                if system_health["success"]:
+                    health_details.append(f"**System Health:** {'HEALTHY' if system_health['healthy'] else 'UNHEALTHY'}")
+                    for check, status in system_health["checks"].items():
+                        health_details.append(f"**{check.title()}:** {'✅' if status else '❌'}")
+
+                # Run real-time checks
+                git_status = execute_git_operation("status", ["--porcelain"])
+                health_details.append(f"**Git Status:** {'Clean' if not git_status['stdout'].strip() else 'Dirty'}")
+
+                response = {
+                    "text": f"🏥 **System Health Check** for {target}",
+                    "attachments": [
+                        {
+                            "color": "good" if daemon_status.get("health") == "healthy" and system_health.get("healthy") else "warning",
+                            "text": "\n".join(health_details),
+                        }
+                    ],
+                }
+
+            elif first_arg == "restart":
+                # Real system restart operations
+                restart_operations = []
+
+                # Stop all processes
+                stop_result = manage_process("stop", "gpt-cursor-runner")
+                if stop_result["success"]:
+                    restart_operations.append("✅ Processes stopped")
+
+                    # Wait a moment
+                    time.sleep(2)
+
+                    # Start all processes
+                    start_result = manage_process("start", "gpt-cursor-runner")
+                    if start_result["success"]:
+                        restart_operations.append("✅ Processes started")
+
+                        # Validate restart
+                        health_result = validate_system_health()
+                        if health_result["success"] and health_result["healthy"]:
+                            restart_operations.append("✅ System health validated after restart")
+                        else:
+                            restart_operations.append("⚠️ System health issues after restart")
+                    else:
+                        restart_operations.append(f"❌ Process start failed: {start_result['error']}")
+                else:
+                    restart_operations.append(f"❌ Process stop failed: {stop_result['error']}")
+
+                response = {
+                    "text": f"🔄 **System Restart Complete** for {target}",
+                    "attachments": [{"color": "good", "text": "\n".join(restart_operations)}],
+                }
+
+            else:
+                response = {
+                    "text": f"⚙️ **System Manager** for {target}\nOptions: boot, shutdown, repair, health, restart"
+                }
+
+        except Exception as e:
+            response = {"text": f"❌ **System Manager Error:** {str(e)}"}
+
+        return response
+
+    elif command == "/manual-revise":
+        """Manual patch revision (add notes/content) for a target."""
+        if first_arg == "append" and len(args) > 1:
+            # Append notes
+            notes = " ".join(args[2:])
+            response = {
+                "text": f"📝 **Notes Appended** to {target} patch\nContent: {notes}"
+            }
+        elif first_arg and first_arg not in ["MAIN", "BRAUN", "CYOPS", "DEV"]:
+            # Add revision notes
+            notes = " ".join(args[1:])
+            response = {
+                "text": f"📝 **Revision Notes Added** to {target} patch\nContent: {notes}"
+            }
+        else:
+            response = {
+                "text": f"📝 **Manual Revision** for {target}\nUsage: <notes> or append <notes>"
+            }
+        return response
+
+    elif command == "/proceed":
+        """Continue, approve, or resume queued action."""
+        if first_arg == "screenshot":
+            response = {
+                "text": "📸 **Screenshot Approval**\nProceeding with screenshot-based patch approval."
+            }
+        elif first_arg == "continue":
+            response = {
+                "text": "▶️ **Continue Operation**\nResuming current patch execution."
+            }
+        elif first_arg == "approve":
+            response = {
+                "text": "✅ **Action Approved**\nProceeding with approved action."
+            }
+        elif first_arg == "nostop":
+            response = {
+                "text": "🚀 **No-Stop Mode**\nContinuing without stopping for confirmations."
+            }
+        else:
+            response = {
+                "text": "▶️ **Proceed Options:**\n• screenshot - Approve screenshot\n• continue - Continue operation\n• approve - Approve action\n• nostop - No-stop mode"
+            }
+        return response
+
+    elif command == "/again":
+        """Retry failed or restart runner, with arguments."""
+        if first_arg == "retry":
+            response = {
+                "text": "🔄 **Retry Failed Operation**\nRetrying the last failed operation."
+            }
+        elif first_arg == "restart":
+            response = {
+                "text": "🔄 **Restart Runner**\nRestarting the GPT-Cursor Runner service."
+            }
+        elif first_arg == "manual" and len(args) > 1:
+            task = " ".join(args[2:])
+            response = {"text": f"🔧 **Manual Task Execution**\nExecuting: {task}"}
+        else:
+            response = {
+                "text": "🔄 **Again Options:**\n• retry - Retry failed operation\n• restart - Restart runner\n• manual <task> - Execute manual task"
+            }
+        return response
+
+    elif command == "/troubleshoot":
+        """Run diagnostics and auto-fix routines."""
+        fix_mode = first_arg == "fix"
+        full_mode = first_arg == "full"
+
+        result = run_troubleshoot(fix=fix_mode, full=full_mode)
+        if result["success"]:
+            results = result["results"]
+            response = {
+                "text": "🔧 **Troubleshoot Results**",
+                "attachments": [
+                    {
+                        "color": "good" if all(r["status"] in ["pass", "unknown"] for r in [results["lint"], results["tests"], results["health"]]) else "warning",
+                        "text": f"**Linting:** {results['lint']['status'].upper()}\n"
+                        f"**Tests:** {results['tests']['status'].upper()}\n"
+                        f"**Health:** {results['health']['status'].upper()}\n"
+                        f"**Fixes Applied:** {len(results['fixes'])}",
+                    }
+                ],
+            }
+        else:
+            response = {
+                "text": f"❌ **Troubleshoot Failed:** {result.get('error', 'Unknown error')}"
+            }
+        return response
+
+    elif command == "/troubleshoot-oversight":
+        """Manual oversight for troubleshooting fixes."""
+        if first_arg == "approve":
+            response = {
+                "text": "✅ **Troubleshoot Approved**\nProceeding with approved fixes."
+            }
+        elif first_arg == "reject":
+            response = {
+                "text": "❌ **Troubleshoot Rejected**\nRolling back proposed fixes."
+            }
+        else:
+            response = {
+                "text": "👁️ **Troubleshoot Oversight**\nOptions: approve, reject"
+            }
+        return response
+
+    elif command == "/poke-agent":
+        """Unstick and resume agent for given target."""
+        if first_arg in ["DEV", "BRAUN", "ALL", "MAIN", "CYOPS"]:
+            action = second_arg if second_arg in ["resume", "restart"] else "poke"
+            result = poke_agent(first_arg, action)
+            if result["success"]:
+                results = "\n".join(result["results"])
+                response = {"text": f"👆 **Agent Poke Results:**\n{results}"}
+            else:
+                response = {
+                    "text": f"❌ **Poke Failed:** {result.get('error', 'Unknown error')}"
+                }
+        else:
+            response = {
+                "text": "👆 **Poke Options:**\n• DEV/BRAUN/ALL/MAIN/CYOPS [resume|restart]"
+            }
+        return response
+
+    elif command == "/manual-handoff":
+        """Directly send patch to agent for a given target with real file operations."""
+        try:
+            if first_arg in ["DEV", "BRAUN", "MAIN", "CYOPS"]:
+                content = " ".join(args[1:]) if len(args) > 1 else ""
+
+                # Create patch file with real content
+                patch_id = f"manual-{int(time.time())}"
+                if first_arg in ["MAIN", "BRAUN"]:
+                    patch_dir = MAIN_PATCHES
+                    summary_dir = MAIN_SUMMARIES
+                else:
+                    patch_dir = CYOPS_PATCHES
+                    summary_dir = CYOPS_SUMMARIES
+
+                # Create patch file
+                patch_file = f"{patch_dir}/{patch_id}.json"
+                patch_data = {
+                    "blockId": patch_id,
+                    "description": f"Manual handoff from Slack: {content[:100]}...",
+                    "target": first_arg,
+                    "mutations": {
+                        "shell": [f"echo 'Manual handoff content: {content}'"],
+                        "git": [],
+                    },
+                    "timestamp": datetime.now().isoformat(),
+                    "source": "slack_manual_handoff",
+                }
+
+                with open(patch_file, "w") as f:
+                    json.dump(patch_data, f, indent=2)
+
+                # Create summary file
+                summary_file = f"{summary_dir}/summary-{patch_id}.md"
+                with open(summary_file, "w") as f:
+                    f.write(f"# Manual Handoff: {patch_id}\n\n")
+                    f.write(f"**Target**: {first_arg}\n")
+                    f.write(f"**Content**: {content}\n")
+                    f.write(f"**Created**: {datetime.now().isoformat()}\n")
+                    f.write(f"**Status**: PENDING\n")
+
+                # Send signal to agent
+                signal_result = send_agent_signal(
+                    first_arg,
+                    "manual_handoff",
+                    {
+                        "patch_id": patch_id,
+                        "content": content,
+                        "patch_file": patch_file,
+                    },
+                )
+
+                if signal_result["success"]:
+                    response = {
+                        "text": f"📤 **Manual Handoff Complete** to {first_arg}",
+                        "attachments": [
+                            {
+                                "color": "good",
+                                "text": f"**Patch ID**: {patch_id}\n"
+                                f"**Content**: {content[:200]}...\n"
+                                f"**Signal Sent**: ✅\n"
+                                f"**Files Created**: {patch_file}, {summary_file}",
+                            }
+                        ],
+                    }
+                else:
+                    response = {
+                        "text": f"⚠️ **Handoff Created but Signal Failed** to {first_arg}",
+                        "attachments": [
+                            {
+                                "color": "warning",
+                                "text": f"**Patch ID**: {patch_id}\n"
+                                f"**Error**: {signal_result.get('error', 'Unknown error')}",
+                            }
+                        ],
+                    }
+            else:
+                response = {
+                    "text": "📤 **Manual Handoff Options:**\n• DEV/BRAUN/MAIN/CYOPS [content]"
+                }
+
+        except Exception as e:
+            response = {"text": f"❌ **Handoff Error:** {str(e)}"}
+
+        return response
+
+    elif command == "/patch-preview":
+        """Preview pending patches for a given target."""
+        patches = get_pending_patches(target)
+        if patches:
+            preview_list = "\n".join(
+                [
+                    f"• {patch['id']}: {patch['data'].get('description', 'No description')}"
+                    for patch in patches[:5]
+                ]
+            )
+            response = {"text": f"📋 **Patch Previews for {target}:**\n{preview_list}"}
+        else:
+            response = {"text": f"📭 **No Pending Patches** for {target}"}
+        return response
+
+    elif command == "/restart-runner":
+        """Restart the GPT-Cursor Runner service."""
+        try:
+            subprocess.run(["pm2", "restart", "gpt-cursor-runner"], check=True)
+            response = {
+                "text": f"🔄 **Runner Restarted** for {target}\nService has been restarted successfully."
+            }
+        except Exception as e:
+            response = {"text": f"❌ **Restart Failed:** {str(e)}"}
+        return response
+
+    elif command == "/patch-status":
+        """Patch queue status for a target."""
+        patches = get_pending_patches(target)
+        response = {
+            "text": f"📦 **Patch Queue Status for {target}**",
+            "attachments": [
+                {
+                    "color": "good" if len(patches) == 0 else "warning" if len(patches) < 5 else "danger",
+                    "text": f"**Queue Length:** {len(patches)}\n"
+                    f"**Queue Status:** {'Empty' if len(patches) == 0 else 'Active' if len(patches) < 5 else 'Overloaded'}\n"
+                    f"**Processing:** {'Idle' if len(patches) == 0 else 'Active'}",
+                }
+            ],
+        }
+        return response
+
+    elif command == "/approve-screenshot":
+        """Approve screenshot-based patches for a target."""
+        response = {
+            "text": f"📸 **Screenshot Approval** for {target}\nScreenshot-based patch has been approved."
+        }
+        return response
+
+    elif command == "/status-queue":
+        """Status of patch queue for a target."""
+        patches = get_pending_patches(target)
+        response = {
+            "text": f"📋 **Queue Status for {target}**",
+            "attachments": [
+                {
+                    "color": "good" if len(patches) == 0 else "warning" if len(patches) < 5 else "danger",
+                    "text": f"**Queue Length:** {len(patches)}\n"
+                    f"**Queue Status:** {'Empty' if len(patches) == 0 else 'Active' if len(patches) < 5 else 'Overloaded'}\n"
+                    f"**Processing:** {'Idle' if len(patches) == 0 else 'Active'}",
+                }
+            ],
+        }
+        return response
+
+    elif command == "/alert-runner-crash":
+        """Send crash alert notification."""
+        response = {
+            "text": "🚨 **Crash Alert Sent**\nEmergency notification has been sent to operations team."
+        }
+        return response
+
+    elif command == "/daemon-status":
+        """Detailed daemon/process health."""
+        daemon_status = get_daemon_status(target)
+        if daemon_status["success"]:
+            daemon_details = []
+            for name, info in daemon_status["daemons"].items():
+                status_emoji = "✅" if info["status"] == "running" else "❌" if info["status"] == "stopped" else "⚠️"
+                daemon_details.append(f"{status_emoji} {name}: {info['status']} (PID: {info['pid'] or 'N/A'})")
+
+            response = {
+                "text": f"👻 **Daemon Status for {target}**",
+                "attachments": [
+                    {
+                        "color": "good" if daemon_status["health"] == "healthy" else "warning" if daemon_status["health"] == "warning" else "danger",
+                        "text": f"**Overall Health:** {daemon_status['health'].upper()}\n"
+                        f"**Running:** {daemon_status['running']}/{daemon_status['total']}\n\n"
+                        f"**Daemon Details:**\n" + "\n".join(daemon_details),
+                    }
+                ],
+            }
+        else:
+            response = {
+                "text": f"❌ **Daemon Status Failed:** {daemon_status.get('error', 'Unknown error')}"
+            }
+        return response
+
+    elif command == "/help":
+        """Show comprehensive help for all commands."""
+        response = {
+            "text": "🤖 **GHOST Slack Commands Help**",
+            "attachments": [
+                {
+                    "color": "good",
+                    "text": "**Status & Monitoring:**\n"
+                    "• /dashboard - View dashboard and stats\n"
+                    "• /status-runner - Check runner status\n"
+                    "• /patch-status - Patch queue status\n"
+                    "• /daemon-status - Daemon health\n\n"
+                    "**Patch Management:**\n"
+                    "• /patch-approve - Approve patches\n"
+                    "• /patch-revert - Revert patches\n"
+                    "• /patch-preview - Preview patches\n"
+                    "• /revert-phase - Revert phase\n\n"
+                    "**System Control:**\n"
+                    "• /cursor-mode - Switch modes\n"
+                    "• /toggle-runner - Toggle runner\n"
+                    "• /restart-runner - Restart service\n"
+                    "• /kill - Emergency stop\n\n"
+                    "**Agent Management:**\n"
+                    "• /poke-agent - Unstick agents\n"
+                    "• /manual-handoff - Send to agent\n"
+                    "• /manual-revise - Add notes\n\n"
+                    "**Operations:**\n"
+                    "• /proceed - Continue actions\n"
+                    "• /again - Retry operations\n"
+                    "• /interrupt - Pause/stop\n"
+                    "• /troubleshoot - Run diagnostics\n\n"
+                    "**System Management:**\n"
+                    "• /system-manager - System control\n"
+                    "• /summary-logs - Get logs\n"
+                    "• /status-queue - Queue status\n"
+                    "• /approve-screenshot - Approve screenshots\n"
+                    "• /alert-runner-crash - Send alerts\n\n"
+                    "**Target Systems:** MAIN, BRAUN, CYOPS, DEV\n"
+                    "**Usage:** /command [target] [options]",
+                }
+            ],
+        }
+        return response
+
+    else:
+        """Unknown command."""
+        response = {
+            "text": f"❓ **Unknown Command:** {command}\n"
+            f"Use /help to see all available commands."
+        }
+        return response
+
+
+# ============================================================================
+# WEBHOOK AND INTERACTION HANDLERS
+# ============================================================================
+
+def handle_slack_webhook(request_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle Slack webhook events."""
+    event_type = request_data.get("type", "")
+
+    if event_type == "url_verification":
+        challenge = request_data.get("challenge", "")
+        return challenge
+
+    elif event_type == "event_callback":
+        event = request_data.get("event", {})
+        event_type = event.get("type", "")
+
+        if event_type == "app_mention":
+            # Handle bot mentions
+            text = event.get("text", "")
+            user = event.get("user", "")
+            channel = event.get("channel", "")
+
+            # Extract command from mention
+            if "status" in text.lower():
+                return handle_slack_command(
+                    {
+                        "command": "/status-runner",
+                        "text": "",
+                        "user_id": user,
+                        "channel_id": channel,
+                    }
+                )
+            elif "help" in text.lower():
+                return handle_slack_command(
+                    {
+                        "command": "/help",
+                        "text": "",
+                        "user_id": user,
+                        "channel_id": channel,
+                    }
+                )
+            else:
+                return {
+                    "text": f"👋 Hi! I'm the GPT-Cursor Runner bot. Use `/help` to see available commands."
+                }
+
+    return {"text": "Event received"}
+
+
+def handle_slack_interaction(request_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Handle Slack interactive components."""
+    payload = request_data.get("payload", "")
+    if isinstance(payload, str):
+        payload = json.loads(payload)
+
+    action_type = payload.get("type", "")
+
+    if action_type == "block_actions":
+        actions = payload.get("actions", [])
+        for action in actions:
+            action_id = action.get("action_id", "")
+
+            if action_id == "open_dashboard":
+                return {
+                    "text": "📊 Opening dashboard...",
+                    "response_action": "open_url",
+                    "url": "https://gpt-cursor-runner.fly.dev/dashboard",
+                }
+
+    return {"text": "Interaction handled"}

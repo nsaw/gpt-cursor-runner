@@ -1,0 +1,9 @@
+tunnel: c9a7bf54-dab4-4c9f-a05d-2022f081f4e0
+credentials-file: REDACTED
+
+ingress:
+  - hostname: ghost.thoughtmarks.app
+    service: http://localhost:5001
+  - hostname: ghost-thoughtmarks.thoughtmarks.app
+    service: http://localhost:5001
+  - service: http_status:404

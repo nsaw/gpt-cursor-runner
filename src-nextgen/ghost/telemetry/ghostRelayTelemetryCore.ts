@@ -1,16 +1,19 @@
 // GHOST Relay Telemetry Core — Phase 8A P8.02.00
 // Comprehensive telemetry for GPT relay system with dashboard integration
 
-import fs from 'fs';
-import path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import crypto from 'crypto';
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import crypto from "crypto";
 
 const execAsync = promisify(exec);
-const telemetryLogPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/relay-telemetry.log';
-const telemetryStatePath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/relay-telemetry-state.json';
-const configPath = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-telemetry-config.json';
+const telemetryLogPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/relay-telemetry.log";
+const telemetryStatePath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/relay-telemetry-state.json";
+const configPath =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-telemetry-config.json";
 const logDir = path.dirname(telemetryLogPath);
 
 // Ensure directories exist
@@ -27,12 +30,31 @@ if (!fs.existsSync(path.dirname(configPath))) {
 interface RelayTelemetryEvent {
   id: string;
   timestamp: string;
-  eventType: 'request_start' | 'request_complete' | 'request_error' | 'rate_limit' | 'sanitization' | 'timeout' | 'retry' | 'queue_full' | 'system_health' | 'system_startup' | 'system_shutdown' | 'config_error' | 'state_error' | 'collection_error' | 'dashboard_integration' | 'dashboard_error' | 'system_error' | 'config_update' | 'system_maintenance';
+  eventType:
+    | "request_start"
+    | "request_complete"
+    | "request_error"
+    | "rate_limit"
+    | "sanitization"
+    | "timeout"
+    | "retry"
+    | "queue_full"
+    | "system_health"
+    | "system_startup"
+    | "system_shutdown"
+    | "config_error"
+    | "state_error"
+    | "collection_error"
+    | "dashboard_integration"
+    | "dashboard_error"
+    | "system_error"
+    | "config_update"
+    | "system_maintenance";
   component: string;
   requestId?: string;
   correlationId?: string;
   data: any;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  severity: "info" | "warning" | "error" | "critical";
   processingTime?: number;
   error?: string;
 }
@@ -59,7 +81,7 @@ interface RelayPerformanceMetrics {
 }
 
 interface RelayHealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'critical';
+  status: "healthy" | "degraded" | "unhealthy" | "critical";
   lastCheck: string;
   uptime: number;
   errorCount: number;
@@ -77,11 +99,17 @@ interface RelayRequestTrace {
   timestamp: string;
   command: string;
   source: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   startTime: string;
   endTime?: string;
   processingTime?: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'timeout' | 'retry';
+  status:
+    | "pending"
+    | "processing"
+    | "completed"
+    | "failed"
+    | "timeout"
+    | "retry";
   retryCount: number;
   maxRetries: number;
   sanitized: boolean;
@@ -179,26 +207,26 @@ class GhostRelayTelemetryCore {
     responseTimes: [],
     errorCounts: {},
     concurrentRequests: [],
-    queueLengths: []
+    queueLengths: [],
   };
 
   constructor() {
     this.loadConfig();
     this.initializeState();
-    this.logEvent('system_startup', 'System started', 'info');
+    this.logEvent("system_startup", "System started", "info");
   }
 
   private loadConfig(): void {
     try {
       if (fs.existsSync(configPath)) {
-        const configData = fs.readFileSync(configPath, 'utf8');
+        const configData = fs.readFileSync(configPath, "utf8");
         this.config = JSON.parse(configData);
       } else {
         this.config = this.getDefaultConfig();
         this.saveConfig();
       }
     } catch (error) {
-      this.logEvent('config_error', `Failed to load config: ${error}`);
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
       this.config = this.getDefaultConfig();
     }
   }
@@ -210,20 +238,20 @@ class GhostRelayTelemetryCore {
         enabled: true,
         intervalMs: 5000,
         maxHistorySize: 1000,
-        retentionDays: 7
+        retentionDays: 7,
       },
       tracing: {
         enabled: true,
         traceAllRequests: true,
         maxTraceHistory: 500,
         includeRequestData: true,
-        includeResponseData: false
+        includeResponseData: false,
       },
       performance: {
         enabled: true,
         collectMetrics: true,
         calculatePercentiles: true,
-        trackConcurrency: true
+        trackConcurrency: true,
       },
       health: {
         enabled: true,
@@ -232,29 +260,29 @@ class GhostRelayTelemetryCore {
           maxResponseTime: 30000,
           maxErrorRate: 0.05,
           maxQueueLength: 100,
-          maxConcurrentRequests: 50
-        }
+          maxConcurrentRequests: 50,
+        },
       },
       integration: {
         dashboard: {
           enabled: true,
           updateInterval: 5000,
           sendMetrics: true,
-          sendTraces: true
+          sendTraces: true,
         },
         alerts: {
           enabled: true,
           errorThreshold: 0.1,
           performanceThreshold: 0.8,
-          healthThreshold: 0.7
-        }
+          healthThreshold: 0.7,
+        },
       },
       security: {
         enabled: true,
         sanitizeLogs: true,
         maskSensitiveData: true,
-        auditLogging: true
-      }
+        auditLogging: true,
+      },
     };
   }
 
@@ -262,20 +290,20 @@ class GhostRelayTelemetryCore {
     try {
       fs.writeFileSync(configPath, JSON.stringify(this.config, null, 2));
     } catch (error) {
-      this.logEvent('component_error', `Failed to save config: ${error}`);
+      this.logEvent("system_error", `Failed to save config: ${error}`, "error");
     }
   }
 
   private initializeState(): void {
     try {
       if (fs.existsSync(telemetryStatePath)) {
-        const stateData = fs.readFileSync(telemetryStatePath, 'utf8');
+        const stateData = fs.readFileSync(telemetryStatePath, "utf8");
         this.state = JSON.parse(stateData);
       } else {
         this.state = this.getInitialState();
       }
     } catch (error) {
-      this.logEvent('state_error', `Failed to load state: ${error}`);
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
       this.state = this.getInitialState();
     }
   }
@@ -302,10 +330,10 @@ class GhostRelayTelemetryCore {
         lastRequestTime: new Date().toISOString(),
         uptime: 0,
         errorRate: 0,
-        successRate: 0
+        successRate: 0,
       },
       healthStatus: {
-        status: 'healthy',
+        status: "healthy",
         lastCheck: new Date().toISOString(),
         uptime: 0,
         errorCount: 0,
@@ -313,21 +341,21 @@ class GhostRelayTelemetryCore {
         criticalIssues: [],
         performanceScore: 100,
         reliabilityScore: 100,
-        availabilityScore: 100
+        availabilityScore: 100,
       },
       requestTraces: [],
       lastUpdate: new Date().toISOString(),
-      version: '1.0.0'
+      version: "1.0.0",
     };
   }
 
   private logEvent(
-    eventType: RelayTelemetryEvent['eventType'],
+    eventType: RelayTelemetryEvent["eventType"],
     message: string,
-    severity: RelayTelemetryEvent['severity'],
+    severity: RelayTelemetryEvent["severity"],
     data: any = {},
     requestId?: string,
-    correlationId?: string
+    correlationId?: string,
   ): void {
     if (!this.config.enabled) return;
 
@@ -335,16 +363,16 @@ class GhostRelayTelemetryCore {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       eventType,
-      component: 'relay-telemetry-core',
+      component: "relay-telemetry-core",
       requestId,
       correlationId,
       data,
       severity,
-      processingTime: data.processingTime
+      processingTime: data.processingTime,
     };
 
     this.state.events.push(event);
-    
+
     if (this.state.events.length > this.maxEventHistory) {
       this.state.events = this.state.events.slice(-this.maxEventHistory);
     }
@@ -354,25 +382,33 @@ class GhostRelayTelemetryCore {
       eventType: event.eventType,
       severity: event.severity,
       message,
-      data: this.config.security.sanitizeLogs ? this.sanitizeData(data) : data
+      data: this.config.security.sanitizeLogs ? this.sanitizeData(data) : data,
     };
 
-    fs.appendFileSync(telemetryLogPath, JSON.stringify(logEntry) + '\n');
+    fs.appendFileSync(telemetryLogPath, JSON.stringify(logEntry) + "\n");
   }
 
   private sanitizeData(data: any): any {
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       return data
-        .replace(/api[_-]?key[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'api_key: [REDACTED]')
-        .replace(/token[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'token: [REDACTED]')
-        .replace(/password[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, 'password: [REDACTED]');
+        .replace(
+          /api[_-]?key[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "api_key: [REDACTED]",
+        )
+        .replace(/token[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, "token: [REDACTED]")
+        .replace(
+          /password[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "password: [REDACTED]",
+        );
     }
-    if (typeof data === 'object' && data !== null) {
+    if (typeof data === "object" && data !== null) {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(data)) {
-        if (this.config.security.maskSensitiveData && 
-            ['apiKey', 'token', 'password', 'secret'].includes(key.toLowerCase())) {
-          sanitized[key] = '[REDACTED]';
+        if (
+          this.config.security.maskSensitiveData &&
+          ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
+        ) {
+          sanitized[key] = "[REDACTED]";
         } else {
           sanitized[key] = this.sanitizeData(value);
         }
@@ -386,9 +422,9 @@ class GhostRelayTelemetryCore {
     requestId: string,
     command: string,
     source: string,
-    priority: 'low' | 'medium' | 'high' | 'critical',
+    priority: "low" | "medium" | "high" | "critical",
     maxRetries: number,
-    correlationId?: string
+    correlationId?: string,
   ): void {
     if (!this.config.tracing.enabled) return;
 
@@ -397,56 +433,76 @@ class GhostRelayTelemetryCore {
       requestId,
       correlationId,
       timestamp: new Date().toISOString(),
-      command: this.config.security.sanitizeLogs ? this.sanitizeData(command) : command,
+      command: this.config.security.sanitizeLogs
+        ? this.sanitizeData(command)
+        : command,
       source,
       priority,
       startTime: new Date().toISOString(),
-      status: 'pending',
+      status: "pending",
       retryCount: 0,
       maxRetries,
       sanitized: false,
       rateLimited: false,
-      processingStages: [{
-        stage: 'request_received',
-        startTime: new Date().toISOString()
-      }]
+      processingStages: [
+        {
+          stage: "request_received",
+          startTime: new Date().toISOString(),
+        },
+      ],
     };
 
     this.state.requestTraces.push(trace);
-    
+
     if (this.state.requestTraces.length > this.maxTraceHistory) {
-      this.state.requestTraces = this.state.requestTraces.slice(-this.maxTraceHistory);
+      this.state.requestTraces = this.state.requestTraces.slice(
+        -this.maxTraceHistory,
+      );
     }
 
-    this.logEvent('request_start', `Request started: ${requestId}`, 'info', {
-      command: trace.command,
-      source,
-      priority,
-      maxRetries
-    }, requestId, correlationId);
+    this.logEvent(
+      "request_start",
+      `Request started: ${requestId}`,
+      "info",
+      {
+        command: trace.command,
+        source,
+        priority,
+        maxRetries,
+      },
+      requestId,
+      correlationId,
+    );
   }
 
-  public traceRequestStage(
-    requestId: string,
-    stage: string,
-    data?: any
-  ): void {
+  public traceRequestStage(requestId: string, stage: string, data?: any): void {
     if (!this.config.tracing.enabled) return;
 
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
-      const lastStage = trace.processingStages[trace.processingStages.length - 1];
+      const lastStage =
+        trace.processingStages[trace.processingStages.length - 1];
       if (lastStage && !lastStage.endTime) {
         lastStage.endTime = new Date().toISOString();
-        lastStage.duration = new Date(lastStage.endTime).getTime() - new Date(lastStage.startTime).getTime();
+        lastStage.duration =
+          new Date(lastStage.endTime).getTime() -
+          new Date(lastStage.startTime).getTime();
       }
 
       trace.processingStages.push({
         stage,
-        startTime: new Date().toISOString()
+        startTime: new Date().toISOString(),
       });
 
-      this.logEvent('request_complete', `Stage completed: ${stage}`, 'info', data, requestId);
+      this.logEvent(
+        "request_complete",
+        `Stage completed: ${stage}`,
+        "info",
+        data,
+        requestId,
+      );
     }
   }
 
@@ -457,21 +513,24 @@ class GhostRelayTelemetryCore {
     responseLength?: number,
     tokensUsed?: number,
     sanitized: boolean = false,
-    error?: string
+    error?: string,
   ): void {
     if (!this.config.tracing.enabled) return;
 
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
       trace.endTime = new Date().toISOString();
       trace.processingTime = processingTime;
-      trace.status = success ? 'completed' : 'failed';
+      trace.status = success ? "completed" : "failed";
       trace.sanitized = sanitized;
       trace.responseLength = responseLength;
       trace.tokensUsed = tokensUsed;
       trace.error = error;
 
-      const lastStage = trace.processingStages[trace.processingStages.length - 1];
+      const lastStage =
+        trace.processingStages[trace.processingStages.length - 1];
       if (lastStage && !lastStage.endTime) {
         lastStage.endTime = new Date().toISOString();
         lastStage.duration = processingTime;
@@ -479,83 +538,133 @@ class GhostRelayTelemetryCore {
 
       this.updatePerformanceMetrics(success, processingTime, sanitized);
 
-      this.logEvent('request_complete', `Request completed: ${requestId}`, 
-        success ? 'info' : 'error', {
+      this.logEvent(
+        "request_complete",
+        `Request completed: ${requestId}`,
+        success ? "info" : "error",
+        {
           success,
           processingTime,
           responseLength,
           tokensUsed,
           sanitized,
-          error
-        }, requestId);
+          error,
+        },
+        requestId,
+      );
     }
   }
 
   public traceRequestError(
     requestId: string,
     error: string,
-    errorType: 'timeout' | 'rate_limit' | 'sanitization' | 'network' | 'api' | 'unknown'
+    errorType:
+      | "timeout"
+      | "rate_limit"
+      | "sanitization"
+      | "network"
+      | "api"
+      | "unknown",
   ): void {
     if (!this.config.tracing.enabled) return;
 
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
-      trace.status = 'failed';
+      trace.status = "failed";
       trace.error = error;
 
-      const lastStage = trace.processingStages[trace.processingStages.length - 1];
+      const lastStage =
+        trace.processingStages[trace.processingStages.length - 1];
       if (lastStage && !lastStage.endTime) {
         lastStage.endTime = new Date().toISOString();
         lastStage.error = error;
       }
 
-      this.logEvent('request_error', `Request error: ${error}`, 'error', {
-        errorType,
-        requestId
-      }, requestId);
+      this.logEvent(
+        "request_error",
+        `Request error: ${error}`,
+        "error",
+        {
+          errorType,
+          requestId,
+        },
+        requestId,
+      );
     }
   }
 
   public traceRateLimit(requestId: string): void {
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
       trace.rateLimited = true;
     }
 
     this.state.performanceMetrics.rateLimitHits++;
-    this.logEvent('rate_limit', `Rate limit hit for request: ${requestId}`, 'warning', {}, requestId);
+    this.logEvent(
+      "rate_limit",
+      `Rate limit hit for request: ${requestId}`,
+      "warning",
+      {},
+      requestId,
+    );
   }
 
   public traceRetry(requestId: string, retryCount: number): void {
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
       trace.retryCount = retryCount;
-      trace.status = 'retry';
+      trace.status = "retry";
     }
 
     this.state.performanceMetrics.retryCount++;
-    this.logEvent('retry', `Request retry: ${requestId} (attempt ${retryCount})`, 'warning', {
-      retryCount
-    }, requestId);
+    this.logEvent(
+      "retry",
+      `Request retry: ${requestId} (attempt ${retryCount})`,
+      "warning",
+      {
+        retryCount,
+      },
+      requestId,
+    );
   }
 
   public traceSanitization(requestId: string, wasSanitized: boolean): void {
-    const trace = this.state.requestTraces.find(t => t.requestId === requestId);
+    const trace = this.state.requestTraces.find(
+      (t) => t.requestId === requestId,
+    );
     if (trace) {
       trace.sanitized = wasSanitized;
     }
 
     if (wasSanitized) {
       this.state.performanceMetrics.sanitizationCount++;
-      this.logEvent('sanitization', `Content sanitized for request: ${requestId}`, 'info', {}, requestId);
+      this.logEvent(
+        "sanitization",
+        `Content sanitized for request: ${requestId}`,
+        "info",
+        {},
+        requestId,
+      );
     }
   }
 
-  public updateQueueMetrics(queueLength: number, concurrentRequests: number): void {
+  public updateQueueMetrics(
+    queueLength: number,
+    concurrentRequests: number,
+  ): void {
     this.state.performanceMetrics.queueLength = queueLength;
-    this.state.performanceMetrics.currentConcurrentRequests = concurrentRequests;
-    
-    if (concurrentRequests > this.state.performanceMetrics.maxConcurrentRequests) {
+    this.state.performanceMetrics.currentConcurrentRequests =
+      concurrentRequests;
+
+    if (
+      concurrentRequests > this.state.performanceMetrics.maxConcurrentRequests
+    ) {
       this.state.performanceMetrics.maxConcurrentRequests = concurrentRequests;
     }
 
@@ -563,20 +672,22 @@ class GhostRelayTelemetryCore {
     this.performanceData.concurrentRequests.push(concurrentRequests);
 
     if (this.performanceData.queueLengths.length > 1000) {
-      this.performanceData.queueLengths = this.performanceData.queueLengths.slice(-1000);
+      this.performanceData.queueLengths =
+        this.performanceData.queueLengths.slice(-1000);
     }
     if (this.performanceData.concurrentRequests.length > 1000) {
-      this.performanceData.concurrentRequests = this.performanceData.concurrentRequests.slice(-1000);
+      this.performanceData.concurrentRequests =
+        this.performanceData.concurrentRequests.slice(-1000);
     }
   }
 
   private updatePerformanceMetrics(
     success: boolean,
     processingTime: number,
-    sanitized: boolean
+    sanitized: boolean,
   ): void {
     this.state.performanceMetrics.totalRequests++;
-    
+
     if (success) {
       this.state.performanceMetrics.successfulRequests++;
     } else {
@@ -587,7 +698,8 @@ class GhostRelayTelemetryCore {
     this.performanceData.responseTimes.push(processingTime);
 
     if (this.performanceData.responseTimes.length > 1000) {
-      this.performanceData.responseTimes = this.performanceData.responseTimes.slice(-1000);
+      this.performanceData.responseTimes =
+        this.performanceData.responseTimes.slice(-1000);
     }
 
     this.calculatePerformanceMetrics();
@@ -598,24 +710,26 @@ class GhostRelayTelemetryCore {
     if (responseTimes.length === 0) return;
 
     const sortedTimes = [...responseTimes].sort((a, b) => a - b);
-    
-    this.state.performanceMetrics.averageResponseTime = 
+
+    this.state.performanceMetrics.averageResponseTime =
       responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length;
-    
-    this.state.performanceMetrics.medianResponseTime = 
+
+    this.state.performanceMetrics.medianResponseTime =
       sortedTimes[Math.floor(sortedTimes.length * 0.5)];
-    
-    this.state.performanceMetrics.p95ResponseTime = 
+
+    this.state.performanceMetrics.p95ResponseTime =
       sortedTimes[Math.floor(sortedTimes.length * 0.95)];
-    
-    this.state.performanceMetrics.p99ResponseTime = 
+
+    this.state.performanceMetrics.p99ResponseTime =
       sortedTimes[Math.floor(sortedTimes.length * 0.99)];
 
-    this.state.performanceMetrics.errorRate = 
-      this.state.performanceMetrics.failedRequests / this.state.performanceMetrics.totalRequests;
-    
-    this.state.performanceMetrics.successRate = 
-      this.state.performanceMetrics.successfulRequests / this.state.performanceMetrics.totalRequests;
+    this.state.performanceMetrics.errorRate =
+      this.state.performanceMetrics.failedRequests /
+      this.state.performanceMetrics.totalRequests;
+
+    this.state.performanceMetrics.successRate =
+      this.state.performanceMetrics.successfulRequests /
+      this.state.performanceMetrics.totalRequests;
   }
 
   private async updateHealthStatus(): Promise<void> {
@@ -625,30 +739,37 @@ class GhostRelayTelemetryCore {
     const startTime = new Date(this.state.performanceMetrics.lastRequestTime);
     this.state.healthStatus.uptime = now.getTime() - startTime.getTime();
 
-    const recentEvents = this.state.events.filter(event => {
+    const recentEvents = this.state.events.filter((event) => {
       const eventTime = new Date(event.timestamp);
       return now.getTime() - eventTime.getTime() < 300000;
     });
 
-    this.state.healthStatus.errorCount = recentEvents.filter(e => e.severity === 'error' || e.severity === 'critical').length;
-    this.state.healthStatus.warningCount = recentEvents.filter(e => e.severity === 'warning').length;
+    this.state.healthStatus.errorCount = recentEvents.filter(
+      (e) => e.severity === "error" || e.severity === "critical",
+    ).length;
+    this.state.healthStatus.warningCount = recentEvents.filter(
+      (e) => e.severity === "warning",
+    ).length;
 
     this.state.healthStatus.performanceScore = this.calculatePerformanceScore();
     this.state.healthStatus.reliabilityScore = this.calculateReliabilityScore();
-    this.state.healthStatus.availabilityScore = this.calculateAvailabilityScore();
+    this.state.healthStatus.availabilityScore =
+      this.calculateAvailabilityScore();
 
-    const avgScore = (this.state.healthStatus.performanceScore + 
-                     this.state.healthStatus.reliabilityScore + 
-                     this.state.healthStatus.availabilityScore) / 3;
+    const avgScore =
+      (this.state.healthStatus.performanceScore
+        this.state.healthStatus.reliabilityScore
+        this.state.healthStatus.availabilityScore) /
+      3;
 
     if (avgScore >= 90) {
-      this.state.healthStatus.status = 'healthy';
+      this.state.healthStatus.status = "healthy";
     } else if (avgScore >= 70) {
-      this.state.healthStatus.status = 'degraded';
+      this.state.healthStatus.status = "degraded";
     } else if (avgScore >= 50) {
-      this.state.healthStatus.status = 'unhealthy';
+      this.state.healthStatus.status = "unhealthy";
     } else {
-      this.state.healthStatus.status = 'critical';
+      this.state.healthStatus.status = "critical";
     }
 
     this.state.healthStatus.lastCheck = now.toISOString();
@@ -658,19 +779,30 @@ class GhostRelayTelemetryCore {
     const metrics = this.state.performanceMetrics;
     let score = 100;
 
-    if (metrics.averageResponseTime > this.config.health.performanceThresholds.maxResponseTime) {
+    if (
+      metrics.averageResponseTime >
+      this.config.health.performanceThresholds.maxResponseTime
+    ) {
       score -= 20;
     }
 
-    if (metrics.errorRate > this.config.health.performanceThresholds.maxErrorRate) {
+    if (
+      metrics.errorRate > this.config.health.performanceThresholds.maxErrorRate
+    ) {
       score -= 30;
     }
 
-    if (metrics.queueLength > this.config.health.performanceThresholds.maxQueueLength) {
+    if (
+      metrics.queueLength >
+      this.config.health.performanceThresholds.maxQueueLength
+    ) {
       score -= 15;
     }
 
-    if (metrics.currentConcurrentRequests > this.config.health.performanceThresholds.maxConcurrentRequests) {
+    if (
+      metrics.currentConcurrentRequests >
+      this.config.health.performanceThresholds.maxConcurrentRequests
+    ) {
       score -= 10;
     }
 
@@ -706,7 +838,7 @@ class GhostRelayTelemetryCore {
     const lastRequestTime = new Date(metrics.lastRequestTime);
     const now = new Date();
     const timeSinceLastRequest = now.getTime() - lastRequestTime.getTime();
-    
+
     if (timeSinceLastRequest > 300000) {
       score -= 30;
     }
@@ -720,7 +852,7 @@ class GhostRelayTelemetryCore {
       this.state.lastUpdate = new Date().toISOString();
       fs.writeFileSync(telemetryStatePath, JSON.stringify(this.state, null, 2));
     } catch (error) {
-      this.logEvent('state_error', `Failed to save state: ${error}`);
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
     }
   }
 
@@ -729,24 +861,34 @@ class GhostRelayTelemetryCore {
       try {
         await this.updateHealthStatus();
         await this.saveState();
-        
+
         if (this.config.integration.dashboard.enabled) {
           await this.sendMetricsToDashboard();
         }
 
-        await new Promise(resolve => setTimeout(resolve, this.config.collection.intervalMs));
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.collection.intervalMs),
+        );
       } catch (error) {
-        this.logEvent('collection_error', `Collection loop error: ${error}`, 'error');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.logEvent(
+          "collection_error",
+          `Collection loop error: ${error}`,
+          "error",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }
 
   private async sendMetricsToDashboard(): Promise<void> {
     try {
-      this.logEvent('error', 'Component error detected', 'error');
+      this.logEvent("system_error", "Component error detected", "error");
     } catch (error) {
-      this.logEvent('component_error', `Failed to send metrics to dashboard: ${error}`, 'error');
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send metrics to dashboard: ${error}`,
+        "error",
+      );
     }
   }
 
@@ -754,16 +896,20 @@ class GhostRelayTelemetryCore {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    this.logEvent('system_startup', 'System started', 'info');
+    this.logEvent("system_startup", "System started", "info");
 
-    this.collectionLoop().catch(error => {
-      this.logEvent('component_error', `Collection loop failed: ${error}`, 'critical');
+    this.collectionLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Collection loop failed: ${error}`,
+        "critical",
+      );
     });
   }
 
   public async stop(): Promise<void> {
     this.isRunning = false;
-    this.logEvent('system_shutdown', 'info', 'info');
+    this.logEvent("system_shutdown", "Relay telemetry core stopped", "info");
     await this.saveState();
   }
 
@@ -778,7 +924,7 @@ class GhostRelayTelemetryCore {
   public updateConfig(newConfig: Partial<RelayTelemetryConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.saveConfig();
-    this.logEvent('config_update', 'newConfig', 'info');
+    this.logEvent("config_update", "Configuration updated", "info");
   }
 
   public getPerformanceMetrics(): RelayPerformanceMetrics {
@@ -798,7 +944,10 @@ class GhostRelayTelemetryCore {
   }
 
   public isHealthy(): boolean {
-    return this.state.healthStatus.status === 'healthy' || this.state.healthStatus.status === 'degraded';
+    return (
+      this.state.healthStatus.status === "healthy" ||
+      this.state.healthStatus.status === "degraded"
+    );
   }
 
   public clearHistory(): void {
@@ -808,9 +957,9 @@ class GhostRelayTelemetryCore {
       responseTimes: [],
       errorCounts: {},
       concurrentRequests: [],
-      queueLengths: []
+      queueLengths: [],
     };
-    this.logEvent('error', 'Component error detected', 'error');
+    this.logEvent("system_error", "Component error detected", "error");
   }
 }
 
@@ -842,5 +991,5 @@ export type {
   RelayHealthStatus,
   RelayRequestTrace,
   RelayTelemetryConfig,
-  RelayTelemetryState
-}; 
+  RelayTelemetryState,
+};

@@ -1,33 +1,135 @@
 repos:
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
+  # --- PYTHON LINTING & FORMATTING ---
+  # Flake8 is commented out; Ruff covers almost all use cases, much faster.
+  # - repo: https://github.com/pycqa/flake8
+  #   rev: 7.0.0
+  #   hooks:
+  #     - id: flake8
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.12.7 # Update with `pre-commit autoupdate`
     hooks:
       - id: ruff
+        args: [--fix]
+        files: \.py$
+        exclude: \.md$
 
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 25.1.0
     hooks:
       - id: black
+        files: \.py$
+        exclude: \.md$
 
+  #- repo: https://github.com/astral-sh/basedpyright
+  #  rev: v1.12.10  # Update as needed
+  #  hooks:
+  #    - id: basedpyright
+  #      name: basedpyright type checker
+  #      files: \.py$
+  #      exclude: \.md$
+
+  # --- SHELL SCRIPTS ---
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
+        files: \.sh$
+        exclude: \.md$
 
-  - repo: https://github.com/mvdan/sh
-    rev: v3.8.0
+  # - repo: https://github.com/mvdan/sh
+  #   rev: v3.8.0
+  #   hooks:
+  #     - id: shfmt
+  #       files: \.sh$
+  #       exclude: \.md$
+
+  # --- JAVASCRIPT / TYPESCRIPT / FORMATTING ---
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
     hooks:
-      - id: shfmt
+      - id: prettier
+        files: \.(js|ts|tsx|json|css|scss)$
+        # Markdown files excluded
 
+  # --- LOCAL/FAST HOOKS ---
   - repo: local
     hooks:
+      - id: remove-trailing-whitespace
+        name: "Remove trailing whitespace"
+        entry: bash -c "for f in \"$@\"; do sed -i '' -e 's/[[:space:]]\+$//' \"$f\"; done"
+        language: system
+        pass_filenames: true
+        files: \.(py|js|ts|tsx|sh)$
+        exclude: \.md$
+
+      - id: ensure-eof-newline
+        name: "Ensure newline at EOF"
+        entry: bash -c "for f in \"$@\"; do [ -s \"$f\" ] && tail -c1 \"$f\" | read -r _ || echo >> \"$f\"; done"
+        language: system
+        pass_filenames: true
+        files: \.(py|js|ts|tsx|sh)$
+        exclude: \.md$
+
+      # --- Example SED/AWK/PERL autofixers (customize/remove as needed) ---
+      - id: fix-tabs-to-spaces
+        name: "Convert tabs to spaces using sed"
+        entry: bash -c "for f in \"$@\"; do sed -i.bak 's/\t/    /g' \"$f\"; done"
+        language: system
+        pass_filenames: true
+        files: \.(py|js|ts|sh)$
+        exclude: \.md$
+
+      - id: enforce-header-comment
+        name: "Enforce header comment with awk"
+        entry: bash -c "for f in \"$@\"; do awk 'NR==1{print \"# Company Confidential\"}1' \"$f\" > \"$f\".tmp && mv \"$f\".tmp \"$f\"; done"
+        language: system
+        pass_filenames: true
+        files: \.py$
+        exclude: \.md$
+
+      - id: perl-email-check
+        name: "Reject foo@bar.com with perl"
+        entry: perl -ne 'exit 1 if /foo@bar\.com/' $@
+        language: system
+        pass_filenames: true
+        files: \.(js|ts|py)$
+        exclude: \.md$
+
+      - id: uppercase-todo-comments
+        name: "Uppercase all TODOs"
+        entry: bash -c "for f in \"$@\"; do sed -i.bak 's/todo/TODO/g' \"$f\"; done"
+        language: system
+        pass_filenames: true
+        files: \.(js|jsx|ts|tsx)$
+        exclude: \.md$
+
+      # --- JS/TS linting and typechecking ---
       - id: eslint
-        name: eslint
+        name: "eslint (no-fix, fail on error)"
+        entry: npx eslint .
+        language: system
+        types: [file]
+        files: \.(js|jsx|ts|tsx)$
+
+      - id: eslint-fix
+        name: "eslint --fix (optional auto-fix)"
         entry: npx eslint . --fix
         language: system
-        files: '\.(js|jsx|ts|tsx)$'
+        types: [file]
+        files: \.(js|jsx|ts|tsx)$
+        # Uncomment if you want auto-fix in pre-commit
+
+      - id: tsc
+        name: "tsc typecheck"
+        entry: npx tsc --noEmit --skipLibCheck
+        language: system
+        types: [file]
+        files: \.(ts|tsx)$
+
+      - id: basedpyright
+        name: basedpyright type checker (npm)
+        entry: npx basedpyright
+        language: node
+        files: \.py$
+        exclude: \.md$

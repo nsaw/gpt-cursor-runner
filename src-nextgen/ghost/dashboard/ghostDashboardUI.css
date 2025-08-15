@@ -1,9 +1,10 @@
 /* GHOST Dashboard UI Styles — Phase 8A P8.05.00 */
 
 .ghost-dashboard {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0F172A;
-  color: #E2E8F0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
   min-height: 100vh;
   padding: 0;
   margin: 0;
@@ -15,23 +16,27 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #0F172A;
-  color: #E2E8F0;
+  background: #0f172a;
+  color: #e2e8f0;
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid #334155;
-  border-top: 4px solid #3B82F6;
+  border-top: 4px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .dashboard-error {
@@ -40,19 +45,19 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #0F172A;
-  color: #E2E8F0;
+  background: #0f172a;
+  color: #e2e8f0;
   text-align: center;
   padding: 20px;
 }
 
 .dashboard-error h2 {
-  color: #EF4444;
+  color: #ef4444;
   margin-bottom: 16px;
 }
 
 .dashboard-error button {
-  background: #3B82F6;
+  background: #3b82f6;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -63,11 +68,11 @@
 }
 
 .dashboard-error button:hover {
-  background: #2563EB;
+  background: #2563eb;
 }
 
 .dashboard-header {
-  background: #1E293B;
+  background: #1e293b;
   padding: 20px;
   border-bottom: 1px solid #334155;
   display: flex;
@@ -79,7 +84,7 @@
 
 .dashboard-header h1 {
   margin: 0;
-  color: #F8FAFC;
+  color: #f8fafc;
   font-size: 24px;
   font-weight: 600;
 }
@@ -97,12 +102,12 @@
 }
 
 .refresh-info span {
-  color: #94A3B8;
+  color: #94a3b8;
   font-size: 14px;
 }
 
 .refresh-info button {
-  background: #3B82F6;
+  background: #3b82f6;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -112,7 +117,7 @@
 }
 
 .refresh-info button:hover {
-  background: #2563EB;
+  background: #2563eb;
 }
 
 .auto-refresh {
@@ -126,12 +131,12 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 .auto-refresh select {
   background: #334155;
-  color: #E2E8F0;
+  color: #e2e8f0;
   border: 1px solid #475569;
   padding: 4px 8px;
   border-radius: 4px;
@@ -152,8 +157,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .health-text {
@@ -174,7 +184,7 @@
 }
 
 .dashboard-panel {
-  background: #1E293B;
+  background: #1e293b;
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #334155;
@@ -182,7 +192,7 @@
 
 .dashboard-panel h2 {
   margin: 0 0 16px 0;
-  color: #F8FAFC;
+  color: #f8fafc;
   font-size: 18px;
   font-weight: 600;
 }
@@ -212,7 +222,7 @@
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #F8FAFC;
+  color: #f8fafc;
 }
 
 .status-indicator {
@@ -224,11 +234,11 @@
 .daemon-details p {
   margin: 4px 0;
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 .daemon-details .error {
-  color: #EF4444;
+  color: #ef4444;
   font-weight: 500;
 }
 
@@ -243,11 +253,11 @@
   border-radius: 4px;
   padding: 12px;
   margin-bottom: 8px;
-  border-left: 4px solid #3B82F6;
+  border-left: 4px solid #3b82f6;
 }
 
 .trace-entry.error {
-  border-left-color: #EF4444;
+  border-left-color: #ef4444;
 }
 
 .trace-header {
@@ -259,7 +269,7 @@
 
 .timestamp {
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 .status {
@@ -268,17 +278,17 @@
 }
 
 .status.success {
-  color: #10B981;
+  color: #10b981;
 }
 
 .status.error {
-  color: #EF4444;
+  color: #ef4444;
 }
 
 .trace-details p {
   margin: 4px 0;
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 .badge {
@@ -291,12 +301,12 @@
 }
 
 .badge.sanitized {
-  background: #F59E0B;
-  color: #1F2937;
+  background: #f59e0b;
+  color: #1f2937;
 }
 
 .badge.rate-limited {
-  background: #EF4444;
+  background: #ef4444;
   color: white;
 }
 
@@ -324,33 +334,33 @@
   display: block;
   font-size: 24px;
   font-weight: 700;
-  color: #F8FAFC;
+  color: #f8fafc;
   margin-bottom: 4px;
 }
 
 .metric-value.pending {
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .metric-value.executing {
-  color: #3B82F6;
+  color: #3b82f6;
 }
 
 .metric-value.completed {
-  color: #10B981;
+  color: #10b981;
 }
 
 .metric-value.failed {
-  color: #EF4444;
+  color: #ef4444;
 }
 
 .metric-value.healthy {
-  color: #10B981;
+  color: #10b981;
 }
 
 .metric-label {
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -358,7 +368,7 @@
 .queue-details p {
   margin: 8px 0;
   font-size: 14px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 /* Heartbeat Status */
@@ -377,7 +387,7 @@
 .heartbeat-details p {
   margin: 8px 0;
   font-size: 14px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 /* System Metrics */
@@ -397,7 +407,7 @@
 .metric-card h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #94A3B8;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -405,14 +415,14 @@
 .metric-card .metric-value {
   font-size: 28px;
   font-weight: 700;
-  color: #F8FAFC;
+  color: #f8fafc;
   margin-bottom: 8px;
 }
 
 .metric-card .metric-details p {
   margin: 4px 0;
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 /* Anomaly Feed */
@@ -426,23 +436,23 @@
   border-radius: 4px;
   padding: 12px;
   margin-bottom: 8px;
-  border-left: 4px solid #3B82F6;
+  border-left: 4px solid #3b82f6;
 }
 
 .anomaly-entry.critical {
-  border-left-color: #EF4444;
+  border-left-color: #ef4444;
 }
 
 .anomaly-entry.high {
-  border-left-color: #F59E0B;
+  border-left-color: #f59e0b;
 }
 
 .anomaly-entry.medium {
-  border-left-color: #3B82F6;
+  border-left-color: #3b82f6;
 }
 
 .anomaly-entry.low {
-  border-left-color: #10B981;
+  border-left-color: #10b981;
 }
 
 .anomaly-header {
@@ -461,29 +471,29 @@
 }
 
 .severity-badge.critical {
-  background: #EF4444;
+  background: #ef4444;
   color: white;
 }
 
 .severity-badge.high {
-  background: #F59E0B;
-  color: #1F2937;
+  background: #f59e0b;
+  color: #1f2937;
 }
 
 .severity-badge.medium {
-  background: #3B82F6;
+  background: #3b82f6;
   color: white;
 }
 
 .severity-badge.low {
-  background: #10B981;
+  background: #10b981;
   color: white;
 }
 
 .anomaly-content p {
   margin: 4px 0;
   font-size: 12px;
-  color: #94A3B8;
+  color: #94a3b8;
 }
 
 /* Responsive Design */
@@ -492,26 +502,26 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .dashboard-controls {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .daemon-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .queue-metrics,
   .heartbeat-metrics {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -537,5 +547,5 @@
 
 .trace-log::-webkit-scrollbar-thumb:hover,
 .anomaly-list::-webkit-scrollbar-thumb:hover {
-  background: #64748B;
-} 
+  background: #64748b;
+}

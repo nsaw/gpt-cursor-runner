@@ -1,5 +1,5 @@
 {
-  "relayPort": 5555,
-  "flyEnabled": false,
-  "emergencyKey": "$(op read op://SecretKeeper/SESSION_SECRET/credential)"
-} 
+  "relayPort": 5051,
+  "environment": "production",
+  "logLevel": "info"
+}

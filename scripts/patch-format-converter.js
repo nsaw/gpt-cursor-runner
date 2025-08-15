@@ -5,15 +5,15 @@
  * Ensures compatibility and validation across all systems
  */
 
-const fs = require('fs/promises');
+const fs = require("fs/promises");
 
 class PatchFormatConverter {
   constructor() {
-    this.supportedFormats = ['webhook', 'executor', 'unified'];
+    this.supportedFormats = ["webhook", "executor", "unified"];
     this.validationRules = {
-      webhook: ['id', 'role', 'target_file', 'patch'],
-      executor: ['id', 'mutations', 'postMutationBuild'],
-      unified: ['id', 'type', 'target', 'content', 'validation', 'metadata']
+      webhook: ["id", "role", "target_file", "patch"],
+      executor: ["id", "mutations", "postMutationBuild"],
+      unified: ["id", "type", "target", "content", "validation", "metadata"],
     };
   }
 
@@ -26,7 +26,7 @@ class PatchFormatConverter {
     try {
       // Skip validation for now to handle flexible structure
       // this.validatePatch(webhookPatch, 'webhook');
-      
+
       // Handle both traditional webhook format and current format with mutations
       let mutations = [];
       let postMutationBuild = { shell: [] };
@@ -36,7 +36,7 @@ class PatchFormatConverter {
         runDryCheck: true,
         forceRuntimeTrace: true,
         requireMutationProof: true,
-        requireServiceUptime: true
+        requireServiceUptime: true,
       };
 
       if (webhookPatch.mutations && Array.isArray(webhookPatch.mutations)) {
@@ -54,34 +54,35 @@ class PatchFormatConverter {
           {
             path: webhookPatch.target_file,
             contents: webhookPatch.patch,
-            type: 'file_modification'
-          }
+            type: "file_modification",
+          },
         ];
         if (webhookPatch.validation) {
           validation = { ...validation, ...webhookPatch.validation };
         }
       } else {
-        throw new Error('Unable to determine patch structure');
+        throw new Error("Unable to determine patch structure");
       }
 
       const executorPatch = {
         id: webhookPatch.id || webhookPatch.blockId,
         metadata: {
-          originalFormat: 'webhook',
+          originalFormat: "webhook",
           convertedAt: new Date().toISOString(),
-          role: webhookPatch.role || webhookPatch.target || 'default',
-          targetFile: webhookPatch.target_file || mutations[0]?.path
+          role: webhookPatch.role || webhookPatch.target || "default",
+          targetFile: webhookPatch.target_file || mutations[0]?.path,
         },
         mutations,
         postMutationBuild,
-        validation
+        validation,
       };
 
       // this.validatePatch(executorPatch, 'executor');
       return executorPatch;
-
     } catch (error) {
-      throw new Error(`Webhook to executor conversion failed: ${error.message}`);
+      throw new Error(
+        `Webhook to executor conversion failed: ${error.message}`,
+      );
     }
   }
 
@@ -92,40 +93,42 @@ class PatchFormatConverter {
    */
   convertExecutorToWebhook(executorPatch) {
     try {
-      this.validatePatch(executorPatch, 'executor');
-      
+      this.validatePatch(executorPatch, "executor");
+
       // Find the main file mutation
-      const mainMutation = executorPatch.mutations.find(m => m.type === 'file_modification') || 
-                          executorPatch.mutations[0];
+      const mainMutation =
+        executorPatch.mutations.find((m) => m.type === "file_modification") ||
+        executorPatch.mutations[0];
 
       if (!mainMutation) {
-        throw new Error('No file mutation found in executor patch');
+        throw new Error("No file mutation found in executor patch");
       }
 
       const webhookPatch = {
         id: executorPatch.id,
-        role: executorPatch.metadata?.role || 'default',
+        role: executorPatch.metadata?.role || "default",
         target_file: mainMutation.path,
         patch: mainMutation.contents,
         metadata: {
-          originalFormat: 'executor',
+          originalFormat: "executor",
           convertedAt: new Date().toISOString(),
-          validation: executorPatch.validation
-        }
+          validation: executorPatch.validation,
+        },
       };
 
       // Add validation commands if present
       if (executorPatch.postMutationBuild?.shell?.length > 0) {
         webhookPatch.validation = {
-          shell: executorPatch.postMutationBuild.shell
+          shell: executorPatch.postMutationBuild.shell,
         };
       }
 
-      this.validatePatch(webhookPatch, 'webhook');
+      this.validatePatch(webhookPatch, "webhook");
       return webhookPatch;
-
     } catch (error) {
-      throw new Error(`Executor to webhook conversion failed: ${error.message}`);
+      throw new Error(
+        `Executor to webhook conversion failed: ${error.message}`,
+      );
     }
   }
 
@@ -139,14 +142,14 @@ class PatchFormatConverter {
     try {
       // Skip validation for now to handle flexible structure
       // this.validatePatch(patch, sourceFormat);
-      
+
       const unifiedPatch = {
         id: patch.id || patch.blockId,
-        type: 'unified',
+        type: "unified",
         metadata: {
           sourceFormat,
           convertedAt: new Date().toISOString(),
-          version: '1.0.0'
+          version: "1.0.0",
         },
         target: {},
         content: {},
@@ -156,57 +159,60 @@ class PatchFormatConverter {
           runDryCheck: true,
           forceRuntimeTrace: true,
           requireMutationProof: true,
-          requireServiceUptime: true
+          requireServiceUptime: true,
         },
         execution: {
-          priority: 'normal',
+          priority: "normal",
           retryCount: 0,
           maxRetries: 3,
-          timeout: 300000 // 5 minutes
-        }
+          timeout: 300000, // 5 minutes
+        },
       };
 
       // Convert based on source format
-      if (sourceFormat === 'webhook') {
+      if (sourceFormat === "webhook") {
         // Handle current format with mutations
         if (patch.mutations && Array.isArray(patch.mutations)) {
           unifiedPatch.target = {
-            files: patch.mutations.map(m => m.path),
-            role: patch.target || 'default'
+            files: patch.mutations.map((m) => m.path),
+            role: patch.target || "default",
           };
           unifiedPatch.content = {
-            type: 'multi_mutation',
-            mutations: patch.mutations
+            type: "multi_mutation",
+            mutations: patch.mutations,
           };
         } else {
           // Traditional webhook format
           unifiedPatch.target = {
             file: patch.target_file,
-            role: patch.role || 'default'
+            role: patch.role || "default",
           };
           unifiedPatch.content = {
-            type: 'file_modification',
-            data: patch.patch
+            type: "file_modification",
+            data: patch.patch,
           };
         }
-        
+
         // Add validation from current format
         if (patch.validate) {
-          unifiedPatch.validation = { ...unifiedPatch.validation, ...patch.validate };
+          unifiedPatch.validation = {
+            ...unifiedPatch.validation,
+            ...patch.validate,
+          };
         }
-      } else if (sourceFormat === 'executor') {
+      } else if (sourceFormat === "executor") {
         unifiedPatch.target = {
-          files: patch.mutations.map(m => m.path),
-          role: patch.metadata?.role || 'default'
+          files: patch.mutations.map((m) => m.path),
+          role: patch.metadata?.role || "default",
         };
         unifiedPatch.content = {
-          type: 'multi_mutation',
-          mutations: patch.mutations
+          type: "multi_mutation",
+          mutations: patch.mutations,
         };
         if (patch.postMutationBuild) {
           unifiedPatch.validation = {
             ...unifiedPatch.validation,
-            ...patch.postMutationBuild.validation
+            ...patch.postMutationBuild.validation,
           };
         }
       }
@@ -214,7 +220,6 @@ class PatchFormatConverter {
       // Skip validation for now
       // this.validatePatch(unifiedPatch, 'unified');
       return unifiedPatch;
-
     } catch (error) {
       throw new Error(`Unified conversion failed: ${error.message}`);
     }
@@ -230,8 +235,8 @@ class PatchFormatConverter {
       throw new Error(`Unsupported format: ${format}`);
     }
 
-    if (!patch || typeof patch !== 'object') {
-      throw new Error('Patch must be a valid object');
+    if (!patch || typeof patch !== "object") {
+      throw new Error("Patch must be a valid object");
     }
 
     const requiredFields = this.validationRules[format];
@@ -242,25 +247,25 @@ class PatchFormatConverter {
     }
 
     // Additional format-specific validation
-    if (format === 'webhook') {
-      if (typeof patch.patch !== 'string') {
-        throw new Error('Webhook patch content must be a string');
+    if (format === "webhook") {
+      if (typeof patch.patch !== "string") {
+        throw new Error("Webhook patch content must be a string");
       }
-      if (!patch.target_file || typeof patch.target_file !== 'string') {
-        throw new Error('Webhook target_file must be a valid string path');
+      if (!patch.target_file || typeof patch.target_file !== "string") {
+        throw new Error("Webhook target_file must be a valid string path");
       }
-    } else if (format === 'executor') {
+    } else if (format === "executor") {
       if (!Array.isArray(patch.mutations)) {
-        throw new Error('Executor mutations must be an array');
+        throw new Error("Executor mutations must be an array");
       }
       for (const mutation of patch.mutations) {
         if (!mutation.path || !mutation.contents) {
-          throw new Error('Each mutation must have path and contents');
+          throw new Error("Each mutation must have path and contents");
         }
       }
-    } else if (format === 'unified') {
+    } else if (format === "unified") {
       if (!patch.target || !patch.content) {
-        throw new Error('Unified patch must have target and content sections');
+        throw new Error("Unified patch must have target and content sections");
       }
     }
   }
@@ -271,31 +276,35 @@ class PatchFormatConverter {
    * @returns {string} Detected format
    */
   detectFormat(patch) {
-    if (!patch || typeof patch !== 'object') {
-      throw new Error('Invalid patch object');
+    if (!patch || typeof patch !== "object") {
+      throw new Error("Invalid patch object");
     }
 
     // Check for webhook format (with flexible field detection)
-    if ((patch.target_file || patch.target) && (patch.patch || patch.mutations) && (patch.role || patch.target)) {
-      return 'webhook';
+    if (
+      (patch.target_file || patch.target) &&
+      (patch.patch || patch.mutations) &&
+      (patch.role || patch.target)
+    ) {
+      return "webhook";
     }
 
     // Check for executor format
     if (patch.mutations && Array.isArray(patch.mutations)) {
-      return 'executor';
+      return "executor";
     }
 
     // Check for unified format
-    if (patch.type === 'unified' && patch.target && patch.content) {
-      return 'unified';
+    if (patch.type === "unified" && patch.target && patch.content) {
+      return "unified";
     }
 
     // Default to webhook if it has basic structure
     if (patch.id && (patch.mutations || patch.target_file)) {
-      return 'webhook';
+      return "webhook";
     }
 
-    throw new Error('Unable to detect patch format');
+    throw new Error("Unable to detect patch format");
   }
 
   /**
@@ -306,19 +315,19 @@ class PatchFormatConverter {
    */
   convert(patch, targetFormat) {
     const sourceFormat = this.detectFormat(patch);
-    
+
     if (sourceFormat === targetFormat) {
       return patch; // No conversion needed
     }
 
     // Convert through unified format for maximum compatibility
     const unified = this.convertToUnified(patch, sourceFormat);
-    
-    if (targetFormat === 'unified') {
+
+    if (targetFormat === "unified") {
       return unified;
-    } else if (targetFormat === 'webhook') {
+    } else if (targetFormat === "webhook") {
       return this.convertUnifiedToWebhook(unified);
-    } else if (targetFormat === 'executor') {
+    } else if (targetFormat === "executor") {
       return this.convertUnifiedToExecutor(unified);
     }
 
@@ -331,16 +340,18 @@ class PatchFormatConverter {
    * @returns {Object} Webhook patch
    */
   convertUnifiedToWebhook(unifiedPatch) {
-    if (unifiedPatch.content.type === 'file_modification') {
+    if (unifiedPatch.content.type === "file_modification") {
       return {
         id: unifiedPatch.id,
-        role: unifiedPatch.target.role || 'default',
+        role: unifiedPatch.target.role || "default",
         target_file: unifiedPatch.target.file,
         patch: unifiedPatch.content.data,
-        metadata: unifiedPatch.metadata
+        metadata: unifiedPatch.metadata,
       };
     } else {
-      throw new Error('Unified patch with multi_mutation cannot be converted to webhook format');
+      throw new Error(
+        "Unified patch with multi_mutation cannot be converted to webhook format",
+      );
     }
   }
 
@@ -350,26 +361,29 @@ class PatchFormatConverter {
    * @returns {Object} Executor patch
    */
   convertUnifiedToExecutor(unifiedPatch) {
-    const mutations = unifiedPatch.content.type === 'multi_mutation' 
-      ? unifiedPatch.content.mutations 
-      : [{
-        path: unifiedPatch.target.file,
-        contents: unifiedPatch.content.data,
-        type: 'file_modification'
-      }];
+    const mutations =
+      unifiedPatch.content.type === "multi_mutation"
+        ? unifiedPatch.content.mutations
+        : [
+            {
+              path: unifiedPatch.target.file,
+              contents: unifiedPatch.content.data,
+              type: "file_modification",
+            },
+          ];
 
     return {
       id: unifiedPatch.id,
       metadata: {
         ...unifiedPatch.metadata,
-        role: unifiedPatch.target.role || 'default'
+        role: unifiedPatch.target.role || "default",
       },
       mutations,
       postMutationBuild: {
         shell: [],
-        validation: unifiedPatch.validation
+        validation: unifiedPatch.validation,
       },
-      validation: unifiedPatch.validation
+      validation: unifiedPatch.validation,
     };
   }
 }
@@ -380,47 +394,49 @@ module.exports = PatchFormatConverter;
 // CLI interface for testing
 if (require.main === module) {
   const converter = new PatchFormatConverter();
-  
+
   const args = process.argv.slice(2);
   if (args.length < 2) {
-    console.log('Usage: node patch-format-converter.js <source-format> <target-format> [patch-file]');
-    console.log('Formats: webhook, executor, unified');
+    console.log(
+      "Usage: node patch-format-converter.js <source-format> <target-format> [patch-file]",
+    );
+    console.log("Formats: webhook, executor, unified");
     process.exit(1);
   }
 
   const [sourceFormat, targetFormat, patchFile] = args;
-  
+
   if (patchFile) {
     // Convert from file
-    fs.readFile(patchFile, 'utf8')
-      .then(content => {
+    fs.readFile(patchFile, "utf8")
+      .then((content) => {
         const patch = JSON.parse(content);
         const converted = converter.convert(patch, targetFormat);
         console.log(JSON.stringify(converted, null, 2));
       })
-      .catch(error => {
-        console.error('Error:', error.message);
+      .catch((error) => {
+        console.error("Error:", error.message);
         process.exit(1);
       });
   } else {
     // Interactive mode
     console.log(`Converting from ${sourceFormat} to ${targetFormat} format`);
-    console.log('Enter patch JSON (Ctrl+D when done):');
-    
-    let input = '';
-    process.stdin.on('data', chunk => {
+    console.log("Enter patch JSON (Ctrl+D when done):");
+
+    let input = "";
+    process.stdin.on("data", (chunk) => {
       input += chunk;
     });
-    
-    process.stdin.on('end', () => {
+
+    process.stdin.on("end", () => {
       try {
         const patch = JSON.parse(input);
         const converted = converter.convert(patch, targetFormat);
         console.log(JSON.stringify(converted, null, 2));
       } catch (error) {
-        console.error('Error:', error.message);
+        console.error("Error:", error.message);
         process.exit(1);
       }
     });
   }
-} 
+}

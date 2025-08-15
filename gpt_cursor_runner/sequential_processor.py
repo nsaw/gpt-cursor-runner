@@ -1,3 +1,18 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Union, Any, Tuple
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Sequential Processor Module for GHOST 2.0.
@@ -5,15 +20,6 @@ Sequential Processor Module for GHOST 2.0.
 Handles ordered processing of requests with dependencies and workflow management.
 """
 
-import threading
-import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass, field
-from enum import Enum
-import logging
-from queue import PriorityQueue, Empty
-import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +92,7 @@ class WorkflowDefinition:
 class SequentialProcessor:
     """Handles sequential processing of requests with dependencies."""
 
-    def __init__(self, max_workers: int = 2):
+    def __init__(self, max_workers: int = 2) -> None:
         self.max_workers = max_workers
         self.workflows: Dict[str, WorkflowDefinition] = {}
         self.active_requests: Dict[str, SequentialRequest] = {}
@@ -106,7 +112,7 @@ class SequentialProcessor:
         # Register default workflows
         self._register_default_workflows()
 
-    def _register_default_workflows(self):
+    def _register_default_workflows(self) -> None:
         """Register default processing workflows."""
         # Webhook processing workflow
         webhook_workflow = WorkflowDefinition(
@@ -192,19 +198,21 @@ class SequentialProcessor:
         self.workflows["webhook_processing"] = webhook_workflow
         self.workflows["patch_processing"] = patch_workflow
 
-    def start(self):
+    def start(self) -> None:
         """Start the sequential processor workers."""
         if not self.workers:
             self._stop_event.clear()
             for i in range(self.max_workers):
                 worker = threading.Thread(
                     target=self._worker_loop, daemon=True, name=f"sequential-worker-{i}"
+    
                 )
                 worker.start()
                 self.workers.append(worker)
             logger.info(f"Sequential processor started with {self.max_workers} workers")
+    
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the sequential processor workers."""
         self._stop_event.set()
         for worker in self.workers:
@@ -213,7 +221,7 @@ class SequentialProcessor:
         self.workers.clear()
         logger.info("Sequential processor stopped")
 
-    def _worker_loop(self):
+    def _worker_loop(self) -> None:
         """Worker thread loop for processing sequential requests."""
         while not self._stop_event.is_set():
             try:
@@ -226,7 +234,7 @@ class SequentialProcessor:
             except Exception as e:
                 logger.error(f"Error in sequential worker loop: {e}")
 
-    def _process_sequential_request(self, request: SequentialRequest):
+    def _process_sequential_request(self, request: SequentialRequest) -> None:
         """Process a sequential request through its workflow."""
         try:
             with self._lock:
@@ -285,7 +293,7 @@ class SequentialProcessor:
 
         return True
 
-    def _process_step(self, request: SequentialRequest, step: ProcessingStep):
+    def _process_step(self, request: SequentialRequest, step: ProcessingStep) -> None:
         """Process a single step."""
         start_time = time.time()
 
@@ -330,6 +338,7 @@ class SequentialProcessor:
     ) -> str:
         """Submit a sequential processing request."""
         request_id = f"{workflow_name}_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
+    
 
         workflow = self.workflows.get(workflow_name)
         if not workflow:
@@ -390,7 +399,7 @@ class SequentialProcessor:
             stats["available_workflows"] = list(self.workflows.keys())
             return stats
 
-    def _update_average_processing_time(self, request: SequentialRequest):
+    def _update_average_processing_time(self, request: SequentialRequest) -> None:
         """Update average processing time."""
         if request.completed_at and request.started_at:
             processing_time = (

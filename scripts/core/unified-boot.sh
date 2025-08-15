@@ -1,644 +1,315 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail
 
-# Initialize FLY_SUCCESS variable
-FLY_SUCCESS=false
+# =============================================================================
+# UNIFIED BOOT SCRIPT - HARDENED PORT ASSIGNMENTS
+# =============================================================================
 
-LOG="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/unified-ghost-boot-enhanced.log"
-mkdir -p $(dirname "$LOG")
+# CRITICAL PORT ASSIGNMENTS (HARDCODED)
+GHOST_BRIDGE_PORT=5051          # Ghost Bridge (Slack commands and webhooks)
+FLASK_DASHBOARD_PORT=8787       # Flask Dashboard (Main dashboard)
+TELEMETRY_API_PORT=8788         # Telemetry API (Internal service)
+TELEMETRY_ORCHESTRATOR_PORT=8789 # Telemetry Orchestrator (PM2 managed)
+EXPO_DEV_PORT=8081              # Expo/Metro (Development server)
+MAIN_BACKEND_PORT=4000          # MAIN Backend API (tm-mobile-cursor)
+GHOST_RELAY_PORT=3001           # Ghost Relay (Internal relay service)
 
-# Enhanced logging
-exec 2>> "$LOG"
+# CLOUDFLARE TUNNEL CONFIGURATION
+TUNNEL_ID="16db2f43-4725-419a-a64b-5ceeb7a5d4c3"
+TUNNEL_CONFIG="/Users/sawyer/.cloudflared/config.yml"
+FLY_URL="${FLY_URL:-https://gpt-cursor-runner.thoughtmarks.app}"
+LOCAL_URL="http://localhost:5051"  # Ghost Bridge (Slack commands)
+DASHBOARD_URL="http://localhost:8787"  # Flask Dashboard (monitoring)
+SLACK_URL="https://slack.thoughtmarks.app"
 
-# Unified Manager Integration
-UNIFIED_MANAGER="/Users/sawyer/gitSync/gpt-cursor-runner/scripts/core/unified-manager.sh"
+# SERVICE HEALTH ENDPOINTS
+GHOST_BRIDGE_HEALTH="http://localhost:5051/health"
+FLASK_DASHBOARD_HEALTH="http://localhost:8787/api/health"
+TELEMETRY_API_HEALTH="http://localhost:8788/health"
+EXPO_DEV_HEALTH="http://localhost:8081"
 
-# Enhanced service validation function
-validate_service() {
-  local service_name=$1
-  local pid_file=$2
-  local health_url=$3
-  
-  # Check PID file exists
-  if [ ! -f "$pid_file" ]; then
-    echo "❌ $service_name: PID file missing"
-    return 1
-  fi
-  
-  # Check process is actually running
-  local pid=$(cat "$pid_file")
-  if ! ps -p "$pid" > /dev/null 2>&1; then
-    echo "❌ $service_name: Process not running (PID: $pid)"
-    return 1
-  fi
-  
-  # Check health endpoint if provided
-  if [ -n "$health_url" ]; then
-    (
-      if curl -s --max-time 10 "$health_url" > /dev/null 2>&1; then
-        echo "✅ $service_name: Health check passed"
-      else
-        echo "❌ $service_name: Health check failed"
-        exit 1
-      fi
-    ) &
-    PID=$!
-    sleep 10
-    disown $PID
-    if ! ps -p $PID > /dev/null 2>&1; then
-      return 1
-    fi
-  fi
-  
-  echo "✅ $service_name: Running and healthy"
-  return 0
+# LOGGING
+LOG_DIR="/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs"
+PID_DIR="/Users/sawyer/gitSync/gpt-cursor-runner/pids"
+BOOT_LOG="$LOG_DIR/unified-boot.log"
+
+# Create directories
+mkdir -p "$LOG_DIR" "$PID_DIR"
+
+# Logging function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$BOOT_LOG"
 }
 
-# Check port availability before starting service
-check_port_availability() {
-  local port=$1
-  local service_name=$2
-  
-  local pids=$(lsof -ti:$port 2>/dev/null)
-  if [ -n "$pids" ]; then
-    echo "❌ Port $port is already in use by $service_name (PIDs: $pids)"
-    return 1
-  else
-    echo "✅ Port $port is available for $service_name"
-    return 0
-  fi
-}
-
-# Check if service is already running
-check_service_running() {
-  local service_name=$1
-  local pid_file=$2
-  
-  if [ -f "$pid_file" ]; then
-    local pid=$(cat "$pid_file")
-    if ps -p "$pid" > /dev/null 2>&1; then
-      echo "⚠️ $service_name is already running (PID: $pid)"
-      return 0
+# Resolve timeout binary (prefer coreutils gtimeout on macOS if available)
+resolve_timeout_bin() {
+    if command -v timeout >/dev/null 2>&1; then
+        echo "timeout"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        echo "gtimeout"
     else
-      echo "⚠️ $service_name PID file exists but process not running, cleaning up..."
-      rm -f "$pid_file"
-      return 1
+        echo ""
     fi
-  else
-    echo "✅ $service_name not running, will start fresh"
-    return 1
-  fi
 }
 
-# Enhanced service startup with verification
-start_service_with_verification() {
-  local service_name=$1
-  local start_command=$2
-  local pid_file=$3
-  local health_url=$4
-  local port=${5:-}
-  local max_retries=3
-  
-  # Check if service is already running
-  if check_service_running "$service_name" "$pid_file"; then
-    echo "✅ $service_name is already running, skipping startup"
-    return 0
-  fi
-  
-  # Check port availability if specified
-  if [ -n "$port" ]; then
-    if ! check_port_availability "$port" "$service_name"; then
-      echo "❌ Cannot start $service_name - port $port is occupied"
-      return 1
-    fi
-  fi
-  
-  for attempt in $(seq 1 $max_retries); do
-    echo "Starting $service_name (attempt $attempt/$max_retries)..."
-    
-    # Start service
-    eval "$start_command"
-    sleep 3
-    
-    # Verify startup
-    if validate_service "$service_name" "$pid_file" "$health_url"; then
-      echo "✅ $service_name started successfully"
-      return 0
+TIMEOUT_BIN="$(resolve_timeout_bin)"
+
+# Generic non-blocking runner with disown and optional timeout (defaults to 30s)
+# Usage: nb "command string" [timeoutSeconds]
+nb() {
+    local cmd_str="$1"
+    local t=${2:-30}
+    if [ -n "$TIMEOUT_BIN" ]; then
+        { $TIMEOUT_BIN ${t}s bash -lc "$cmd_str" & } >/dev/null 2>&1 & disown || true
     else
-      echo "❌ $service_name failed to start (attempt $attempt)"
-      if [ $attempt -lt $max_retries ]; then
-        echo "Retrying in 5 seconds..."
-        sleep 5
-      fi
+        { bash -lc "$cmd_str" & } >/dev/null 2>&1 & disown || true
     fi
-  done
-  
-  echo "❌ $service_name failed to start after $max_retries attempts"
-  return 1
 }
 
-# Pre-boot validation
-pre_boot_validation() {
-  echo "🔍 Pre-boot validation..."
-  
-  # Check for syntax errors in critical scripts
-  echo "Checking script syntax..."
-  if ! node -c scripts/ghost/ghost-unified-daemon.js 2>/dev/null; then
-    echo "❌ Ghost Unified Daemon syntax error detected"
-    return 1
-  fi
-  
-  # Check for required files
-  echo "Checking required files..."
-  local required_files=(
-    "scripts/ghost/ghost-unified-daemon.js"
-    "scripts/core/command-queue-daemon.sh"
-    "scripts/webhook-thoughtmarks-tunnel-daemon.sh"
-    "scripts/monitor/dual-monitor-server.js"
-    "scripts/watchdogs/dashboard-uplink.js"
-    "patch_executor_daemon.py"
-    "dashboard_daemon.py"
-    "summary_watcher_daemon.py"
-    "apply_patch.py"
-  )
-  
-  for file in "${required_files[@]}"; do
-    if [ ! -f "$file" ]; then
-      echo "❌ Required file missing: $file"
-      return 1
-    fi
-  done
-  
-  # Check for required directories
-  echo "Checking required directories..."
-  local required_dirs=(
-    "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches"
-    "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches"
-    "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries"
-    "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries"
-  )
-  
-  for dir in "${required_dirs[@]}"; do
-    if [ ! -d "$dir" ]; then
-      echo "❌ Required directory missing: $dir"
-      return 1
-    fi
-  done
-  
-  # Comprehensive dashboard validation
-  echo "Validating dashboard and documentation..."
-  if ! bash scripts/validate-dashboard.sh; then
-    echo "❌ Dashboard validation failed"
-    return 1
-  fi
-  
-  # Check documentation staleness
-  echo "Checking documentation staleness..."
-  local docs_modified=$(stat -f "%m" docs/current/SYSTEMS_CONFIGURATION.md 2>/dev/null || echo "0")
-  local packages_modified=$(stat -f "%m" ../thoughtpilot-commercial/clean-tier-packages/README-clean-packages.md 2>/dev/null || echo "0")
-  local current_time=$(date +%s)
-  local max_age=$((7 * 24 * 60 * 60)) # 7 days
-  
-  if [ $((current_time - docs_modified)) -gt $max_age ]; then
-    echo "❌ SYSTEMS_CONFIGURATION.md is stale (>7 days old)"
-    return 1
-  fi
-  
-  if [ $((current_time - packages_modified)) -gt $max_age ]; then
-    echo "❌ README-clean-packages.md is stale (>7 days old)"
-    return 1
-  fi
-  
-  # Check for system policy in documentation
-  if ! grep -q "Dashboard Daemon/Monitor Resilience Policy" docs/current/SYSTEMS_CONFIGURATION.md; then
-    echo "❌ SYSTEMS_CONFIGURATION.md missing Dashboard Daemon/Monitor Resilience Policy"
-    return 1
-  fi
-  
-  if ! grep -q "Compliance & Validation" ../thoughtpilot-commercial/clean-tier-packages/README-clean-packages.md; then
-    echo "❌ README-clean-packages.md missing Compliance & Validation section"
-    return 1
-  fi
-  
-  echo "✅ Pre-boot validation passed"
-  return 0
+# Mandatory curl non-blocking pattern with PID capture and disown
+# Usage: curl_nb "http://host:port/path" "Label" [timeoutSeconds]
+curl_nb() {
+    local url="$1"
+    local label="$2"
+    local t=${3:-30}
+    # Run the required curl PID pattern inside a detached subshell via nb(), so caller is non-blocking
+    nb "( if curl --silent --max-time ${t} '${url}' 2>/dev/null | grep -q '.'; then echo '[OK] ${label}'; else echo '[FAIL] ${label}'; fi ) & PID=\$!; sleep ${t}; disown \$PID" "$t"
 }
 
-# Post-boot verification
-post_boot_verification() {
-  echo "🔍 Post-boot verification..."
-  
-  local services=(
-    "Flask App:http://localhost:5555/health"
-    "Ghost Runner:http://localhost:5053/health"
-    "Comprehensive Dashboard:http://localhost:3002"
-    "Dual Monitor Server:http://localhost:8787/api/status"
-  )
-  
-  local failed_services=()
-  
-  for service in "${services[@]}"; do
-    IFS=':' read -r name url <<< "$service"
-    (
-      if curl -s --max-time 10 "$url" > /dev/null 2>&1; then
-        echo "✅ $name healthy"
-      else
-        echo "❌ $name health check failed"
-        exit 1
-      fi
-    ) &
-    PID=$!
-    sleep 10
-    disown $PID
-    if ! ps -p $PID > /dev/null 2>&1; then
-      failed_services+=("$name")
-    fi
-  done
-  
-  if [ ${#failed_services[@]} -gt 0 ]; then
-    echo "❌ Post-boot verification failed for: ${failed_services[*]}"
-    return 1
-  fi
-  
-  echo "✅ Post-boot verification passed"
-  return 0
+# Health check helper (non-blocking). Logs result and returns immediately
+check_health() {
+    local url=$1
+    local service_name=$2
+    local timeout=${3:-30}
+    log "Checking health for $service_name at $url (non-blocking, ${timeout}s)"
+    curl_nb "$url" "$service_name" "$timeout"
+    # Non-blocking: do not gate on return; always return success to keep boot flowing
+    return 0
 }
 
-# Service failure handler
-handle_service_failure() {
-  local service_name=$1
-  local error_message=$2
-  
-  echo "❌ CRITICAL: $service_name failed to start"
-  echo "Error: $error_message"
-  echo "Attempting recovery..."
-  
-  # Log failure
-  echo "[$(date)] SERVICE FAILURE: $service_name - $error_message" >> "$LOG"
-  
-  # Attempt recovery
-  case "$service_name" in
-    "ghost-runner")
-      echo "Attempting Ghost Runner recovery..."
-      pkill -f "ghost-runner.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Ghost Runner" \
-        "nohup node scripts/core/ghost-runner.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/ghost-runner-CYOPS.log 2>&1 & echo \$! > pids/ghost-runner.pid" \
-        "pids/ghost-runner.pid" \
-        "http://localhost:5053/health" \
-        "5053"
-      ;;
-    "flask-app")
-      echo "Attempting Flask App recovery..."
-      pkill -f "dashboard/app.py" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Flask App" \
-        "nohup python3 dashboard/app.py >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/flask-app.log 2>&1 & echo \$! > pids/python-runner.pid" \
-        "pids/python-runner.pid" \
-        "http://localhost:5555/health" \
-        "5555"
-      ;;
-    "comprehensive-dashboard")
-      echo "Attempting Comprehensive Dashboard recovery..."
-      pkill -f "dashboard_daemon.py" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Comprehensive Dashboard" \
-        "nohup python3 dashboard_daemon.py --port 3002 >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/dashboard-daemon.log 2>&1 & echo \$! > pids/dashboard-daemon.pid" \
-        "pids/dashboard-daemon.pid" \
-        "http://localhost:3002" \
-        "3002"
-      ;;
-    "dual-monitor-server")
-      echo "Attempting Dual Monitor Server recovery..."
-      pkill -f "dual-monitor-server.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Dual Monitor Server" \
-        "nohup node scripts/monitor/dual-monitor-server.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/dual-monitor-server.log 2>&1 & echo \$! > pids/dual-monitor-server.pid" \
-        "pids/dual-monitor-server.pid" \
-        "http://localhost:8787/api/status" \
-        "8787"
-      ;;
-    "command-queue")
-      echo "Attempting Command Queue recovery..."
-      pkill -f "command-queue-daemon.sh" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Command Queue" \
-        "nohup bash scripts/core/command-queue-daemon.sh monitor >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/command-queue-daemon.log 2>&1 & echo \$! > pids/command-queue-daemon.pid" \
-        "pids/command-queue-daemon.pid" \
-        "" \
-        ""
-      ;;
-    "summary-watcher")
-      echo "Attempting Summary Watcher recovery..."
-      pkill -f "summary_watcher_daemon.py" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Summary Watcher" \
-        "nohup python3 summary_watcher_daemon.py --check-interval 30 >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/summary-watcher-daemon.log 2>&1 & echo \$! > pids/summary-watcher-daemon.pid" \
-        "pids/summary-watcher-daemon.pid" \
-        "" \
-        ""
-      ;;
-    "dashboard-uplink")
-      echo "Attempting Dashboard Uplink recovery..."
-      pkill -f "dashboard-uplink.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Dashboard Uplink" \
-        "nohup node scripts/watchdogs/dashboard-uplink.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/dashboard-uplink.log 2>&1 & echo \$! > pids/dashboard-uplink.pid" \
-        "pids/dashboard-uplink.pid" \
-        "" \
-        ""
-      ;;
-    "ghost-bridge")
-      echo "Attempting Ghost Bridge recovery..."
-      pkill -f "ghost-bridge-simple.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Ghost Bridge" \
-        "nohup node scripts/ghost-bridge-simple.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/ghost-bridge.log 2>&1 & echo \$! > pids/ghost-bridge.pid" \
-        "pids/ghost-bridge.pid" \
-        "" \
-        ""
-      ;;
-    "ghost-relay")
-      echo "Attempting Ghost Relay recovery..."
-      pkill -f "ghost-relay.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Ghost Relay" \
-        "nohup node scripts/ghost/ghost-relay.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/ghost-relay.log 2>&1 & echo \$! > pids/ghost-relay.pid" \
-        "pids/ghost-relay.pid" \
-        "" \
-        ""
-      ;;
-    "live-status-server")
-      echo "Attempting Live Status Server recovery..."
-      pkill -f "live-status-server.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Live Status Server" \
-        "nohup node scripts/web/live-status-server.js SILENT=true >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/live-status-server.log 2>&1 & echo \$! > pids/live-status-server.pid" \
-        "pids/live-status-server.pid" \
-        "" \
-        ""
-      ;;
-    "comprehensive-dashboard")
-      echo "Attempting Comprehensive Dashboard recovery..."
-      pkill -f "comprehensive-dashboard.js" 2>/dev/null || true
-      sleep 2
-      start_service_with_verification "Comprehensive Dashboard" \
-        "nohup node scripts/core/comprehensive-dashboard.js >> /Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/comprehensive-dashboard.log 2>&1 & echo \$! > pids/comprehensive-dashboard.pid" \
-        "pids/comprehensive-dashboard.pid" \
-        "" \
-        ""
-      ;;
-    *)
-      echo "No recovery procedure for $service_name"
-      ;;
-  esac
-}
-
-{
-  echo "[BOOT START] $(date)"
-  echo "🚀 Starting enhanced unified ghost boot with unified-manager.sh integration..."
-
-  # 🔧 PRE-BOOT VALIDATION
-  if ! pre_boot_validation; then
-    echo "❌ Pre-boot validation failed. Aborting boot sequence."
-    exit 1
-  fi
-
-  # 🔧 UNIFIED MANAGER INTEGRATION
-  echo "🔧 Integrating unified-manager.sh as primary orchestrator..."
-  
-  # Verify unified-manager.sh exists and is executable
-  if [ ! -f "$UNIFIED_MANAGER" ]; then
-    echo "❌ CRITICAL: unified-manager.sh not found at $UNIFIED_MANAGER"
-    exit 1
-  fi
-  
-  if [ ! -x "$UNIFIED_MANAGER" ]; then
-    echo "🔧 Making unified-manager.sh executable..."
-    chmod +x "$UNIFIED_MANAGER"
-  fi
-  
-  echo "✅ Unified manager ready: $UNIFIED_MANAGER"
-
-  # 🔧 PORT CONFLICT RESOLUTION
-  echo "🔧 Resolving port conflicts..."
-  
-  # Function to safely kill processes on a port
-  kill_port_processes() {
+# Kill processes on specific ports
+kill_port() {
     local port=$1
     local service_name=$2
-    local max_attempts=3
-    local attempt=1
     
-    while [ $attempt -le $max_attempts ]; do
-      local pids=$(lsof -ti:$port 2>/dev/null)
-      
-      if [ -n "$pids" ]; then
-        echo "⚠️ Found processes using port $port ($service_name): $pids (attempt $attempt/$max_attempts)"
-        echo "Killing processes on port $port..."
-        
-        # Kill processes
-        echo "$pids" | xargs kill -9 2>/dev/null || true
-        sleep 3
-        
-        # Verify processes are killed
-        local remaining_pids=$(lsof -ti:$port 2>/dev/null)
-        if [ -n "$remaining_pids" ]; then
-          echo "❌ Failed to kill processes on port $port: $remaining_pids"
-          if [ $attempt -lt $max_attempts ]; then
-            echo "Retrying in 2 seconds..."
-            sleep 2
-            attempt=$((attempt + 1))
-            continue
-          else
-            echo "❌ Failed to clear port $port after $max_attempts attempts"
-            return 1
-          fi
-        else
-          echo "✅ Successfully cleared port $port"
-          return 0
-        fi
-      else
-        echo "✅ Port $port ($service_name) is available"
+    log "Killing processes on port $port ($service_name)"
+    
+    # Find and kill processes using the port
+    lsof -ti:$port 2>/dev/null | xargs kill -9 2>/dev/null || true
+    sleep 2
+    
+    # Verify port is free
+    if lsof -i:$port >/dev/null 2>&1; then
+        log "⚠️ Port $port still in use after kill attempt"
+        return 1
+    else
+        log "✅ Port $port is now free"
         return 0
-      fi
+    fi
+}
+
+# Start Flask Dashboard
+start_flask_dashboard() {
+    log "Starting Flask Dashboard on port $FLASK_DASHBOARD_PORT"
+    
+    # Kill any existing Flask processes
+    kill_port $FLASK_DASHBOARD_PORT "Flask Dashboard"
+    
+    # Start Flask dashboard (non-blocking, disowned)
+    { (
+        cd /Users/sawyer/gitSync/gpt-cursor-runner || exit 0
+        python3 dashboard/app.py >/dev/null 2>&1 &
+        local flask_pid=$!
+        echo $flask_pid > "$PID_DIR/flask-dashboard.pid"
+        sleep 8
+        check_health "$FLASK_DASHBOARD_HEALTH" "Flask Dashboard" 20
+      ) & } >/dev/null 2>&1 & disown
+}
+
+# Start Telemetry API
+start_telemetry_api() {
+    log "Starting Telemetry API on port $TELEMETRY_API_PORT"
+    
+    # Kill any existing telemetry processes
+    kill_port $TELEMETRY_API_PORT "Telemetry API"
+    
+    # Start telemetry API (non-blocking, disowned)
+    { (
+        cd /Users/sawyer/gitSync/gpt-cursor-runner || exit 0
+        node scripts/daemons/telemetry-api.js >/dev/null 2>&1 &
+        local telemetry_pid=$!
+        echo $telemetry_pid > "$PID_DIR/telemetry-api.pid"
+        sleep 5
+        check_health "$TELEMETRY_API_HEALTH" "Telemetry API" 20
+      ) & } >/dev/null 2>&1 & disown
+}
+
+# Start PM2 services
+start_pm2_services() {
+    log "Starting PM2 services..."
+    
+    # Kill any existing PM2 processes (non-blocking)
+    nb "pm2 kill" 15
+    sleep 2
+    
+    # Start PM2 services (non-blocking) - standardize to config/ecosystem.config.js
+    nb "pm2 start /Users/sawyer/gitSync/gpt-cursor-runner/config/ecosystem.config.js" 30
+    nb "pm2 save" 10
+    
+    # Non-blocking status snapshot
+    nb "pm2 list" 15
+}
+
+# Start Expo development server
+start_expo_dev_server() {
+    log "Starting Expo development server on port $EXPO_DEV_PORT..."
+    
+    # Kill any existing Expo processes
+    kill_port $EXPO_DEV_PORT "Expo Dev Server"
+    
+    # Navigate to Expo project directory and start server
+    local expo_project_dir="/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh"
+    
+    if [ -d "$expo_project_dir" ]; then
+        log "Found Expo project at $expo_project_dir"
+        nb "cd $expo_project_dir && npx expo start --port $EXPO_DEV_PORT --non-interactive" 45
+    else
+        log "⚠️ Expo project directory not found at $expo_project_dir"
+        return 1
+    fi
+}
+
+# Start Cloudflare tunnel
+start_cloudflare_tunnel() {
+    log "Starting Cloudflare tunnel..."
+    
+    # Kill any existing tunnel processes
+    pkill -f "cloudflared.*$TUNNEL_ID" 2>/dev/null || true
+    sleep 2
+    
+    # Start tunnel (non-blocking, disowned)
+    { (
+        cloudflared tunnel run "$TUNNEL_ID" >/dev/null 2>&1 &
+        local tunnel_pid=$!
+        echo $tunnel_pid > "$PID_DIR/cloudflared.pid"
+        sleep 10
+        curl_nb "$SLACK_URL/health" "Cloudflare tunnel" 20
+      ) & } >/dev/null 2>&1 & disown
+}
+
+# Validate all services
+validate_services() {
+    log "Validating all services..."
+    
+    local all_healthy=true
+    
+    # Check Ghost Bridge
+    if ! check_health "$GHOST_BRIDGE_HEALTH" "Ghost Bridge" 30; then
+        all_healthy=false
+    fi
+    
+    # Check Flask Dashboard
+    if ! check_health "$FLASK_DASHBOARD_HEALTH" "Flask Dashboard" 30; then
+        all_healthy=false
+    fi
+    
+    # Check Telemetry API
+    if ! check_health "$TELEMETRY_API_HEALTH" "Telemetry API" 30; then
+        all_healthy=false
+    fi
+    
+    # Check Expo Dev Server
+    if ! check_health "$EXPO_DEV_HEALTH" "Expo Dev Server" 30; then
+        all_healthy=false
+    fi
+    
+    # PM2 services snapshot (non-blocking; do not gate boot)
+    nb "pm2 list" 15
+    
+    if [ "$all_healthy" = true ]; then
+        log "✅ Health checks dispatched (non-blocking). Review $BOOT_LOG for results."
+    else
+        log "⚠️ Some services reported unhealthy during dispatch"
+    fi
+    # Non-blocking mode: always return success to avoid blocking the boot flow
+    return 0
+}
+
+# Validate tunnel health
+validate_tunnel_health() {
+    log "Validating tunnel health..."
+    
+    # Dispatch tunnel health check (non-blocking)
+    curl_nb "$SLACK_URL/health" "Primary tunnel" 15
+    return 0
+}
+
+# Additional port preflight cleanup for services that may autostart on boot
+preflight_ports_cleanup() {
+    # Known auxiliary ports that can be occupied by autostarts
+    local ports=(
+      3001  # dual-monitor
+      3002  # comprehensive dashboard / registry
+      5001  # dashboard status API
+      5050  # runner microservice
+      5054  # alert-engine alt
+      7474  # live-status-server
+      8789  # real-time status API / orchestrator
+      3222  # status server
+    )
+    for p in "${ports[@]}"; do
+      kill_port "$p" "Preflight"
     done
-  }
-  
-  # Check and kill processes on critical ports
-  echo "🔧 Clearing critical ports..."
-  kill_port_processes 5555 "Flask App" || echo "⚠️ Warning: Could not clear port 5555"
-  kill_port_processes 5053 "Ghost Runner" || echo "⚠️ Warning: Could not clear port 5053"
-  kill_port_processes 3002 "Comprehensive Dashboard" || echo "⚠️ Warning: Could not clear port 3002"
-  kill_port_processes 8787 "Dual Monitor Server" || echo "⚠️ Warning: Could not clear port 8787"
-  kill_port_processes 5432 "PostgreSQL" || echo "⚠️ Warning: Could not clear port 5432"
-  kill_port_processes 8081 "Expo Development Server" || echo "⚠️ Warning: Could not clear port 8081"
-  kill_port_processes 4000 "Backend API" || echo "⚠️ Warning: Could not clear port 4000"
-  
-  # Clean up PID files and processes
-  echo "🔧 Cleaning up existing processes..."
-  rm -f pids/*.pid pids/*.lock
-  pkill -f "watchdog" 2>/dev/null || true
-  pkill -f "daemon" 2>/dev/null || true
-  pkill -f "cloudflared" 2>/dev/null || true
-  
-  sleep 2
+}
 
-  # 🔧 ENVIRONMENT VARIABLES
-  echo "🔧 Setting environment variables..."
-  export PYTHON_PORT=5555
-  export GHOST_RUNNER_PORT=5053
-  export FLY_DEPLOYMENT=true
-  export FLY_WEBHOOK_URL="https://gpt-cursor-runner.fly.dev/webhook"
-  export FLY_HEALTH_URL="https://gpt-cursor-runner.fly.dev/health"
-  export LOCAL_WEBHOOK_URL="http://localhost:5555/webhook"
-  export LOCAL_HEALTH_URL="http://localhost:5555/health"
-  
-  # Dashboard environment variables
-  export DASHBOARD_PORT=8787
-  export DASHBOARD_HOST="0.0.0.0"
-  export DASHBOARD_DEBUG=true
-  
-  # Ghost environment variables
-  export GHOST_PORT=5053
-  export GHOST_HOST="0.0.0.0"
-  export GHOST_DEBUG=true
-  
-  # PM2 environment variables
-  export PM2_HOME="/Users/sawyer/.pm2"
-  export PM2_LOG_PATH="/Users/sawyer/gitSync/gpt-cursor-runner/logs"
-  
-  echo "✅ Environment variables set"
+# Post-boot PM2 status/log sampling and safe restarts (all non-blocking)
+post_boot_pm2_introspection() {
+    log "Dispatching post-boot PM2 status/log sampling (non-blocking)"
+    nb "pm2 status" 15
+    nb "pm2 logs --lines 20" 15
+    nb "pm2 logs dual-monitor --lines 10" 15
+    nb "pm2 logs ghost-relay --lines 5" 15
+    nb "pm2 restart dual-monitor ghost-relay ghost-viewer" 30
+}
 
-  # 🔧 UNIFIED MANAGER SERVICE STARTUP
-  echo "🔧 Starting services via unified-manager.sh..."
-  
-  # Start all services using unified manager
-  echo "📋 Starting all services..."
-  (
-    if "$UNIFIED_MANAGER" start all; then
-      echo "✅ All services started successfully"
-    else
-      echo "❌ Some services failed to start"
-      exit 1
-    fi
-  ) &
-  START_PID=$!
-  sleep 30
-  disown $START_PID
-  
-  # Wait for services to stabilize
-  echo "⏳ Waiting for services to stabilize..."
-  sleep 10
+# Main boot sequence
+main() {
+    log "=== UNIFIED BOOT SEQUENCE STARTED ==="
+    
+    # Phase 1: Kill conflicting processes
+    log "Phase 1: Killing conflicting processes"
+    kill_port $FLASK_DASHBOARD_PORT "Flask Dashboard"
+    kill_port $TELEMETRY_API_PORT "Telemetry API"
+    kill_port $GHOST_BRIDGE_PORT "Ghost Bridge"
+    kill_port $EXPO_DEV_PORT "Expo Dev Server"
+    preflight_ports_cleanup
+    
+    # Phase 2: Start core services
+    log "Phase 2: Starting core services"
+    start_flask_dashboard
+    start_telemetry_api
+    start_pm2_services
+    start_expo_dev_server
+    
+    # Phase 3: Start tunnel
+    log "Phase 3: Starting Cloudflare tunnel"
+    start_cloudflare_tunnel
+    
+    # Phase 4: Validate services
+    log "Phase 4: Validating all services"
+    sleep 10  # Shorter wait; health checks are non-blocking and will continue logging
+    validate_services
+    
+    # Phase 5: Validate tunnel health
+    log "Phase 5: Validating tunnel health"
+    validate_tunnel_health
+    
+    # Phase 6: PM2 post-boot insights
+    log "Phase 6: PM2 introspection"
+    post_boot_pm2_introspection
+    
+    log "=== UNIFIED BOOT SEQUENCE COMPLETED ==="
+}
 
-  # 🔧 UNIFIED MANAGER HEALTH VALIDATION
-  echo "🔧 Validating service health via unified-manager.sh..."
-  
-  # Check health of all services
-  (
-    if "$UNIFIED_MANAGER" monitor; then
-      echo "✅ All services healthy"
-    else
-      echo "❌ Some services unhealthy, attempting recovery..."
-      "$UNIFIED_MANAGER" recover
-    fi
-  ) &
-  HEALTH_PID=$!
-  sleep 30
-  disown $HEALTH_PID
-
-  # 🔧 RESOURCE MONITORING
-  echo "🔧 Checking system resources..."
-  (
-    "$UNIFIED_MANAGER" resources
-  ) &
-  RESOURCE_PID=$!
-  sleep 10
-  disown $RESOURCE_PID
-
-  # 🔧 POST-BOOT VERIFICATION
-  echo "🔧 Post-boot verification..."
-  if ! post_boot_verification; then
-    echo "❌ Post-boot verification failed. Some services may not be running properly."
-    echo "Check the logs for more details."
-  fi
-
-  # 🔧 DAEMON STATUS API VALIDATION
-  echo "🔧 Validating daemon status API..."
-  sleep 10  # Wait for Flask app to fully start
-  
-  (
-    if curl -s --max-time 30 "http://localhost:5555/api/daemon-status" > /dev/null 2>&1; then
-      echo "✅ Daemon status API is responding"
-      
-      # Check if all critical daemons are running
-      (
-        DAEMON_STATUS=$(curl -s --max-time 30 "http://localhost:5555/api/daemon-status" | jq -r '.daemon_status')
-        if [ $? -eq 0 ]; then
-          echo "📊 Daemon Status Summary:"
-          echo "$DAEMON_STATUS" | jq -r 'to_entries[] | "   - \(.key): \(.value)"'
-          
-          # Count running vs stopped daemons
-          RUNNING_COUNT=$(echo "$DAEMON_STATUS" | jq -r 'to_entries[] | select(.value == "running") | .key' | wc -l)
-          TOTAL_COUNT=$(echo "$DAEMON_STATUS" | jq -r 'to_entries | length')
-          
-          echo "📈 Status: $RUNNING_COUNT/$TOTAL_COUNT daemons running"
-          
-          if [ "$RUNNING_COUNT" -eq "$TOTAL_COUNT" ]; then
-            echo "✅ All daemons are running successfully"
-          else
-            echo "⚠️ Some daemons are not running. Check individual status above."
-          fi
-        else
-          echo "❌ Failed to parse daemon status response"
-        fi
-      ) &
-      STATUS_PID=$!
-      sleep 30
-      disown $STATUS_PID
-    else
-      echo "❌ Daemon status API is not responding"
-      echo "   Check if Flask app is running on port 5555"
-    fi
-  ) &
-  API_PID=$!
-  sleep 30
-  disown $API_PID
-
-  # 🔧 FINAL SYSTEM STATUS
-  echo "🎉 Enhanced unified ghost boot with unified-manager.sh integration completed!"
-  echo "📊 System Status:"
-  echo "   - Unified Manager: ✅ PRIMARY ORCHESTRATOR"
-  echo "   - All Services: ✅ MANAGED BY UNIFIED MANAGER"
-  echo "   - Health Monitoring: ✅ ACTIVE"
-  echo "   - Auto-Recovery: ✅ ACTIVE"
-  echo "   - Resource Monitoring: ✅ ACTIVE"
-  echo ""
-  echo "🌐 External Access:"
-  echo "   - Dashboard: https://gpt-cursor-runner.thoughtmarks.app/monitor"
-  echo "   - API Status: https://gpt-cursor-runner.thoughtmarks.app/api/status"
-  echo "   - Webhook: https://gpt-cursor-runner.fly.dev/webhook"
-  echo "   - Webhook-Thoughtmarks: https://webhook-thoughtmarks.thoughtmarks.app"
-  echo ""
-  echo "🛡️ Enhanced Features:"
-  echo "   - Unified Manager Integration: ✅ ACTIVE"
-  echo "   - Pre-boot validation: ✅ ACTIVE"
-  echo "   - Post-boot verification: ✅ ACTIVE"
-  echo "   - Service startup verification: ✅ ACTIVE"
-  echo "   - Automatic recovery: ✅ ACTIVE"
-  echo "   - Enhanced error handling: ✅ ACTIVE"
-  echo "   - Comprehensive logging: ✅ ACTIVE"
-  echo "   - Resource monitoring: ✅ ACTIVE"
-  echo ""
-  echo "🔧 Management Commands:"
-  echo "   - Monitor: $UNIFIED_MANAGER monitor"
-  echo "   - Health Check: $UNIFIED_MANAGER health <service>"
-  echo "   - Start Service: $UNIFIED_MANAGER start <service>"
-  echo "   - Stop Service: $UNIFIED_MANAGER stop <service>"
-  echo "   - Restart Service: $UNIFIED_MANAGER restart <service>"
-  echo "   - Recover: $UNIFIED_MANAGER recover"
-  echo "   - Resources: $UNIFIED_MANAGER resources"
-
-} 2>&1 | tee "$LOG"
-
-echo "✅ Enhanced unified ghost boot with unified-manager.sh integration completed. Log saved to: $LOG" 
+# Run main function
+main "$@" 

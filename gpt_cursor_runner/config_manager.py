@@ -1,11 +1,44 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+import json
+from pathlib import Path
+from typing import Dict, Any
+
 """
 Configuration Manager for GPT-Cursor Runner.
 Handles .patchrc configuration file and default settings.
 """
-
-import json
-from pathlib import Path
-from typing import Dict, Any
 
 
 class ConfigManager:
@@ -55,7 +88,7 @@ class ConfigManager:
         },
     }
 
-    def __init__(self, config_file: str = ".patchrc"):
+    def __init__(self, config_file: str = ".patchrc") -> None:
         self.config_file = config_file
         self.config = self.load_config()
 
@@ -81,7 +114,7 @@ class ConfigManager:
         """Merge user config with defaults."""
         result = default.copy()
 
-        def merge_dicts(base: Dict[str, Any], override: Dict[str, Any]):
+        def merge_dicts(base: Dict[str, Any], override: Dict[str, Any]) -> None:
             for key, value in override.items():
                 if (
                     key in base
@@ -127,51 +160,51 @@ class ConfigManager:
 
     def is_gpt_slack_enabled(self) -> bool:
         """Check if GPT Slack dispatch is enabled."""
-        return self.get("gpt_slack.allow_gpt_slack_posts", True)
+        return bool(self.get("gpt_slack.allow_gpt_slack_posts", True))
 
     def get_gpt_default_channel(self) -> str:
         """Get default GPT Slack channel."""
-        return self.get("gpt_slack.default_channel", "#runner-control")
+        return str(self.get("gpt_slack.default_channel", "#runner-control"))
 
     def get_slack_rate_limit(self) -> int:
         """Get Slack rate limit per minute."""
-        return self.get("slack.rate_limit_per_minute", 10)
+        return int(self.get("slack.rate_limit_per_minute", 10))
 
     def is_auto_confirm_enabled(self) -> bool:
         """Check if auto-confirm is enabled."""
-        return self.get("defaults.auto_confirm", False)
+        return bool(self.get("defaults.auto_confirm", False))
 
     def is_dry_run_enabled(self) -> bool:
         """Check if dry-run mode is enabled."""
-        return self.get("defaults.dry_run", True)
+        return bool(self.get("defaults.dry_run", True))
 
     def get_target_directory(self) -> str:
         """Get target directory for patches."""
-        return self.get("defaults.target_directory", "code")
+        return str(self.get("defaults.target_directory", "code"))
 
     def get_max_patches_per_day(self) -> int:
         """Get maximum patches per day limit."""
-        return self.get("patches.max_patches_per_day", 100)
+        return int(self.get("patches.max_patches_per_day", 100))
 
     def is_backup_enabled(self) -> bool:
         """Check if backup is enabled."""
-        return self.get("integrations.enable_backup", True)
+        return bool(self.get("integrations.enable_backup", True))
 
     def is_git_enabled(self) -> bool:
         """Check if Git integration is enabled."""
-        return self.get("integrations.enable_git", True)
+        return bool(self.get("integrations.enable_git", True))
 
     def is_tests_enabled(self) -> bool:
         """Check if tests are enabled."""
-        return self.get("integrations.enable_tests", True)
+        return bool(self.get("integrations.enable_tests", True))
 
     def is_metrics_enabled(self) -> bool:
         """Check if metrics are enabled."""
-        return self.get("integrations.enable_metrics", True)
+        return bool(self.get("integrations.enable_metrics", True))
 
     def is_verbose_logging_enabled(self) -> bool:
         """Check if verbose logging is enabled."""
-        return self.get("ui.verbose_logging", False)
+        return bool(self.get("ui.verbose_logging", False))
 
     def create_sample_config(self) -> None:
         """Create a sample configuration file."""

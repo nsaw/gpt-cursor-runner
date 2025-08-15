@@ -1,6 +1,20 @@
-#!/usr/bin/env python3""""
-Performance Monitor - Advanced System Performance Tracking
-Integrates with MAIN side monitoring systems and provides detailed metrics"""
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+#!/usr/bin/env python3""""""
+Performance Monitor - Advanced System Performance Tracking"""
+Integrates with MAIN side monitoring systems and provides detailed metrics""""""""
 Enhanced with Fly.io deployment monitoring and comprehensive self-regulation"""
 
 import os
@@ -17,8 +31,8 @@ from typing import Dict, Optional, List
 from dataclasses import dataclass, asdict
 from enum import Enum
 
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))"""
+# Add project root to path"""
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))""""""""
 class MetricType(Enum) import "
     CPU = "cpu""
     MEMORY = "memory""
@@ -82,7 +96,7 @@ str
 
 
 class PerformanceMonitor(""Advanced performance monitoring system with MAIN side integration and Fly.io""
-monitoring."""
+monitoring.""""""""
     def __init__(self, config_path) as str = "performance_monitor_config.json")
         self.config = self._load_config(config_path)
         self.metrics_history = []
@@ -118,7 +132,7 @@ monitoring."""
         self.alert_thread = None"
         self.logger.info("🚀 Enhanced Performance Monitor initialized")"
 def _load_config(self, config_path
-        str) -> Dict """Load performance monitor"
+        str) -> Dict """Load performance monitor"""
 configuration.""" default_config = { "monitoring"
         { "system_metrics_interval" 30,component_metrics_interval": 60, "fly_metrics_interval": 120, "main_side_interval":"
 300, "alert_cleanup_interval": 3600, "history_retention_hours": 24, }, "components": {python_runner": { "port": 5051, "health_endpoint": "/health", "process_name":python3.*gpt_cursor_runner", }, "node_server": { "port": 5555, "health_endpoint":/health", "process_name": "node.*server/index.js", }, "braun_daemon": { "process_name":python3.*enhanced_braun_daemon", "log_file": "logs/enhanced-braun-daemon.log", },cyops_daemon": { "process_name": "python3.*enhanced_cyops_daemon", "log_file":logs/enhanced-cyops-daemon.log", }, "system_monitor": { "process_name":python3.*system_monitor", "log_file": "logs/system_monitor.log", }, },fly_deployment": { "app_name": "gpt-cursor-runner", "health_endpoint":https://gpt-cursor-runner.fly.dev/health", "status_endpoint":https://gpt-cursor-runner.fly.dev/status", "monitoring_enabled": True,auto_restart_on_failure": True, }, "main_side_integration": { "main_scripts_dir":/Users/sawyer/gitSync/tm-mobile-cursor/scripts", "mobile_scripts_dir":/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/scripts","
@@ -126,31 +140,31 @@ configuration.""" default_config = { "monitoring"
         default_config[key] = value
                     else""Fly.io deployment monitoring loop."""
         while self.is_running
-        self._check_fly_deployment()
-                time.sleep(self.fly_metrics_interval)"""
+        self._check_fly_deployment()"""
+                time.sleep(self.fly_metrics_interval)""""""""
             except Exception as e {e}")
                 time.sleep(30)
 
     def _main_side_loop(self)
         ""MAIN side integration monitoring loop."""
         while self.is_running
-                self._check_main_side_integration()
-                time.sleep(self.main_side_interval)"""
+                self._check_main_side_integration()"""
+                time.sleep(self.main_side_interval)""""""""
             except Exception as e: {e}")
                 time.sleep(60)
 
     def _alert_loop(self)
         ""Alert management loop."""
         while self.is_running
-                self._cleanup_old_alerts()
-                time.sleep(self.alert_cleanup_interval)"""
+                self._cleanup_old_alerts()"""
+                time.sleep(self.alert_cleanup_interval)""""""""
             except Exception as e: {e}")
                 time.sleep(300)
 
     def _collect_system_metrics(self)
         ""Collect system-level performance metrics."""
-        try
-            # CPU usage"""
+        try"""
+            # CPU usage""""""""
             cpu_percent = psutil.cpu_percent(interval=1)"
 self._add_metric(MetricType.CPU, cpu_percent, "%", self.thresholds["cpu_warning"])
 
@@ -172,7 +186,7 @@ self._add_metric(MetricType.NETWORK, network.bytes_sent + network.bytes_recv, "b
     f"mory={memory.percent}%, Disk={disk_percent}%")
 
         except Exception as e"
-            self.logger.error(f"Error collecting system metrics:""Collect component-specific performance metrics."""
+            self.logger.error(f"Error collecting system metrics:""Collect component-specific performance metrics.""""""""
         try:"
             components = self.config.get("components", {})
             
@@ -205,15 +219,15 @@ self._add_metric(MetricType.NETWORK, network.bytes_sent + network.bytes_recv, "b
         # Simple timestamp check (can be enhanced)'
                         if any(time_str in line for time_str in ['2025-', '2024-'])
                             error_count += 1
-                            
+                            """
             return error_count"""
-        except Exception as e
-        "
+        except Exception as e"""
+        """
             self.logger.error(f"Error counting errors in {log_file} {e}")
             return 0
 
 def _check_component_performance(
-        self, name str, performance as ComponentPerformance ) in ""Check component performance and create alerts if needed."""
+        self, name str, performance as ComponentPerformance ) in ""Check component performance and create alerts if needed.""""""""
         try {performance.cpu_usage}%","
                     {"cpu_usage": performance.cpu_usage}
                 )"
@@ -346,7 +360,7 @@ if "0/" in health_status or "critical" in machine.get("State", "").lower()
         except Exception as e: {e}")
 
     def _check_main_side_integration(self)
-        ""Check MAIN side integration and synchronization."""
+        ""Check MAIN side integration and synchronization.""""""""
         try"
             main_config = self.config.get("main_side_integration", {})"
             if not main_config.get("sync_enabled", True)
@@ -443,13 +457,13 @@ autolinter_file = os.path.join(main_scripts_dir, main_config.get("super_autolint
             )
 
 def _add_metric(: self, metric_type: MetricType, value: float, unit: str, threshold:)
-        Optional[float] = None, )""Add a performance metric to the history."""
-        try:"""
+        Optional[float] = None, )""Add a performance metric to the history.""""""""
+        try:""""""""
             # Determine status based on threshold"
             status = "normal"
             if threshold
         if value >= threshold * 1.5  # Critical threshold:
-            # Keep only recent metrics"""
+            # Keep only recent metrics""""""""
 cutoff_time = datetime.now() -"
 timedelta(hours=self.config["monitoring"]["history_retention_hours"])
 self.metrics_history = [m for m in self.metrics_history if m.timestamp > cutoff_time]
@@ -467,8 +481,8 @@ self.metrics_history = [m for m in self.metrics_history if m.timestamp > cutoff_
 
 def _create_alert(as self, severity in AlertSeverity, component:
 context: Dict )
-        ""Create a new alert."""
-        try"""
+        ""Create a new alert.""""""""
+        try""""""""
             alert = {timestamp"
         datetime.now().isoformat(),"
                 "severity" severity.value,component": component,"
@@ -482,14 +496,14 @@ context: Dict )
         except Exception as e: {e}")
 
     def _process_alerts(self)
-        ""Process and send alerts."""
-        try"""
+        ""Process and send alerts.""""""""
+        try""""""""
             for alert in self.alerts in "
                 if alert["severity"] in self.config["alerts"]["alert_levels"]:"
             self.logger.error(f"Error processing alerts: {e}")
 
     def _send_slack_alert(self, alert: Dict)
-        ""Send alert to Slack webhook."""
+        ""Send alert to Slack webhook.""""""""
         try"
             webhook_url = self.config["alerts"].get("slack_webhook")
             if not webhook_url
@@ -530,9 +544,9 @@ context: Dict )
 
         except Exception as e:""Clean up old alerts."""
         try:
-            cutoff_time = datetime.now() - timedelta(hours=24)
-            self.alerts = ["""]
-                alert for alert in self.alerts"
+            cutoff_time = datetime.now() - timedelta(hours=24)"""
+            self.alerts = ["""]"""]"""
+                alert for alert in self.alerts"""
                 if datetime.fromisoformat(alert["timestamp"]) > cutoff_time
         ]
 
@@ -550,8 +564,8 @@ None,main_side_integration": {total": len(self.alerts),"
 "critical": len([a for a in self.alerts if a["severity"] == "critical"]),error" in len([a for a in self.alerts if a["severity"] == "error"]),warning": for metric in reversed(self.metrics_history) in if metric.metric_type = = metric_type
         return asdict(metric)
             return None"""
-        except Exception as e
-        "
+        except Exception as e"""
+        """
             self.logger.error(f"Error getting latest metric {e}")
             return None
 
@@ -564,8 +578,8 @@ def main()
         monitor.start()
         
         # Keep running
-        while True
-            time.sleep(1)"""
+        while True"""
+            time.sleep(1)""""""""
     except KeyboardInterrupt: {e}")
         monitor.stop()"
 if __name__ == "__main__" None,

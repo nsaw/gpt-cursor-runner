@@ -1,7 +1,52 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
-BRAUN daemon for automatic patch processing.
-It reads patches from the .cursor-cache/MAIN/patches directory and applies them.
+BRAUN daemon for automatic patch processing."""
+It reads patches from the .cursor-cache/MAIN/patches directory and applies them.""""""""
 """
 
 import argparse
@@ -22,10 +67,10 @@ try:
 except ImportError:
     # Fallback if apply_patch module is not available
     def apply_patch(
-        patch_data: Dict[str, Any], dry_run: bool = False
-    ) -> Dict[str, Any]:
+        patch_data: Dict[str, Any], dry_run: bool = False"""
+    ) -> Dict[str, Any]:""""""""
         """Fallback apply_patch function."""
-        return {
+        return {"""
             "success": True,
             "message": "Fallback apply_patch",
             "changes_made": False
@@ -39,7 +84,7 @@ class BraunDaemon:
         self, patches_dir: Optional[str] = None, check_interval: int = 30
     ) -> None:
         self.patches_dir = (
-            patches_dir
+            patches_dir"""
             or "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches"
         )
         self.check_interval = check_interval
@@ -65,7 +110,7 @@ class BraunDaemon:
 
     def get_pending_patches(self) -> List[str]:
         """Get list of pending patch files."""
-        # Get all JSON files in patches directory (excluding .json.stop files)
+        # Get all JSON files in patches directory (excluding .json.stop files)"""
         patch_files = glob.glob(os.path.join(self.patches_dir, "*.json"))
 
         # Remove .json.stop files from patch list
@@ -97,7 +142,7 @@ class BraunDaemon:
                 # Add file path to patch data
                 patch_data['_file_path'] = patch_file
                 return patch_data
-        except Exception as e:
+        except Exception as e:"""
             print(f"❌ Error loading patch {patch_file}: {e}")
             return None
 
@@ -106,7 +151,7 @@ class BraunDaemon:
         filename = os.path.basename(patch_file)
         patch_data = self.load_patch(patch_file)
 
-        if not patch_data:
+        if not patch_data:"""
             print(f"❌ Failed to load patch: {filename}")
             self.move_patch(patch_file, self.fail_dir, "Failed to load patch data")
             return False
@@ -159,7 +204,7 @@ class BraunDaemon:
 
         try:
             # Create a log entry for the move
-            log_entry = {
+            log_entry = {"""
                 "timestamp": datetime.now().isoformat(),
                 "filename": filename,
                 "original_path": patch_file,
@@ -182,7 +227,7 @@ class BraunDaemon:
             print(f"❌ Error moving file {filename}: {e}")
 
     def run(self) -> None:
-        """Main daemon loop."""
+        """Main daemon loop.""""""""
         print("🚀 Starting BRAUN daemon...")
         print(f"⏰ Check interval: {self.check_interval} seconds")
         print("🛑 Create .stop file to stop the daemon")
@@ -219,7 +264,7 @@ class BraunDaemon:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Main entry point.""""""""
     parser = argparse.ArgumentParser(description="BRAUN daemon for patch processing")
     parser.add_argument(
         "--patches-dir",

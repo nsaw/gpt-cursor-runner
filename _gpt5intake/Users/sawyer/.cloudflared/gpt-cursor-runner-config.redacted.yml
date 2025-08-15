@@ -1,0 +1,18 @@
+tunnel: f1545c78-1a94-408f-ba6b-9c4223b4c2bf
+credentials-file: REDACTED
+
+originRequest:
+  httpHostHeader: gpt-cursor-runner.thoughtmarks.app
+  noTLSVerify: true
+
+ingress:
+  # TEMP: Local-first for monitor host to bypass 530 while debugging
+  - hostname: gpt-cursor-runner.thoughtmarks.app
+    service: http://localhost:8787
+  - hostname: gpt-cursor-runner.thoughtmarks.app
+    service: https://gpt-cursor-runner.fly.dev
+  - hostname: slack.thoughtmarks.app
+    service: https://gpt-cursor-runner.fly.dev
+  - hostname: slack.thoughtmarks.app
+    service: http://localhost:5051
+  - service: http_status:404

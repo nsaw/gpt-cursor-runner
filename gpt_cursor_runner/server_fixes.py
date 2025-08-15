@@ -1,3 +1,42 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Server Fixes Module for GHOST 2.0.
@@ -5,17 +44,17 @@ Server Fixes Module for GHOST 2.0.
 Addresses common server issues and provides fixes.
 """
 
+import logging
+import os
+import subprocess
 import threading
 import time
 import socket
-import subprocess
 import psutil
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
-import logging
-import os
+from typing import Dict, List, Optional, Any
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +113,7 @@ class FixStrategy:
 class ServerFixes:
     """Handles server issues and provides fixes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.issues: List[ServerIssueRecord] = []
         self.fix_strategies: List[FixStrategy] = []
         self.active_fixes: Dict[str, Dict[str, Any]] = {}
@@ -85,7 +124,7 @@ class ServerFixes:
         # Register default fix strategies
         self._register_default_strategies()
 
-    def _register_default_strategies(self):
+    def _register_default_strategies(self) -> None:
         """Register default server fix strategies."""
         self.fix_strategies = [
             # Port conflicts - kill conflicting processes
@@ -154,7 +193,7 @@ class ServerFixes:
             ),
         ]
 
-    def start(self):
+    def start(self) -> None:
         """Start the server fixes background thread."""
         if self._fix_thread is None or not self._fix_thread.is_alive():
             self._stop_event.clear()
@@ -162,14 +201,14 @@ class ServerFixes:
             self._fix_thread.start()
             logger.info("Server fixes started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the server fixes background thread."""
         self._stop_event.set()
         if self._fix_thread and self._fix_thread.is_alive():
             self._fix_thread.join(timeout=5)
             logger.info("Server fixes stopped")
 
-    def _fix_loop(self):
+    def _fix_loop(self) -> None:
         """Background loop for server fixes."""
         while not self._stop_event.is_set():
             try:
@@ -181,7 +220,7 @@ class ServerFixes:
             # Wait before next check cycle
             self._stop_event.wait(60)  # Check every minute
 
-    def _check_for_issues(self):
+    def _check_for_issues(self) -> None:
         """Check for common server issues."""
         # Check port conflicts
         self._check_port_conflicts()
@@ -198,7 +237,7 @@ class ServerFixes:
         # Check process health
         self._check_process_health()
 
-    def _check_port_conflicts(self):
+    def _check_port_conflicts(self) -> None:
         """Check for port conflicts."""
         common_ports = [5051, 8080, 8081, 8082, 8083, 3000, 5000]
 
@@ -211,7 +250,7 @@ class ServerFixes:
                     "high",
                 )
 
-    def _check_memory_usage(self):
+    def _check_memory_usage(self) -> None:
         """Check memory usage."""
         memory = psutil.virtual_memory()
         if memory.percent > 90:
@@ -222,7 +261,7 @@ class ServerFixes:
                 "critical",
             )
 
-    def _check_cpu_usage(self):
+    def _check_cpu_usage(self) -> None:
         """Check CPU usage."""
         cpu_percent = psutil.cpu_percent(interval=1)
         if cpu_percent > 80:
@@ -233,7 +272,7 @@ class ServerFixes:
                 "high",
             )
 
-    def _check_disk_space(self):
+    def _check_disk_space(self) -> None:
         """Check disk space."""
         disk = psutil.disk_usage("/")
         if disk.percent > 90:
@@ -244,7 +283,7 @@ class ServerFixes:
                 "critical",
             )
 
-    def _check_process_health(self):
+    def _check_process_health(self) -> None:
         """Check process health."""
         # Check for hanging processes
         for proc in psutil.process_iter(["pid", "name", "cpu_percent"]):
@@ -295,7 +334,7 @@ class ServerFixes:
 
         logger.warning(f"Server issue recorded: {issue_id} - {description}")
 
-    def _apply_fixes(self):
+    def _apply_fixes(self) -> None:
         """Apply fixes for recorded issues."""
         with self._lock:
             unresolved_issues = [issue for issue in self.issues if not issue.resolved]
@@ -312,7 +351,7 @@ class ServerFixes:
                 return strategy
         return None
 
-    def _apply_fix(self, issue: ServerIssueRecord, strategy: FixStrategy):
+    def _apply_fix(self, issue: ServerIssueRecord, strategy: FixStrategy) -> None:
         """Apply a fix for an issue."""
         try:
             if strategy.action == FixAction.KILL_PROCESS:
@@ -342,7 +381,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to apply fix for issue {issue.issue_id}: {e}")
 
-    def _kill_conflicting_processes(self):
+    def _kill_conflicting_processes(self) -> None:
         """Kill processes that might be causing conflicts."""
         try:
             # Kill processes on common ports
@@ -352,7 +391,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to kill conflicting processes: {e}")
 
-    def _kill_process_on_port(self, port: int):
+    def _kill_process_on_port(self, port: int) -> None:
         """Kill process using a specific port."""
         try:
             result = subprocess.run(
@@ -367,7 +406,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to kill process on port {port}: {e}")
 
-    def _restart_service(self):
+    def _restart_service(self) -> None:
         """Restart a service."""
         try:
             # Restart the main application
@@ -378,7 +417,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to restart service: {e}")
 
-    def _clear_cache(self):
+    def _clear_cache(self) -> None:
         """Clear cache files."""
         try:
             cache_dirs = ["logs", "temp", "__pycache__"]
@@ -389,7 +428,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to clear cache: {e}")
 
-    def _free_disk_space(self):
+    def _free_disk_space(self) -> None:
         """Free disk space by cleaning up old files."""
         try:
             # Remove old log files
@@ -402,6 +441,7 @@ class ServerFixes:
             if os.path.exists("backups"):
                 subprocess.run(
                     ["find", "backups", "-name", "*.tar.gz", "-mtime", "+30", "-delete"]
+    
                 )
 
             # Clear temporary files
@@ -411,7 +451,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to free disk space: {e}")
 
-    def _fix_permissions(self):
+    def _fix_permissions(self) -> None:
         """Fix file permissions."""
         try:
             # Fix permissions for key directories
@@ -424,7 +464,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to fix permissions: {e}")
 
-    def _update_config(self):
+    def _update_config(self) -> None:
         """Update configuration files."""
         try:
             # This would typically update configuration files
@@ -433,7 +473,7 @@ class ServerFixes:
         except Exception as e:
             logger.error(f"Failed to update config: {e}")
 
-    def _reset_network(self):
+    def _reset_network(self) -> None:
         """Reset network connections."""
         try:
             # Reset network interfaces
@@ -493,13 +533,13 @@ class ServerFixes:
                 "fix_strategies": len(self.fix_strategies),
             }
 
-    def add_fix_strategy(self, strategy: FixStrategy):
+    def add_fix_strategy(self, strategy: FixStrategy) -> None:
         """Add a custom fix strategy."""
         with self._lock:
             self.fix_strategies.append(strategy)
         logger.info(f"Added fix strategy for {strategy.issue_type.value}")
 
-    def clear_old_issues(self, days: int = 30):
+    def clear_old_issues(self, days: int = 30) -> None:
         """Clear issues older than specified days."""
         cutoff_date = datetime.now() - timedelta(days=days)
         with self._lock:

@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { spawn, execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { spawn, execSync } = require("child_process");
 
-const WATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/ui-patch-inbox';
-const DEST_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches';
-const LOG_FILE = path.resolve(__dirname, '../../logs/main-relay-daemon.log');
+const WATCH_DIR = "/Users/sawyer/gitSync/.cursor-cache/MAIN/ui-patch-inbox";
+const DEST_DIR = "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches";
+const LOG_FILE = path.resolve(__dirname, "../../logs/main-relay-daemon.log");
 
 if (!fs.existsSync(WATCH_DIR)) fs.mkdirSync(WATCH_DIR, { recursive: true });
 if (!fs.existsSync(DEST_DIR)) fs.mkdirSync(DEST_DIR, { recursive: true });
@@ -15,23 +15,25 @@ function log(msg) {
 
 function startPatchExecutorIfMissing() {
   try {
-    const running = execSync('ps aux | grep patch-executor | grep -v grep', { encoding: 'utf8' }).toString();
-    if (!running.includes('patch-executor')) {
-      log('Patch executor not running. Restarting...');
-      spawn('node', ['scripts/patch-executor.js'], {
+    const running = execSync("ps aux | grep patch-executor | grep -v grep", {
+      encoding: "utf8",
+    }).toString();
+    if (!running.includes("patch-executor")) {
+      log("Patch executor not running. Restarting...");
+      spawn("node", ["scripts/patch-executor.js"], {
         detached: true,
-        stdio: 'ignore'
+        stdio: "ignore",
       }).unref();
     } else {
-      log('Patch executor already running.');
+      log("Patch executor already running.");
     }
   } catch (_error) {
     // If grep doesn't find anything, it returns non-zero exit code
     if (error.status === 1) {
-      log('Patch executor not running. Restarting...');
-      spawn('node', ['scripts/patch-executor.js'], {
+      log("Patch executor not running. Restarting...");
+      spawn("node", ["scripts/patch-executor.js"], {
         detached: true,
-        stdio: 'ignore'
+        stdio: "ignore",
       }).unref();
     } else {
       log(`Error checking patch executor: ${error.message}`);
@@ -39,7 +41,7 @@ function startPatchExecutorIfMissing() {
   }
 }
 
-log('MAIN Patch Relay Daemon Started');
+log("MAIN Patch Relay Daemon Started");
 log(`Watching directory: ${WATCH_DIR}`);
 log(`Destination directory: ${DEST_DIR}`);
 
@@ -52,21 +54,23 @@ function checkForNewFiles() {
     log(`Checking directory: ${WATCH_DIR}`);
     const files = fs.readdirSync(WATCH_DIR);
     log(`Found ${files.length} files in directory`);
-    const jsonFiles = files.filter(file => file.endsWith('.json'));
-    log(`Found ${jsonFiles.length} JSON files: ${jsonFiles.join(', ')}`);
-    
+    const jsonFiles = files.filter((file) => file.endsWith(".json"));
+    log(`Found ${jsonFiles.length} JSON files: ${jsonFiles.join(", ")}`);
+
     for (const filename of jsonFiles) {
       if (!processedFiles.has(filename)) {
         log(`Found new JSON file: ${filename}`);
         const src = path.join(WATCH_DIR, filename);
         const dest = path.join(DEST_DIR, filename);
-        
+
         if (fs.existsSync(src)) {
           try {
             fs.copyFileSync(src, dest);
             // Remove the file from inbox after successful copy
             fs.unlinkSync(src);
-            log(`Relayed patch ${filename} to MAIN patch queue and removed from inbox.`);
+            log(
+              `Relayed patch ${filename} to MAIN patch queue and removed from inbox.`,
+            );
             processedFiles.add(filename);
             startPatchExecutorIfMissing();
           } catch (_error) {
@@ -89,5 +93,5 @@ function checkForNewFiles() {
 setInterval(checkForNewFiles, 2000);
 
 setInterval(() => {
-  log('✅ Heartbeat: relay running');
-}, 30000); 
+  log("✅ Heartbeat: relay running");
+}, 30000);

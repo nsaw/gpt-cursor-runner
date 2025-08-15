@@ -1,3 +1,47 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Union, Any, Tuple
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Audit Logger Module for GHOST 2.0.
@@ -5,15 +49,6 @@ Audit Logger Module for GHOST 2.0.
 Provides comprehensive logging and audit trails.
 """
 
-import threading
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-import logging
-import os
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +111,7 @@ class AuditConfig:
 class AuditLogger:
     """Comprehensive audit logging system."""
 
-    def __init__(self, config: AuditConfig = None):
+    def __init__(self, config: AuditConfig = None) -> None:
         self.config = config or AuditConfig()
         self.entries: List[AuditEntry] = []
         self._lock = threading.Lock()
@@ -92,7 +127,7 @@ class AuditLogger:
         if self.config.enabled:
             self.start()
 
-    def _initialize_log_file(self):
+    def _initialize_log_file(self) -> None:
         """Initialize the audit log file."""
         if not self.config.log_to_file:
             return
@@ -108,7 +143,7 @@ class AuditLogger:
             with open(self._log_file, "w") as f:
                 f.write(f"# Audit Log Started: {datetime.now().isoformat()}\n")
 
-    def start(self):
+    def start(self) -> None:
         """Start the audit logger cleanup thread."""
         if self._cleanup_thread is None or not self._cleanup_thread.is_alive():
             self._stop_event.clear()
@@ -118,14 +153,14 @@ class AuditLogger:
             self._cleanup_thread.start()
             logger.info("Audit logger started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the audit logger cleanup thread."""
         self._stop_event.set()
         if self._cleanup_thread and self._cleanup_thread.is_alive():
             self._cleanup_thread.join(timeout=5)
             logger.info("Audit logger stopped")
 
-    def _cleanup_loop(self):
+    def _cleanup_loop(self) -> None:
         """Background loop for audit log cleanup."""
         while not self._stop_event.is_set():
             try:
@@ -137,7 +172,7 @@ class AuditLogger:
             # Wait before next cleanup cycle
             self._stop_event.wait(3600)  # Run every hour
 
-    def _cleanup_old_entries(self):
+    def _cleanup_old_entries(self) -> None:
         """Clean up old audit entries."""
         if not self.config.enabled:
             return
@@ -153,7 +188,7 @@ class AuditLogger:
             f"Cleaned up audit entries older than {self.config.retention_days} days"
         )
 
-    def _rotate_log_file(self):
+    def _rotate_log_file(self) -> None:
         """Rotate log file if it exceeds size limit."""
         if not self.config.log_to_file or not self._log_file:
             return
@@ -163,7 +198,7 @@ class AuditLogger:
             if file_size > self.config.max_file_size_mb:
                 self._rotate_log_file_impl()
 
-    def _rotate_log_file_impl(self):
+    def _rotate_log_file_impl(self) -> None:
         """Implement log file rotation."""
         if not self._log_file:
             return
@@ -249,7 +284,7 @@ class AuditLogger:
         content = f"{entry.timestamp.isoformat()}{entry.level.value}{entry.category.value}{entry.message}{entry.user_id or ''}{entry.session_id or ''}"
         return hashlib.sha256(content.encode()).hexdigest()[:16]
 
-    def _write_to_file(self, entry: AuditEntry):
+    def _write_to_file(self, entry: AuditEntry) -> None:
         """Write audit entry to file."""
         if not self._log_file:
             return
@@ -265,7 +300,7 @@ class AuditLogger:
         except Exception as e:
             logger.error(f"Failed to write audit entry to file: {e}")
 
-    def _send_to_slack(self, entry: AuditEntry):
+    def _send_to_slack(self, entry: AuditEntry) -> None:
         """Send critical audit entries to Slack."""
         try:
             from gpt_cursor_runner.slack_proxy import create_slack_proxy
@@ -356,6 +391,7 @@ class AuditLogger:
             # Recent activity (last 24 hours)
             cutoff_time = datetime.now() - timedelta(hours=24)
             recent_entries = len([e for e in self.entries if e.timestamp > cutoff_time])
+    
 
             return {
                 "total_entries": total_entries,
@@ -440,6 +476,7 @@ class AuditLogger:
         """Log a resource-related event."""
         return self.log(
             LogLevel.INFO, LogCategory.RESOURCE, message, component=component, data=data
+    
         )
 
     def log_process_event(

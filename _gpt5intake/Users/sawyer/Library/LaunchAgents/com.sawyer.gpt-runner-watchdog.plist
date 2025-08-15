@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.sawyer.gpt-runner-watchdog</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/scripts/watchdog.sh</string>
+    </array>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/sawyer/.gpt-runner-watchdog.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/sawyer/.gpt-runner-watchdog.log</string>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh</string>
+    
+    <key>UserName</key>
+    <string>sawyer</string>
+    
+    <key>GroupName</key>
+    <string>staff</string>
+</dict>
+</plist> 

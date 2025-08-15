@@ -5,15 +5,15 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "PORT=5555 node server/index.js",
+    "dev": "PORT=5051 node server/index.js",
     "dev:python": "python3 -m gpt_cursor_runner.main",
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:python\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "lint": "echo lint skipped",
     "lint:fix": "eslint . --fix",
     "lint:scripts": "eslint scripts/",
     "lint:server": "eslint server/",
-    "test:dashboard": "playwright test tests/dashboard-green-state.spec.ts"
+    "test:dashboard": "playwright test --project=chromium --headed=false tests/dashboard-green-state.spec.ts"
   },
   "keywords": [
     "gpt",

@@ -1,0 +1,7 @@
+tunnel: 4d633ac0-9bfe-41e7-8ef7-6dfd7aecd378
+credentials-file: REDACTED
+
+ingress:
+  - hostname: health-thoughtmarks.THOUGHTMARKS.app
+    service: http://localhost:7474
+  - service: http_status:404

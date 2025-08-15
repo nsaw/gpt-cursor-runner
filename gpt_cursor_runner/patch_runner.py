@@ -1,3 +1,36 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Patch Runner for GPT-Cursor Runner.
@@ -10,7 +43,7 @@ import re
 import json
 import shutil
 from datetime import datetime
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Union
 
 # Import dependencies
 try:
@@ -25,8 +58,12 @@ try:
 except ImportError:
     slack_proxy = None
 
+# Type aliases for better type checking
+EVENT_LOGGER: Optional[Any] = EVENT_LOGGER
+slack_proxy: Optional[Any] = slack_proxy
 
-def validate_patch_schema(patch_data: Dict[str, Any]) -> Tuple[bool, str]:
+
+def validate_patch_schema(patch_data: dict[str, Any]) -> tuple[bool, str]:
     """Validate patch data against schema."""
     required_fields = ["id", "target_file", "patch"]
 
@@ -48,16 +85,20 @@ def validate_patch_schema(patch_data: Dict[str, Any]) -> Tuple[bool, str]:
 
 
 def log_patch_event(
-    event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None
-):
+    event_type: str,
+    patch_data: dict[str, Any],
+    result: Union[dict[str, Any], None] = None,
+) -> None:
     """Log patch events for UI display."""
     if EVENT_LOGGER:
         EVENT_LOGGER.log_patch_event(event_type, patch_data, result)
 
 
 def notify_patch_event(
-    event_type: str, patch_data: Dict[str, Any], result: Optional[Dict[str, Any]] = None
-):
+    event_type: str,
+    patch_data: dict[str, Any],
+    result: Union[dict[str, Any], None] = None,
+) -> None:
     """Notify Slack of patch events."""
     if slack_proxy:
         try:
@@ -248,7 +289,12 @@ def load_latest_patch() -> Optional[Dict[str, Any]]:
 
     try:
         with open(latest_file, "r") as f:
-            return json.load(f)
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+            else:
+                print(f"Error: Patch file {latest_file} does not contain a dictionary")
+                return None
     except Exception as e:
         print(f"Error loading latest patch: {e}")
         return None

@@ -3,38 +3,39 @@
 /**
  * Ghost Runner Service
  * Handles patch execution and monitoring for both MAIN and CYOPS environments
- * 
+ *
  * Usage:
  *   node scripts/ghost-runner.js
  *   node scripts/ghost-runner.js --env=MAIN
  *   node scripts/ghost-runner.js --env=CYOPS
  */
 
-const fs = require('fs');
-const path = require('path');
-const express = require('express');
-const bodyParser = require('body-parser');
-const { exec } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const { exec } = require("child_process");
 
 // Configuration
 const PORT = process.env.GHOST_RUNNER_PORT || 5053;
-const ENV = process.argv.find(arg => arg.startsWith('--env='))?.split('=')[1] || 'CYOPS';
-const CACHE_ROOT = '/Users/sawyer/gitSync/.cursor-cache';
-const PATCHES_DIR = path.join(CACHE_ROOT, ENV, 'patches');
-const SUMMARIES_DIR = path.join(CACHE_ROOT, ENV, 'summaries');
-const HEARTBEAT_DIR = path.join(CACHE_ROOT, ENV, '.heartbeat');
-const LOGS_DIR = path.join(PATCHES_DIR, '.logs');
+const ENV =
+  process.argv.find((arg) => arg.startsWith("--env="))?.split("=")[1] ||
+  "CYOPS";
+const CACHE_ROOT = "/Users/sawyer/gitSync/.cursor-cache";
+const PATCHES_DIR = path.join(CACHE_ROOT, ENV, "patches");
+const SUMMARIES_DIR = path.join(CACHE_ROOT, ENV, "summaries");
+const HEARTBEAT_DIR = path.join(CACHE_ROOT, ENV, ".heartbeat");
+const LOGS_DIR = path.join(PATCHES_DIR, ".logs");
 
 // Ensure directories exist
-[PATCHES_DIR, SUMMARIES_DIR, HEARTBEAT_DIR, LOGS_DIR].forEach(dir => {
+[PATCHES_DIR, SUMMARIES_DIR, HEARTBEAT_DIR, LOGS_DIR].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Logging
 const log = (message) => {
@@ -43,54 +44,58 @@ const log = (message) => {
 };
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
-    status: 'healthy',
-    service: 'ghost-runner',
+    status: "healthy",
+    service: "ghost-runner",
     environment: ENV,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     port: PORT,
-    endpoints: ['/health', '/status', '/patches', '/execute', '/monitor']
+    endpoints: ["/health", "/status", "/patches", "/execute", "/monitor"],
   });
 });
 
 // Status endpoint
-app.get('/status', (req, res) => {
+app.get("/status", (req, res) => {
   const status = {
-    service: 'ghost-runner',
+    service: "ghost-runner",
     environment: ENV,
-    status: 'running',
+    status: "running",
     port: PORT,
     timestamp: new Date().toISOString(),
     patches: {
       pending: 0,
       completed: 0,
-      failed: 0
+      failed: 0,
     },
     directories: {
       patches: PATCHES_DIR,
       summaries: SUMMARIES_DIR,
-      heartbeat: HEARTBEAT_DIR
-    }
+      heartbeat: HEARTBEAT_DIR,
+    },
   };
 
   // Count patches
   try {
     if (fs.existsSync(PATCHES_DIR)) {
       const files = fs.readdirSync(PATCHES_DIR);
-      status.patches.pending = files.filter(f => f.endsWith('.json')).length;
+      status.patches.pending = files.filter((f) => f.endsWith(".json")).length;
     }
-    
-    const completedDir = path.join(PATCHES_DIR, '.completed');
-    const failedDir = path.join(PATCHES_DIR, '.failed');
-    
+
+    const completedDir = path.join(PATCHES_DIR, ".completed");
+    const failedDir = path.join(PATCHES_DIR, ".failed");
+
     if (fs.existsSync(completedDir)) {
-      status.patches.completed = fs.readdirSync(completedDir).filter(f => f.endsWith('.json')).length;
+      status.patches.completed = fs
+        .readdirSync(completedDir)
+        .filter((f) => f.endsWith(".json")).length;
     }
-    
+
     if (fs.existsSync(failedDir)) {
-      status.patches.failed = fs.readdirSync(failedDir).filter(f => f.endsWith('.json')).length;
+      status.patches.failed = fs
+        .readdirSync(failedDir)
+        .filter((f) => f.endsWith(".json")).length;
     }
   } catch (error) {
     log(`Error counting patches: ${error.message}`);
@@ -100,38 +105,38 @@ app.get('/status', (req, res) => {
 });
 
 // List patches endpoint
-app.get('/patches', (req, res) => {
+app.get("/patches", (req, res) => {
   try {
     const files = fs.readdirSync(PATCHES_DIR);
     const patches = files
-      .filter(f => f.endsWith('.json'))
-      .map(f => ({
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => ({
         name: f,
         path: path.join(PATCHES_DIR, f),
         size: fs.statSync(path.join(PATCHES_DIR, f)).size,
-        modified: fs.statSync(path.join(PATCHES_DIR, f)).mtime
+        modified: fs.statSync(path.join(PATCHES_DIR, f)).mtime,
       }));
-    
+
     res.json({
       environment: ENV,
-      patches: patches,
-      count: patches.length
+      patches,
+      count: patches.length,
     });
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to list patches',
-      message: error.message
+      error: "Failed to list patches",
+      message: error.message,
     });
   }
 });
 
 // Receive and execute patch endpoint
-app.post('/patch', (req, res) => {
+app.post("/patch", (req, res) => {
   const patch = req.body;
-  
+
   if (!patch || !patch.id) {
     return res.status(400).json({
-      error: 'Invalid patch data: missing id'
+      error: "Invalid patch data: missing id",
     });
   }
 
@@ -145,8 +150,8 @@ app.post('/patch', (req, res) => {
   } catch (error) {
     log(`Failed to save patch: ${error.message}`);
     return res.status(500).json({
-      error: 'Failed to save patch',
-      message: error.message
+      error: "Failed to save patch",
+      message: error.message,
     });
   }
 
@@ -155,21 +160,21 @@ app.post('/patch', (req, res) => {
 });
 
 // Execute patch endpoint (for existing patches)
-app.post('/execute', (req, res) => {
+app.post("/execute", (req, res) => {
   const { patchId } = req.body;
-  
+
   if (!patchId) {
     return res.status(400).json({
-      error: 'patchId is required'
+      error: "patchId is required",
     });
   }
 
   const patchPath = path.join(PATCHES_DIR, `${patchId}.json`);
-  
+
   if (!fs.existsSync(patchPath)) {
     return res.status(404).json({
-      error: 'Patch not found',
-      patchId: patchId
+      error: "Patch not found",
+      patchId,
     });
   }
 
@@ -180,10 +185,10 @@ app.post('/execute', (req, res) => {
 // Patch execution function with enhanced logging
 function executePatch(patchId, patchPath, res) {
   log(`Starting execution of patch: ${patchId}`);
-  
+
   // Log the patch execution attempt
   const logEntry = `[${new Date().toISOString()}] Executing patch: ${patchId}\n`;
-  const logFile = path.join(LOGS_DIR, 'patch-execution.log');
+  const logFile = path.join(LOGS_DIR, "patch-execution.log");
   try {
     fs.appendFileSync(logFile, logEntry);
   } catch (error) {
@@ -191,32 +196,32 @@ function executePatch(patchId, patchPath, res) {
   }
 
   // Execute patch using the patch executor
-  const executorScript = path.join(__dirname, 'patch-executor.js');
+  const executorScript = path.join(__dirname, "patch-executor.js");
   const command = `node "${executorScript}" "${patchPath}"`;
 
   exec(command, { cwd: __dirname }, (error, stdout, stderr) => {
     if (error) {
       log(`Patch execution failed: ${error.message}`);
       res.status(500).json({
-        error: 'Patch execution failed',
+        error: "Patch execution failed",
         message: error.message,
-        stderr: stderr
+        stderr,
       });
     } else {
       log(`Patch executed successfully: ${patchId}`);
       res.json({
         success: true,
-        patchId: patchId,
-        output: stdout
+        patchId,
+        output: stdout,
       });
     }
   });
 }
 
 // Monitor endpoint
-app.get('/monitor', (req, res) => {
+app.get("/monitor", (req, res) => {
   const monitor = {
-    service: 'ghost-runner',
+    service: "ghost-runner",
     environment: ENV,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
@@ -225,45 +230,63 @@ app.get('/monitor', (req, res) => {
       patches: {
         path: PATCHES_DIR,
         exists: fs.existsSync(PATCHES_DIR),
-        readable: fs.accessSync ? (() => {
-          try { fs.accessSync(PATCHES_DIR, fs.constants.R_OK); return true; } 
-          catch { return false; }
-        })() : true
+        readable: fs.accessSync
+          ? (() => {
+              try {
+                fs.accessSync(PATCHES_DIR, fs.constants.R_OK);
+                return true;
+              } catch {
+                return false;
+              }
+            })()
+          : true,
       },
       summaries: {
         path: SUMMARIES_DIR,
         exists: fs.existsSync(SUMMARIES_DIR),
-        readable: fs.accessSync ? (() => {
-          try { fs.accessSync(SUMMARIES_DIR, fs.constants.R_OK); return true; } 
-          catch { return false; }
-        })() : true
+        readable: fs.accessSync
+          ? (() => {
+              try {
+                fs.accessSync(SUMMARIES_DIR, fs.constants.R_OK);
+                return true;
+              } catch {
+                return false;
+              }
+            })()
+          : true,
       },
       heartbeat: {
         path: HEARTBEAT_DIR,
         exists: fs.existsSync(HEARTBEAT_DIR),
-        readable: fs.accessSync ? (() => {
-          try { fs.accessSync(HEARTBEAT_DIR, fs.constants.R_OK); return true; } 
-          catch { return false; }
-        })() : true
-      }
-    }
+        readable: fs.accessSync
+          ? (() => {
+              try {
+                fs.accessSync(HEARTBEAT_DIR, fs.constants.R_OK);
+                return true;
+              } catch {
+                return false;
+              }
+            })()
+          : true,
+      },
+    },
   };
 
   res.json(monitor);
 });
 
 // Heartbeat endpoint
-app.get('/heartbeat', (req, res) => {
+app.get("/heartbeat", (req, res) => {
   const heartbeat = {
-    service: 'ghost-runner',
+    service: "ghost-runner",
     environment: ENV,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    status: 'alive'
+    status: "alive",
   };
 
   // Write heartbeat to file
-  const heartbeatFile = path.join(HEARTBEAT_DIR, 'ghost-runner-heartbeat.json');
+  const heartbeatFile = path.join(HEARTBEAT_DIR, "ghost-runner-heartbeat.json");
   try {
     fs.writeFileSync(heartbeatFile, JSON.stringify(heartbeat, null, 2));
   } catch (error) {
@@ -274,16 +297,16 @@ app.get('/heartbeat', (req, res) => {
 });
 
 /* NEW /patch HANDLER */
-app.post('/patch', async (req, res) => {
+app.post("/patch", async (req, res) => {
   try {
     const data = JSON.stringify(req.body, null, 2);
-    const id   = req.body.id || `patch_${Date.now()}`;
+    const id = req.body.id || `patch_${Date.now()}`;
     const file = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/${id}.json`;
-    await require('fs').promises.writeFile(file, data);
+    await require("fs").promises.writeFile(file, data);
     console.log(`[GHOST] Saved ${id} to CYOPS patches dir`);
     res.status(200).json({ ok: true, saved: true, id });
   } catch (e) {
-    console.error('[GHOST] Save failed:', e);
+    console.error("[GHOST] Save failed:", e);
     res.status(500).json({ ok: false, error: String(e) });
   }
 });
@@ -298,24 +321,24 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
-  log('Shutting down Ghost Runner...');
+process.on("SIGINT", () => {
+  log("Shutting down Ghost Runner...");
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
-  log('Shutting down Ghost Runner...');
+process.on("SIGTERM", () => {
+  log("Shutting down Ghost Runner...");
   process.exit(0);
 });
 
 // Error handling
-process.on('uncaughtException', (error) => {
+process.on("uncaughtException", (error) => {
   log(`Uncaught Exception: ${error.message}`);
   log(`Stack: ${error.stack}`);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
   log(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
   process.exit(1);
 });

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.github.facebook.watchman</string>
+    <key>Disabled</key>
+    <false/>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/watchman</string>
+        <string>--foreground</string>
+        <string>--logfile=/var/folders/q3/4s_svj_55n3cvq_fx4cxn94m0000gn/T//sawyer-state/log</string>
+        <string>--log-level=1</string>
+        <string>--sockname=/var/folders/q3/4s_svj_55n3cvq_fx4cxn94m0000gn/T//sawyer-state/sock</string>
+        <string>--statefile=/var/folders/q3/4s_svj_55n3cvq_fx4cxn94m0000gn/T//sawyer-state/state</string>
+        <string>--pidfile=/var/folders/q3/4s_svj_55n3cvq_fx4cxn94m0000gn/T//sawyer-state/pid</string>
+    </array>
+    <key>KeepAlive</key>
+    <dict>
+        <key>Crashed</key>
+        <true/>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/node_modules/.bin:/Users/sawyer/gitSync/tm-mobile-cursor/node_modules/.bin:/Users/sawyer/gitSync/node_modules/.bin:/Users/sawyer/node_modules/.bin:/Users/node_modules/.bin:/node_modules/.bin:/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/bin:/usr/bin:/usr/local/bin:/opt/homebrew/bin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Little Snitch.app/Contents/Components:/Applications/VMware Fusion.app/Contents/Public:/Users/sawyer/bin:/Users/sawyer/gitSync/scripts:/Users/sawyer/gitSync:/Users/sawyer/.local/bin:/opt/homebrew/opt/libpq/bin:/opt/homebrew/opt/openjdk/bin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/sawyer/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts</string>
+    </dict>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+    <key>Nice</key>
+    <integer>-5</integer>
+</dict>
+</plist>

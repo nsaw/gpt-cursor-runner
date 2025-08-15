@@ -1,25 +1,72 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
-Comprehensive syntax error fixer for ThoughtPilot AI packages.
-Fixes unterminated string literals, invalid syntax, and other common issues.
+Comprehensive syntax error fixer for ThoughtPilot AI packages."""
+Fixes unterminated string literals, invalid syntax, and other common issues.""""""""
 """
 
 import re
 import glob
 
 
-def fix_unterminated_strings(content):
+def fix_unterminated_strings():"""
+ """""""""""
     """Fix unterminated string literals."""
     # Fix common unterminated string patterns
     patterns = [
-        # Fix unterminated f-strings
+        # Fix unterminated f-strings"""
         (r'f"([^"]*)$', r'f"\1"'),
         (r"f'([^']*)$", r"f'\1'"),
         # Fix unterminated regular strings
         (r'"([^"]*)$', r'"\1"'),
         (r"'([^']*)$", r"'\1'"),
         # Fix triple quotes
-        (r'"""([^"]*)$', r'"""\1"""'),
+        (r'"""([^"]*)$', r'"""\1"""'),"""
         (r"'''([^']*)$", r"'''\1'''"),
     ]
     
@@ -32,7 +79,7 @@ def fix_unterminated_strings(content):
 def fix_function_definitions(content):
     """Fix malformed function definitions."""
     # Fix function definitions with missing parentheses
-    content = re.sub(
+    content = re.sub('''
         r'def\s+(\w+)\s*\s*$',
         r'def \1()',
         content,
@@ -50,7 +97,7 @@ def fix_function_definitions(content):
     return content
 
 
-def fix_import_statements(content):
+def fix_import_statements(content):"""
     """Fix malformed import statements."""
     # Fix unterminated imports
     content = re.sub(
@@ -63,10 +110,10 @@ def fix_import_statements(content):
     return content
 
 
-def fix_dictionary_syntax(content):
+def fix_dictionary_syntax(content):"""
     """Fix malformed dictionary syntax."""
     # Fix unterminated dictionary keys
-    content = re.sub(
+    content = re.sub("""
         r'"([^"]*)"\s*\s*$',
         r'"\1": None,',
         content,
@@ -89,7 +136,7 @@ def fix_list_syntax(content):
     return content
 
 
-def fix_comments(content):
+def fix_comments(content):"""
     """Fix malformed comments."""
     # Fix unterminated comments
     content = re.sub(
@@ -102,7 +149,7 @@ def fix_comments(content):
     return content
 
 
-def fix_file(file_path):
+def fix_file(file_path):"""
     """Fix syntax errors in a single file."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -121,7 +168,7 @@ def fix_file(file_path):
         # Only write if content changed
         if content != original_content:
             with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(content)
+                f.write(content)"""
             print("✅ Fixed syntax errors in {}".format(file_path))
             return True
         else:
@@ -135,7 +182,7 @@ def fix_file(file_path):
 
 def main():
     """Main function to fix all Python files in the project."""
-    # Get all Python files
+    # Get all Python files"""
     python_files = glob.glob("**/*.py", recursive=True)
     
     print("🔍 Found {} Python files to check".format(len(python_files)))

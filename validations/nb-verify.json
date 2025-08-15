@@ -1,0 +1,53 @@
+{
+  "root": "/Users/sawyer/gitSync/gpt-cursor-runner",
+  "totalListed": 11,
+  "missingBak": [],
+  "emptyDiff": [],
+  "modeFixed": [],
+  "ok": [
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/core/unified-test.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ghost-summary-checker.sh",
+      "mode": "0644"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/handoff_close_the_loop.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ops/executor-watchdog.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/tunnel-tracer-diagnostic.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/validate/validate-ghost-tunnel.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/watchdog-ghost-runner.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/watchdog.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/watchdogs/ghost-runner-watchdog.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/watchdogs/patch-executor-watchdog.sh",
+      "mode": "0755"
+    },
+    {
+      "file": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/watchdogs/restart-on-fail.sh",
+      "mode": "0755"
+    }
+  ]
+}

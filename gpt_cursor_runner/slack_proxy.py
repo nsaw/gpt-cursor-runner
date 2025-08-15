@@ -1,4 +1,45 @@
-#!/usr/bin/env python3
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# !/usr/bin/env python3
 """
 Slack Proxy for GPT-Cursor Runner.
 
@@ -8,8 +49,8 @@ Provides Slack integration and communication capabilities.
 import os
 import time
 import requests
-from typing import Optional
 from dotenv import load_dotenv
+from typing import Optional, Any
 
 load_dotenv()
 
@@ -17,19 +58,21 @@ load_dotenv()
 class SlackProxy:
     """Proxy for Slack integration when app installation is blocked."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         default_webhook = (
             "https://hooks.slack.com/services/T0955JLP5C0/B094CTKNZ8T/"
             "tDSnWOkjve1vsZBDz5CdHzb2"
         )
-        self.webhook_url = os.getenv("SLACK_WEBHOOK_URL", default_webhook)
-        self.channel = os.getenv("SLACK_CHANNEL", "#runner-control")
-        self.username = os.getenv("SLACK_USERNAME", "GPT-Cursor Runner")
+        self.webhook_url: str = os.getenv("SLACK_WEBHOOK_URL", default_webhook)
+        self.channel: str = os.getenv("SLACK_CHANNEL", "#runner-control")
+        self.username: str = os.getenv("SLACK_USERNAME", "GPT-Cursor Runner")
 
-    def send_message(self, text: str, attachments: Optional[list] = None) -> bool:
+    def send_message(
+        self, text: str, attachments: Optional[list[dict[str, Any]]] = None
+    ) -> bool:
         """Send a message to Slack."""
         try:
-            payload = {
+            payload: dict[str, Any] = {
                 "channel": self.channel,
                 "username": self.username,
                 "text": text,
@@ -43,7 +86,7 @@ class SlackProxy:
             print(f"Error sending Slack message: {e}")
             return False
 
-    def notify_patch_created(self, patch_data: dict) -> bool:
+    def notify_patch_created(self, patch_data: dict[str, Any]) -> bool:
         """Notify when a patch is created."""
         patch_id = patch_data.get("id", "unknown")
         target_file = patch_data.get("target_file", "unknown")
@@ -175,6 +218,6 @@ class SlackProxy:
         return self.send_message(text, attachments)
 
 
-def create_slack_proxy():
+def create_slack_proxy() -> SlackProxy:
     """Create a Slack proxy instance."""
     return SlackProxy()

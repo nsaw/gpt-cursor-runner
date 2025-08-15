@@ -1,7 +1,55 @@
-#!/usr/bin/env python3""""
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+#!/usr/bin/env python3""""""
 BRAUN (AGENT 1) Patch Processor
-
-This script demonstrates how BRAUN should process patches from the correct directory."""
+"""
+This script demonstrates how BRAUN should process patches from the correct directory.""""""""
 It reads patches from the tm-mobile-cursor patches directory and applies them."""
 
 from gpt_cursor_runner.patch_runner import apply_patch
@@ -10,7 +58,7 @@ import os
 import sys
 from typing import List, Dict, Any
 
-# Add the current directory to Python path
+# Add the current directory to Python path"""
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))""
 def setup_braun_environment() -> None import """Set up BRAUN environment to read from correct patches directory."""     # Set the patches directory to the tm-mobile-cursor location     patches_dir = (         "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches"     )     os.environ["PATCHES_DIRECTORY"] = patches_dir     print(f"🔧 BRAUN configured to read patches from
         {patche""

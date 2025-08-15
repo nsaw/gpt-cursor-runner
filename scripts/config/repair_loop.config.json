@@ -1,0 +1,13 @@
+{
+  "MIN_PASSES": 6,
+  "MAX_PASSES": 10,
+  "MAX_WARNINGS": 19,
+  "EARLY_STOP": false,
+  "ESLINT_PATTERN": ".",
+  "ESLINT_EXT": ".ts,.tsx,.js,.cjs,.mjs",
+  "PRETTIER_GLOB": "**/*.{ts,tsx,js,cjs,mjs,json,md,yml,yaml}",
+  "TSC_PROJECT": "/Users/sawyer/gitSync/gpt-cursor-runner/tsconfig.hotfix.json",
+  "ROOT": "/Users/sawyer/gitSync/gpt-cursor-runner",
+  "META": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/meta",
+  "SUMS": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries"
+}

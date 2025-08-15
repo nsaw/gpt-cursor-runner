@@ -1,3 +1,9 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 # Status API package
 
 from .status import app as status_app

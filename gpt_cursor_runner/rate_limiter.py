@@ -1,3 +1,51 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+from typing import Dict, List, Optional, Union, Any, Tuple
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Rate Limiter Module for GHOST 2.0.
@@ -5,14 +53,6 @@ Rate Limiter Module for GHOST 2.0.
 Manages request rates and prevents abuse.
 """
 
-import threading
-import time
-from datetime import datetime
-from typing import Dict, Optional, Any, Tuple
-from dataclasses import dataclass
-from enum import Enum
-import logging
-from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +95,7 @@ class RateLimitInfo:
 class RateLimiter:
     """Handles rate limiting for different request types."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: Dict[str, RateLimitRule] = {}
         self.counters: Dict[str, Dict[str, deque]] = defaultdict(
             lambda: defaultdict(deque)
@@ -67,7 +107,7 @@ class RateLimiter:
         # Register default rate limiting rules
         self._register_default_rules()
 
-    def _register_default_rules(self):
+    def _register_default_rules(self) -> None:
         """Register default rate limiting rules."""
         self.rules = {
             # Webhook rate limiting
@@ -136,7 +176,7 @@ class RateLimiter:
             ),
         }
 
-    def start(self):
+    def start(self) -> None:
         """Start the rate limiter cleanup thread."""
         if self._cleanup_thread is None or not self._cleanup_thread.is_alive():
             self._stop_event.clear()
@@ -146,14 +186,14 @@ class RateLimiter:
             self._cleanup_thread.start()
             logger.info("Rate limiter started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the rate limiter cleanup thread."""
         self._stop_event.set()
         if self._cleanup_thread and self._cleanup_thread.is_alive():
             self._cleanup_thread.join(timeout=5)
             logger.info("Rate limiter stopped")
 
-    def _cleanup_loop(self):
+    def _cleanup_loop(self) -> None:
         """Background loop for cleaning up expired rate limit entries."""
         while not self._stop_event.is_set():
             try:
@@ -164,7 +204,7 @@ class RateLimiter:
             # Wait before next cleanup cycle
             self._stop_event.wait(30)
 
-    def _cleanup_expired_entries(self):
+    def _cleanup_expired_entries(self) -> None:
         """Clean up expired rate limit entries."""
         current_time = time.time()
 
@@ -262,13 +302,13 @@ class RateLimiter:
                 remaining_requests=max(0, rule.max_requests - current_requests),
             )
 
-    def add_rule(self, rule: RateLimitRule):
+    def add_rule(self, rule: RateLimitRule) -> None:
         """Add a new rate limiting rule."""
         with self._lock:
             self.rules[rule.name] = rule
         logger.info(f"Added rate limiting rule: {rule.name}")
 
-    def remove_rule(self, rule_name: str):
+    def remove_rule(self, rule_name: str) -> None:
         """Remove a rate limiting rule."""
         with self._lock:
             if rule_name in self.rules:
@@ -297,11 +337,12 @@ class RateLimiter:
                 "rules": list(self.rules.keys()),
             }
 
-    def reset_client(self, client_id: str, rule_name: str = None):
+    def reset_client(self, client_id: str, rule_name: str = None) -> None:
         """Reset rate limiting for a client."""
         with self._lock:
             if rule_name:
                 if rule_name in self.counters and client_id in self.counters[rule_name]:
+    
                     self.counters[rule_name][client_id].clear()
             else:
                 # Reset all rules for this client

@@ -16,24 +16,24 @@ function concatenateFilename(filename, maxLength = 40) {
   if (!filename || filename.length <= maxLength) {
     return filename;
   }
-    
+
   // Extract file extension
-  const lastDotIndex = filename.lastIndexOf('.');
+  const lastDotIndex = filename.lastIndexOf(".");
   if (lastDotIndex === -1) {
     // No extension, just truncate
-    return `${filename.substring(0, maxLength - 3)  } . . .`;
+    return `${filename.substring(0, maxLength - 3)} . . .`;
   }
-    
+
   const name = filename.substring(0, lastDotIndex);
   const extension = filename.substring(lastDotIndex);
-    
+
   // If name is already short enough, return as is
   if (name.length <= maxLength - 3) {
     return filename;
   }
-    
+
   // Truncate name and add ellipsis
-  const truncatedName = `${name.substring(0, maxLength - 6)  } . . .`;
+  const truncatedName = `${name.substring(0, maxLength - 6)} . . .`;
   return truncatedName + extension;
 }
 
@@ -55,29 +55,31 @@ function formatActivityItem(activity, maxLength = 40) {
  * @returns {Array} - Array of formatted activity strings
  */
 function formatActivityList(activities, maxLength = 40) {
-  return activities.map(activity => formatActivityItem(activity, maxLength));
+  return activities.map((activity) => formatActivityItem(activity, maxLength));
 }
 
 module.exports = {
   concatenateFilename,
   formatActivityItem,
-  formatActivityList
+  formatActivityList,
 };
 
 // CLI usage
 if (require.main === module) {
   const args = process.argv.slice(2);
-    
+
   if (args.length === 0) {
-    console.log('Usage: node filename-concatenator.js <filename> [maxLength]');
-    console.log('Example: node filename-concatenator.js "summary-v1.4.40(P1.00.20)_ui-restoration-complete.md" 40');
+    console.log("Usage: node filename-concatenator.js <filename> [maxLength]");
+    console.log(
+      'Example: node filename-concatenator.js "summary-v1.4.40(P1.00.20)_ui-restoration-complete.md" 40',
+    );
     process.exit(1);
   }
-    
+
   const filename = args[0];
   const maxLength = args[1] ? parseInt(args[1]) : 40;
-    
+
   const result = concatenateFilename(filename, maxLength);
   console.log(`Original: ${filename}`);
   console.log(`Concatenated: ${result}`);
-} 
+}

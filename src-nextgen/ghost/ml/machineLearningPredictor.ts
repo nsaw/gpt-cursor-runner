@@ -3,15 +3,15 @@
 
 export class MachineLearningPredictor {
   constructor() {
-    console.log('[MachineLearningPredictor] Initialized');
+    console.log("[MachineLearningPredictor] Initialized");
   }
-  
+
   public async start(): Promise<void> {
-    console.log('[MachineLearningPredictor] Started');
+    console.log("[MachineLearningPredictor] Started");
   }
-  
+
   public async stop(): Promise<void> {
-    console.log('[MachineLearningPredictor] Stopped');
+    console.log("[MachineLearningPredictor] Stopped");
   }
 }
 

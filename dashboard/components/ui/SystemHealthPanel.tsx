@@ -1,6 +1,6 @@
-import React from 'react';
-import { useSystemHealth, useDaemonStats } from '../hooks';
-import './SystemHealthPanel.css';
+import React from "react";
+import { useSystemHealth, useDaemonStats } from "../hooks";
+import "./SystemHealthPanel.css";
 
 interface SystemHealthPanelProps {
   className?: string;
@@ -9,28 +9,38 @@ interface SystemHealthPanelProps {
 }
 
 export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
-  className = '',
+  className = "",
   showMetrics = true,
-  refreshInterval = 5000
+  refreshInterval = 5000,
 }) => {
-  const { health, loading, error } = useSystemHealth({ pollingInterval: refreshInterval });
+  const { health, loading, error } = useSystemHealth({
+    pollingInterval: refreshInterval,
+  });
   const { stats } = useDaemonStats({ pollingInterval: refreshInterval });
 
   const getHealthColor = (health: string) => {
     switch (health) {
-      case 'healthy': return '#10B981';
-      case 'warning': return '#F59E0B';
-      case 'critical': return '#EF4444';
-      default: return '#6B7280';
+      case "healthy":
+        return "#10B981";
+      case "warning":
+        return "#F59E0B";
+      case "critical":
+        return "#EF4444";
+      default:
+        return "#6B7280";
     }
   };
 
   const getHealthIcon = (health: string) => {
     switch (health) {
-      case 'healthy': return '🟢';
-      case 'warning': return '🟡';
-      case 'critical': return '🔴';
-      default: return '⚪';
+      case "healthy":
+        return "🟢";
+      case "warning":
+        return "🟡";
+      case "critical":
+        return "🔴";
+      default:
+        return "⚪";
     }
   };
 
@@ -46,9 +56,7 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
         <div className="panel-header">
           <h3>System Health</h3>
         </div>
-        <div className="loading-message">
-          Loading system health...
-        </div>
+        <div className="loading-message">Loading system health...</div>
       </div>
     );
   }
@@ -73,9 +81,7 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
         <div className="panel-header">
           <h3>System Health</h3>
         </div>
-        <div className="error-message">
-          No system health data available
-        </div>
+        <div className="error-message">No system health data available</div>
       </div>
     );
   }
@@ -86,7 +92,10 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
         <h3>System Health</h3>
         <div className="health-indicator">
           <span className="health-icon">{getHealthIcon(health)}</span>
-          <span className="health-text" style={{ color: getHealthColor(health) }}>
+          <span
+            className="health-text"
+            style={{ color: getHealthColor(health) }}
+          >
             {health.toUpperCase()}
           </span>
         </div>
@@ -95,16 +104,17 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
       <div className="health-overview">
         <div className="health-progress">
           <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ 
+            <div
+              className="progress-fill"
+              style={{
                 width: `${getHealthPercentage()}%`,
-                backgroundColor: getHealthColor(health)
+                backgroundColor: getHealthColor(health),
               }}
             />
           </div>
           <div className="progress-text">
-            {stats.running} of {stats.total} daemons running ({getHealthPercentage()}%)
+            {stats.running} of {stats.total} daemons running (
+            {getHealthPercentage()}%)
           </div>
         </div>
 
@@ -134,7 +144,10 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
       <div className="system-status">
         <div className="status-item">
           <span className="status-label">Overall Status:</span>
-          <span className="status-value" style={{ color: getHealthColor(health) }}>
+          <span
+            className="status-value"
+            style={{ color: getHealthColor(health) }}
+          >
             {health.toUpperCase()}
           </span>
         </div>
@@ -161,4 +174,4 @@ export const SystemHealthPanel: React.FC<SystemHealthPanelProps> = ({
   );
 };
 
-export default SystemHealthPanel; 
+export default SystemHealthPanel;

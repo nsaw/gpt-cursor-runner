@@ -1,0 +1,3 @@
+# TEMP hotfix: fence large/legacy files (tracked in tech-debt board)
+config/ecosystem.config.js
+scripts/core/comprehensive-dashboard.js

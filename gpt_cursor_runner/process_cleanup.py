@@ -5,13 +5,17 @@ Process Cleanup Module for GHOST 2.0.
 Manages and cleans up system processes to prevent resource leaks.
 """
 
-import psutil
+import logging
 import threading
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass
-import logging
+from typing import Dict, List, Optional, Any, Set
+
+try:
+    import psutil
+except ImportError:
+    psutil = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +49,7 @@ class CleanupRule:
 class ProcessCleanup:
     """Manages process cleanup and monitoring."""
 
-    def __init__(self, check_interval: int = 60):
+    def __init__(self, check_interval: int = 60) -> None:
         self.check_interval = check_interval
         self.rules: List[CleanupRule] = []
         self.whitelist: Set[str] = set()
@@ -57,7 +61,7 @@ class ProcessCleanup:
         self._setup_default_rules()
         self._setup_whitelist()
 
-    def _setup_default_rules(self):
+    def _setup_default_rules(self) -> None:
         """Setup default cleanup rules."""
         self.rules = [
             # Clean up old Python processes
@@ -89,7 +93,7 @@ class ProcessCleanup:
             ),
         ]
 
-    def _setup_whitelist(self):
+    def _setup_whitelist(self) -> None:
         """Setup whitelist of processes that should not be cleaned up."""
         self.whitelist = {
             "systemd",
@@ -106,7 +110,7 @@ class ProcessCleanup:
             "redis-server",
         }
 
-    def start(self):
+    def start(self) -> None:
         """Start the process cleanup background thread."""
         if self._cleanup_thread is None or not self._cleanup_thread.is_alive():
             self._stop_event.clear()
@@ -116,14 +120,14 @@ class ProcessCleanup:
             self._cleanup_thread.start()
             logger.info("Process cleanup started")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the process cleanup background thread."""
         self._stop_event.set()
         if self._cleanup_thread and self._cleanup_thread.is_alive():
             self._cleanup_thread.join(timeout=5)
             logger.info("Process cleanup stopped")
 
-    def _cleanup_loop(self):
+    def _cleanup_loop(self) -> None:
         """Background loop for process cleanup."""
         while not self._stop_event.is_set():
             try:
@@ -134,7 +138,7 @@ class ProcessCleanup:
             # Wait for next cleanup cycle
             self._stop_event.wait(self.check_interval)
 
-    def _check_and_cleanup_processes(self):
+    def _check_and_cleanup_processes(self) -> None:
         """Check processes against cleanup rules and take action."""
         current_time = time.time()
 
@@ -214,7 +218,7 @@ class ProcessCleanup:
             # If pattern is invalid, treat as exact match
             return process_name.lower() == pattern.lower()
 
-    def _cleanup_process(self, process_info: ProcessInfo, rule: CleanupRule):
+    def _cleanup_process(self, process_info: ProcessInfo, rule: CleanupRule) -> None:
         """Clean up a process based on the rule action."""
         try:
             proc = psutil.Process(process_info.pid)
@@ -311,22 +315,22 @@ class ProcessCleanup:
         """Get history of cleaned processes."""
         return self.cleaned_processes[-50:]  # Last 50 cleanups
 
-    def add_cleanup_rule(self, rule: CleanupRule):
+    def add_cleanup_rule(self, rule: CleanupRule) -> None:
         """Add a new cleanup rule."""
         self.rules.append(rule)
         logger.info(f"Added cleanup rule: {rule.name_pattern}")
 
-    def remove_cleanup_rule(self, name_pattern: str):
+    def remove_cleanup_rule(self, name_pattern: str) -> None:
         """Remove a cleanup rule by pattern."""
         self.rules = [rule for rule in self.rules if rule.name_pattern != name_pattern]
         logger.info(f"Removed cleanup rule: {name_pattern}")
 
-    def add_to_whitelist(self, process_name: str):
+    def add_to_whitelist(self, process_name: str) -> None:
         """Add a process to the whitelist."""
         self.whitelist.add(process_name)
         logger.info(f"Added to whitelist: {process_name}")
 
-    def remove_from_whitelist(self, process_name: str):
+    def remove_from_whitelist(self, process_name: str) -> None:
         """Remove a process from the whitelist."""
         self.whitelist.discard(process_name)
         logger.info(f"Removed from whitelist: {process_name}")
