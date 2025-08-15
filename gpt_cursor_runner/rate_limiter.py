@@ -42,7 +42,8 @@
 # Company Confidential
 # Company Confidential
 # Company Confidential
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, Optional, Any, Tuple
+
 # Company Confidential
 # Company Confidential
 # Company Confidential
@@ -342,7 +343,7 @@ class RateLimiter:
         with self._lock:
             if rule_name:
                 if rule_name in self.counters and client_id in self.counters[rule_name]:
-    
+
                     self.counters[rule_name][client_id].clear()
             else:
                 # Reset all rules for this client

@@ -1,5 +1,0 @@
-tunnel: 9401ee23-3a46-409b-b0e7-b035371afe32
-credentials-file: REDACTED
-
-ingress:
-  - service: http://localhost:7474

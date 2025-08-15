@@ -39,7 +39,8 @@
 # Company Confidential
 # Company Confidential
 # Company Confidential
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Any
+
 # Company Confidential
 # Company Confidential
 #!/usr/bin/env python3
@@ -391,7 +392,6 @@ class AuditLogger:
             # Recent activity (last 24 hours)
             cutoff_time = datetime.now() - timedelta(hours=24)
             recent_entries = len([e for e in self.entries if e.timestamp > cutoff_time])
-    
 
             return {
                 "total_entries": total_entries,
@@ -476,7 +476,6 @@ class AuditLogger:
         """Log a resource-related event."""
         return self.log(
             LogLevel.INFO, LogCategory.RESOURCE, message, component=component, data=data
-    
         )
 
     def log_process_event(

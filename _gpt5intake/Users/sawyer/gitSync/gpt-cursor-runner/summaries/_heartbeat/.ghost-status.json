@@ -1,9 +1,0 @@
-{
-  "status": "RUNNING",
-  "timestamp": "2025-07-23T17:08:29Z",
-  "services": {
-    "ghost-bridge": "96781",
-    "patch-executor": "95304",
-    "summary-monitor": "93810"
-  }
-}

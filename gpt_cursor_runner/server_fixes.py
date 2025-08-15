@@ -441,7 +441,6 @@ class ServerFixes:
             if os.path.exists("backups"):
                 subprocess.run(
                     ["find", "backups", "-name", "*.tar.gz", "-mtime", "+30", "-delete"]
-    
                 )
 
             # Clear temporary files

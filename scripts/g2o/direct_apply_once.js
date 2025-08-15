@@ -26,6 +26,16 @@ async function runShellArray(arr, phase){
   return { ok:true };
 }
 
+async function runTasksArray(tasks, phase){
+  for (const task of (tasks||[])) {
+    if (task.shell) {
+      const r = await run(task.shell, STEP_TIMEOUT);
+      if (!r.ok) return { ok:false, phase, task: task.id, cmd: task.shell, err:r.err?.message, stderr:r.stderr };
+    }
+  }
+  return { ok:true };
+}
+
 function moveTo(dir, src){
   const base = path.basename(src);
   const dst = path.join(dir, base.replace(/\.hold$/,""));
@@ -61,7 +71,7 @@ async function main(){
   // Pre
   let r = await runShellArray(pre, "preMutation"); if(!r.ok){ const d=moveTo(FAILED_DIR,patchPath); summarize(patchPath,"FAILED_PRE", r); return; }
   // Mutation
-  r = await runShellArray(mut, "mutation"); if(!r.ok){ const d=moveTo(FAILED_DIR,patchPath); summarize(patchPath,"FAILED_MUTATION", r); return; }
+  r = await runTasksArray(mut, "mutation"); if(!r.ok){ const d=moveTo(FAILED_DIR,patchPath); summarize(patchPath,"FAILED_MUTATION", r); return; }
   // Validate (soft by default to bypass Ghost-only gates)
   r = await runShellArray(val, "validate");
   if(!r.ok && !VALIDATE_IS_SOFT){ const d=moveTo(FAILED_DIR,patchPath); summarize(patchPath,"FAILED_VALIDATE", r); return; }

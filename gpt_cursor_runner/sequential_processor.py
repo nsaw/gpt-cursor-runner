@@ -9,7 +9,8 @@
 # Company Confidential
 # Company Confidential
 # Company Confidential
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Any
+
 # Company Confidential
 # Company Confidential
 # Company Confidential
@@ -205,12 +206,10 @@ class SequentialProcessor:
             for i in range(self.max_workers):
                 worker = threading.Thread(
                     target=self._worker_loop, daemon=True, name=f"sequential-worker-{i}"
-    
                 )
                 worker.start()
                 self.workers.append(worker)
             logger.info(f"Sequential processor started with {self.max_workers} workers")
-    
 
     def stop(self) -> None:
         """Stop the sequential processor workers."""
@@ -338,7 +337,6 @@ class SequentialProcessor:
     ) -> str:
         """Submit a sequential processing request."""
         request_id = f"{workflow_name}_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}"
-    
 
         workflow = self.workflows.get(workflow_name)
         if not workflow:

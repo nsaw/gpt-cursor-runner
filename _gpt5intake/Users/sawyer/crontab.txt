@@ -1,1 +1,0 @@
-*/1 * * * * /Users/sawyer/gitSync/gpt-cursor-runner/scripts/core/unified-manager.sh monitor >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/unified-manager-monitor.log 2>&1

@@ -1,5 +1,0 @@
-lsof: WARNING: can't stat() smbfs file system /Volumes/.timemachine/SDNAS._smb._tcp.local/9255D9D2-9FF2-4098-B225-75C267A3FB8F/2025 TM
-      Output information may be incomplete.
-      assuming "dev=3600024e" from mount table
-COMMAND   PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
-Python  95072 sawyer    4u  IPv4 0xbc9addea52ca8f05      0t0  TCP *:8787 (LISTEN)

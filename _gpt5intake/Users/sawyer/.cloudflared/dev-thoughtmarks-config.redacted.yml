@@ -1,7 +1,0 @@
-tunnel: 2becefa5-3df5-4ca0-b86a-bf0a5300c9c9
-credentials-file: REDACTED
-
-ingress:
-  - hostname: dev-thoughtmarks.thoughtmarks.app
-    service: http://localhost:4000
-  - service: http_status:404

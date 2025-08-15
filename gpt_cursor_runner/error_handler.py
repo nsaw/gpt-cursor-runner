@@ -10,7 +10,8 @@
 # Company Confidential
 # Company Confidential
 # Company Confidential
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Any
+
 # Company Confidential
 # Company Confidential
 # Company Confidential
@@ -439,7 +440,6 @@ class ErrorHandler:
 
         if error_type:
             filtered_errors = [e for e in filtered_errors if e.error_type == error_type]
-    
 
         if severity:
             filtered_errors = [e for e in filtered_errors if e.severity == severity]
@@ -507,7 +507,9 @@ class ErrorHandler:
         self.error_handlers[error_type].append(handler)
         logger.info(f"Added error handler for {error_type.value}")
 
-    def add_recovery_strategy(self, error_type: ErrorType, action: RecoveryAction) -> None:
+    def add_recovery_strategy(
+        self, error_type: ErrorType, action: RecoveryAction
+    ) -> None:
         """Add a custom recovery strategy."""
         self.recovery_strategies[error_type] = action
         logger.info(f"Added recovery strategy for {error_type.value}: {action.value}")

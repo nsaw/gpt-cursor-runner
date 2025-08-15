@@ -1,9 +1,0 @@
-tunnel: 16db2f43-4725-419a-a64b-5ceeb7a5d4c3
-credentials-file: REDACTED
-
-ingress:
-  - hostname: slack.thoughtmarks.app
-    service: https://gpt-cursor-runner.fly.dev
-  - hostname: slack.thoughtmarks.app
-    service: http://localhost:5051
-  - service: http_status:404

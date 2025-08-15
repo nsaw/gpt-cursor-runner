@@ -1,7 +1,8 @@
 # Company Confidential
 # Company Confidential
 # Company Confidential
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import List, Optional
+
 # Company Confidential
 # Company Confidential
 # Company Confidential
@@ -108,7 +109,6 @@ class CursorFileHandler(FileSystemEventHandler):
             "event_type": event_type,
             "file_path": file_path,
             "file_size": os.path.getsize(file_path) if os.path.exists(file_path) else 0,
-    
         }
 
         if EVENT_LOGGER:
@@ -181,7 +181,9 @@ class CursorFileHandler(FileSystemEventHandler):
 class SummaryWatcher:
     """Summary watcher for monitoring summary files."""
 
-    def __init__(self, summary_directories: List[str], check_interval: int = 30) -> None:
+    def __init__(
+        self, summary_directories: List[str], check_interval: int = 30
+    ) -> None:
         self.summary_directories = summary_directories
         self.check_interval = check_interval
         self.running = False
