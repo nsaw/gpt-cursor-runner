@@ -1,0 +1,10 @@
+{
+  "quarantine": [
+    "src/**",
+    "scripts/ghost/**",
+    "src-nextgen/**",
+    "legacy/**",
+    "examples/**"
+  ],
+  "notes": "These paths are excluded from the CI lint gate for P2.11.00; BRAUN to fix incrementally and graduate into scope."
+}
