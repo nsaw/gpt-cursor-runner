@@ -24,6 +24,9 @@ case "$cmd" in
   sweep-ports)    bash scripts/ports/sweep_free_once.sh "${@:2}" ;;
   fix-eslint)     bash scripts/ci/eslint_autofix_once.sh ;;
   ci-collect)     bash scripts/ci/ci_collect_errors_once.sh ;;
+  fix-ts-console) bash scripts/ci/fix_ts_console_declare_once.sh ;;
+  ts-batches)     bash scripts/ci/ts_partition_compile_once.sh ;;
+  ci-trend)       node scripts/metrics/ci_trend_append_once.js ;;
   *)
     cat <<EOF
 nb2_cli.sh — NB-2.0 helpers
@@ -42,6 +45,9 @@ nb2_cli.sh — NB-2.0 helpers
   sweep-ports [p..] Free a list of TCP ports (defaults to 8081)
   fix-eslint    Run safe ESLint autofix on JS in scripts/tools/bin
   ci-collect    Emit JSON metrics for ESLint(JS) + scoped TSC
+  fix-ts-console Insert TS 'declare const console: any;' where needed under scripts/
+  ts-batches     Partitioned TSC over scripts/**/*.ts (finite)
+  ci-trend       Append current ESLint/TSC metrics to JSONL and CSV
 EOF
   ;;
 esac
