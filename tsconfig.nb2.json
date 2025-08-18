@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [],
+    "resolveJsonModule": true
+  },
+  "include": [
+    "scripts/**/*.ts",
+    "types/**/*.d.ts"
+  ]
+}

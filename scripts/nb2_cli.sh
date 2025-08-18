@@ -22,6 +22,8 @@ case "$cmd" in
   ci-validate)    bash scripts/nb2_ci_validate.sh ;;
   dashboard-probe) node scripts/dashboard_probe_once.js ;;
   sweep-ports)    bash scripts/ports/sweep_free_once.sh "${@:2}" ;;
+  fix-eslint)     bash scripts/ci/eslint_autofix_once.sh ;;
+  ci-collect)     bash scripts/ci/ci_collect_errors_once.sh ;;
   *)
     cat <<EOF
 nb2_cli.sh — NB-2.0 helpers
@@ -38,6 +40,8 @@ nb2_cli.sh — NB-2.0 helpers
   ci-validate    Run tsc/eslint/tests if present (finite)
   dashboard-probe Probe \$DASHBOARD_URL and write status JSON
   sweep-ports [p..] Free a list of TCP ports (defaults to 8081)
+  fix-eslint    Run safe ESLint autofix on JS in scripts/tools/bin
+  ci-collect    Emit JSON metrics for ESLint(JS) + scoped TSC
 EOF
   ;;
 esac
