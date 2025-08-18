@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 
-console.log("🔧 Starting TypeScript error fixes...");
+console.log('🔧 Starting TypeScript error fixes...');
 
 // Function to recursively find all TypeScript files
 function findTsFiles(dir, files = []) {
@@ -16,12 +16,12 @@ function findTsFiles(dir, files = []) {
 
     if (
       stat.isDirectory() &&
-      !item.startsWith(".") &&
-      item !== "node_modules" &&
-      item !== "dist"
+      !item.startsWith('.') &&
+      item !== 'node_modules' &&
+      item !== 'dist'
     ) {
       findTsFiles(fullPath, files);
-    } else if (item.endsWith(".ts") && !item.endsWith(".d.ts")) {
+    } else if (item.endsWith('.ts') && !item.endsWith('.d.ts')) {
       files.push(fullPath);
     }
   }
@@ -34,16 +34,16 @@ function fixCatchBlockErrors(content) {
   // Fix catch blocks where _err is used but err is referenced
   content = content.replace(
     /catch\s*\(\s*_err\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (match, _body) => {
-      return match.replace("_err", "err");
+    (match, body) => {
+      return match.replace('_err', 'err');
     },
   );
 
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, _body) => {
-      return match.replace("_error", "error");
+    (match, body) => {
+      return match.replace('_error', 'error');
     },
   );
 
@@ -57,8 +57,8 @@ function fixUnusedErrorVariables(content) {
     /catch\s*\(\s*error\s*\)\s*\{([^}]*)\}/g,
     (match, body) => {
       // If error is not referenced in the body, prefix with underscore
-      if (!body.includes("error") && !body.includes("Error")) {
-        return match.replace("catch (error)", "catch (_error)");
+      if (!body.includes('error') && !body.includes('Error')) {
+        return match.replace('catch (error)', 'catch (_error)');
       }
       return match;
     },
@@ -72,8 +72,8 @@ function fixImportExtensions(content) {
   // Remove .ts extensions from import statements
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
-    (match, _importPath) => {
-      return match.replace(".ts", "");
+    (match, importPath) => {
+      return match.replace('.ts', '');
     },
   );
 
@@ -85,11 +85,11 @@ function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments to health status
   content = content.replace(
     /health:\s*['"]unknown['"]/g,
-    'health: "unhealthy"',
+    "health: 'unhealthy'",
   );
   content = content.replace(
     /overall:\s*['"]unknown['"]/g,
-    'overall: "unhealthy"',
+    "overall: 'unhealthy'",
   );
 
   return content;
@@ -100,9 +100,9 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with wrong number of arguments
   content = content.replace(
     /this\.logEvent\s*\(\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*([^)]+)\)/g,
-    (match, _extraArgs) => {
+    (match, extraArgs) => {
       // Remove the third argument (level) if it's a string
-      return match.replace(/,\s*['"](info|error|warn|debug)['"]/, "");
+      return match.replace(/,\s*['"](info|error|warn|debug)['"]/, '');
     },
   );
 
@@ -113,9 +113,9 @@ function fixLogEventArguments(content) {
 function fixVariableUsageBeforeAssignment(content) {
   // Fix apiReq usage before assignment
   content = content.replace(
-    /let\s+apiReq[^;]*;\s*([^}]*apiReq[^}]*)\}/g,
-    (match, _body) => {
-      return match.replace(/let\s+apiReq/, "let apiReq: any");
+    /let\s+apiReq[^]*;\s*([^}]*apiReq[^}]*)\}/g,
+    (match, body) => {
+      return match.replace(/let\s+apiReq/, 'let apiReq: any');
     },
   );
 
@@ -124,14 +124,14 @@ function fixVariableUsageBeforeAssignment(content) {
 
 // Main function to process all TypeScript files
 function processTsFiles() {
-  const tsFiles = findTsFiles("./src-nextgen");
+  const tsFiles = findTsFiles('./src-nextgen');
   console.log(`📁 Found ${tsFiles.length} TypeScript files to process`);
 
   let fixedFiles = 0;
 
   for (const filePath of tsFiles) {
     try {
-      let content = fs.readFileSync(filePath, "utf8");
+      let content = fs.readFileSync(filePath, 'utf8');
       const originalContent = content;
 
       // Apply all fixes
@@ -144,7 +144,7 @@ function processTsFiles() {
 
       // Write back if content changed
       if (content !== originalContent) {
-        fs.writeFileSync(filePath, content, "utf8");
+        fs.writeFileSync(filePath, content, 'utf8');
         fixedFiles++;
         console.log(`✅ Fixed: ${filePath}`);
       }
@@ -161,12 +161,12 @@ function processTsFiles() {
 const fixedCount = processTsFiles();
 
 // Run TypeScript check to see remaining errors
-console.log("\n🔍 Running TypeScript check...");
+console.log('\n🔍 Running TypeScript check...');
 try {
-  execSync("npx tsc --noEmit", { stdio: "inherit" });
-  console.log("✅ TypeScript compilation successful!");
+  execSync('npx tsc --noEmit', { stdio: 'inherit' });
+  console.log('✅ TypeScript compilation successful!');
 } catch (error) {
-  console.log("⚠️ Some TypeScript errors may remain. Check the output above.");
+  console.log('⚠️ Some TypeScript errors may remain. Check the output above.');
 }
 
 console.log(`\n📊 Summary: Fixed ${fixedCount} files`);

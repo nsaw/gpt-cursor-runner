@@ -6,28 +6,28 @@
  * Supports both JSON and YAML patch detection with comprehensive monitoring
  */
 
-const fs = require("fs");
-const path = require("path");
-const yaml = require("js-yaml");
-const crypto = require("crypto");
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
+const crypto = require('crypto');
 
 console.log(
-  "📡 Enhanced Ghost Bridge starting with critical flow hardening...",
+  '📡 Enhanced Ghost Bridge starting with critical flow hardening...',
 );
 
 // Configuration
-const PATCH_DIR = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/";
-const MAIN_PATCH_DIR = "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches/";
+const PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/';
+const MAIN_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches/';
 
 // Unified logging configuration
-const ROOT_LOGS_DIR = "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/";
-const ALLOW_PROCEED_FILE = path.join(ROOT_LOGS_DIR, "ALLOW_PROCEED");
+const ROOT_LOGS_DIR = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/';
+const ALLOW_PROCEED_FILE = path.join(ROOT_LOGS_DIR, 'ALLOW_PROCEED');
 const GHOST_BRIDGE_STATUS_FILE = path.join(
   ROOT_LOGS_DIR,
-  "ghost-bridge-status.json",
+  'ghost-bridge-status.json',
 );
-const PATCH_EVENTS_LOG = path.join(ROOT_LOGS_DIR, "patch-events.log");
-const INJECT_LOG_FAILURE_FILE = path.join(ROOT_LOGS_DIR, "INJECT_LOG_FAILURE");
+const PATCH_EVENTS_LOG = path.join(ROOT_LOGS_DIR, 'patch-events.log');
+const INJECT_LOG_FAILURE_FILE = path.join(ROOT_LOGS_DIR, 'INJECT_LOG_FAILURE');
 
 // Ensure ROOT logs directory exists
 if (!fs.existsSync(ROOT_LOGS_DIR)) {
@@ -36,7 +36,7 @@ if (!fs.existsSync(ROOT_LOGS_DIR)) {
 }
 
 // State tracking for debouncing and deduplication
-let lastHeartbeatHash = "";
+let lastHeartbeatHash = '';
 let lastHeartbeatTime = 0;
 let errorCount = 0;
 let lastPatchExtractionTime = 0;
@@ -48,7 +48,7 @@ let lastErrorTime = 0;
 function logsWritable() {
   try {
     const tmp = path.join(ROOT_LOGS_DIR, `.wtest-${Date.now()}`);
-    fs.writeFileSync(tmp, "1");
+    fs.writeFileSync(tmp, '1');
     fs.unlinkSync(tmp);
     return true;
   } catch (e) {
@@ -65,7 +65,7 @@ function shouldPauseProcessing() {
 
 // Track seen messages
 const seen = new Set();
-const safe = (n) => n.replace(/[^\w./-]/g, "_");
+const safe = (n) => n.replace(/[^\w./-]/g, '_');
 
 /**
  * Write to unified log with rotation and size limits
@@ -74,7 +74,7 @@ function writeUnifiedLog(logFile, message, maxSizeMB = 5) {
   try {
     // Validation injection to simulate log-write failure
     if (fs.existsSync(INJECT_LOG_FAILURE_FILE)) {
-      throw new Error("Injected log failure for validation");
+      throw new Error('Injected log failure for validation');
     }
     // Check if log file exists and get its size
     if (fs.existsSync(logFile)) {
@@ -83,14 +83,14 @@ function writeUnifiedLog(logFile, message, maxSizeMB = 5) {
 
       // Rotate if file is too large
       if (sizeMB > maxSizeMB) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = `${logFile}.${timestamp}.bak`;
 
         // Check for too many rotated files and purge oldest
         const logDir = path.dirname(logFile);
         const rotatedFiles = fs
           .readdirSync(logDir)
-          .filter((f) => f.includes(".bak"))
+          .filter((f) => f.includes('.bak'))
           .sort()
           .reverse();
 
@@ -144,29 +144,29 @@ function handleLogWriteFailure(logFile, error, originalMessage) {
     failedLogFile: logFile,
     error: error.message,
     originalMessage,
-    component: "ghost-bridge",
+    component: 'ghost-bridge',
   };
 
   // Try to write to fallback location
-  const fallbackLog = path.join(process.cwd(), "ghost-bridge-fallback.log");
+  const fallbackLog = path.join(process.cwd(), 'ghost-bridge-fallback.log');
   try {
     const fallbackEntry = `[${failureData.timestamp}] LOG_WRITE_FAILURE: ${JSON.stringify(failureData)}\n`;
     fs.appendFileSync(fallbackLog, fallbackEntry);
   } catch (fallbackError) {
     console.error(
-      "[BRIDGE] CRITICAL: Even fallback logging failed:",
+      '[BRIDGE] CRITICAL: Even fallback logging failed:',
       fallbackError.message,
     );
   }
 
   // Create critical alert file
-  const criticalAlertFile = path.join(ROOT_LOGS_DIR, "CRITICAL_ALERT");
+  const criticalAlertFile = path.join(ROOT_LOGS_DIR, 'CRITICAL_ALERT');
   try {
     const alertContent = `LOG_WRITE_FAILURE: ${new Date().toISOString()}\nComponent: ghost-bridge\nFile: ${logFile}\nError: ${error.message}\n`;
     fs.writeFileSync(criticalAlertFile, alertContent);
   } catch (alertError) {
     console.error(
-      "[BRIDGE] CRITICAL: Failed to create alert file:",
+      '[BRIDGE] CRITICAL: Failed to create alert file:',
       alertError.message,
     );
   }
@@ -178,7 +178,7 @@ function handleLogWriteFailure(logFile, error, originalMessage) {
 
   // TODO: Send immediate Slack alert for log write failure
   console.error(
-    "[BRIDGE] 🚨 CRITICAL: Log write failure - system may be degraded",
+    '[BRIDGE] 🚨 CRITICAL: Log write failure - system may be degraded',
   );
 }
 
@@ -186,7 +186,7 @@ function handleLogWriteFailure(logFile, error, originalMessage) {
  * Generate hash for deduplication
  */
 function generateHash(content) {
-  return crypto.createHash("md5").update(JSON.stringify(content)).digest("hex");
+  return crypto.createHash('md5').update(JSON.stringify(content)).digest('hex');
 }
 
 /**
@@ -199,7 +199,7 @@ function emitHeartbeat() {
   // Only emit heartbeat if status changed or >30s since last heartbeat
   const heartbeatData = {
     timestamp: new Date().toISOString(),
-    status: "running",
+    status: 'running',
     patchDetectionStats: {
       totalExtracted: seen.size,
       lastExtractionTime: lastPatchExtractionTime,
@@ -225,7 +225,7 @@ function emitHeartbeat() {
         `[BRIDGE] 💓 Heartbeat emitted (${heartbeatHash.substring(0, 8)})`,
       );
     } catch (error) {
-      console.error("[BRIDGE] Failed to write heartbeat:", error.message);
+      console.error('[BRIDGE] Failed to write heartbeat:', error.message);
       writeUnifiedLog(
         PATCH_EVENTS_LOG,
         `ERROR: Failed to write heartbeat - ${error.message}`,
@@ -264,14 +264,14 @@ function extractCodeBlocks(content) {
   const markdownBlocks = content.match(/```[\s\S]*?```/g) || [];
   for (const block of markdownBlocks) {
     // Remove the ``` markers
-    const cleanBlock = block.replace(/^```\w*\n?/, "").replace(/```$/, "");
+    const cleanBlock = block.replace(/^```\w*\n?/, '').replace(/```$/, '');
     blocks.push(cleanBlock.trim());
   }
 
   // Extract inline code blocks (single backticks)
   const inlineBlocks = content.match(/`([^`]+)`/g) || [];
   for (const block of inlineBlocks) {
-    const cleanBlock = block.replace(/^`|`$/g, "");
+    const cleanBlock = block.replace(/^`|`$/g, '');
     blocks.push(cleanBlock.trim());
   }
 
@@ -304,18 +304,18 @@ function tryParseYAML(content) {
  * Validate patch structure and extract required fields
  */
 function validatePatch(patch) {
-  if (!patch || typeof patch !== "object") {
-    return { valid: false, reason: "Not an object" };
+  if (!patch || typeof patch !== 'object') {
+    return { valid: false, reason: 'Not an object' };
   }
 
   // Check for required role field
-  if (!patch.role || patch.role !== "command_patch") {
-    return { valid: false, reason: "Missing or invalid role field" };
+  if (!patch.role || patch.role !== 'command_patch') {
+    return { valid: false, reason: 'Missing or invalid role field' };
   }
 
   // Check for target field (required for routing)
   if (!patch.target) {
-    return { valid: false, reason: "Missing target field" };
+    return { valid: false, reason: 'Missing target field' };
   }
 
   return { valid: true, target: patch.target };
@@ -328,10 +328,10 @@ function routePatch(patch, target) {
   const targetUpper = target.toUpperCase();
 
   switch (targetUpper) {
-    case "MAIN":
+    case 'MAIN':
       return MAIN_PATCH_DIR;
-    case "CYOPS":
-    case "DEV":
+    case 'CYOPS':
+    case 'DEV':
       return PATCH_DIR;
     default:
       console.log(`[BRIDGE] Unknown target '${target}', defaulting to CYOPS`);
@@ -342,36 +342,37 @@ function routePatch(patch, target) {
 /**
  * Process a single patch block with comprehensive logging
  */
-function processPatchBlock(block, source = "unknown") {
+function processPatchBlock(block, source = 'unknown') {
   if (shouldPauseProcessing()) {
     console.error(
-      "[BRIDGE] Processing paused due to unified log failure. Create ALLOW_PROCEED to override.",
+      '[BRIDGE] Processing paused due to unified log failure. Create ALLOW_PROCEED to override.',
     );
-    return { processed: false, reason: "paused_due_to_log_failure" };
+    return { processed: false, reason: 'paused_due_to_log_failure' };
   }
+
   let patch = null;
-  let format = "unknown";
+  let format = 'unknown';
 
   // Try JSON first
   patch = tryParseJSON(block);
   if (patch) {
-    format = "json";
+    format = 'json';
   } else {
     // Try YAML
     patch = tryParseYAML(block);
     if (patch) {
-      format = "yaml";
+      format = 'yaml';
     }
   }
 
   if (!patch) {
     extractionFailures++;
     lastExtractionFailureTime = Date.now();
-    logPatchEvent("EXTRACTION_FAILED", {
+    logPatchEvent('EXTRACTION_FAILED', {
       source,
-      reason: "Failed to parse as JSON or YAML",
+      reason: 'Failed to parse as JSON or YAML',
     });
-    return { processed: false, reason: "Failed to parse as JSON or YAML" };
+    return { processed: false, reason: 'Failed to parse as JSON or YAML' };
   }
 
   // Validate patch structure
@@ -379,7 +380,7 @@ function processPatchBlock(block, source = "unknown") {
   if (!validation.valid) {
     extractionFailures++;
     lastExtractionFailureTime = Date.now();
-    logPatchEvent("VALIDATION_FAILED", {
+    logPatchEvent('VALIDATION_FAILED', {
       source,
       reason: validation.reason,
       format,
@@ -398,7 +399,7 @@ function processPatchBlock(block, source = "unknown") {
   // Ensure target directory exists
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
-    logPatchEvent("DIRECTORY_CREATED", { targetDir });
+    logPatchEvent('DIRECTORY_CREATED', { targetDir });
   }
 
   // Convert to JSON and write atomically
@@ -411,7 +412,7 @@ function processPatchBlock(block, source = "unknown") {
     fs.renameSync(tempFile, filepath);
 
     lastPatchExtractionTime = Date.now();
-    logPatchEvent("PATCH_EXTRACTED", {
+    logPatchEvent('PATCH_EXTRACTED', {
       filename,
       target: validation.target,
       format: format.toUpperCase(),
@@ -435,7 +436,7 @@ function processPatchBlock(block, source = "unknown") {
   } catch (e) {
     extractionFailures++;
     lastExtractionFailureTime = Date.now();
-    logPatchEvent("WRITE_FAILED", { filename, error: e.message });
+    logPatchEvent('WRITE_FAILED', { filename, error: e.message });
     console.error(`[BRIDGE] ❌ Failed to write patch ${filename}:`, e.message);
     return { processed: false, reason: `Write failed: ${e.message}` };
   }
@@ -452,7 +453,7 @@ function processMessageBlocks(content, messageId) {
     const result = processPatchBlock(block, messageId);
     if (result.processed) {
       results.push(result);
-    } else if (result.reason && !result.reason.includes("Failed to parse")) {
+    } else if (result.reason && !result.reason.includes('Failed to parse')) {
       // Log validation failures but not parse failures (too noisy)
       console.log(`[BRIDGE] ⚠️ Block validation failed: ${result.reason}`);
     }
@@ -465,23 +466,23 @@ function processMessageBlocks(content, messageId) {
  * Legacy JSON patch detection (for backward compatibility)
  */
 function detectLegacyPatches(content) {
-  const match = content.match(/\{[\s\S]*"role":"command_patch"[\s\S]*\}/);
+  const match = content.match(/\{[\s\S]*'role':'command_patch'[\s\S]*\}/);
   if (match) {
     try {
       const json = JSON.parse(match[0]);
       const file = safe(
         json.target_file ||
-          path.join(PATCH_DIR, `${json.id || json.blockId || "legacy"}.json`),
+          path.join(PATCH_DIR, `${json.id || json.blockId || 'legacy'}.json`),
       );
       fs.writeFileSync(file, JSON.stringify(json, null, 2));
-      logPatchEvent("LEGACY_PATCH_DETECTED", { file });
+      logPatchEvent('LEGACY_PATCH_DETECTED', { file });
       console.log(`[BRIDGE] 📝 Legacy patch detected: ${file}`);
       return true;
     } catch (e) {
       extractionFailures++;
       lastExtractionFailureTime = Date.now();
-      logPatchEvent("LEGACY_PATCH_FAILED", { error: e.message });
-      console.error("[BRIDGE] Legacy patch parsing error:", e.message);
+      logPatchEvent('LEGACY_PATCH_FAILED', { error: e.message });
+      console.error('[BRIDGE] Legacy patch parsing error:', e.message);
       return false;
     }
   }
@@ -500,14 +501,14 @@ function checkStalePatches() {
     if (fs.existsSync(PATCH_DIR)) {
       const files = fs
         .readdirSync(PATCH_DIR)
-        .filter((f) => f.endsWith(".json"));
+        .filter((f) => f.endsWith('.json'));
       for (const file of files) {
         const filepath = path.join(PATCH_DIR, file);
         const stats = fs.statSync(filepath);
         const age = now - stats.mtime.getTime();
 
         if (age > staleThreshold) {
-          logPatchEvent("STALE_PATCH_DETECTED", {
+          logPatchEvent('STALE_PATCH_DETECTED', {
             file,
             age: Math.floor(age / 1000),
           });
@@ -522,17 +523,17 @@ function checkStalePatches() {
     if (fs.existsSync(MAIN_PATCH_DIR)) {
       const files = fs
         .readdirSync(MAIN_PATCH_DIR)
-        .filter((f) => f.endsWith(".json"));
+        .filter((f) => f.endsWith('.json'));
       for (const file of files) {
         const filepath = path.join(MAIN_PATCH_DIR, file);
         const stats = fs.statSync(filepath);
         const age = now - stats.mtime.getTime();
 
         if (age > staleThreshold) {
-          logPatchEvent("STALE_PATCH_DETECTED", {
+          logPatchEvent('STALE_PATCH_DETECTED', {
             file,
             age: Math.floor(age / 1000),
-            target: "MAIN",
+            target: 'MAIN',
           });
           console.log(
             `[BRIDGE] ⚠️ Stale patch detected: ${file} (${Math.floor(age / 1000)}s old)`,
@@ -541,8 +542,8 @@ function checkStalePatches() {
       }
     }
   } catch (error) {
-    logPatchEvent("STALE_CHECK_FAILED", { error: error.message });
-    console.error("[BRIDGE] Failed to check stale patches:", error.message);
+    logPatchEvent('STALE_CHECK_FAILED', { error: error.message });
+    console.error('[BRIDGE] Failed to check stale patches:', error.message);
   }
 }
 
@@ -552,7 +553,7 @@ function checkStalePatches() {
 async function poll(id) {
   try {
     // Ensure thread ID has proper prefix
-    const threadId = id.startsWith("thread_") ? id : `thread_${id}`;
+    const threadId = id.startsWith('thread_') ? id : `thread_${id}`;
 
     // For now, we'll simulate polling since we don't have OpenAI integration in this simple version
     // In a real implementation, this would use OpenAI API to fetch messages
@@ -565,8 +566,8 @@ async function poll(id) {
   } catch (e) {
     errorCount++;
     lastErrorTime = Date.now();
-    logPatchEvent("POLL_ERROR", { error: e.message });
-    console.error("[BRIDGE] poll error", e.message);
+    logPatchEvent('POLL_ERROR', { error: e.message });
+    console.error('[BRIDGE] poll error', e.message);
   }
 }
 
@@ -574,7 +575,7 @@ async function poll(id) {
 const startTime = Date.now();
 
 function startBridge() {
-  console.log("✅ Enhanced Ghost Bridge started with critical flow hardening");
+  console.log('✅ Enhanced Ghost Bridge started with critical flow hardening');
   // Initialize heartbeat
   emitHeartbeat();
 
@@ -592,31 +593,31 @@ function startBridge() {
   );
 
   // Handle graceful shutdown
-  process.on("SIGINT", () => {
-    logPatchEvent("SHUTDOWN", { reason: "SIGINT" });
-    console.log("📡 Enhanced Ghost Bridge shutting down...");
+  process.on('SIGINT', () => {
+    logPatchEvent('SHUTDOWN', { reason: 'SIGINT' });
+    console.log('📡 Enhanced Ghost Bridge shutting down...');
     process.exit(0);
   });
 
   // Handle uncaught exceptions
-  process.on("uncaughtException", (error) => {
+  process.on('uncaughtException', (error) => {
     errorCount++;
     lastErrorTime = Date.now();
-    logPatchEvent("UNCAUGHT_EXCEPTION", {
+    logPatchEvent('UNCAUGHT_EXCEPTION', {
       error: error.message,
       stack: error.stack,
     });
-    console.error("[BRIDGE] Uncaught exception:", error);
+    console.error('[BRIDGE] Uncaught exception:', error);
   });
 
   // Handle unhandled promise rejections
-  process.on("unhandledRejection", (reason, promise) => {
+  process.on('unhandledRejection', (reason, promise) => {
     errorCount++;
     lastErrorTime = Date.now();
-    logPatchEvent("UNHANDLED_REJECTION", {
+    logPatchEvent('UNHANDLED_REJECTION', {
       reason: reason?.message || String(reason),
     });
-    console.error("[BRIDGE] Unhandled rejection:", reason);
+    console.error('[BRIDGE] Unhandled rejection:', reason);
   });
 }
 

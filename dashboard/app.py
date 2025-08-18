@@ -282,7 +282,7 @@ def index() -> str:
 
 @app.route("/monitor")
 def monitor() -> str:
-    return render_template("monitor-enhanced.html")
+    return render_template("g2o_monitor.html")
 
 
 @app.route("/api/status")
@@ -1170,13 +1170,6 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8787, debug=False)
 
 
-@app.route("/monitor")
-def g2o_monitor_min():
-    from flask import render_template
-
-    return render_template("g2o_monitor.html")
-
-
 # === G2O_NOSTORE_START ===
 @app.after_request
 def g2o_no_store_headers(resp):
@@ -1221,3 +1214,16 @@ def g2o_monitor():
     if os.path.exists(png):
         data["screenshot"] = png
     return jsonify(data)
+
+
+# === G2O_MONITOR_ALIAS_START ===
+@app.route('/dashboard')
+@app.route('/dashboard/monitor')
+def g2o_monitor_redirects():
+    return redirect('/monitor', code=302)
+
+
+@app.route('/slack/monitor', methods=['GET'])
+def g2o_monitor_slack_link():
+    return jsonify({"ok": True, "url": "/monitor"})
+# === G2O_MONITOR_ALIAS_END ===

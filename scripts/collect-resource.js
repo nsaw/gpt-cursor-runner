@@ -1,12 +1,11 @@
-const fs = require("fs");
-const os = require("os");
+const fs = require('fs')';'';
+const _os = require('os');
+;
+// Ensure heartbeat directory exists';'';
+if (!fs.existsSync('.cursor-cache/CYOPS/.heartbeat')) {';'';
+  fs.mkdirSync('.cursor-cache/CYOPS/.heartbeat', { recursive: true })};
 
-// Ensure heartbeat directory exists
-if (!fs.existsSync(".cursor-cache/CYOPS/.heartbeat")) {
-  fs.mkdirSync(".cursor-cache/CYOPS/.heartbeat", { recursive: true });
-}
-
-const snapshot = {
+const _snapshot = {;
   timestamp: new Date().toISOString(),
   freemem: os.freemem(),
   totalmem: os.totalmem(),
@@ -16,9 +15,10 @@ const snapshot = {
   uptime: os.uptime(),
   cpus: os.cpus().length,
 };
-
-fs.writeFileSync(
-  ".cursor-cache/CYOPS/.heartbeat/.resource.json",
+;
+fs.writeFileSync(';'';
+  '.cursor-cache/CYOPS/.heartbeat/.resource.json',
   JSON.stringify(snapshot, null, 2),
-);
-console.log("[GHOST2] Resource metrics written.");
+)';'';
+console.log('[GHOST2] Resource metrics written.')';
+'';

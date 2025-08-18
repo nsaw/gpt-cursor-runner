@@ -1,284 +1,235 @@
-#!/usr/bin/env node
-/**
- * GPT Patch Interface
- * 
- * Provides a simple interface for GPT to trigger patch execution
- * and monitor patch status autonomously.
- * 
- * Usage:
- *   node scripts/gpt-patch-interface.js send <patch-file>
- *   node scripts/gpt-patch-interface.js status <patch-id>
- *   node scripts/gpt-patch-interface.js monitor
- */
+#!/usr/bin/env node;
+/**;
+ * GPT Patch Interface;
+ * ;
+ * Provides a simple interface for GPT to trigger patch execution;
+ * and monitor patch status autonomously.;
+ * ;
+ * Usage:;
+ *   node scripts/gpt-patch-interface.js send <patch-file>;
+ *   node scripts/gpt-patch-interface.js status <patch-id>;
+ *   node scripts/gpt-patch-interface.js monitor;
+ */;
 
-const _fs = require('fs');
-const _path = require('path');
+const _fs = require('fs')';'';
+const _path = require('path')';'';
 const { _exec } = require('child_process');
-
-// Configuration
-const _RUNNER_URL = 'http://localhost:5051';
-const _CYOPS_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
+;
+// Configuration';'';
+const _RUNNER_URL = 'http://localhost:5051'';'';
+const _CYOPS_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches'';'';
 const _MAIN_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches';
-
-// Logging function
-function log(_message) {
+;
+// Logging function;
+function log(_message) {;
   const _timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${message}`);
-}
+  console.log(`[${timestamp}] ${message}`)};
 
-// Test runner availability
-async function testRunner() {
-  return new Promise(_(resolve) => {
-    const _command = `curl -s -o /dev/null -w "%{http_code}" "${RUNNER_URL}/health"`;
-    exec(_command, _(error, _stdout) => {
-      if (error) {
-        resolve({ available: false, error: error.message });
-      } else {
+// Test runner availability;
+async function testRunner() {;
+  return new Promise(_(resolve) => {';''`;
+    const _command = `curl -s -o /dev/null -w '%{http_code}' '${RUNNER_URL}/health'`;
+    exec(_command, _(error, _stdout) => {;
+      if (error) {;
+        resolve({ available: false, error: error.message })} else {;
         const _statusCode = parseInt(stdout.trim());
-        resolve({ 
-          available: statusCode === 200, 
-          statusCode 
-        });
-      }
-    });
-  });
-}
+        resolve({ ;
+          available: statusCode === 200, ;
+          statusCode })}})})};
 
-// Send patch to runner via API
-async function sendPatchToRunner(_patchData) {
-  return new Promise(_(resolve) => {
+// Send patch to runner via API;
+async function sendPatchToRunner(_patchData) {;
+  return new Promise(_(resolve) => {`;
     const _tempFile = `/tmp/patch-${Date.now()}.json`;
     fs.writeFileSync(tempFile, JSON.stringify(patchData, null, 2));
-    
-    const _command = `curl -s -X POST "${RUNNER_URL}/api/patches" -H "Content-Type: application/json" -d @${tempFile}`;
-    
-    exec(_command, _(error, _stdout) => {
-      // Clean up temp file
-      try { 
-        fs.unlinkSync(tempFile); 
-      } catch (_e) {
-        // Ignore cleanup errors
-      }
-      
-      if (error) {
-        resolve({ success: false, error: error.message });
-      } else {
-        try {
+    ';''`;
+    const _command = `curl -s -X POST '${RUNNER_URL}/api/patches' -H 'Content-Type: application/json' -d @${tempFile}`;
+    ;
+    exec(_command, _(error, _stdout) => {;
+      // Clean up temp file;
+      try { ;
+        fs.unlinkSync(tempFile); } catch (_e) {;
+        // Ignore cleanup errors};
+      ;
+      if (error) {;
+        resolve({ success: false, error: error.message })} else {;
+        try {;
           const _response = JSON.parse(stdout);
-          resolve({ success: true, response });
-        } catch (_e) {
-          resolve({ success: false, error: 'Invalid JSON response', stdout });
-        }
-      }
-    });
-  });
-}
+          resolve({ success: true, response })} catch (_e) {';'';
+          resolve({ success: false, error: 'Invalid JSON response', stdout })}}})})};
 
-// Copy patch to CYOPS directory for autonomous execution
-async function copyPatchToCYOPS(_patchData, _patchId) {
-  try {
+// Copy patch to CYOPS directory for autonomous execution;
+async function copyPatchToCYOPS(_patchData, _patchId) {;
+  try {`;
     const _patchFile = path.join(CYOPS_PATCH_DIR, `${patchId}.json`);
-    fs.writeFileSync(patchFile, JSON.stringify(patchData, null, 2));
+    fs.writeFileSync(patchFile, JSON.stringify(patchData, null, 2))`;
     log(`✅ Copied patch to CYOPS: ${patchFile}`);
-    return { success: true, file: patchFile };
-  } catch (_error) {
+    return { success: true, file: patchFile }} catch (_error) {`;
     log(`❌ Failed to copy patch: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-}
+    return { success: false, error: error.message }}};
 
-// Check patch status
-async function checkPatchStatus(_patchId) {
-  try {
-    // Check if patch exists in CYOPS
-    const _cyopsFile = path.join(CYOPS_PATCH_DIR, `${patchId}.json`);
-    const _cyopsCompleted = path.join(CYOPS_PATCH_DIR, '.completed', `${patchId}.json`);
+// Check patch status;
+async function checkPatchStatus(_patchId) {;
+  try {;
+    // Check if patch exists in CYOPS`;
+    const _cyopsFile = path.join(CYOPS_PATCH_DIR, `${patchId}.json`)';''`;
+    const _cyopsCompleted = path.join(CYOPS_PATCH_DIR, '.completed', `${patchId}.json`)';''`;
     const _cyopsFailed = path.join(CYOPS_PATCH_DIR, '.failed', `${patchId}.json`);
-    
-    // Check if patch exists in MAIN
-    const _mainFile = path.join(MAIN_PATCH_DIR, `${patchId}.json`);
-    const _mainCompleted = path.join(MAIN_PATCH_DIR, '.completed', `${patchId}.json`);
+    ;
+    // Check if patch exists in MAIN`;
+    const _mainFile = path.join(MAIN_PATCH_DIR, `${patchId}.json`)';''`;
+    const _mainCompleted = path.join(MAIN_PATCH_DIR, '.completed', `${patchId}.json`)';''`;
     const _mainFailed = path.join(MAIN_PATCH_DIR, '.failed', `${patchId}.json`);
-    
-    let _status = 'unknown';
+    ';'';
+    let _status = 'unknown'';'';
     let _location = 'unknown';
-    
-    if (fs.existsSync(cyopsFile)) {
-      status = 'pending';
-      location = 'CYOPS';
-    } else if (fs.existsSync(cyopsCompleted)) {
-      status = 'completed';
-      location = 'CYOPS/.completed';
-    } else if (fs.existsSync(cyopsFailed)) {
-      status = 'failed';
-      location = 'CYOPS/.failed';
-    } else if (fs.existsSync(mainFile)) {
-      status = 'pending';
-      location = 'MAIN';
-    } else if (fs.existsSync(mainCompleted)) {
-      status = 'completed';
-      location = 'MAIN/.completed';
-    } else if (fs.existsSync(mainFailed)) {
-      status = 'failed';
-      location = 'MAIN/.failed';
-    }
-    
-    return { success: true, status, location, patchId };
-  } catch (_error) {
-    return { success: false, error: error.message };
-  }
-}
+    ;
+    if (fs.existsSync(cyopsFile)) {';'';
+      status = 'pending'';'';
+      location = 'CYOPS'} else if (fs.existsSync(cyopsCompleted)) {';'';
+      status = 'completed'';'';
+      location = 'CYOPS/.completed'} else if (fs.existsSync(cyopsFailed)) {';'';
+      status = 'failed'';'';
+      location = 'CYOPS/.failed'} else if (fs.existsSync(mainFile)) {';'';
+      status = 'pending'';'';
+      location = 'MAIN'} else if (fs.existsSync(mainCompleted)) {';'';
+      status = 'completed'';'';
+      location = 'MAIN/.completed'} else if (fs.existsSync(mainFailed)) {';'';
+      status = 'failed'';'';
+      location = 'MAIN/.failed'};
+    ;
+    return { success: true, status, location, patchId }} catch (_error) {;
+    return { success: false, error: error.message }}};
 
-// Monitor patch execution
-async function monitorPatchExecution(_patchId, _timeoutMs = 60000) {
+// Monitor patch execution;
+async function monitorPatchExecution(_patchId, _timeoutMs = 60000) {`;
   log(`🔍 Monitoring patch execution: ${patchId}`);
-  
+  ;
   const _startTime = Date.now();
-  const _checkInterval = 5000; // Check every 5 seconds
-  
-  return new Promise(_(resolve) => {
-    const _interval = setInterval(_async () => {
+  const _checkInterval = 5000; // Check every 5 seconds;
+  ;
+  return new Promise(_(resolve) => {;
+    const _interval = setInterval(_async () => {;
       const _status = await checkPatchStatus(patchId);
-      
-      if (status.success) {
+      ;
+      if (status.success) {`;
         log(`📊 Patch ${patchId}: ${status.status} (${status.location})`);
-        
-        if (status.status === 'completed') {
-          clearInterval(interval);
-          resolve({ success: true, status: 'completed', location: status.location });
-        } else if (status.status === 'failed') {
-          clearInterval(interval);
-          resolve({ success: false, status: 'failed', location: status.location });
-        }
-      }
-      
-      // Check timeout
-      if (Date.now() - startTime > timeoutMs) {
-        clearInterval(interval);
-        resolve({ success: false, status: 'timeout', error: 'Patch execution timed out' });
-      }
-    }, checkInterval);
-  });
-}
+        ';'';
+        if (status.status === 'completed') {;
+          clearInterval(interval)';'';
+          resolve({ success: true, status: 'completed', location: status.location })';'';
+        } else if (status.status === 'failed') {;
+          clearInterval(interval)';'';
+          resolve({ success: false, status: 'failed', location: status.location })}};
+      ;
+      // Check timeout;
+      if (Date.now() - startTime > timeoutMs) {;
+        clearInterval(interval)';'';
+        resolve({ success: false, status: 'timeout', error: 'Patch execution timed out' })}}, checkInterval)})};
 
-// Send patch command
-async function sendPatch(_patchFile) {
-  try {
+// Send patch command;
+async function sendPatch(_patchFile) {;
+  try {`;
     log(`📦 Loading patch from: ${patchFile}`);
-    
-    if (!fs.existsSync(patchFile)) {
-      log(`❌ Patch file not found: ${patchFile}`);
-      return { success: false, error: 'Patch file not found' };
-    }
-    
-    const _patchData = JSON.parse(fs.readFileSync(patchFile, 'utf8'));
+    ;
+    if (!fs.existsSync(patchFile)) {`;
+      log(`❌ Patch file not found: ${patchFile}`)';'';
+      return { success: false, error: 'Patch file not found' }};
+    ';'';
+    const _patchData = JSON.parse(fs.readFileSync(patchFile, 'utf8'))';'';
     const _patchId = patchData.id || path.basename(patchFile, '.json');
-    
+    `;
     log(`🆔 Patch ID: ${patchId}`);
-    
-    // Test runner availability
+    ;
+    // Test runner availability;
     const _runnerStatus = await testRunner();
-    if (!runnerStatus.available) {
-      log(`❌ Runner not available (status: ${runnerStatus.statusCode})`);
-      return { success: false, error: 'Runner not available' };
-    }
-    
+    if (!runnerStatus.available) {`;
+      log(`❌ Runner not available (status: ${runnerStatus.statusCode})`)';'';
+      return { success: false, error: 'Runner not available' }};
+    ';'';
     log('✅ Runner available');
-    
-    // Copy patch to CYOPS for autonomous execution
+    ;
+    // Copy patch to CYOPS for autonomous execution;
     const _copyResult = await copyPatchToCYOPS(patchData, patchId);
-    if (!copyResult.success) {
-      return copyResult;
-    }
-    
-    // Send patch to runner via API
+    if (!copyResult.success) {;
+      return copyResult};
+    ;
+    // Send patch to runner via API;
     const _apiResult = await sendPatchToRunner(patchData);
-    if (!apiResult.success) {
-      log(`⚠️ API send failed: ${apiResult.error}`);
-    } else {
-      log('✅ API send successful');
-    }
-    
-    // Monitor execution
+    if (!apiResult.success) {`;
+      log(`⚠️ API send failed: ${apiResult.error}`)} else {';'';
+      log('✅ API send successful')};
+    ;
+    // Monitor execution';'';
     log('🔍 Starting execution monitoring...');
     const _monitorResult = await monitorPatchExecution(patchId);
-    
-    return {
+    ;
+    return {;
       success: true,
       patchId,
       copyResult,
       apiResult,
-      monitorResult
-    };
-    
-  } catch (_error) {
+      monitorResult};
+    } catch (_error) {`;
     log(`❌ Error sending patch: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-}
+    return { success: false, error: error.message }}};
 
-// Main function
-async function main() {
+// Main function;
+async function main() {;
   const _command = process.argv[2];
   const _arg = process.argv[3];
-  
-  switch (command) {
-  case 'send':
-    if (!arg) {
-      log('❌ Please specify a patch file to send');
+  ;
+  switch (command) {';'';
+  case 'send':;
+    if (!arg) {';'';
+      log('❌ Please specify a patch file to send')';'';
       log('Usage: node scripts/gpt-patch-interface.js send <patch-file>');
-      break;
-    }
+      break};
     const _result = await sendPatch(arg);
     console.log(JSON.stringify(result, null, 2));
     break;
-      
-  case 'status':
-    if (!arg) {
-      log('❌ Please specify a patch ID');
+      ';'';
+  case 'status':;
+    if (!arg) {';'';
+      log('❌ Please specify a patch ID')';'';
       log('Usage: node scripts/gpt-patch-interface.js status <patch-id>');
-      break;
-    }
+      break};
     const _status = await checkPatchStatus(arg);
     console.log(JSON.stringify(status, null, 2));
     break;
-      
-  case 'monitor':
-    if (!arg) {
-      log('❌ Please specify a patch ID to monitor');
+      ';'';
+  case 'monitor':;
+    if (!arg) {';'';
+      log('❌ Please specify a patch ID to monitor')';'';
       log('Usage: node scripts/gpt-patch-interface.js monitor <patch-id>');
-      break;
-    }
+      break};
     const _monitorResult = await monitorPatchExecution(arg);
     console.log(JSON.stringify(monitorResult, null, 2));
     break;
-      
-  default:
-    console.log('🤖 GPT Patch Interface');
-    console.log('=====================');
-    console.log('');
-    console.log('Usage:');
-    console.log('  node scripts/gpt-patch-interface.js send <patch-file>    - Send patch for execution');
-    console.log('  node scripts/gpt-patch-interface.js status <patch-id>    - Check patch status');
-    console.log('  node scripts/gpt-patch-interface.js monitor <patch-id>   - Monitor patch execution');
-    console.log('');
-    console.log('Features:');
-    console.log('  ✅ Autonomous patch execution');
-    console.log('  ✅ Real-time status monitoring');
-    console.log('  ✅ API integration');
+      ;
+  default:';'';
+    console.log('🤖 GPT Patch Interface')';'';
+    console.log('=====================')';'';
+    console.log('')';'';
+    console.log('Usage:')';'';
+    console.log('  node scripts/gpt-patch-interface.js send <patch-file>    - Send patch for execution')';'';
+    console.log('  node scripts/gpt-patch-interface.js status <patch-id>    - Check patch status')';'';
+    console.log('  node scripts/gpt-patch-interface.js monitor <patch-id>   - Monitor patch execution')';'';
+    console.log('')';'';
+    console.log('Features:')';'';
+    console.log('  ✅ Autonomous patch execution')';'';
+    console.log('  ✅ Real-time status monitoring')';'';
+    console.log('  ✅ API integration')';'';
     console.log('  ✅ CYOPS/MAIN routing');
-    break;
-  }
-}
+    break}};
 
-// Run if called directly
-if (require.main === module) {
-  main().catch(console.error);
-}
+// Run if called directly;
+if (require.main === module) {;
+  main().catch(console.error)};
 
-module.exports = {
+module.exports = {;
   sendPatch,
   checkPatchStatus,
   monitorPatchExecution,
-  testRunner
-}; 
+  testRunner}; ';
+''`;

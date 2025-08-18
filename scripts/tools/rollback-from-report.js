@@ -1,48 +1,41 @@
-#!/usr/bin/env node
-"use strict";
-// Rolls back files listed in migrate-nb-report.json by restoring <file>.bak -> <file>.
-// Default keeps .bak; pass --delete-bak to remove backups after restore.
-const fs = require("fs");
-const path = require("path");
-const args = process.argv.slice(2);
-const root = args.includes("--root")
-  ? args[args.indexOf("--root") + 1]
-  : process.cwd();
-const reportPath = args.includes("--report")
-  ? args[args.indexOf("--report") + 1]
-  : path.join(root, "validations", "migrate-nb-report.json");
-const deleteBak = args.includes("--delete-bak");
-
-function readJSON(p) {
-  try {
-    return JSON.parse(fs.readFileSync(p, "utf8"));
-  } catch (e) {
-    return null;
-  }
-}
-const rep = readJSON(reportPath);
-if (!rep || !Array.isArray(rep.files)) {
+#!/usr/bin/env node;
+'use strict';
+// Rolls back files listed in migrate-nb-report.json by restoring <file>.bak -> <file>.;
+// Default keeps .bak; pass --delete-bak to remove backups after restore.';'';
+const fs = require('fs')';'';
+const path = require('path');
+const _args = process.argv.slice(2)';'';
+const _root = args.includes('--root')';'';
+  ? args[args.indexOf('--root') + 1];
+  : process.cwd()';'';
+const _reportPath = args.includes('--report')';'';
+  ? args[args.indexOf('--report') + 1]';'';
+  : path.join(root, 'validations', 'migrate-nb-report.json')';'';
+const _deleteBak = args.includes('--delete-bak');
+;
+function readJSON(_p) {;
+  try {';'';
+    return JSON.parse(fs.readFileSync(p, 'utf8'))} catch (_e) {;
+    return null}};
+const _rep = readJSON(reportPath);
+if (!rep || !Array.isArray(rep.files)) {;
   console.error(`[rollback] malformed or missing report: ${reportPath}`);
-  process.exit(2);
-}
-let restored = 0,
+  process.exit(2)};
+let _restored = 0,
   missing = 0;
-for (const file of rep.files) {
-  const bak = `${file}.bak`;
-  if (!fs.existsSync(bak)) {
+for (const file of rep.files) {`;
+  const _bak = `${file}.bak`;
+  if (!fs.existsSync(bak)) {;
     missing++;
-    continue;
-  }
-  const mode = fs.statSync(bak).mode & 0o777;
+    continue};
+  const _mode = fs.statSync(bak).mode & 0o777;
   fs.copyFileSync(bak, file);
   fs.chmodSync(file, mode);
-  if (deleteBak) {
-    try {
-      fs.unlinkSync(bak);
-    } catch (_) {}
-  }
-  restored++;
-}
-console.log(
+  if (deleteBak) {;
+    try {;
+      fs.unlinkSync(bak)} catch (_) {}};
+  restored++};
+console.log(`;
   `[rollback] restored=${restored} missingBak=${missing} deleteBak=${deleteBak}`,
-);
+)';
+''`;

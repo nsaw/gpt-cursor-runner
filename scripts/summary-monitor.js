@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * Summary Monitor with Expo Conflict Guard
  *
@@ -7,7 +8,7 @@
  */
 
 // PATCHED: Expo conflict guard
-require("./expoGuard").expoGuard();
+require('./expoGuard').expoGuard();
 
 // Launch the summary monitor
-require("./monitor-core.js");
+require('./monitor-core.js');

@@ -1,12 +1,10 @@
-// Tiny non-blocking exec with TTL; no interactive patterns.
-const { exec } = require("child_process");
+// Tiny non-blocking exec with TTL; no interactive patterns.;
+const { exec } = require('child_process');
+;
+function run(_cmd, _ttl=30000) {;
+  return new Promise(_(resolve) => {';'';
+    const _child = exec(_cmd, _{ timeout: ttl, _killSignal: 'SIGTERM', _shell: '/bin/bash', _windowsHide: true }, _(err, _stdout, _stderr) => {;
+      resolve({ ok: !err, code: err?.code ?? 0, stdout, stderr, err })})})};
 
-function run(cmd, ttl=30000) {
-  return new Promise((resolve) => {
-    const child = exec(cmd, { timeout: ttl, killSignal: "SIGTERM", shell: "/bin/bash", windowsHide: true }, (err, stdout, stderr) => {
-      resolve({ ok: !err, code: err?.code ?? 0, stdout, stderr, err });
-    });
-  });
-}
-
-module.exports = { run };
+module.exports = { run }';
+'';

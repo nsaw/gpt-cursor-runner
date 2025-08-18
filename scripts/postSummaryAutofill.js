@@ -6,49 +6,49 @@
  * Automatically fills missing trace fields and backfills summary content on write
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
 const CONFIG = {
-  SUMMARY_DIRS: ["/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries"],
+  SUMMARY_DIRS: ['/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries'],
   LOG_FILE:
-    "/Users/sawyer/gitSync/gpt-cursor-runner/logs/post-summary-autofill.log",
+    '/Users/sawyer/gitSync/gpt-cursor-runner/logs/post-summary-autofill.log',
   TRACE_FIELD_TEMPLATES: {
-    PATCH_ID: "patch-{version}_{description}",
+    PATCH_ID: 'patch-{version}_{description}',
     TIMESTAMP: new Date().toISOString(),
-    STATUS: "PASS",
-    TARGET: "DEV",
-    GHOST_STATUS: "ACTIVE",
+    STATUS: 'PASS',
+    TARGET: 'DEV',
+    GHOST_STATUS: 'ACTIVE',
     GHOST_UPTIME: 0,
     GHOST_LAST_CHECK: new Date().toISOString(),
   },
   REQUIRED_FIELDS: [
-    "patchName",
-    "status",
-    "timestamp",
-    "target",
-    "goal",
-    "mission",
-    "validationResults",
-    "technicalImplementation",
-    "impactAssessment",
-    "nextSteps",
+    'patchName',
+    'status',
+    'timestamp',
+    'target',
+    'goal',
+    'mission',
+    'validationResults',
+    'technicalImplementation',
+    'impactAssessment',
+    'nextSteps',
   ],
   AUTO_FILL_RULES: {
-    MISSING_TITLE: "Patch Summary: {patchName}",
+    MISSING_TITLE: 'Patch Summary: {patchName}',
     MISSING_GOAL:
-      "Successfully implemented {patchName} with comprehensive validation and testing.",
+      'Successfully implemented {patchName} with comprehensive validation and testing.',
     MISSING_MISSION:
-      "Created and validated {patchName} to ensure proper functionality and compliance.",
+      'Created and validated {patchName} to ensure proper functionality and compliance.',
     MISSING_VALIDATION:
-      "All validation tests passed successfully with no errors or warnings.",
+      'All validation tests passed successfully with no errors or warnings.',
     MISSING_IMPLEMENTATION:
-      "Technical implementation completed with proper error handling and logging.",
+      'Technical implementation completed with proper error handling and logging.',
     MISSING_IMPACT:
-      "Immediate benefits include improved functionality and long-term maintainability.",
+      'Immediate benefits include improved functionality and long-term maintainability.',
     MISSING_NEXT_STEPS:
-      "Integration and monitoring setup recommended for production deployment.",
+      'Integration and monitoring setup recommended for production deployment.',
   },
 };
 
@@ -66,7 +66,7 @@ class PostSummaryAutofill {
   // Initialize autofill system
   async initialize() {
     try {
-      console.log("🔧 [AUTOFILL] Initializing Post Summary Autofill Hook...");
+      console.log('🔧 [AUTOFILL] Initializing Post Summary Autofill Hook...');
 
       // Create log directory if it doesn't exist
       const logDir = path.dirname(CONFIG.LOG_FILE);
@@ -74,21 +74,21 @@ class PostSummaryAutofill {
         fs.mkdirSync(logDir, { recursive: true });
       }
 
-      console.log("✅ [AUTOFILL] Post Summary Autofill Hook initialized");
+      console.log('✅ [AUTOFILL] Post Summary Autofill Hook initialized');
       this.log(
-        "AUTOFILL_INIT",
-        "Post Summary Autofill Hook initialized successfully",
+        'AUTOFILL_INIT',
+        'Post Summary Autofill Hook initialized successfully',
       );
-    } catch (_error) {
-      console.error("❌ [AUTOFILL] Initialization failed:", error.message);
-      this.log("AUTOFILL_ERROR", `Initialization failed: ${error.message}`);
+    } catch (error) {
+      console.error('❌ [AUTOFILL] Initialization failed:', error.message);
+      this.log('AUTOFILL_ERROR', `Initialization failed: ${error.message}`);
     }
   }
 
   // Process a single summary file for autofill
   processSummaryFile(filePath) {
     try {
-      const content = fs.readFileSync(filePath, "utf8");
+      const content = fs.readFileSync(filePath, 'utf8');
       const filename = path.basename(filePath);
 
       // Extract current metadata
@@ -115,7 +115,7 @@ class PostSummaryAutofill {
         autofillResult,
         timestamp: new Date().toISOString(),
       };
-    } catch (_error) {
+    } catch (error) {
       return {
         file: path.basename(filePath),
         path: filePath,
@@ -184,7 +184,7 @@ class PostSummaryAutofill {
     }
 
     // Check for trace fields
-    if (content.includes("ghost") || content.includes("Ghost")) {
+    if (content.includes('ghost') || content.includes('Ghost')) {
       metadata.hasTraceFields = true;
 
       // Count trace fields
@@ -192,18 +192,19 @@ class PostSummaryAutofill {
       const uptimeMatches = content.match(/Uptime/gi);
       const lastCheckMatches = content.match(/Last Check/gi);
 
-      metadata.traceFieldCount = (ghostStatusMatches?.length || 0)(
-        uptimeMatches?.length || 0,
-      )(lastCheckMatches?.length || 0);
+      metadata.traceFieldCount =
+        (ghostStatusMatches?.length || 0) +
+        (uptimeMatches?.length || 0) +
+        (lastCheckMatches?.length || 0);
     }
 
     // Identify missing fields
-    if (!metadata.patchName) metadata.missingFields.push("patchName");
-    if (!metadata.status) metadata.missingFields.push("status");
-    if (!metadata.timestamp) metadata.missingFields.push("timestamp");
-    if (!metadata.target) metadata.missingFields.push("target");
-    if (!metadata.goal) metadata.missingFields.push("goal");
-    if (!metadata.mission) metadata.missingFields.push("mission");
+    if (!metadata.patchName) metadata.missingFields.push('patchName');
+    if (!metadata.status) metadata.missingFields.push('status');
+    if (!metadata.timestamp) metadata.missingFields.push('timestamp');
+    if (!metadata.target) metadata.missingFields.push('target');
+    if (!metadata.goal) metadata.missingFields.push('goal');
+    if (!metadata.mission) metadata.missingFields.push('mission');
 
     return metadata;
   }
@@ -225,10 +226,10 @@ class PostSummaryAutofill {
     };
 
     // Generate title if missing
-    if (!content.includes("# Patch Summary:")) {
+    if (!content.includes('# Patch Summary:')) {
       suggestions.title = CONFIG.AUTO_FILL_RULES.MISSING_TITLE.replace(
-        "{patchName}",
-        metadata.patchName || "Unknown Patch",
+        '{patchName}',
+        metadata.patchName || 'Unknown Patch',
       );
     }
 
@@ -250,16 +251,16 @@ class PostSummaryAutofill {
     // Generate goal if missing
     if (!metadata.goal) {
       suggestions.goal = CONFIG.AUTO_FILL_RULES.MISSING_GOAL.replace(
-        "{patchName}",
-        metadata.patchName || "the patch",
+        '{patchName}',
+        metadata.patchName || 'the patch',
       );
     }
 
     // Generate mission if missing
     if (!metadata.mission) {
       suggestions.mission = CONFIG.AUTO_FILL_RULES.MISSING_MISSION.replace(
-        "{patchName}",
-        metadata.patchName || "the patch",
+        '{patchName}',
+        metadata.patchName || 'the patch',
       );
     }
 
@@ -273,23 +274,23 @@ class PostSummaryAutofill {
     }
 
     // Generate validation results if missing
-    if (!content.includes("## ✅ Validation Results")) {
+    if (!content.includes('## ✅ Validation Results')) {
       suggestions.validationResults = CONFIG.AUTO_FILL_RULES.MISSING_VALIDATION;
     }
 
     // Generate technical implementation if missing
-    if (!content.includes("## 🔄 Technical Implementation")) {
+    if (!content.includes('## 🔄 Technical Implementation')) {
       suggestions.technicalImplementation =
         CONFIG.AUTO_FILL_RULES.MISSING_IMPLEMENTATION;
     }
 
     // Generate impact assessment if missing
-    if (!content.includes("## 🎯 Impact Assessment")) {
+    if (!content.includes('## 🎯 Impact Assessment')) {
       suggestions.impactAssessment = CONFIG.AUTO_FILL_RULES.MISSING_IMPACT;
     }
 
     // Generate next steps if missing
-    if (!content.includes("## 🚀 Next Steps")) {
+    if (!content.includes('## 🚀 Next Steps')) {
       suggestions.nextSteps = CONFIG.AUTO_FILL_RULES.MISSING_NEXT_STEPS;
     }
 
@@ -304,142 +305,142 @@ class PostSummaryAutofill {
 
     try {
       // Apply title if suggested
-      if (suggestions.title && !content.includes("# Patch Summary:")) {
+      if (suggestions.title && !content.includes('# Patch Summary:')) {
         modifiedContent = `# ${suggestions.title}\n\n${modifiedContent}`;
-        appliedChanges.push("title");
+        appliedChanges.push('title');
         hasChanges = true;
       }
 
       // Apply status if suggested
-      if (suggestions.status && !content.includes("**Status**:")) {
+      if (suggestions.status && !content.includes('**Status**:')) {
         const statusLine = `**Status**: ${suggestions.status}`;
         modifiedContent = modifiedContent.replace(
           /(\*\*Patch ID\*\*.*?\n)/,
           `$1${statusLine}\n`,
         );
-        appliedChanges.push("status");
+        appliedChanges.push('status');
         hasChanges = true;
       }
 
       // Apply timestamp if suggested
-      if (suggestions.timestamp && !content.includes("**Date**:")) {
+      if (suggestions.timestamp && !content.includes('**Date**:')) {
         const dateLine = `**Date**: ${suggestions.timestamp}`;
         modifiedContent = modifiedContent.replace(
           /(\*\*Patch ID\*\*.*?\n)/,
           `$1${dateLine}\n`,
         );
-        appliedChanges.push("timestamp");
+        appliedChanges.push('timestamp');
         hasChanges = true;
       }
 
       // Apply target if suggested
-      if (suggestions.target && !content.includes("**Target**:")) {
+      if (suggestions.target && !content.includes('**Target**:')) {
         const targetLine = `**Target**: ${suggestions.target}`;
         modifiedContent = modifiedContent.replace(
           /(\*\*Status\*\*.*?\n)/,
           `$1${targetLine}\n`,
         );
-        appliedChanges.push("target");
+        appliedChanges.push('target');
         hasChanges = true;
       }
 
       // Apply goal if suggested
-      if (suggestions.goal && !content.includes("## 🎯 Goal Achieved")) {
+      if (suggestions.goal && !content.includes('## 🎯 Goal Achieved')) {
         const goalSection = `\n## 🎯 Goal Achieved\n${suggestions.goal}\n`;
         modifiedContent = modifiedContent.replace(
           /(## 🔧 Mission Accomplished)/,
           `${goalSection}$1`,
         );
-        appliedChanges.push("goal");
+        appliedChanges.push('goal');
         hasChanges = true;
       }
 
       // Apply mission if suggested
       if (
         suggestions.mission &&
-        !content.includes("## 🔧 Mission Accomplished")
+        !content.includes('## 🔧 Mission Accomplished')
       ) {
         const missionSection = `\n## 🔧 Mission Accomplished\n${suggestions.mission}\n`;
         modifiedContent = modifiedContent.replace(
           /(## ✅ Validation Results)/,
           `${missionSection}$1`,
         );
-        appliedChanges.push("mission");
+        appliedChanges.push('mission');
         hasChanges = true;
       }
 
       // Apply trace fields if suggested
       if (
         suggestions.traceFields.length > 0 &&
-        !content.includes("**Ghost Status**:")
+        !content.includes('**Ghost Status**:')
       ) {
-        const traceSection = `\n## 👻 Ghost Integration\n${suggestions.traceFields.join("\n")}\n`;
+        const traceSection = `\n## 👻 Ghost Integration\n${suggestions.traceFields.join('\n')}\n`;
         modifiedContent = modifiedContent.replace(
           /(## ✅ Validation Results)/,
           `${traceSection}$1`,
         );
-        appliedChanges.push("traceFields");
+        appliedChanges.push('traceFields');
         hasChanges = true;
       }
 
       // Apply validation results if suggested
       if (
         suggestions.validationResults &&
-        !content.includes("## ✅ Validation Results")
+        !content.includes('## ✅ Validation Results')
       ) {
         const validationSection = `\n## ✅ Validation Results\n${suggestions.validationResults}\n`;
         modifiedContent = modifiedContent.replace(
           /(## 🔄 Technical Implementation)/,
           `${validationSection}$1`,
         );
-        appliedChanges.push("validationResults");
+        appliedChanges.push('validationResults');
         hasChanges = true;
       }
 
       // Apply technical implementation if suggested
       if (
         suggestions.technicalImplementation &&
-        !content.includes("## 🔄 Technical Implementation")
+        !content.includes('## 🔄 Technical Implementation')
       ) {
         const implementationSection = `\n## 🔄 Technical Implementation\n${suggestions.technicalImplementation}\n`;
         modifiedContent = modifiedContent.replace(
           /(## 🎯 Impact Assessment)/,
           `${implementationSection}$1`,
         );
-        appliedChanges.push("technicalImplementation");
+        appliedChanges.push('technicalImplementation');
         hasChanges = true;
       }
 
       // Apply impact assessment if suggested
       if (
         suggestions.impactAssessment &&
-        !content.includes("## 🎯 Impact Assessment")
+        !content.includes('## 🎯 Impact Assessment')
       ) {
         const impactSection = `\n## 🎯 Impact Assessment\n${suggestions.impactAssessment}\n`;
         modifiedContent = modifiedContent.replace(
           /(## 🚀 Next Steps)/,
           `${impactSection}$1`,
         );
-        appliedChanges.push("impactAssessment");
+        appliedChanges.push('impactAssessment');
         hasChanges = true;
       }
 
       // Apply next steps if suggested
-      if (suggestions.nextSteps && !content.includes("## 🚀 Next Steps")) {
+      if (suggestions.nextSteps && !content.includes('## 🚀 Next Steps')) {
         const nextStepsSection = `\n## 🚀 Next Steps\n${suggestions.nextSteps}\n`;
         modifiedContent = modifiedContent.replace(
           /(## ✅ Resolution Complete)/,
           `${nextStepsSection}$1`,
         );
-        appliedChanges.push("nextSteps");
+        appliedChanges.push('nextSteps');
         hasChanges = true;
       }
 
       // Write modified content if changes were made
       if (hasChanges) {
-        fs.writeFileSync(filePath, modifiedContent, "utf8");
+        fs.writeFileSync(filePath, modifiedContent, 'utf8');
         console.log(
-          `✅ [AUTOFILL] Applied autofill to ${path.basename(filePath)}: ${appliedChanges.join(", ")}`,
+          `✅ [AUTOFILL] Applied autofill to ${path.basename(filePath)}: ${appliedChanges.join(', ')}`,
         );
       }
 
@@ -448,7 +449,7 @@ class PostSummaryAutofill {
         changes: appliedChanges,
         filePath,
       };
-    } catch (_error) {
+    } catch (error) {
       return {
         applied: false,
         error: error.message,
@@ -459,7 +460,7 @@ class PostSummaryAutofill {
 
   // Process all summary files for autofill
   async processAllSummaries() {
-    console.log("🔧 [AUTOFILL] Starting comprehensive summary autofill...");
+    console.log('🔧 [AUTOFILL] Starting comprehensive summary autofill...');
 
     this.autofillResults = {
       processed: 0,
@@ -481,8 +482,8 @@ class PostSummaryAutofill {
 
         const files = fs
           .readdirSync(summaryDir)
-          .filter((file) => file.endsWith(".md"))
-          .filter((file) => file.startsWith("summary-"));
+          .filter((file) => file.endsWith('.md'))
+          .filter((file) => file.startsWith('summary-'));
 
         console.log(
           `📁 [AUTOFILL] Processing ${files.length} summaries in ${path.basename(summaryDir)}`,
@@ -508,13 +509,13 @@ class PostSummaryAutofill {
             error: result.autofillResult.error,
           });
         }
-      } catch (_error) {
+      } catch (error) {
         console.error(
           `❌ [AUTOFILL] Error processing directory ${summaryDir}:`,
           error.message,
         );
         this.log(
-          "AUTOFILL_ERROR",
+          'AUTOFILL_ERROR',
           `Directory processing failed: ${error.message}`,
         );
       }
@@ -532,12 +533,12 @@ class PostSummaryAutofill {
   // Generate autofill report
   generateReport() {
     if (!this.lastAutofill) {
-      return "No autofill data available";
+      return 'No autofill data available';
     }
 
     const { summary, results } = this.lastAutofill;
 
-    let report = "# Post Summary Autofill Report\n\n";
+    let report = '# Post Summary Autofill Report\n\n';
     report += `**Generated**: ${new Date().toLocaleString()}\n`;
     report += `**Total Files**: ${summary.processed}\n`;
     report += `**Autofilled**: ${summary.autofilled}\n`;
@@ -546,43 +547,43 @@ class PostSummaryAutofill {
 
     // Summary of autofilled files
     if (summary.autofilled > 0) {
-      report += "## Autofilled Files\n\n";
+      report += '## Autofilled Files\n\n';
       summary.details
         .filter((detail) => detail.applied)
         .forEach((detail) => {
-          report += `- **${detail.file}**: ${detail.changes.join(", ")}\n`;
+          report += `- **${detail.file}**: ${detail.changes.join(', ')}\n`;
         });
-      report += "\n";
+      report += '\n';
     }
 
     // Summary of errors
     if (summary.errors > 0) {
-      report += "## Errors\n\n";
+      report += '## Errors\n\n';
       summary.details
         .filter((detail) => detail.error)
         .forEach((detail) => {
           report += `- **${detail.file}**: ${detail.error}\n`;
         });
-      report += "\n";
+      report += '\n';
     }
 
     // Detailed results
-    report += "## Detailed Results\n\n";
+    report += '## Detailed Results\n\n';
     results.forEach((result) => {
       const status = result.autofillResult.applied
-        ? "✅"
+        ? '✅'
         : result.autofillResult.error
-          ? "❌"
-          : "⏭️";
+          ? '❌'
+          : '⏭️';
       report += `### ${status} ${result.file}\n`;
-      report += `- **Applied**: ${result.autofillResult.applied ? "Yes" : "No"}\n`;
+      report += `- **Applied**: ${result.autofillResult.applied ? 'Yes' : 'No'}\n`;
       if (result.autofillResult.changes) {
-        report += `- **Changes**: ${result.autofillResult.changes.join(", ")}\n`;
+        report += `- **Changes**: ${result.autofillResult.changes.join(', ')}\n`;
       }
       if (result.autofillResult.error) {
         report += `- **Error**: ${result.autofillResult.error}\n`;
       }
-      report += "\n";
+      report += '\n';
     });
 
     return report;
@@ -594,13 +595,13 @@ class PostSummaryAutofill {
       const timestamp = new Date().toISOString();
       const logEntry = `[${timestamp}] [${level}] ${message}\n`;
       fs.appendFileSync(CONFIG.LOG_FILE, logEntry);
-    } catch (_error) {
-      console.error("❌ [AUTOFILL] Failed to write to log:", error.message);
+    } catch (error) {
+      console.error('❌ [AUTOFILL] Failed to write to log:', error.message);
     }
   }
 
   // Export autofill results
-  exportResults(format = "json") {
+  exportResults(format = 'json') {
     if (!this.lastAutofill) {
       return null;
     }
@@ -608,31 +609,31 @@ class PostSummaryAutofill {
     const exportPath = `/Users/sawyer/gitSync/gpt-cursor-runner/logs/autofill-results-${Date.now()}.${format}`;
 
     try {
-      if (format === "json") {
+      if (format === 'json') {
         fs.writeFileSync(
           exportPath,
           JSON.stringify(this.lastAutofill, null, 2),
         );
-      } else if (format === "md") {
+      } else if (format === 'md') {
         fs.writeFileSync(exportPath, this.generateReport());
       }
 
       console.log(`📄 [AUTOFILL] Results exported to: ${exportPath}`);
       return exportPath;
-    } catch (_error) {
-      console.error("❌ [AUTOFILL] Export failed:", error.message);
+    } catch (error) {
+      console.error('❌ [AUTOFILL] Export failed:', error.message);
       return null;
     }
   }
 
   // Run complete autofill cycle
   async runAutofill() {
-    console.log("🚀 [AUTOFILL] Starting autofill cycle...");
+    console.log('🚀 [AUTOFILL] Starting autofill cycle...');
 
     await this.initialize();
     const results = await this.processAllSummaries();
 
-    console.log("📊 [AUTOFILL] Autofill complete:");
+    console.log('📊 [AUTOFILL] Autofill complete:');
     console.log(`   Total: ${results.summary.processed}`);
     console.log(`   Autofilled: ${results.summary.autofilled}`);
     console.log(`   Errors: ${results.summary.errors}`);
@@ -641,12 +642,12 @@ class PostSummaryAutofill {
     );
 
     // Export results
-    this.exportResults("json");
-    this.exportResults("md");
+    this.exportResults('json');
+    this.exportResults('md');
 
     // Log completion
     this.log(
-      "AUTOFILL_COMPLETE",
+      'AUTOFILL_COMPLETE',
       `Processed ${results.summary.processed} files, ${results.summary.autofilled} autofilled, ${results.summary.errors} errors`,
     );
 
@@ -658,23 +659,23 @@ class PostSummaryAutofill {
 if (require.main === module) {
   const autofill = new PostSummaryAutofill();
 
-  const command = process.argv[2] || "autofill";
+  const command = process.argv[2] || 'autofill';
 
   switch (command) {
-    case "autofill":
+    case 'autofill':
       autofill
         .runAutofill()
         .then(() => {
-          console.log("✅ [AUTOFILL] Autofill cycle completed");
+          console.log('✅ [AUTOFILL] Autofill cycle completed');
           process.exit(0);
         })
         .catch((error) => {
-          console.error("❌ [AUTOFILL] Autofill failed:", error.message);
+          console.error('❌ [AUTOFILL] Autofill failed:', error.message);
           process.exit(1);
         });
       break;
 
-    case "report":
+    case 'report':
       autofill
         .runAutofill()
         .then(() => {
@@ -683,15 +684,15 @@ if (require.main === module) {
         })
         .catch((error) => {
           console.error(
-            "❌ [AUTOFILL] Report generation failed:",
+            '❌ [AUTOFILL] Report generation failed: ',
             error.message,
           );
           process.exit(1);
         });
       break;
 
-    case "export":
-      const format = process.argv[3] || "json";
+    case 'export':
+      const format = process.argv[3] || 'json';
       autofill
         .runAutofill()
         .then(() => {
@@ -702,18 +703,18 @@ if (require.main === module) {
           process.exit(0);
         })
         .catch((error) => {
-          console.error("❌ [AUTOFILL] Export failed:", error.message);
+          console.error('❌ [AUTOFILL] Export failed:', error.message);
           process.exit(1);
         });
       break;
 
     default:
       console.log(
-        "Usage: node postSummaryAutofill.js [autofill|report|export] [format]",
+        'Usage: node postSummaryAutofill.js [autofill|report|export] [format]',
       );
-      console.log("  autofill - Run full autofill cycle");
-      console.log("  report   - Generate and display autofill report");
-      console.log("  export   - Export results (json|md)");
+      console.log('  autofill - Run full autofill cycle');
+      console.log('  report   - Generate and display autofill report');
+      console.log('  export   - Export results (json|md)');
       process.exit(0);
   }
 }

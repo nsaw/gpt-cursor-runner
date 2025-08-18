@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const { execSync } = require("child_process");
+const fs = require('fs');
+const { execSync } = require('child_process');
 
-console.log("🔧 Fixing ALL remaining TypeScript errors...");
+console.log('🔧 Fixing ALL remaining TypeScript errors...');
 
 // Function to fix logEvent argument issues comprehensively
 function fixLogEventArguments(content) {
   // Fix all logEvent calls that are missing severity parameters
-  // Pattern: this.logEvent('event', 'message') -> this.logEvent('event', 'message', 'info')
+  // Pattern: this.logEvent('event', 'message') -> this.logEvent('event', 'message', 'info');
 
   // Add severity parameter to all logEvent calls with 2 arguments
   content = content.replace(
     /this\.logEvent\s*\(\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
     (match, eventType, message) => {
       // Determine appropriate severity based on event type
-      let severity = "info";
-      if (eventType.includes("error")) severity = "error";
-      else if (eventType.includes("warning")) severity = "warning";
-      else if (eventType.includes("critical")) severity = "critical";
+      let severity = 'info';
+      if (eventType.includes('error')) severity = 'error';
+      else if (eventType.includes('warning')) severity = 'warning';
+      else if (eventType.includes('critical')) severity = 'critical';
 
       return `this.logEvent('${eventType}', '${message}', '${severity}')`;
     },
@@ -29,7 +29,7 @@ function fixLogEventArguments(content) {
     /this\.logEvent\s*\(\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
     (match, eventType, message, severity) => {
       // Keep only the first two arguments for logEvent calls that expect 1-2 args
-      if (["config_error", "state_error"].includes(eventType)) {
+      if (['config_error', 'state_error'].includes(eventType)) {
         return `this.logEvent('${eventType}', '${message}')`;
       }
       return match;
@@ -54,7 +54,7 @@ function fixImportPaths(content) {
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
     (match, importPath) => {
-      return match.replace(".ts", "");
+      return match.replace('.ts', '');
     },
   );
 
@@ -62,7 +62,7 @@ function fixImportPaths(content) {
   content = content.replace(
     /await import\s*\(\s*['"]([^'"]+)\.ts['"]\s*\)/g,
     (match, importPath) => {
-      return match.replace(".ts", "");
+      return match.replace('.ts', '');
     },
   );
 
@@ -74,15 +74,15 @@ function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments
   content = content.replace(
     /health\s*=\s*['"]unknown['"]/g,
-    'health = "unhealthy"',
+    "health = 'unhealthy'",
   );
   content = content.replace(
     /overall\s*=\s*['"]unknown['"]/g,
-    'overall = "unhealthy"',
+    "overall = 'unhealthy'",
   );
 
   // Fix invalid severity values
-  content = content.replace(/['"]orchestrator['"]/g, '"info"');
+  content = content.replace(/['"]orchestrator['"]/g, "'info'");
 
   return content;
 }
@@ -93,7 +93,7 @@ function fixErrorVariables(content) {
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
     (match, body) => {
-      return match.replace("_error", "error");
+      return match.replace('_error', 'error');
     },
   );
 
@@ -103,7 +103,7 @@ function fixErrorVariables(content) {
 // Function to process a single file
 function processFile(filePath) {
   try {
-    let content = fs.readFileSync(filePath, "utf8");
+    let content = fs.readFileSync(filePath, 'utf8');
     const originalContent = content;
 
     // Apply all fixes
@@ -114,7 +114,7 @@ function processFile(filePath) {
 
     // Write back if changed
     if (content !== originalContent) {
-      fs.writeFileSync(filePath, content, "utf8");
+      fs.writeFileSync(filePath, content, 'utf8');
       console.log(`✅ Fixed: ${filePath}`);
       return true;
     }
@@ -129,12 +129,12 @@ function processFile(filePath) {
 // Main execution
 function main() {
   const targetFiles = [
-    "src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts",
-    "src-nextgen/ghost/telemetry/ghostLoopAuditor.ts",
-    "src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts",
-    "src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryApi.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts",
+    'src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts',
+    'src-nextgen/ghost/telemetry/ghostLoopAuditor.ts',
+    'src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts',
+    'src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryApi.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts',
   ];
 
   let fixedCount = 0;
@@ -153,23 +153,23 @@ function main() {
 
   // Run TypeScript check to see remaining errors
   try {
-    console.log("\n🔍 Running TypeScript check...");
-    const result = execSync("npx tsc --noEmit 2>&1", { encoding: "utf8" });
+    console.log('\n🔍 Running TypeScript check...');
+    const result = execSync('npx tsc --noEmit 2>&1', { encoding: 'utf8' });
     const errorCount = (result.match(/error TS/g) || []).length;
     console.log(`📊 Remaining TypeScript errors: ${errorCount}`);
 
     if (errorCount > 0) {
-      console.log("\n📋 First 10 errors:");
+      console.log('\n📋 First 10 errors:');
       const lines = result
-        .split("\n")
-        .filter((line) => line.includes("error TS"))
+        .split('\n')
+        .filter((line) => line.includes('error TS'))
         .slice(0, 10);
       lines.forEach((line) => console.log(line));
     } else {
-      console.log("🎉 ZERO TypeScript errors achieved!");
+      console.log('🎉 ZERO TypeScript errors achieved!');
     }
   } catch (error) {
-    console.log("✅ No TypeScript errors found!");
+    console.log('✅ No TypeScript errors found!');
   }
 }
 

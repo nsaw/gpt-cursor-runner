@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 
-const _fs = require("fs");
-const { _execSync } = require("child_process");
+const fs = require('fs');
+const { execSync } = require('child_process');
 
-console.log("🔧 Fixing remaining TypeScript errors...");
+console.log('🔧 Fixing remaining TypeScript errors...');
 
 // Function to fix catch block variable name mismatches
-function fixCatchVariableMismatches(_content) {
+function fixCatchVariableMismatches(content) {
   // Fix catch blocks where _err is used but err is referenced
   content = content.replace(
     /catch\s*\(\s*_err\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (_match, _body) => {
-      return match.replace("_err", "err");
+    (match, body) => {
+      return match.replace('_err', 'err');
     },
   );
 
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (_match, _body) => {
-      return match.replace("_error", "error");
+    (match, body) => {
+      return match.replace('_error', 'error');
     },
   );
 
@@ -27,12 +27,12 @@ function fixCatchVariableMismatches(_content) {
 }
 
 // Function to fix undefined variable references
-function fixUndefinedVariables(_content) {
+function fixUndefinedVariables(content) {
   // Fix undefined 'e' references
   content = content.replace(
     /console\.(warn|error|log)\s*\(\s*[^)]*e[^)]*\)\s*;?\s*$/gm,
-    (_match) => {
-      return match.replace(/e(?=[^a-zA-Z]|$)/g, "error");
+    (match) => {
+      return match.replace(/e(?=[^a-zA-Z]|$)/g, 'error');
     },
   );
 
@@ -40,20 +40,20 @@ function fixUndefinedVariables(_content) {
 }
 
 // Function to fix logEvent argument issues
-function fixLogEventArguments(_content) {
+function fixLogEventArguments(content) {
   // Remove third argument from logEvent calls that expect only 2
   content = content.replace(
     /this\.logEvent\s*\(\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*['"](info|error|warn|debug)['"]\s*\)/g,
-    (_match) => {
-      return match.replace(/,\s*['"](info|error|warn|debug)['"]/, "");
+    (match) => {
+      return match.replace(/,\s*['"](info|error|warn|debug)['"]/, '');
     },
   );
 
   // Fix logEvent calls with object arguments
   content = content.replace(
     /this\.logEvent\s*\(\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*\{([^}]+)\}\s*\)/g,
-    (_match, _objContent) => {
-      return match.replace(/,\s*\{[^}]+\}/, "");
+    (match, objContent) => {
+      return match.replace(/,\s*\{[^}]+\}/, '');
     },
   );
 
@@ -61,12 +61,12 @@ function fixLogEventArguments(_content) {
 }
 
 // Function to fix import path extensions
-function fixImportExtensions(_content) {
+function fixImportExtensions(content) {
   // Remove .ts extensions from import statements
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
-    (_match) => {
-      return match.replace(".ts", "");
+    (match) => {
+      return match.replace('.ts', '');
     },
   );
 
@@ -74,59 +74,59 @@ function fixImportExtensions(_content) {
 }
 
 // Function to fix type mismatches
-function fixTypeMismatches(_content) {
+function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments
   content = content.replace(
     /health:\s*['"]unknown['"]/g,
-    'health: "unhealthy"',
+    "health: 'unhealthy'",
   );
   content = content.replace(
     /overall:\s*['"]unknown['"]/g,
-    'overall: "unhealthy"',
+    "overall: 'unhealthy'",
   );
 
   return content;
 }
 
 // Function to fix error type issues
-function fixErrorTypeIssues(_content) {
+function fixErrorTypeIssues(content) {
   // Fix error.message access on unknown type
   content = content.replace(
     /error\.message/g,
-    "error instanceof Error ? error.message : String(error)",
+    'error instanceof Error ? error.message : String(error)',
   );
 
   return content;
 }
 
 // Function to fix React/JSX issues
-function fixReactIssues(_content) {
+function fixReactIssues(content) {
   // Add React import if missing
-  if (content.includes("JSX.Element") && !content.includes("import React")) {
-    content = content.replace(/import\s+.*from\s+['"]react['"];?\s*\n?/, "");
-    content = `import { _{ _React } } from 'react';\n${content}`;
+  if (content.includes('JSX.Element') && !content.includes('import React')) {
+    content = content.replace(/import\s+.*from\s+['"]react['"];?\s*\n?/, '');
+    content = `import React from 'react';\n${content}`;
   }
 
   // Fix JSX namespace
-  content = content.replace(/JSX\.Element/g, "React.JSX.Element");
+  content = content.replace(/JSX\.Element/g, 'React.JSX.Element');
 
   return content;
 }
 
 // Function to fix missing error variables in catch blocks
-function fixMissingErrorVariables(_content) {
+function fixMissingErrorVariables(content) {
   // Find catch blocks that reference 'err' but don't declare it
   content = content.replace(
     /catch\s*\(\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (_match, _body) => {
-      return match.replace("catch ()", "catch (err)");
+    (match, body) => {
+      return match.replace('catch ()', 'catch (err)');
     },
   );
 
   content = content.replace(
     /catch\s*\(\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (_match, _body) => {
-      return match.replace("catch ()", "catch (error)");
+    (match, body) => {
+      return match.replace('catch ()', 'catch (error)');
     },
   );
 
@@ -134,43 +134,43 @@ function fixMissingErrorVariables(_content) {
 }
 
 // Function to fix undefined variable usage
-function fixUndefinedVariableUsage(_content) {
+function fixUndefinedVariableUsage(content) {
   // Fix apiReq possibly undefined issues
-  content = content.replace(/apiReq\.([a-zA-Z]+)/g, "apiReq?.$1");
+  content = content.replace(/apiReq\.([a-zA-Z]+)/g, 'apiReq?.$1');
 
   return content;
 }
 
 // Main function to process specific files with known issues
 function processSpecificFiles() {
-  const _filesToFix = [
-    "src-nextgen/ghost/config/centralizedEnvironmentConfig.ts",
-    "src-nextgen/ghost/dashboard/ghostDashboardUI.tsx",
-    "src-nextgen/ghost/middleware/authCheck.ts",
-    "src-nextgen/ghost/relay/ghostGptRelayCore.ts",
-    "src-nextgen/ghost/shell/diffMonitor.ts",
-    "src-nextgen/ghost/shell/executor.ts",
-    "src-nextgen/ghost/shell/phase5CompletionValidator.ts",
-    "src-nextgen/ghost/telemetry/ghostAlertEngine.ts",
-    "src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts",
-    "src-nextgen/ghost/telemetry/ghostLoopAuditor.ts",
-    "src-nextgen/ghost/telemetry/ghostMetricsAggregator.ts",
-    "src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts",
-    "src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryApi.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryDashboard.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts",
-    "src-nextgen/lib/slotRouter.tsx",
-    "src-nextgen/navigation/HomeScreen.tsx",
+  const filesToFix = [
+    'src-nextgen/ghost/config/centralizedEnvironmentConfig.ts',
+    'src-nextgen/ghost/dashboard/ghostDashboardUI.tsx',
+    'src-nextgen/ghost/middleware/authCheck.ts',
+    'src-nextgen/ghost/relay/ghostGptRelayCore.ts',
+    'src-nextgen/ghost/shell/diffMonitor.ts',
+    'src-nextgen/ghost/shell/executor.ts',
+    'src-nextgen/ghost/shell/phase5CompletionValidator.ts',
+    'src-nextgen/ghost/telemetry/ghostAlertEngine.ts',
+    'src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts',
+    'src-nextgen/ghost/telemetry/ghostLoopAuditor.ts',
+    'src-nextgen/ghost/telemetry/ghostMetricsAggregator.ts',
+    'src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts',
+    'src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryApi.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryDashboard.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts',
+    'src-nextgen/lib/slotRouter.tsx',
+    'src-nextgen/navigation/HomeScreen.tsx',
   ];
 
-  const _fixedFiles = 0;
+  let fixedFiles = 0;
 
   for (const filePath of filesToFix) {
     try {
       if (fs.existsSync(filePath)) {
-        const _content = fs.readFileSync(filePath, "utf8");
-        const _originalContent = content;
+        let content = fs.readFileSync(filePath, 'utf8');
+        const originalContent = content;
 
         // Apply all fixes
         content = fixCatchVariableMismatches(content);
@@ -185,12 +185,12 @@ function processSpecificFiles() {
 
         // Write back if content changed
         if (content !== originalContent) {
-          fs.writeFileSync(filePath, content, "utf8");
+          fs.writeFileSync(filePath, content, 'utf8');
           fixedFiles++;
           console.log(`✅ Fixed: ${filePath}`);
         }
       }
-    } catch (_error) {
+    } catch (error) {
       console.error(`❌ Error processing ${filePath}:`, error.message);
     }
   }
@@ -200,15 +200,15 @@ function processSpecificFiles() {
 }
 
 // Run the fixes
-const _fixedCount = processSpecificFiles();
+const fixedCount = processSpecificFiles();
 
 // Run TypeScript check to see remaining errors
-console.log("\n🔍 Running TypeScript check...");
+console.log('\n🔍 Running TypeScript check...');
 try {
-  execSync("npx tsc --noEmit", { stdio: "inherit" });
-  console.log("✅ TypeScript compilation successful!");
-} catch (_error) {
-  console.log("⚠️ Some TypeScript errors may remain. Check the output above.");
+  execSync('npx tsc --noEmit', { stdio: 'inherit' });
+  console.log('✅ TypeScript compilation successful!');
+} catch (error) {
+  console.log('⚠️ Some TypeScript errors may remain. Check the output above.');
 }
 
 console.log(`\n📊 Summary: Fixed ${fixedCount} files`);

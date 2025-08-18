@@ -1,0 +1,8 @@
+{
+  "target": "/Users/sawyer/gitSync/_GPTsync/public/monitor.html",
+  "edits": [
+    {"ensureHeadMeta": {"httpEquiv": "Cache-Control", "content": "no-store, no-cache, must-revalidate, max-age=0"}},
+    {"ensureHeadMeta": {"httpEquiv": "Pragma", "content": "no-cache"}},
+    {"ensureHeadMeta": {"httpEquiv": "Expires", "content": "0"}}
+  ]
+}

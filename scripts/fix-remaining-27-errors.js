@@ -1,34 +1,34 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const { execSync } = require("child_process");
+const fs = require('fs');
+const { execSync } = require('child_process');
 
-console.log("🔧 Fixing remaining 27 TypeScript errors...");
+console.log('🔧 Fixing remaining 27 TypeScript errors...');
 
 // Function to fix all remaining logEvent issues
 function fixRemainingLogEventIssues(content) {
   // Fix logEvent calls with missing severity parameters
   content = content.replace(
     /this\.logEvent\s*\(\s*['"]system_startup['"],\s*['"]info['"]\s*\)/g,
-    "this.logEvent('system_startup', 'System started', 'info')",
+    'this.logEvent(\'system_startup\', \'System started\', \'info\')',
   );
 
   // Fix component_error calls with valid event types for each file
   content = content.replace(
     /this\.logEvent\s*\(\s*['"]component_error['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-    "this.logEvent('error', 'Component error detected', '$2')",
+    'this.logEvent(\'error\', \'Component error detected\', \'$2\')',
   );
 
   // Fix logEvent calls with too many arguments for specific APIs
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](config_error|state_error)['"],\s*([^,]+),\s*['"]([^'"]+)['"]\s*\)/g,
-    "this.logEvent('$1', $2)",
+    'this.logEvent(\'$1\', $2)',
   );
 
   // Fix logEvent calls with invalid event types in orchestrator
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](config_error|state_error|dashboard_error|monitoring_error|system_error)['"],\s*([^,]+),\s*['"]([^'"]+)['"]\s*\)/g,
-    "this.logEvent('component_error', $2, '$3')",
+    'this.logEvent(\'component_error\', $2, \'$3\')',
   );
 
   return content;
@@ -40,7 +40,7 @@ function fixErrorVariableIssues(content) {
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
     (match, body) => {
-      return match.replace("_error", "error");
+      return match.replace('_error', 'error');
     },
   );
 
@@ -49,35 +49,35 @@ function fixErrorVariableIssues(content) {
 
 // Function to fix specific file issues
 function fixFileSpecificIssues(content, filePath) {
-  if (filePath.includes("ghostHeartbeatVisualizer.ts")) {
+  if (filePath.includes('ghostHeartbeatVisualizer.ts')) {
     // Fix specific issues for heartbeat visualizer
     content = content.replace(
       /this\.logEvent\s*\(\s*['"]component_error['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-      "this.logEvent('error', 'Component error detected', '$2')",
+      'this.logEvent(\'error\', \'Component error detected\', \'$2\')',
     );
   }
 
-  if (filePath.includes("ghostLoopAuditor.ts")) {
+  if (filePath.includes('ghostLoopAuditor.ts')) {
     // Fix specific issues for loop auditor
     content = content.replace(
       /this\.logEvent\s*\(\s*['"]component_error['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-      "this.logEvent('loop_error', 'Component error detected', '$2')",
+      'this.logEvent(\'loop_error\', \'Component error detected\', \'$2\')',
     );
   }
 
-  if (filePath.includes("ghostRelayTelemetryCore.ts")) {
+  if (filePath.includes('ghostRelayTelemetryCore.ts')) {
     // Fix specific issues for relay telemetry core
     content = content.replace(
       /this\.logEvent\s*\(\s*['"]component_error['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-      "this.logEvent('timeout', 'Component error detected', '$2')",
+      'this.logEvent(\'timeout\', \'Component error detected\', \'$2\')',
     );
   }
 
-  if (filePath.includes("ghostSnapshotDaemon.ts")) {
+  if (filePath.includes('ghostSnapshotDaemon.ts')) {
     // Fix specific issues for snapshot daemon
     content = content.replace(
       /this\.logEvent\s*\(\s*['"]component_error['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-      "this.logEvent('cleanup', 'Component error detected', '$2')",
+      'this.logEvent(\'cleanup\', \'Component error detected\', \'$2\')',
     );
   }
 
@@ -87,7 +87,7 @@ function fixFileSpecificIssues(content, filePath) {
 // Function to process a single file
 function processFile(filePath) {
   try {
-    let content = fs.readFileSync(filePath, "utf8");
+    let content = fs.readFileSync(filePath, 'utf8');
     const originalContent = content;
 
     // Apply fixes
@@ -97,7 +97,7 @@ function processFile(filePath) {
 
     // Write back if changed
     if (content !== originalContent) {
-      fs.writeFileSync(filePath, content, "utf8");
+      fs.writeFileSync(filePath, content, 'utf8');
       console.log(`✅ Fixed: ${filePath}`);
       return true;
     }
@@ -112,12 +112,12 @@ function processFile(filePath) {
 // Main execution
 function main() {
   const targetFiles = [
-    "src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts",
-    "src-nextgen/ghost/telemetry/ghostLoopAuditor.ts",
-    "src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts",
-    "src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryApi.ts",
-    "src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts",
+    'src-nextgen/ghost/telemetry/ghostHeartbeatVisualizer.ts',
+    'src-nextgen/ghost/telemetry/ghostLoopAuditor.ts',
+    'src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts',
+    'src-nextgen/ghost/telemetry/ghostSnapshotDaemon.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryApi.ts',
+    'src-nextgen/ghost/telemetry/ghostTelemetryOrchestrator.ts',
   ];
 
   let fixedCount = 0;
@@ -136,23 +136,23 @@ function main() {
 
   // Run TypeScript check to see remaining errors
   try {
-    console.log("\n🔍 Running TypeScript check...");
-    const result = execSync("npx tsc --noEmit 2>&1", { encoding: "utf8" });
+    console.log('\n🔍 Running TypeScript check...');
+    const result = execSync('npx tsc --noEmit 2>&1', { encoding: 'utf8' });
     const errorCount = (result.match(/error TS/g) || []).length;
     console.log(`📊 Remaining TypeScript errors: ${errorCount}`);
 
     if (errorCount > 0) {
-      console.log("\n📋 First 10 errors:");
+      console.log('\n📋 First 10 errors:');
       const lines = result
-        .split("\n")
-        .filter((line) => line.includes("error TS"))
+        .split('\n')
+        .filter((line) => line.includes('error TS'))
         .slice(0, 10);
       lines.forEach((line) => console.log(line));
     } else {
-      console.log("🎉 ZERO TypeScript errors achieved!");
+      console.log('🎉 ZERO TypeScript errors achieved!');
     }
   } catch (error) {
-    console.log("✅ No TypeScript errors found!");
+    console.log('✅ No TypeScript errors found!');
   }
 }
 

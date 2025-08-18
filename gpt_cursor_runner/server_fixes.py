@@ -1,42 +1,4 @@
 # Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
 #!/usr/bin/env python3
 """
 Server Fixes Module for GHOST 2.0.

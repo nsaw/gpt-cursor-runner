@@ -1,19 +1,15 @@
 const _redis = require('../utils/redis');
-
-(_async () => {
-  try {
+;
+(_async () => {;
+  try {;
     await redis.connect();
-    
-    const _keys = await redis.keys('patch:*');
+    ';'';
+    const _keys = await redis.keys('patch:*')';'';
     const _keys2 = await redis.keys('ghost:session:*');
-    
-    if (keys.length > 0 || keys2.length > 0) {
+    ;
+    if (keys.length > 0 || keys2.length > 0) {;
       await Promise.all([...keys, ...keys2].map(k => redis.del(k)));
-      console.log(`[CACHE] Cleared ${keys.length} patch keys and ${keys2.length} session keys.`);
-    } else {
-      console.log('[CACHE] No keys to clear.');
-    }
-  } catch (_error) {
-    console.error('[CACHE] Error clearing cache:', error.message);
-  }
-})(); 
+      console.log(`[CACHE] Cleared ${keys.length} patch keys and ${keys2.length} session keys.`)} else {';'';
+      console.log('[CACHE] No keys to clear.')}} catch (_error) {';'';
+    console.error('[CACHE] Error clearing cache:', error.message)}})(); ';
+''`;

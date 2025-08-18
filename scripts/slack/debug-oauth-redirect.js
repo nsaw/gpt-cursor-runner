@@ -1,58 +1,56 @@
-#!/usr/bin/env node
+#!/usr/bin/env node;
 
-const express = require("express");
-const path = require("path");
-
-const app = express();
-const PORT = 3001;
-
-// Simple OAuth redirect debug server
-app.get("/", (req, res) => {
-  res.send(`
-    <html>
-      <head><title>OAuth Redirect Debug</title></head>
-      <body>
-        <h1>🔍 OAuth Redirect Debug Server</h1>
-        <p>This server will capture and log all OAuth redirects.</p>
-        <p>Use this URL for testing: <code>http://localhost:${PORT}/slack/oauth/callback</code></p>
-        <p>Add this to your Slack app's redirect URLs for testing.</p>
-      </body>
-    </html>
-  `);
-});
-
-app.get("/slack/oauth/callback", (req, res) => {
+const _express = require('express')';'';
+const path = require('path');
+;
+const _app = express();
+const _PORT = 3001;
+;
+// Simple OAuth redirect debug server';'';
+app.get(_'/', _(req, res) => {;
+  res.send(`;
+    <html>;
+      <head><title>OAuth Redirect Debug</title></head>;
+      <body>;
+        <h1>🔍 OAuth Redirect Debug Server</h1>;
+        <p>This server will capture and log all OAuth redirects.</p>;
+        <p>Use this URL for testing: <code>http://localhost:${PORT}/slack/oauth/callback</code></p>';'';
+        <p>Add this to your Slack app's redirect URLs for testing.</p>;
+      </body>;
+    </html>`;
+  `)});
+';'';
+app.get(_'/slack/oauth/callback', _(req, res) => {;
   const { code, state, error } = req.query;
-
-  console.log("🔍 OAuth Callback Received:");
-  console.log("   URL:", req.url);
-  console.log("   Code:", code ? "Present" : "Missing");
-  console.log("   State:", state || "None");
-  console.log("   Error:", error || "None");
-  console.log("   Headers:", JSON.stringify(req.headers, null, 2));
-
-  res.send(`
-    <html>
-      <head><title>OAuth Debug - Callback Received</title></head>
-      <body>
-        <h1>✅ OAuth Callback Captured!</h1>
-        <p><strong>Code:</strong> ${code ? "Present" : "Missing"}</p>
-        <p><strong>State:</strong> ${state || "None"}</p>
-        <p><strong>Error:</strong> ${error || "None"}</p>
-        <p><strong>Full URL:</strong> ${req.url}</p>
-        <p>Check the server console for detailed logs.</p>
-      </body>
-    </html>
-  `);
-});
-
-app.listen(PORT, () => {
-  console.log(`🔍 OAuth Debug Server running on http://localhost:${PORT}`);
-  console.log(`🔗 Callback URL: http://localhost:${PORT}/slack/oauth/callback`);
-  console.log("");
-  console.log("📋 Instructions:");
-  console.log("1. Add this URL to your Slack app redirect URLs:");
-  console.log(`   http://localhost:${PORT}/slack/oauth/callback`);
-  console.log("2. Test the OAuth flow with this redirect URL");
-  console.log("3. Check the console output for detailed information");
-});
+';'';
+  console.log('🔍 OAuth Callback Received:')';'';
+  console.log('   URL:', req.url)';'';
+  console.log('   Code:', code ? "Present' : 'Missing')';'';
+  console.log('   State:', state || 'None')';'';
+  console.log('   Error:', error || 'None')';'';
+  console.log('   Headers:', JSON.stringify(req.headers, null, 2));
+`;
+  res.send(`;
+    <html>;
+      <head><title>OAuth Debug - Callback Received</title></head>;
+      <body>;
+        <h1>✅ OAuth Callback Captured!</h1>';'';
+        <p><strong>Code:</strong> ${code ? 'Present' : 'Missing'}</p>';'';
+        <p><strong>State:</strong> ${state || 'None'}</p>';'';
+        <p><strong>Error:</strong> ${error || 'None'}</p>;
+        <p><strong>Full URL:</strong> ${req.url}</p>;
+        <p>Check the server console for detailed logs.</p>;
+      </body>;
+    </html>`;
+  `)});
+;
+app.listen(_PORT, _() => {`;
+  console.log(`🔍 OAuth Debug Server running on http://localhost:${PORT}`)`;
+  console.log(`🔗 Callback URL: http://localhost:${PORT}/slack/oauth/callback`)';'';
+  console.log('')';'';
+  console.log('📋 Instructions:')';'';
+  console.log('1. Add this URL to your Slack app redirect URLs:')`;
+  console.log(`   http://localhost:${PORT}/slack/oauth/callback`)';'';
+  console.log('2. Test the OAuth flow with this redirect URL')';''";
+  console.log('3. Check the console output for detailed information")})';
+''"`;

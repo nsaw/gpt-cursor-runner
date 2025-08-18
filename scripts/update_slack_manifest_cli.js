@@ -7,20 +7,20 @@
  * Precondition: Slack CLI installed and authorized. App must be accessible via CLI.
  */
 
-const { _execSync } = require("child_process");
-const _fs = require("fs");
-const _path = require("path");
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
-const _SLACK_APP_ID = process.env.SLACK_APP_ID || "A09469H0C2K";
-// const _SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4'; // Unused variable
+const SLACK_APP_ID = process.env.SLACK_APP_ID || 'A09469H0C2K';
+// const SLACK_CHANNEL = process.env.SLACK_CHANNEL || 'C0955JLTKJ4'; // Unused variable
 
 // Generate improved manifest YAML with essential 25 commands
 function generateManifest() {
   return `display_information:
   name: gpt-cursor-runner
   description: cursor's boss
-  background_color: "#000000"
+  background_color: '#000000'
   long_description: >
     Robots using robots to control robots. This Slack app serves as a command interface
     for a GPT-powered hybrid automation pipeline, controlling Cursor through carefully
@@ -83,7 +83,7 @@ features:
       usage_hint: Check system health
       url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-    
+
     # Patch Management (7 commands)
     - command: /patch-pass
       description: Pass next pending patches with options
@@ -100,14 +100,73 @@ features:
       usage_hint: Preview patch
       url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-    - command: /approve-screenshot
-      description: Approve screenshot-based patches
-      usage_hint: Approve screenshot
+    - command: /patch-approve
+      description: Approve specific patch by ID
+      usage_hint: Approve patch
       url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-    - command: /revert-phase
-      description: Revert to previous phase
-      usage_hint: Revert phase
+    - command: /patch-reject
+      description: Reject specific patch by ID
+      usage_hint: Reject patch
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /patch-status
+      description: Check patch execution status
+      usage_hint: Check patch status
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /patch-rollback
+      description: Rollback to previous patch state
+      usage_hint: Rollback patches
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+
+    # Workflow Control (5 commands)
+    - command: /proceed
+      description: Continue execution after pause
+      usage_hint: Continue execution
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /pause-runner
+      description: Pause runner execution
+      usage_hint: Pause execution
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /again
+      description: Retry last failed operation
+      usage_hint: Retry operation
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /manual-revise
+      description: Enter manual revision mode
+      usage_hint: Manual revision
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /manual-append
+      description: Append to current operation
+      usage_hint: Append operation
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+
+    # System Management (5 commands)
+    - command: /whoami
+      description: Check current user and permissions
+      usage_hint: Check user
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /troubleshoot
+      description: Run system diagnostics
+      usage_hint: Run diagnostics
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /troubleshoot-oversight
+      description: Run oversight diagnostics
+      usage_hint: Oversight diagnostics
+      url: https://runner.thoughtmarks.app/slack/commands
+      should_escape: false
+    - command: /cursor-mode
+      description: Toggle Cursor integration mode
+      usage_hint: Toggle mode
       url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
     - command: /log-phase-status
@@ -115,143 +174,87 @@ features:
       usage_hint: Log status
       url: https://runner.thoughtmarks.app/slack/commands
       should_escape: false
-    - command: /cursor-mode
-      description: Switch Cursor operation modes
-      usage_hint: Switch mode
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Workflow Control (5 commands)
-    - command: /proceed
-      description: passes through "proceed" with option to specify
-      usage_hint: Proceed with options
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /again
-      description: restarts or retry last with optional manual input
-      usage_hint: Retry operation
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /manual-revise
-      description: returns to sender with notes for another attempt
-      usage_hint: Manual revision
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /manual-append
-      description: conditional approval- passes through with notes
-      usage_hint: Manual append
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /interrupt
-      description: stop current operation, pass note, and resume w/ new info
-      usage_hint: Interrupt operations
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Troubleshooting & Diagnostics (3 commands)
-    - command: /troubleshoot
-      description: Triggers GPT to generate a full hybrid diagnostic block
-      usage_hint: Auto diagnostics
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /troubleshoot-oversight
-      description: requires human review after running fix to confirm
-      usage_hint: Oversight mode
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /send-with
-      description: Request reissue of patch from sender with more info
-      usage_hint: Send with context
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    
-    # Information & Alerts (2 commands)
-    - command: /roadmap
-      description: Show project roadmap and milestones
-      usage_hint: View roadmap
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
-    - command: /alert-runner-crash
-      description: Send crash alert notification
-      usage_hint: Alert crash
-      url: https://runner.thoughtmarks.app/slack/commands
-      should_escape: false
 
-oauth_config:
-  redirect_urls:
-    - https://runner.thoughtmarks.app/slack/oauth/callback
-  scopes:
-    bot:
-      - commands
-      - chat:write
-      - users:read
-      - app_mentions:read
-      - incoming-webhook
-      - channels:history
+  interactivity:
+    request_url: https://runner.thoughtmarks.app/slack/interactivity
+    is_enabled: true
 
-settings:
   event_subscriptions:
     request_url: https://runner.thoughtmarks.app/slack/events
     bot_events:
       - app_mention
+      - message.im
       - message.channels
-  interactivity:
-    is_enabled: true
-    request_url: https://runner.thoughtmarks.app/slack/interactions
+      - message.groups
+
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - channels:read
+      - chat:write
+      - commands
+      - groups:history
+      - groups:read
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - mpim:read
+      - mpim:write
+      - users:read
+      - users:read.email
+
+settings:
   org_deploy_enabled: false
   socket_mode_enabled: false
-  token_rotation_enabled: false
-`;
+  token_rotation_enabled: false`;
 }
 
-// Main execution
-async function main() {
+// Update manifest using Slack CLI
+function updateManifest() {
   try {
-    console.log("🚀 Updating Slack app manifest with essential 25 commands...");
-
-    // Generate manifest
-    const _manifest = generateManifest();
-    const _manifestPath = path.join(
-      __dirname,
-      "../config/slack-app-manifest-v2.yaml",
-    );
-
-    // Write manifest file
-    fs.writeFileSync(manifestPath, manifest);
-    console.log(`✅ Manifest written to: ${manifestPath}`);
-
-    // Update app using Slack CLI if available
-    try {
-      console.log("📡 Updating app via Slack CLI...");
-      execSync(`slack apps manifest update --app-id ${SLACK_APP_ID}`, {
-        cwd: path.dirname(manifestPath),
-        stdio: "inherit",
-      });
-      console.log("✅ App updated successfully via Slack CLI");
-    } catch (_error) {
-      console.log(
-        "⚠️ Slack CLI not available or failed, manifest file ready for manual upload",
-      );
-      console.log(
-        `📋 Manual upload URL: https://api.slack.com/apps/${SLACK_APP_ID}/manifest`,
-      );
-    }
-
-    console.log("\n📊 Essential 25 Commands Summary:");
-    console.log("• Core Runner Control: 8 commands");
-    console.log("• Patch Management: 7 commands");
-    console.log("• Workflow Control: 5 commands");
-    console.log("• Troubleshooting & Diagnostics: 3 commands");
-    console.log("• Information & Alerts: 2 commands");
-    console.log("• Total: 25 commands (Slack limit)");
-  } catch (_error) {
-    console.error("❌ Error updating manifest:", error);
-    // process.exit(1); // Removed for ESLint compliance
+    console.log('🔧 Updating Slack app manifest...');
+    
+    const manifest = generateManifest();
+    const manifestPath = path.join(process.cwd(), 'slack-manifest.yaml');
+    
+    // Write manifest to file
+    fs.writeFileSync(manifestPath, manifest, 'utf8');
+    console.log('✅ Manifest written to:', manifestPath);
+    
+    // Update app using Slack CLI
+    const command = `slack apps manifest update --app-id ${SLACK_APP_ID} --manifest-file ${manifestPath}`;
+    console.log('🚀 Executing:', command);
+    
+    const result = execSync(command, { encoding: 'utf8' });
+    console.log('✅ Manifest updated successfully');
+    console.log('📋 Result:', result);
+    
+    // Clean up manifest file
+    fs.unlinkSync(manifestPath);
+    console.log('🧹 Cleaned up temporary manifest file');
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to update manifest:', error.message);
+    return false;
   }
 }
 
+// Main execution
 if (require.main === module) {
-  main();
+  console.log('🚀 Starting Slack manifest update...');
+  const success = updateManifest();
+  
+  if (success) {
+    console.log('✅ Slack manifest update completed successfully');
+    process.exit(0);
+  } else {
+    console.error('❌ Slack manifest update failed');
+    process.exit(1);
+  }
 }
 
-module.exports = { generateManifest, main };
+module.exports = { generateManifest, updateManifest };
