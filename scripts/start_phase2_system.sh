@@ -100,12 +100,7 @@ start_process() {
     # Save PID to JSON file
     if [ -f "$PID_FILE" ]; then
         # Update existing JSON
-        node -e "
-        const fs = require('fs');
-        const pids = JSON.parse(fs.readFileSync('$PID_FILE', 'utf8'));
-        pids['$name'] = { pid: $pid, command: '$command', log_file: '$log_file', started: new Date().toISOString() };
-        fs.writeFileSync('$PID_FILE', JSON.stringify(pids, null, 2));
-        " 2>/dev/null || true
+        node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pid_file_update_once.js "$PID_FILE" "$name" "$pid" "$command" "$log_file" 2>/dev/null || true
     else
         # Create new JSON
         echo "{\"$name\": {\"pid\": $pid, \"command\": \"$command\", \"log_file\": \"$log_file\", \"started\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}}" > "$PID_FILE"
@@ -268,13 +263,7 @@ show_status() {
     
     if [ -f "$PID_FILE" ]; then
         echo "Processes:"
-        node -e "
-        const fs = require('fs');
-        const pids = JSON.parse(fs.readFileSync('$PID_FILE', 'utf8'));
-        Object.entries(pids).forEach(([name, info]) => {
-            console.log(\`  \${name}: PID \${info.pid} (started: \${info.started})\`);
-        });
-        " 2>/dev/null || echo "No PID file found"
+        node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pid_list_once.js "$PID_FILE" 2>/dev/null || echo "No PID file found"
     fi
     
     echo "Port Status:"
@@ -294,18 +283,7 @@ stop_all() {
     
     # Kill processes by PID file
     if [ -f "$PID_FILE" ]; then
-        node -e "
-        const fs = require('fs');
-        const pids = JSON.parse(fs.readFileSync('$PID_FILE', 'utf8'));
-        Object.entries(pids).forEach(([name, info]) => {
-            try {
-                process.kill(info.pid, 'SIGTERM');
-                console.log(\`Stopped \${name} (PID \${info.pid})\`);
-            } catch (e) {
-                console.log(\`Failed to stop \${name}: \${e.message}\`);
-            }
-        });
-        " 2>/dev/null || true
+        node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pid_stop_once.js "$PID_FILE" 2>/dev/null || true
     fi
     
     # Kill processes by pattern
@@ -327,11 +305,7 @@ show_logs() {
     local lines=${2:-50}
     
     if [ -f "$PID_FILE" ]; then
-        local log_file=$(node -e "
-        const fs = require('fs');
-        const pids = JSON.parse(fs.readFileSync('$PID_FILE', 'utf8'));
-        console.log(pids['$component']?.log_file || '');
-        " 2>/dev/null)
+        local log_file=$(node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/log_file_get_once.js "$PID_FILE" "$component" 2>/dev/null)
         
         if [ -n "$log_file" ] && [ -f "$log_file" ]; then
             echo "=== Logs for $component ==="

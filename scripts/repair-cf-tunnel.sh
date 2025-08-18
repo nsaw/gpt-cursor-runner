@@ -26,7 +26,7 @@ fi
 # 2. Check if local service is running, start simple health server if not
 if ! lsof -i :5555 > /dev/null 2>&1; then
   echo "⚠️ Local service not running on port 5555, starting health server..." >> "$LOG_FILE"
-  node -e "const http = require('http'); const server = http.createServer((req, res) => { res.writeHead(200, {'Content-Type': 'application/json'}); res.end(JSON.stringify({status: 'OK', timestamp: new Date().toISOString()})); }); server.listen(5555, () => console.log('Health server on 5555'));" &
+  node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/health_server_once.js &
   sleep 3
   if ! lsof -i :5555 > /dev/null 2>&1; then
     echo "❌ Failed to start health server on port 5555" >> "$LOG_FILE"
