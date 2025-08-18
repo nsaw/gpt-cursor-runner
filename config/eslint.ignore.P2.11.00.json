@@ -1,0 +1,12 @@
+{
+  "patterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.cursor-cache/**",
+    "**/_backups/**",
+    "scripts/ghost/**",
+    "src-nextgen/ghost/**",
+    "legacy/**",
+    "examples/**"
+  ]
+}
