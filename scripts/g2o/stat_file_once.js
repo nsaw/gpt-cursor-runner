@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 
 const fs = require('fs');

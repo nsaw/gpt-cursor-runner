@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
 // lint_extended_orchestrator_once.js — resume-capable (10m default)
 const { spawn } = require('child_process');
 const fs = require('fs');
