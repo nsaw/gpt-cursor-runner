@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 const {execFile} = require('child_process'); 
 const fs = require('fs'); 

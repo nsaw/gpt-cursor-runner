@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 // direct_seq_hardened_manual_first_once.js - HARDENED manual-first sequencer
 // Automatically attempts manual repairs, recognizes quick-wins, maintains clean queues

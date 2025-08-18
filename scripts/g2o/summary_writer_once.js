@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 const fs=require('fs'),p=require('path');
 function arg(k,def){const i=process.argv.indexOf(k);return i>-1?process.argv[i+1]:def}

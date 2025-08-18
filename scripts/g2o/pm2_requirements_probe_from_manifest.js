@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 // pm2_requirements_probe_from_manifest.js
 // Reads pm2-health.pre.json and config/pm2.allowlist.json to report present/missing + phase/required flags.

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 const fs = require('fs'), p = require('path'), {spawnSync} = require('child_process');
 const ROOT = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";

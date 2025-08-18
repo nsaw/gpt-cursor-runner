@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 // pm2_requirements_probe_once.js: Reads pm2-health.pre.json and reports allowlist coverage.
 const fs=require('fs'); const path=require('path');

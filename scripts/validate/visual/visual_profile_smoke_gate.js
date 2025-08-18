@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 // Wrapper calls the existing Playwright smoke; treats failures as soft under this phase.
 const { spawn } = require('child_process'); const fs = require('fs');

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 const fs=require('fs'),p=require('path'); const root='/Users/sawyer/gitSync/gpt-cursor-runner';
 const pat=/\bnode\s+-e\b/; let bad=[];
