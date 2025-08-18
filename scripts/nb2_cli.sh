@@ -18,6 +18,10 @@ case "$cmd" in
     bash scripts/pm2_health_report.sh "v2.0.211.post"
     ;;
   env-compare)    bash scripts/env/env_verify_compare.sh ;;
+  security-scan)  bash scripts/nb2_security_scan.sh ;;
+  ci-validate)    bash scripts/nb2_ci_validate.sh ;;
+  dashboard-probe) node scripts/dashboard_probe_once.js ;;
+  sweep-ports)    bash scripts/ports/sweep_free_once.sh "${@:2}" ;;
   *)
     cat <<EOF
 nb2_cli.sh — NB-2.0 helpers
@@ -30,6 +34,10 @@ nb2_cli.sh — NB-2.0 helpers
   free-port [p] Free TCP port (default 8081)
   preflight     Run NB-2.0 preflight (scan, watchdogs, PM2 pre/post, optional runtime check)
   env-compare   Compare .env against .env.template (structure only)
+  security-scan  Flag risky shell patterns (whitelist via 'NB2-ALLOW')
+  ci-validate    Run tsc/eslint/tests if present (finite)
+  dashboard-probe Probe \$DASHBOARD_URL and write status JSON
+  sweep-ports [p..] Free a list of TCP ports (defaults to 8081)
 EOF
   ;;
 esac
