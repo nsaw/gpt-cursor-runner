@@ -92,8 +92,7 @@ const path = require('path');
   }
 
   function writeReport(results) {
-    const formatter = require('eslint/lib/cli-engine/formatters/json');
-    const formatted = formatter(results);
+    const formatted = JSON.stringify(results, null, 2);
     fs.writeFileSync(OUT_MAIN, formatted);
   }
 
