@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "notes": "Authoritative allowlist for PM2-managed services. Zero-service/nullstate may be acceptable in Phase P2.11.00. Use this file for probe + future watchdogs.",
+  "services": [
+    { "name": "ghost-bridge",                "required": true,  "phase": "P3+", "desc": "Webhook bridge" },
+    { "name": "patch-executor",              "required": true,  "phase": "P3+", "desc": "Patch runner" },
+    { "name": "flask-dashboard",             "required": false, "phase": "P3+", "desc": "Local dashboard" },
+    { "name": "telemetry-orchestrator",      "required": false, "phase": "P3+", "desc": "Telemetry fanout" },
+    { "name": "ghost-relay",                 "required": false, "phase": "P3+", "desc": "Relay/link" },
+    { "name": "summary-monitor",             "required": true,  "phase": "P3+", "desc": "Summary heartbeat" },
+    { "name": "metrics-aggregator-daemon",   "required": false, "phase": "P3+", "desc": "Metrics" },
+    { "name": "alert-engine-daemon",         "required": false, "phase": "P3+", "desc": "Alerts" }
+  ]
+}
