@@ -1,0 +1,29 @@
+{
+  "phase": "P2.11.00",
+  "notes": "Nullstate expected; tolerate non-200 on remote endpoints and absence of UI during infra hardening.",
+  "http": [
+    {
+      "id": "dashboard_api_status",
+      "url": "https://gpt-cursor-runner.thoughtmarks.app/api/status",
+      "accept": [200, 204, 530, 502, 503, 504],
+      "required": false
+    },
+    {
+      "id": "daemon_status",
+      "url": "https://gpt-cursor-runner.thoughtmarks.app/api/daemon-status",
+      "accept": [200, 204, 530, 502, 503, 504],
+      "required": false
+    },
+    {
+      "id": "local_flask_health",
+      "url": "http://localhost:8787/health",
+      "accept": [200, 0, 404, 502, 503],
+      "required": false
+    }
+  ],
+  "visual": {
+    "url": "https://gpt-cursor-runner.thoughtmarks.app/monitor",
+    "required": false,
+    "tolerateNoRender": true
+  }
+}
