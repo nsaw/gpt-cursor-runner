@@ -1,20 +1,71 @@
 #!/usr/bin/env node
-(async function(){
-  const fs=require('fs'), p=require('path');
-  const planPath=process.argv[2];
-  if(!planPath){ console.error("PLAN_ARG_MISSING"); process.exit(2); }
-  const plan=JSON.parse(fs.readFileSync(planPath,'utf8'));
-  const file=plan.target;
-  let html=""; try{ html=fs.readFileSync(file,'utf8'); }catch{ html="<!doctype html><html><head></head><body></body></html>"; }
-  function ensureHeadMeta(doc, httpEquiv, content){
-    if(new RegExp(`<meta\\s+http-equiv=['"]${httpEquiv}['"]`,`i`).test(doc)) return doc;
-    return doc.replace(/<head>/i, `<head>\n<meta http-equiv="${httpEquiv}" content="${content}">`);
-  }
-  let out=html;
-  for(const e of (plan.edits||[])){
-    if(e.ensureHeadMeta){ out=ensureHeadMeta(out, e.ensureHeadMeta.httpEquiv, e.ensureHeadMeta.content); }
-  }
-  fs.mkdirSync(p.dirname(file), {recursive:true});
-  fs.writeFileSync(file, out);
-  console.log("EDIT_OK:"+file);
-})().catch(e=>{ console.error("EDIT_ERR:"+e.message); process.exit(1); });
+
+const fs = require('fs');
+const path = require('path');
+
+function quoteSafeEditOnce(filePath, ensureLines = []) {
+    try {
+        // Ensure directory exists
+        const dir = path.dirname(filePath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // Read existing content or create empty
+        let content = '';
+        if (fs.existsSync(filePath)) {
+            content = fs.readFileSync(filePath, 'utf8');
+        }
+        
+        const lines = content.split('\n');
+        let modified = false;
+        
+        // Ensure each required line exists
+        for (const ensureLine of ensureLines) {
+            if (!lines.includes(ensureLine)) {
+                lines.push(ensureLine);
+                modified = true;
+            }
+        }
+        
+        // Write back if modified
+        if (modified) {
+            fs.writeFileSync(filePath, lines.join('\n'));
+            console.log(`FILE_MODIFIED:${filePath}`);
+        } else {
+            console.log(`FILE_UNCHANGED:${filePath}`);
+        }
+        
+        process.exit(0);
+    } catch (error) {
+        console.error(`EDIT_ERROR:${filePath}:${error.message}`);
+        process.exit(1);
+    }
+}
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+if (args.length < 2) {
+    console.error('Usage: node quote_safe_edit_once.js --file <filepath> --ensure-lines <line1> <line2> ...');
+    process.exit(1);
+}
+
+let filePath = '';
+let ensureLines = [];
+
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--file' && i + 1 < args.length) {
+        filePath = args[i + 1];
+        i++;
+    } else if (args[i] === '--ensure-lines') {
+        ensureLines = args.slice(i + 1);
+        break;
+    }
+}
+
+if (!filePath || ensureLines.length === 0) {
+    console.error('Usage: node quote_safe_edit_once.js --file <filepath> --ensure-lines <line1> <line2> ...');
+    process.exit(1);
+}
+
+quoteSafeEditOnce(filePath, ensureLines);

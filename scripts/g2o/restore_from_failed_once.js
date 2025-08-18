@@ -1,19 +1,43 @@
 #!/usr/bin/env node
-const fs = require('fs'), p = require('path');
-const ROOT = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
-const FAILED = p.join(ROOT,".failed");
-const P1 = p.join(ROOT,"G2o","P1");
-const name = process.argv[2];
-if (!name) { console.log("USAGE: restore_from_failed_once.js <patch-file.json>"); process.exit(2); }
-const src = p.join(FAILED, name);
-const dst = p.join(P1, name.replace(/\.json(\.hold)?$/i, ".json"));
-try {
-  fs.mkdirSync(P1, { recursive: true });
-  if (!fs.existsSync(src)) { console.log("NO_FAILED_SRC"); process.exit(0); }
-  fs.writeFileSync(dst, fs.readFileSync(src));
-  try { fs.unlinkSync(src); } catch {}
-  console.log("RESTORED_TO_P1:"+dst);
-} catch (e) {
-  console.log("RESTORE_ERROR:"+e.message);
-  process.exit(2);
+
+const fs = require('fs');
+const path = require('path');
+
+function restoreFromFailedOnce(patchName) {
+    try {
+        const failedDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.failed';
+        const targetDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/G2o/P1';
+        
+        // Ensure target directory exists
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+        
+        const failedPath = path.join(failedDir, patchName);
+        const targetPath = path.join(targetDir, patchName);
+        
+        // Check if patch exists in failed directory
+        if (!fs.existsSync(failedPath)) {
+            console.log(`PATCH_NOT_IN_FAILED:${patchName}`);
+            process.exit(0); // Not an error if not found
+        }
+        
+        // Copy from failed to target
+        fs.copyFileSync(failedPath, targetPath);
+        
+        console.log(`PATCH_RESTORED:${patchName}`);
+        process.exit(0);
+    } catch (error) {
+        console.error(`RESTORE_ERROR:${error.message}`);
+        process.exit(1);
+    }
 }
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+if (args.length !== 1) {
+    console.error('Usage: node restore_from_failed_once.js <patch-name>');
+    process.exit(1);
+}
+
+restoreFromFailedOnce(args[0]);

@@ -1,24 +1,39 @@
 #!/usr/bin/env node
-const {execFile}=require('child_process');
-const pick = (k,def=[]) => { const a=process.argv.find(x=>x.startsWith(`--${k}=`)); return a? a.split('=')[1].split(',').filter(Boolean) : def; };
-const apps = pick('only',[]);
-const envFile = process.argv.find(x=>x.startsWith('--env='))?.split('=')[1] || '/Users/sawyer/gitSync/.cursor-cache/MAIN/validation/.env.main';
 
-// First update environment if file exists
-if(require('fs').existsSync(envFile)) {
-  execFile('pm2',['reload','all','--update-env'],{},(err)=>{
-    if(err) console.log('PM2_UPDATE_ENV_ERR:',err.message);
-    else console.log('PM2_UPDATE_ENV_OK');
-  });
+const { execSync } = require('child_process');
+
+function restartPm2Services(onlyServices = null) {
+    try {
+        console.log('PM2_RESTART_STARTING');
+        
+        if (onlyServices) {
+            const services = onlyServices.split(',');
+            for (const service of services) {
+                console.log(`RESTARTING_SERVICE:${service}`);
+                execSync(`pm2 restart ${service} --update-env`, { stdio: 'inherit' });
+            }
+        } else {
+            console.log('RESTARTING_ALL_SERVICES');
+            execSync('pm2 restart all --update-env', { stdio: 'inherit' });
+        }
+        
+        console.log('PM2_RESTART_COMPLETE');
+        process.exit(0);
+    } catch (error) {
+        console.error(`PM2_RESTART_ERROR:${error.message}`);
+        process.exit(1);
+    }
 }
 
-// Then restart specific apps if specified
-if(apps.length > 0) {
-  execFile('pm2',['restart',...apps,'--update-env'],{},(err)=>{
-    if(err) console.log('PM2_RESTART_ERR:',err.message);
-    else console.log('PM2_RESTART_OK:',apps.join(','));
-  });
-} else {
-  console.log('PM2_NO_APPS_SPECIFIED');
+// Parse command line arguments
+const args = process.argv.slice(2);
+let onlyServices = null;
+
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--only' && i + 1 < args.length) {
+        onlyServices = args[i + 1];
+        i++;
+    }
 }
-process.exit(0); // non-blocking by design
+
+restartPm2Services(onlyServices);
