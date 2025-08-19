@@ -7,6 +7,7 @@ on:
 jobs:
   playwright-green-state:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -21,3 +22,4 @@ jobs:
         env:
           DASHBOARD_URL: "https://gpt-cursor-runner.thoughtmarks.app/monitor"
         run: yarn test:dashboard
+        # Use locator-based waits; avoid arbitrary sleeps
