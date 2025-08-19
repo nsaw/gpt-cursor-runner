@@ -7,6 +7,82 @@ on:
     branches: [main, develop]
 
 jobs:
+  eslint-fullscope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint fullscope
+        run: |
+          CACHE_ROOT="$HOME/.cache"
+          node scripts/ci/run_eslint_fast_now_once.js 120000 \
+            "$CACHE_ROOT/eslint-report.now.json" \
+            "$CACHE_ROOT/eslint-now.stdout.log" \
+            "$CACHE_ROOT/eslint-now.stderr.log" \
+            "scripts/g2o/**/*.{js,ts,tsx}" "scripts/ci/**/*.{js,ts,tsx}" \
+            "scripts/metrics/**/*.{js,ts,tsx}" "scripts/validate/**/*.{js,ts,tsx}" \
+            "config/**/*.{js,ts,tsx}"
+
+  typescript-noemit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+  inline-node-e-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run inline node-e guard
+        run: node scripts/g2o/inline_node_e_guard.js --paths scripts/g2o,scripts/ci,scripts/metrics,scripts/validate,config --mode fail-on-violation
+
+  shebang-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run shebang guard
+        run: node scripts/ci/shebang_guard_precommit_once.js scripts/ci/*.js scripts/g2o/*.js
+
   validate-dashboard:
     runs-on: ubuntu-latest
     steps:
