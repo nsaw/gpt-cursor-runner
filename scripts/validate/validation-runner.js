@@ -4,7 +4,6 @@ const CommandValidator = require('./command-validator');
 const { exec } = require('child_process');
 const { execShell } = require('../utils/runShell');
 const fs = require('fs').promises;
-const path = require('path');
 
 class ValidationRunner {
   constructor() {
@@ -97,7 +96,7 @@ class ValidationRunner {
     return results;
   }
 
-  async executeCheck(check) {
+  executeCheck(check) {
     return execShell(check.command, { timeout: 10000 })
       .then(({ stdout }) => ({
         name: check.name,
@@ -179,7 +178,7 @@ class ValidationRunner {
         if (content.includes('execSync')) {
           return false;
         }
-      } catch (error) {
+      } catch {
         return false;
       }
     }
@@ -196,14 +195,14 @@ class ValidationRunner {
     for (const file of configFiles) {
       try {
         await fs.access(file);
-      } catch (error) {
+      } catch {
         return false;
       }
     }
     return true;
   }
 
-  async checkMonitoringSystems() {
+  checkMonitoringSystems() {
     // Check if monitoring systems are active
     return new Promise((resolve) => {
       exec('ps aux | grep "monitor" | grep -v grep', (error, stdout) => {
@@ -224,7 +223,7 @@ class ValidationRunner {
     try {
       const content = await fs.readFile('./scripts/patch-executor.js', 'utf8');
       return errorPatterns.some((pattern) => pattern.test(content));
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -266,7 +265,7 @@ class ValidationRunner {
       console.log(
         '❌ Critical issues detected. Please fix blocking patterns before proceeding.',
       );
-      process.exit(1);
+      throw new Error('Validation failed - critical issues detected');
     } else if (this.validationResults.overallStatus === 'WARNING') {
       console.log('⚠️  Warnings detected. Review recommendations.');
     } else {
@@ -304,7 +303,10 @@ class ValidationRunner {
 // CLI interface
 if (require.main === module) {
   const runner = new ValidationRunner();
-  runner.runFullValidation().catch(console.error);
+  runner.runFullValidation().catch((error) => {
+    console.error('Validation failed:', error.message);
+    process.exit(1);
+  });
 }
 
 module.exports = ValidationRunner;

@@ -40,7 +40,9 @@ function orderList() {
       .filter(Boolean);
     const inDir = new Set(order);
     order = lines.filter((l) => l.startsWith('patch-v') && inDir.has(l));
-  } catch {}
+  } catch {
+    // Order file not found or unreadable, continue with directory listing
+  }
   return order;
 }
 
@@ -80,12 +82,16 @@ function execCompat(abs) {
   );
 }
 
-(function main() {
-  while (true) {
+function main() {
+  let iterations = 0;
+  const MAX_ITERATIONS = 1000; // Prevent infinite loops
+  
+  while (iterations < MAX_ITERATIONS) {
+    iterations++;
     const base = candidate();
     if (!base) {
       log('NO_CANDIDATE');
-      process.exit(0);
+      return 0;
     }
     const abs = fs.existsSync(p.join(P1, `${base  }.hold`))
       ? p.join(P1, `${base  }.hold`)
@@ -94,7 +100,7 @@ function execCompat(abs) {
         : null;
     if (!abs) {
       log(`ERR_NO_SOURCE:${  base}`);
-      process.exit(2);
+      return 2;
     }
 
     // 1) SAFE transforms (one pass)
@@ -108,7 +114,9 @@ function execCompat(abs) {
         fs.mkdirSync(COMPLETED, { recursive: true });
         try {
           fs.renameSync(abs, p.join(COMPLETED, base));
-        } catch {}
+        } catch {
+          // File already moved or doesn't exist
+        }
         log(`PASS_SAFE:${base}`);
         continue; /* to next patch */
       }
@@ -137,7 +145,9 @@ function execCompat(abs) {
         fs.mkdirSync(COMPLETED, { recursive: true });
         try {
           fs.renameSync(abs, p.join(COMPLETED, base));
-        } catch {}
+        } catch {
+          // File already moved or doesn't exist
+        }
         log(`PASS_MANUAL:${base}:attempt=${a}`);
         passed = true;
         break;
@@ -161,10 +171,19 @@ function execCompat(abs) {
       };
       try {
         fs.writeFileSync(blocked, JSON.stringify(obj, null, 2));
-      } catch {}
+      } catch {
+        // Could not write blocked file
+      }
       log(`HALT:${base}:agent_manual_repair_exhausted`);
-      process.exit(3);
+      return 3;
     }
     // loop to next candidate
   }
-})();
+  
+  log('MAX_ITERATIONS_REACHED');
+  return 1;
+}
+
+// Execute main function
+const exitCode = main();
+process.exit(exitCode);
