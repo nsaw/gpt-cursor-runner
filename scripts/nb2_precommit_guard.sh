@@ -44,14 +44,16 @@ if (lintable.length === 0) {
     cache: true, 
     fix: false,
     ignorePath: path.join(repoRoot, '.eslintignore'),
-    ignorePattern: [
-      "**/node_modules/**",
-      "**/_gpt5intake/**", 
-      "**/_backups/**",
-      "**/.cursor-cache/**",
-      "**/dist/**",
-      "**/coverage/**"
-    ]
+    overrideConfig: {
+      ignorePatterns: [
+        "**/node_modules/**",
+        "**/_gpt5intake/**", 
+        "**/_backups/**",
+        "**/.cursor-cache/**",
+        "**/dist/**",
+        "**/coverage/**"
+      ]
+    }
   });
   const results = await eslint.lintFiles(lintable);
   const errorCount = results.reduce((a, r) => a + (r.errorCount || 0), 0);
