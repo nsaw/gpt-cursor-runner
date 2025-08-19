@@ -42,6 +42,7 @@
     };
     fs.writeFileSync(OUT, JSON.stringify(stub,null,2)); 
     console.log(JSON.stringify(stub,null,2)); 
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
   
@@ -62,6 +63,7 @@
       warnings += r.warningCount||0; 
     }
     console.log(JSON.stringify({ok: errors===0, counts:{errors,warnings}}, null, 2));
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   } catch (e) {
     const stub = { 
@@ -73,6 +75,7 @@
     };
     fs.writeFileSync(OUT, JSON.stringify(stub,null,2));
     console.log(JSON.stringify(stub,null,2));
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
 })();

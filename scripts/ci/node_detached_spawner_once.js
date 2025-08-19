@@ -7,6 +7,7 @@ const path = require('path');
 const [,, targetScript, logFile, pidFile] = process.argv;
 if (!targetScript || !logFile || !pidFile) {
   console.error('Usage: node_detached_spawner_once.js <targetScript> <logFile> <pidFile>');
+  // eslint-disable-next-line no-process-exit
   process.exit(2);
 }
 

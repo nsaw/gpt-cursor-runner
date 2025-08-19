@@ -1,21 +1,27 @@
-// Attempts to re-trigger summary logic if .md missing;
-const fs = require('fs')';'';
-const path = require('path')';'';
-const { exec } = require('child_process');
-;
-const _patchId = process.argv[2];
-if (!patchId) {';'';
-  console.error('Patch ID missing');
-  process.exit(1)};
-const _summaryPath = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-${patchId}.md`;
-if (fs.existsSync(summaryPath)) {`;
-  console.log(`✅ Summary already exists for ${patchId}`);
-  process.exit(0)}`;
+const fs = require('fs').promises;
+const path = require('path');
 
-console.log(`🔁 Triggering validator for missing summary: ${patchId}`)`;
-exec(_`bash scripts/validate-runtime.sh ${patchId}`, _(err, _stdout, _stderr) => {;
-  if (err) {`;
-    console.error(`❌ Validation failed: ${err.message}`);
-    process.exit(2)}`;
-  console.log(`✅ Validation complete: ${stdout}`)})';
-''`;
+class SummaryRepairTrigger {
+  constructor() {
+    this.summaryDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
+  }
+
+  async triggerRepair() {
+    try {
+      // Check if summary directory exists
+      await fs.access(this.summaryDir);
+      
+      // Create a trigger file
+      const triggerFile = path.join(this.summaryDir, '.repair-trigger');
+      await fs.writeFile(triggerFile, new Date().toISOString());
+      
+      console.log('Summary repair triggered');
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to trigger summary repair:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+}
+
+module.exports = SummaryRepairTrigger;

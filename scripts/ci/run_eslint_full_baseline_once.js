@@ -19,11 +19,12 @@
   }catch(e){
     fs.writeFileSync(OUT,JSON.stringify({ok:false,error:'eslint-not-available',details:String(e)}));
     console.log(JSON.stringify({ok:false,error:'eslint-not-available'}));
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
   
   const man=JSON.parse(fs.readFileSync(qPath,'utf8'));
-  const globs=(man.quarantine||[]).map(g => g.replace(/\/\*\*/g,'/**/*')).map(g => g.endsWith('/**') ? `${g  }/*.{js,ts,tsx}` : g);
+  const globs=(man.quarantine||[]).map(g => g.replace(/\*\*/g,'/**/*')).map(g => g.endsWith('/**') ? `${g  }/*.{js,ts,tsx}` : g);
   
   try{
     const eslint=new ESLint({cwd:CWD,useEslintrc:true,errorOnUnmatchedPattern:false});
@@ -36,10 +37,12 @@
     const formatter=await eslint.loadFormatter('json');
     fs.writeFileSync(OUT, formatter.format(results));
     console.log(JSON.stringify({ok:false,counts:{errors,warnings},files:results.length},null,2)); 
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   }catch(e){
     fs.writeFileSync(OUT,JSON.stringify({ok:false,error:'baseline-run-failed',details:String(e)})); 
     console.log(JSON.stringify({ok:false})); 
+    // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
 })();

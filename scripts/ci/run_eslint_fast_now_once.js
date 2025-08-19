@@ -10,6 +10,7 @@ const budget = Number(budgetArg || 120000);
 
 if (!jsonOut || !outLog || !errLog) {
   console.error('Usage: run_eslint_fast_now_once.js <budget_ms> <json_out> <stdout_log> <stderr_log> [globs...]');
+  // eslint-disable-next-line no-process-exit
   process.exit(2);
 }
 

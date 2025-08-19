@@ -4,6 +4,7 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
 const [,, target, outJson, todoMd] = process.argv;
 if (!target || !outJson || !todoMd) {
   console.error('Usage: syntax_report_once.js <targetFile> <outJson> <todoMd>');
+  // eslint-disable-next-line no-process-exit
   process.exit(2);
 }
 let ok = true, diag = null;

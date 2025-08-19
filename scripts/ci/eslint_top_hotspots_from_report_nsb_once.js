@@ -1,7 +1,9 @@
 // eslint_top_hotspots_from_report_nsb_once.js — no shebang
 const fs=require('fs'), path=require('path');
 const [,, report, out, nArg]=process.argv; const N=Number(nArg||25);
-if(!report||!out){console.error('Usage: <report_json> <out_md> [topN]');process.exit(2);}
+if(!report||!out){console.error('Usage: <report_json> <out_md> [topN]');
+// eslint-disable-next-line no-process-exit
+  process.exit(2);}
 const data=JSON.parse(fs.readFileSync(report,'utf8'));
 const byFile=new Map(), byRule=new Map();
 for(const r of data){const f=r.filePath||'unknown'; const e=r.errorCount||0,w=r.warningCount||0;

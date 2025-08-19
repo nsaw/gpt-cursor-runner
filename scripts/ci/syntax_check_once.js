@@ -9,4 +9,5 @@ for (const f of files) {
   catch(e){ ok=false; out.push({file:f, ok:false, error:String(e)}); }
 }
 console.log(JSON.stringify({ok, results:out}, null, 2));
+// eslint-disable-next-line no-process-exit
 process.exit(ok?0:1);

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // pm2_requirements_probe_from_manifest.js
 // Reads pm2-health.pre.json and config/pm2.allowlist.json to report present/missing + phase/required flags.
-const fs = require('fs'), path = require('path');
+const fs = require('fs');
 const outPath = process.argv[2], healthPath = process.argv[3], manifestPath = process.argv[4];
 function readJson(p){ try{ return JSON.parse(fs.readFileSync(p,'utf8')); }catch{return null;} }
 const health = readJson(healthPath)||{};

@@ -1,17 +1,16 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
-// lint_extended_orchestrator_once.js — resume-capable (10m default)
-const { spawn } = require('child_process');
-const fs = require('fs');
-const ESLINT_JSON = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/eslint-report.json';
-const SCOPE_MAN = '/Users/sawyer/gitSync/gpt-cursor-runner/config/eslint.scope.manifest.json';
-const ORCH_SUM = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/lint-extended.summary.json';
-const ORCH_LOG = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/lint-extended.orchestrator.log';
-const DISABLE_CM = '/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/codemod_eslint_disable_rules_once.js';
-const budgetMs = Number(process.argv[2] || '600000');      // 10 minutes
-const cooldownMs = Number(process.argv[3] || '1500');      // 1.5s
+// lint_extended_orchestrator_once.js — extended ESLint orchestration with codemod fallback
+const fs = require('fs'), { spawn } = require('child_process');
+const [,, budgetMs = 300000, cooldownMs = 5000] = process.argv;
 const start = Date.now();
-const EXTENDED = { include: ['scripts/g2o/**/*.{js,ts,tsx}', 'scripts/ci/**/*.{js,ts,tsx}', 'scripts/metrics/**/*.{js,ts,tsx}', 'scripts/validate/**/*.{js,ts,tsx}', 'config/**/*.{js,ts,tsx}'] };
+
+const ESLINT_JSON = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/eslint-report.now.json';
+const ORCH_SUM = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/lint-orchestrator-state.json';
+const ORCH_LOG = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/lint-orchestrator.log';
+const SCOPE_MAN = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/eslint-scope-manifest.json';
+const DISABLE_CM = '/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/eslint_disable_rules_codemod_once.js';
+
+const EXTENDED = { include: ['scripts/**/*.{js,ts,tsx}', 'config/**/*.{js,ts,tsx}', 'gpt_cursor_runner/**/*.{js,ts,tsx}', 'dashboard/**/*.{js,ts,tsx}', 'docs/**/*.{js,ts,tsx}', 'deployment/**/*.{js,ts,tsx}', 'k8s/**/*.{js,ts,tsx}', 'pm2/**/*.{js,ts,tsx}', 'public/**/*.{js,ts,tsx}', 'runner/**/*.{js,ts,tsx}'] };
 const PRIMARY = { include: ['scripts/g2o/**/*.{js,ts,tsx}', 'scripts/ci/**/*.{js,ts,tsx}', 'scripts/metrics/**/*.{js,ts,tsx}'] };
 const state = fs.existsSync(ORCH_SUM) ? JSON.parse(fs.readFileSync(ORCH_SUM, 'utf8')) : { ts: new Date().toISOString(), steps: [], result: null, scope: 'EXTENDED' };
 
@@ -63,51 +62,93 @@ function checkpoint() {
   fs.writeFileSync(ORCH_SUM, JSON.stringify(state, null, 2));
 }
 
-process.on('SIGINT', () => {
-  log('[orchestrator] SIGINT → checkpoint + exit 130');
+// Helper function to handle graceful shutdown
+function handleShutdown(signal, exitCode) {
+  log(`[orchestrator] ${signal} → checkpoint + exit ${exitCode}`);
   checkpoint();
-  process.exit(130);
-});
+  // Replace process.exit with proper error throwing
+  const error = new Error(`Process terminated by ${signal}`);
+  error.exitCode = exitCode;
+  throw error;
+}
 
-process.on('SIGTERM', () => {
-  log('[orchestrator] SIGTERM → checkpoint + exit 130');
+// Helper function to check if we should continue processing
+function shouldContinue(errors, warnings) {
+  return !(errors === 0 && warnings <= 20) && (Date.now() - start < budgetMs);
+}
+
+// Helper function to handle scope fallback
+function handleScopeFallback() {
+  const half = (Date.now() - start) > (budgetMs / 2);
+  if (half && state.scope === 'EXTENDED') {
+    state.scope = 'PRIMARY';
+    writeScope(PRIMARY);
+    state.steps.push({ event: 'scope-fallback', to: 'PRIMARY', t: (Date.now() - start) });
+    checkpoint();
+    return true;
+  }
+  return false;
+}
+
+// Helper function to run one iteration of the orchestration
+async function runOrchestrationIteration() {
+  await runScoped();
+  const { e, w } = counts();
+  state.steps.push({ event: 'eslint-scan', scope: state.scope, errors: e, warnings: w, t: (Date.now() - start) });
   checkpoint();
-  process.exit(130);
-});
+  
+  if (e === 0 && w <= 20) {
+    state.result = { ok: true, scope: state.scope, errors: e, warnings: w };
+    return false; // Stop
+  }
+  
+  if (handleScopeFallback()) {
+    return true; // Continue
+  }
+  
+  const preferred = ['@typescript-eslint/no-explicit-any', 'require-await', '@typescript-eslint/no-unused-vars'];
+  await codemod(preferred);
+  state.steps.push({ event: 'codemod', rules: preferred, t: (Date.now() - start) });
+  checkpoint();
+  await new Promise(r => setTimeout(r, cooldownMs));
+  
+  return shouldContinue(e, w);
+}
 
+process.on('SIGINT', () => handleShutdown('SIGINT', 130));
+process.on('SIGTERM', () => handleShutdown('SIGTERM', 130));
+
+// Main orchestration loop with reduced complexity
 (async () => {
-  log(`[orchestrator] resume start; scope=${state.scope || 'EXTENDED'}`);
-  if (!state.scope) state.scope = 'EXTENDED';
-  writeScope(state.scope === 'EXTENDED' ? EXTENDED : PRIMARY);
-  while (Date.now() - start < budgetMs) {
-    const half = (Date.now() - start) > (budgetMs / 2);
-    await runScoped();
-    const { e, w } = counts();
-    state.steps.push({ event: 'eslint-scan', scope: state.scope, errors: e, warnings: w, t: (Date.now() - start) });
-    checkpoint();
-    if (e === 0 && w <= 20) {
-      state.result = { ok: true, scope: state.scope, errors: e, warnings: w };
-      break;
+  try {
+    log(`[orchestrator] resume start; scope=${state.scope || 'EXTENDED'}`);
+    if (!state.scope) state.scope = 'EXTENDED';
+    writeScope(state.scope === 'EXTENDED' ? EXTENDED : PRIMARY);
+    
+    while (await runOrchestrationIteration()) {
+      // Continue loop
     }
-    if (half && state.scope === 'EXTENDED') {
-      state.scope = 'PRIMARY';
-      writeScope(PRIMARY);
-      state.steps.push({ event: 'scope-fallback', to: 'PRIMARY', t: (Date.now() - start) });
-      checkpoint();
-      continue;
+    
+    if (!state.result) {
+      const { e, w } = counts();
+      state.result = { ok: (e === 0 && w <= 20), final: { errors: e, warnings: w } };
     }
-    const preferred = ['@typescript-eslint/no-explicit-any', 'require-await', '@typescript-eslint/no-unused-vars'];
-    await codemod(preferred);
-    state.steps.push({ event: 'codemod', rules: preferred, t: (Date.now() - start) });
     checkpoint();
-    await new Promise(r => setTimeout(r, cooldownMs));
+    log('[orchestrator] done');
+    console.log(JSON.stringify(state.result, null, 2));
+    
+    // Replace process.exit with proper completion
+    if (state.result.ok) {
+      return 0;
+    } else {
+      throw new Error('Orchestration failed to achieve target');
+    }
+  } catch (error) {
+    if (error.exitCode) {
+      process.exitCode = error.exitCode;
+    } else {
+      process.exitCode = 1;
+    }
+    throw error;
   }
-  if (!state.result) {
-    const { e, w } = counts();
-    state.result = { ok: (e === 0 && w <= 20), final: { errors: e, warnings: w } };
-  }
-  checkpoint();
-  log('[orchestrator] done');
-  console.log(JSON.stringify(state.result, null, 2));
-  process.exit(0);
 })();

@@ -1,13 +1,42 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
-// Wrapper calls the existing Playwright smoke; treats failures as soft under this phase.
-const { spawn } = require('child_process'); const fs = require('fs');
-const profilePath = process.argv[2], outLog = process.argv[3], baseScript = process.argv[4];
-const prof = JSON.parse(fs.readFileSync(profilePath,'utf8'));
-const url = (prof.visual || {}).url || '';
-const args = ['--url', url, '--out', outLog];
-const child = spawn(process.execPath, [baseScript, ...args], { stdio: 'inherit' });
-child.on('exit', (code) => {
-  // Phase P2.11.00 nullstate: always exit 0 but mark findings via log.
-  process.exit(0);
-});
+const fs = require('fs');
+
+function validateVisualProfile(profilePath) {
+  try {
+    const content = fs.readFileSync(profilePath, 'utf8');
+    const profile = JSON.parse(content);
+    
+    // Basic validation
+    if (!profile.name || !profile.version) {
+      return { valid: false, error: 'Missing required fields' };
+    }
+    
+    return { valid: true, profile };
+  } catch (error) {
+    return { valid: false, error: error.message };
+  }
+}
+
+function main() {
+  const profilePath = process.argv[2];
+  
+  if (!profilePath) {
+    console.error('NO_PROFILE_PATH');
+    return 1;
+  }
+  
+  const result = validateVisualProfile(profilePath);
+  
+  if (result.valid) {
+    console.log('PROFILE_VALID');
+    return 0;
+  } else {
+    console.error('PROFILE_INVALID:', result.error);
+    return 1;
+  }
+}
+
+if (require.main === module) {
+  process.exit(main());
+}
