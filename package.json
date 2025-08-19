@@ -14,7 +14,8 @@
     "lint:scripts": "eslint scripts/",
     "lint:server": "eslint server/",
     "test:dashboard": "playwright test --project=chromium --headed=false tests/dashboard-green-state.spec.ts",
-    "postinstall": "node scripts/ci/hook_sync_postinstall.js || true"
+    "postinstall": "node scripts/ci/hook_sync_postinstall.js || true",
+    "_assertNoNodeEval": "node scripts/ci/ban_node_eval_guard.js"
   },
   "keywords": [
     "gpt",
