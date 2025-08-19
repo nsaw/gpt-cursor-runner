@@ -35,7 +35,7 @@ function orderList() {
     const lines = fs.readFileSync(orderFile, 'utf8').split(/\r?\n/).filter(Boolean);
     const inDir = new Set(order);
     order = lines.filter(l => l.startsWith('patch-v') && inDir.has(l));
-  } catch {}
+  } catch { /* ignore file read errors */ }
   return order;
 }
 
@@ -43,7 +43,7 @@ function restoreFromFailed(base) {
   const src = p.join(FAILED, base);
   if (!fs.existsSync(src)) return false;
   fs.mkdirSync(P1, { recursive: true });
-  fs.writeFileSync(p.join(P1, base + '.hold'), fs.readFileSync(src));
+  fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(src));
   fs.unlinkSync(src);
   return true;
 }
@@ -56,7 +56,7 @@ function candidate() {
       restoreFromFailed(base);
       return base;
     }
-    if (fs.existsSync(p.join(P1, base)) || fs.existsSync(p.join(P1, base + '.hold'))) return base;
+    if (fs.existsSync(p.join(P1, base)) || fs.existsSync(p.join(P1, `${base}.hold`))) return base;
   }
   return null;
 }
@@ -70,13 +70,13 @@ function execCompat(abs) {
     const base = candidate();
     if (!base) {
       log('NO_CANDIDATE');
-      process.exit(0);
+      process.exit(0); // eslint-disable-line no-process-exit
     }
-    const abs = fs.existsSync(p.join(P1, base + '.hold')) ? p.join(P1, base + '.hold')
+    const abs = fs.existsSync(p.join(P1, `${base}.hold`)) ? p.join(P1, `${base}.hold`)
       : fs.existsSync(p.join(P1, base)) ? p.join(P1, base) : null;
     if (!abs) {
       log(`ERR_NO_SOURCE:${base}`);
-      process.exit(2);
+      process.exit(2); // eslint-disable-line no-process-exit
     }
 
     // 1) SAFE transforms (one pass)
@@ -86,7 +86,7 @@ function execCompat(abs) {
         fs.mkdirSync(COMPLETED, { recursive: true });
         try {
           fs.renameSync(abs, p.join(COMPLETED, base));
-        } catch {}
+        } catch { /* ignore rename errors */ }
         log(`PASS_SAFE:${base}`);
         continue; // to next patch
       }
@@ -94,7 +94,7 @@ function execCompat(abs) {
       const f = p.join(FAILED, base);
       if (fs.existsSync(f)) {
         fs.mkdirSync(P1, { recursive: true });
-        fs.writeFileSync(p.join(P1, base + '.hold'), fs.readFileSync(f));
+        fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(f));
         fs.unlinkSync(f);
       }
     }
@@ -111,7 +111,7 @@ function execCompat(abs) {
         fs.mkdirSync(COMPLETED, { recursive: true });
         try {
           fs.renameSync(abs, p.join(COMPLETED, base));
-        } catch {}
+        } catch { /* ignore rename errors */ }
         log(`PASS_MANUAL:${base}:attempt=${a}`);
         passed = true;
         break;
@@ -120,7 +120,7 @@ function execCompat(abs) {
       const f = p.join(FAILED, base);
       if (fs.existsSync(f)) {
         fs.mkdirSync(P1, { recursive: true });
-        fs.writeFileSync(p.join(P1, base + '.hold'), fs.readFileSync(f));
+        fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(f));
         fs.unlinkSync(f);
       }
       log(`RETRY_MANUAL:${base}:attempt=${a}`);
@@ -130,9 +130,9 @@ function execCompat(abs) {
       const obj = { ts: Date.now(), reason: 'agent_manual_repair_exhausted', patch: base, attempts: { safe: MAX_SAFE, manual: MAX_MANUAL } };
       try {
         fs.writeFileSync(blocked, JSON.stringify(obj, null, 2));
-      } catch {}
+      } catch { /* ignore write errors */ }
       log(`HALT:${base}:agent_manual_repair_exhausted`);
-      process.exit(3);
+      process.exit(3); // eslint-disable-line no-process-exit
     }
     // loop to next candidate
   }

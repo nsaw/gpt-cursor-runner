@@ -11,15 +11,15 @@
   try { pw = require('playwright'); } catch { havePW = false; }
   let log = `[visual-base] url=${url} start=${new Date().toISOString()}\n`;
   if (!havePW) {
-    log += "[visual-base] playwright not installed; record-only pass under P2.11.00\n";
+    log += '[visual-base] playwright not installed; record-only pass under P2.11.00\n';
     fs.appendFileSync(out, log); process.exit(0);
   }
   try {
     const { chromium } = pw;
     const browser = await chromium.launch();
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'load', timeout: 10000 }).catch(()=>{});
-    log += "[visual-base] navigation attempted; closing browser.\n";
+    await page.goto(url, { waitUntil: 'load', timeout: 10000 }).catch(() => {});
+    log += '[visual-base] navigation attempted; closing browser.\n';
     await browser.close();
     fs.appendFileSync(out, log);
     process.exit(0);

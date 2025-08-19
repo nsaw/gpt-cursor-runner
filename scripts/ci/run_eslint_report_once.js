@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-unused-vars */
 (async () => {
   const fs = require('fs'); 
   const Module = require('module');
-  const OUT = process.env.ESLINT_REPORT_OUT || "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/eslint-report.json";
-  const CWD = process.env.ESLINT_CWD || "/Users/sawyer/gitSync/gpt-cursor-runner";
+  const OUT = process.env.ESLINT_REPORT_OUT || '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/eslint-report.json';
+  const CWD = process.env.ESLINT_CWD || '/Users/sawyer/gitSync/gpt-cursor-runner';
   
   const _origReq = Module.prototype.require;
   Module.prototype.require = function(id){
@@ -17,13 +17,13 @@
     if (id === 'semver') {
       // Minimal shim for ESLint env checks (only what ESLint needs)
       return {
-        valid: (v)=> typeof v==='string' && v.length>0 ? v : null,
-        satisfies: (v,_r)=> true,
-        gte: ()=> true, 
-        lt: ()=> false, 
-        gt: ()=> true, 
-        lte: ()=> true,
-        coerce: (v)=> ({ version: String(v||'0.0.0') })
+        valid: (_v) => typeof _v==='string' && _v.length>0 ? _v : null,
+        satisfies: (_v,_r) => true,
+        gte: () => true, 
+        lt: () => false, 
+        gt: () => true, 
+        lte: () => true,
+        coerce: (_v) => ({ version: String(_v||'0.0.0') })
       };
     }
     return _origReq.apply(this, arguments);
@@ -35,7 +35,7 @@
   } catch (e) {
     const stub = { 
       ok:false, 
-      error:"eslint-not-available", 
+      error:'eslint-not-available', 
       details:String(e), 
       counts:{errors:0,warnings:0}, 
       skipped:true 
@@ -50,10 +50,10 @@
       cwd: CWD,
       useEslintrc: true,
       errorOnUnmatchedPattern: false,
-      reportUnusedDisableDirectives: "warn"
+      reportUnusedDisableDirectives: 'warn'
     });
-    const results = await eslint.lintFiles(["**/*.{js,ts,tsx}"]);
-    const formatter = await eslint.loadFormatter("json");
+    const results = await eslint.lintFiles(['**/*.{js,ts,tsx}']);
+    const formatter = await eslint.loadFormatter('json');
     const output = formatter.format(results);
     fs.writeFileSync(OUT, output);
     let errors = 0, warnings = 0;
@@ -66,7 +66,7 @@
   } catch (e) {
     const stub = { 
       ok:false, 
-      error:"eslint-run-failed", 
+      error:'eslint-run-failed', 
       details:String(e), 
       counts:{errors:0,warnings:0}, 
       skipped:true 

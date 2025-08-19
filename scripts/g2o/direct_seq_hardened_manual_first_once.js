@@ -1,28 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // direct_seq_hardened_manual_first_once.js - HARDENED manual-first sequencer
 // Automatically attempts manual repairs, recognizes quick-wins, maintains clean queues
 const fs=require('fs'), p=require('path'), cp=require('child_process');
 
-const QROOT="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
-const P1=p.join(QROOT,"G2o/P1");
-const FAILED=p.join(QROOT,".failed");
-const COMPLETED=p.join(QROOT,".completed");
-const BLOCKED=p.join(P1,"P1.BLOCKED.json");
+const QROOT='/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
+const P1=p.join(QROOT,'G2o/P1');
+const COMPLETED=p.join(QROOT,'.completed');
+const BLOCKED=p.join(P1,'P1.BLOCKED.json');
 
 // Configuration
-const MAX_SAFE_AUTOFIX_ATTEMPTS=1;
 const MAX_MANUAL_REPAIR_ATTEMPTS=3;
-const MAX_QUICK_WIN_ATTEMPTS=2;
 
 // Utility functions
-const list=d=>{try{return fs.readdirSync(d)}catch{return []}};
-const exists=f=>{try{return fs.existsSync(f)}catch{return false}};
-const readJson=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return null}};
-const writeJson=(f,o)=>{try{fs.writeFileSync(f,JSON.stringify(o,null,2));return true}catch{return false}};
+const list=d => {try{return fs.readdirSync(d);}catch{return [];}};
+const exists=f => {try{return fs.existsSync(f);}catch{return false;}};
+const readJson=f => {try{return JSON.parse(fs.readFileSync(f,'utf8'));}catch{return null;}};
+const writeJson=(f,o) => {try{fs.writeFileSync(f,JSON.stringify(o,null,2));return true;}catch{return false;}};
 
 // Check if patch was actually successful despite being marked as failed
-const checkPatchSuccess=(patchPath)=>{
+const checkPatchSuccess=(patchPath) => {
   const name=p.basename(patchPath);
   const json=readJson(patchPath);
   if(!json) return false;
@@ -40,7 +37,7 @@ const checkPatchSuccess=(patchPath)=>{
 };
 
 // Clear blocked entry if patch was actually successful
-const clearBlockedIfSuccessful=(blockedData)=>{
+const clearBlockedIfSuccessful=(blockedData) => {
   if(!blockedData || !blockedData.hold) return false;
   
   const patchPath=p.join(P1,blockedData.hold);
@@ -55,7 +52,7 @@ const clearBlockedIfSuccessful=(blockedData)=>{
       
       // Remove blocked entry
       fs.unlinkSync(BLOCKED);
-      console.log(`✅ Cleared P1.BLOCKED.json`);
+      console.log('✅ Cleared P1.BLOCKED.json');
       return true;
     }catch(e){
       console.error(`❌ Failed to clear blocked entry: ${e.message}`);
@@ -66,7 +63,7 @@ const clearBlockedIfSuccessful=(blockedData)=>{
 };
 
 // Enhanced manual repair with quick-win detection
-const manualRepairWithQuickWin=(patchPath,attempt)=>{
+const manualRepairWithQuickWin=(patchPath,attempt) => {
   const name=p.basename(patchPath);
   console.log(`🔧 Manual repair attempt ${attempt} for ${name}`);
   
@@ -92,7 +89,7 @@ const manualRepairWithQuickWin=(patchPath,attempt)=>{
 };
 
 // Execute patch with enhanced success detection
-const executePatchWithSuccessCheck=(patchPath)=>{
+const executePatchWithSuccessCheck=(patchPath) => {
   const name=p.basename(patchPath);
   console.log(`🚀 Executing ${name}`);
   
@@ -117,7 +114,7 @@ const executePatchWithSuccessCheck=(patchPath)=>{
 };
 
 // Main sequencer logic
-const main=()=>{
+const main=() => {
   console.log('🔧 HARDENED Manual-First Sequencer Starting...');
   
   // 1. Check for blocked patches and clear if successful
@@ -129,7 +126,7 @@ const main=()=>{
   }
   
   // 2. Get next patch to process
-  const p1Patches=list(P1).filter(f=>f.endsWith('.json')&&!f.endsWith('.hold')&&f!=='P1.BLOCKED.json').sort();
+  const p1Patches=list(P1).filter(f => f.endsWith('.json')&&!f.endsWith('.hold')&&f!=='P1.BLOCKED.json').sort();
   
   if(p1Patches.length===0){
     console.log('✅ No P1 patches to process');
@@ -142,7 +139,7 @@ const main=()=>{
   
   // 3. Apply safe transforms first
   console.log('🔧 Applying safe transforms...');
-  const safeResult=cp.spawnSync('node',['/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/autofix_forbidden_shell_once.js',patchPath],{
+  cp.spawnSync('node',['/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/autofix_forbidden_shell_once.js',patchPath],{
     stdio:'inherit',
     timeout:30000
   });
@@ -167,7 +164,7 @@ const main=()=>{
   console.log(`❌ All repair attempts exhausted for ${nextPatch}`);
   const blockedData={
     ts:Date.now(),
-    reason:"manual_repair_exhausted",
+    reason:'manual_repair_exhausted',
     hold:nextPatch,
     attempts:MAX_MANUAL_REPAIR_ATTEMPTS
   };
@@ -175,7 +172,7 @@ const main=()=>{
   if(writeJson(BLOCKED,blockedData)){
     console.log(`📝 Blocked ${nextPatch} in P1.BLOCKED.json`);
   }else{
-    console.error(`❌ Failed to write P1.BLOCKED.json`);
+    console.error('❌ Failed to write P1.BLOCKED.json');
   }
 };
 

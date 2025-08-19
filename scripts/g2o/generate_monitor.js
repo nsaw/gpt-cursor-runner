@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-unused-vars */
 (function(){
   const fs=require('fs'), path=require('path');
   const PUB='/Users/sawyer/gitSync/_GPTsync/public', META='/Users/sawyer/gitSync/_GPTsync/meta';
@@ -10,7 +10,7 @@
     return; 
   }
   
-  const safe = (p)=>{
+  const safe = (p) => {
     try{ 
       return JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8'))); 
     }catch(_){ 
@@ -35,12 +35,12 @@
     '.compact .card{padding:12px}.compact .card h3{font-size:16px;margin-bottom:12px}.compact .metric{padding:6px 0}',
     '</style></head><body>',
     '<div id="g2o-banner">G2o System Alert</div><div class="container"><div class="header"><div class="title">G2o Monitor (Static)</div>',
-    '<div class="timestamp">Generated: <span id="timestamp">'+ts+'</span></div></div>',
+    `<div class="timestamp">Generated: <span id="timestamp">${ts}</span></div></div>`,
     '<div class="grid"><div class="card"><h3>System Status</h3><div class="metric"><span class="metric-label">Execution Mode</span><span class="metric-value">Direct Agent</span></div></div>',
-    '<div class="card"><h3>Queue Counters</h3><div class="json-view" id="queue-counters">'+cc+'</div></div>',
-    '<div class="card"><h3>Failure Alerts</h3><div class="json-view" id="failure-alerts">'+fa+'</div></div>',
-    '<div class="card"><h3>Main Alerts</h3><div class="json-view" id="main-alerts">'+fam+'</div></div>',
-    '<div class="card"><h3>Dashboard Status</h3><div class="json-view" id="dashboard-status">'+ds+'</div></div></div></div>',
+    `<div class="card"><h3>Queue Counters</h3><div class="json-view" id="queue-counters">${cc}</div></div>`,
+    `<div class="card"><h3>Failure Alerts</h3><div class="json-view" id="failure-alerts">${fa}</div></div>`,
+    `<div class="card"><h3>Main Alerts</h3><div class="json-view" id="main-alerts">${fam}</div></div>`,
+    `<div class="card"><h3>Dashboard Status</h3><div class="json-view" id="dashboard-status">${ds}</div></div></div></div>`,
     '<script>(function(){var u=new URLSearchParams(location.search),b=u.get("banner"),c=u.get("compact");',
     'var bn=document.getElementById("g2o-banner"); bn.style.display=(b==="0"?"none":"block");',
     'if(c==="1"){ document.body.classList.add("compact"); }',
@@ -50,5 +50,5 @@
   
   fs.mkdirSync(PUB,{recursive:true});
   fs.writeFileSync(out,html);
-  console.log('MONITOR_WROTE:'+out);
+  console.log(`MONITOR_WROTE:${out}`);
 })();

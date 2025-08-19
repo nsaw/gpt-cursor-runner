@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": ["scripts/**/*.{js,ts}"],
+      "rules": {
+        "no-process-exit": "off"
+      }
+    }
+  ]
+}

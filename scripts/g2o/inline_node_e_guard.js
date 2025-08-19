@@ -3,12 +3,12 @@
 // Usage: node inline_node_e_guard.js --paths <comma-separated> --mode report|fail-on-violation
 const fs = require('fs'); const path = require('path');
 function val(flag){ const i=process.argv.indexOf(flag); return i>0?process.argv[i+1]:''; }
-const roots = (val('--paths')||'').split(',').filter(Boolean).map(p=>path.resolve(p));
+const roots = (val('--paths')||'').split(',').filter(Boolean).map(p => path.resolve(p));
 const mode = val('--mode') || 'report';
 const rx = /\bnode\s+-e\b/;
 const filesRx = /\.(m?js|cjs|ts|tsx|sh|zsh|bash)$/;
 const selfPath = __filename; // Exclude self from scanning
-let violations = [];
+const violations = [];
 function walk(dir){
   let ents=[]; try{ ents=fs.readdirSync(dir,{withFileTypes:true}); }catch{ return; }
   for(const e of ents){

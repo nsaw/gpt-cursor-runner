@@ -50,7 +50,7 @@ function scanInlineNodeE(rootPath, excludePath = null) {
         }
 
         // Look for actual inline node -e patterns (not just mentions)
-        if (line.includes('node -e ') || line.includes('node -e"') || line.includes("node -e'")) {
+        if (line.includes('node -e ') || line.includes('node -e"') || line.includes('node -e\'')) {
           // Additional check to ensure it's an actual command, not just a comment or string
           const trimmedLine = line.trim();
           if (trimmedLine.startsWith('node -e') ||
@@ -112,7 +112,7 @@ function main() {
     root_path: rootPath,
     exclude_path: excludePath,
     total_violations: violations.length,
-    violations: violations
+    violations
   };
 
   if (jsonOutPath) {

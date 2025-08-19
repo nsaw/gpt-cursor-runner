@@ -29,7 +29,7 @@ const path = require('path');
   try {
     ({ ESLint } = require('eslint'));
   } catch (e) {
-    const stub = { ok: false, error: "eslint-not-available", details: String(e) };
+    const stub = { ok: false, error: 'eslint-not-available', details: String(e) };
     fs.writeFileSync(OUT_MAIN, JSON.stringify(stub, null, 2));
     fs.writeFileSync(OUT_PASS1, JSON.stringify(stub, null, 2));
     fs.writeFileSync(OUT_PASS2, JSON.stringify(stub, null, 2));
@@ -62,12 +62,12 @@ const path = require('path');
           ...(ignoreCfg.patterns || [])
         ]
       },
-      reportUnusedDisableDirectives: "warn"
+      reportUnusedDisableDirectives: 'warn'
     });
   }
 
   async function runLint(eslint) {
-    const results = await eslint.lintFiles(["**/*.{js,ts,tsx}"]);
+    const results = await eslint.lintFiles(['**/*.{js,ts,tsx}']);
     if (eslint.outputFixes) await ESLint.outputFixes(results);
     let errors = 0, warnings = 0;
     for (const r of results) {
@@ -107,8 +107,8 @@ const path = require('path');
     try {
       const text = fs.readFileSync(filePath, 'utf8');
       if (text.startsWith('/* eslint-disable */')) return;
-      fs.writeFileSync(filePath, '/* eslint-disable */\n' + text);
-    } catch {}
+      fs.writeFileSync(filePath, `/* eslint-disable */\n${  text}`);
+    } catch { /* ignore file read/write errors */ }
   }
 
   // PASS 1: fix and lint
@@ -119,7 +119,7 @@ const path = require('path');
   fs.writeFileSync(OUT_PASS1, JSON.stringify(s1, null, 2));
 
   if (e1 === 0 && w1 <= 20) {
-    fs.writeFileSync(OUT_PASS2, JSON.stringify({ pass: 2, skipped: true, reason: "threshold met" }, null, 2));
+    fs.writeFileSync(OUT_PASS2, JSON.stringify({ pass: 2, skipped: true, reason: 'threshold met' }, null, 2));
     fs.writeFileSync(OUT_TOP, JSON.stringify({ files: [] }, null, 2));
     console.log(JSON.stringify({ ok: true, pass: 1, errors: e1, warnings: w1 }, null, 2));
     process.exit(0);

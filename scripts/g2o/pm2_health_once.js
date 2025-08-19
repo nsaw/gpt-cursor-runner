@@ -18,10 +18,10 @@ for(let i = 0; i < args.length; i++) {
   }
 }
 
-const pick = (k,def=[]) => { const a=process.argv.find(x=>x.startsWith(`--${k}=`)); return a? a.split('=')[1].split(',').filter(Boolean) : def; };
+const pick = (k,def=[]) => { const a=process.argv.find(x => x.startsWith(`--${k}=`)); return a? a.split('=')[1].split(',').filter(Boolean) : def; };
 const apps = pick('apps',[]);
 
-execFile('pm2',['jlist'],{},(err,stdout)=>{
+execFile('pm2',['jlist'],{},(err,stdout) => {
   if(err){ 
     console.log('PM2_JLIST_ERR'); 
     if(jsonOut) {
@@ -29,7 +29,7 @@ execFile('pm2',['jlist'],{},(err,stdout)=>{
         fs.mkdirSync(path.dirname(jsonOut), {recursive: true});
         fs.writeFileSync(jsonOut, JSON.stringify({error: 'PM2_JLIST_ERR', timestamp: new Date().toISOString()}), 'utf8');
       } catch(e) {
-        console.error('PM2_HEALTH_FAIL:'+e.message);
+        console.error(`PM2_HEALTH_FAIL:${e.message}`);
       }
     }
     process.exit(0); 
@@ -39,7 +39,7 @@ execFile('pm2',['jlist'],{},(err,stdout)=>{
   try{ 
     list=JSON.parse(stdout);
   } catch(e) {
-    console.error('PM2_HEALTH_FAIL: JSON parse error - ' + e.message);
+    console.error(`PM2_HEALTH_FAIL: JSON parse error - ${  e.message}`);
     process.exit(2);
   }
   
@@ -54,7 +54,7 @@ execFile('pm2',['jlist'],{},(err,stdout)=>{
   }
   
   const bad = list.filter(p => p.pm2_env.status !== 'online')
-                  .map(p => `${p.name}:${p.pm2_env.status}`);
+    .map(p => `${p.name}:${p.pm2_env.status}`);
   
   const result = {
     timestamp: new Date().toISOString(),
@@ -75,9 +75,9 @@ execFile('pm2',['jlist'],{},(err,stdout)=>{
     try {
       fs.mkdirSync(path.dirname(jsonOut), {recursive: true});
       fs.writeFileSync(jsonOut, JSON.stringify(result, null, 2), 'utf8');
-      console.log('PM2_HEALTH_JSON_WRITTEN:' + jsonOut);
+      console.log(`PM2_HEALTH_JSON_WRITTEN:${  jsonOut}`);
     } catch(e) {
-      console.error('PM2_HEALTH_FAIL:'+e.message);
+      console.error(`PM2_HEALTH_FAIL:${e.message}`);
       process.exit(2);
     }
   }
