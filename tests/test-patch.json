@@ -1,0 +1,20 @@
+{
+  "id": "test-patch-001",
+  "role": "test_patch",
+  "target_file": "/tmp/test-patch-result.json",
+  "description": "Test patch to verify webhook delivery and pipeline functionality",
+  "patch": {
+    "mutations": [
+      {
+        "path": "/tmp/test-patch-result.json",
+        "contents": "{\n  \"test\": true,\n  \"timestamp\": \"$(date)\",\n  \"pipeline\": \"working\",\n  \"webhook\": \"delivered\"\n}"
+      }
+    ]
+  },
+  "postMutationBuild": {
+    "shell": [
+      "echo 'Test patch executed successfully'",
+      "echo 'Pipeline verification complete'"
+    ]
+  }
+}

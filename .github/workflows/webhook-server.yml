@@ -1,0 +1,44 @@
+name: Webhook Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  webhook-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup environment
+        run: |
+          echo "SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}" >> .env
+          echo "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}" >> .env
+          echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}" >> .env
+          echo "GITHUB_WEBHOOK_SECRET=${{ secrets.GITHUB_WEBHOOK_SECRET }}" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "PORT=3000" >> .env
+
+      - name: Start webhook server
+        run: |
+          node webhook-handler.js &
+          sleep 5
+          curl -s http://localhost:3000/health
+
+      - name: Keep server running
+        run: |
+          while true; do
+            curl -s http://localhost:3000/health > /dev/null
+            sleep 60
+          done

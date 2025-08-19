@@ -1,0 +1,46 @@
+{
+  "executor": {
+    "version": "2.0.0",
+    "enforcement": {
+      "atomicSummaries": true,
+      "noBroadStaging": true,
+      "completedFailedMoves": true,
+      "validationGates": true,
+      "nonBlockingExecution": true,
+      "timeoutProtection": true
+    },
+    "limits": {
+      "maxConcurrentPatches": 1,
+      "maxPatchExecutionTime": 300000,
+      "maxShellCommandTime": 30000,
+      "maxRetries": 3
+    },
+    "paths": {
+      "summaries": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
+      "completed": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/.completed",
+      "failed": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/.failed",
+      "logs": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs"
+    },
+    "validation": {
+      "requirePreMutationValidation": true,
+      "requirePostMutationBuild": true,
+      "requireSummaryGeneration": true,
+      "enforceValidationGates": true
+    },
+    "safety": {
+      "preventDestructiveMutations": true,
+      "requireBackupBeforeMutation": false,
+      "maxFileSize": 10485760,
+      "allowedFileTypes": [
+        ".json",
+        ".md",
+        ".sh",
+        ".js",
+        ".py",
+        ".ts",
+        ".tsx",
+        ".jsx"
+      ]
+    }
+  }
+}

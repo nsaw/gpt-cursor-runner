@@ -1,3 +1,46 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
 """
 Test script to simulate Slack pinging the test endpoint.
@@ -5,34 +48,33 @@ Test script to simulate Slack pinging the test endpoint.
 
 import requests
 
+
 def test_slack_ping():
-    """Test the Slack test endpoint."""
-    
-    # Simple POST request to the test endpoint
-    url = "https://runner-dev.thoughtmarks.app/slack/test"
-    
+    """Test Slack ping functionality."""
     try:
-        response = requests.post(url, json={"test": "ping"})
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text}")
-        
+        # Test the Slack ping endpoint
+        response = requests.get("http://localhost:5000/slack/ping", timeout=5)
         if response.status_code == 200:
-            print("✅ Slack test endpoint successful!")
-            
-            # Check if patch was created
+            print("✅ Slack ping endpoint working!")
+
+            # Check if there are any test patches
             import os
-            patches_dir = "patches"
-            if os.path.exists(patches_dir):
-                patch_files = [f for f in os.listdir(patches_dir) if f.startswith("slack-test-patch_")]
+
+            patch_dir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches"
+            if os.path.exists(patch_dir):
+                patch_files = [f for f in os.listdir(patch_dir) if f.endswith(".json")]
                 if patch_files:
-                    print(f"✅ Test patch created: {patch_files[-1]}")
+                    print(f"✅ Found {len(patch_files)} patch files")
+                    print(f"Latest: {patch_files[-1]}")
                 else:
                     print("⚠️  No test patch found")
+            else:
+                print("⚠️  No test patch found")
         else:
             print("❌ Slack test endpoint failed!")
-            
     except Exception as e:
         print(f"❌ Error: {e}")
 
+
 if __name__ == "__main__":
-    test_slack_ping() 
+    test_slack_ping()

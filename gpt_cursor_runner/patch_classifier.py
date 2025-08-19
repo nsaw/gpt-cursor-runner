@@ -1,356 +1,315 @@
-"""
-Patch Classifier for GPT-Cursor Runner.
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+#!/usr/bin/env python3
+# Patch Classifier for GPT-Cursor Runner.
+# Classifies patches based on content, complexity, and risk level.
 
-Auto-labels patches by UI role (button, modal, nav, etc.) and applies role-specific rules.
-"""
+from enum import Enum
+from typing import Any
 
-import re
-from typing import Dict, Any, List
-from dataclasses import dataclass
 
-@dataclass
-class PatchRole:
-    """Defines a patch role with its characteristics."""
-    name: str
-    patterns: List[str]
-    file_patterns: List[str]
-    safety_level: str  # "safe", "medium", "dangerous"
-    auto_approve: bool
-    requires_review: bool
-    description: str
+class PatchType(Enum):
+    """Enumeration of patch types."""
+
+    BUGFIX = "bugfix"
+    FEATURE = "feature"
+    REFACTOR = "refactor"
+    DOCUMENTATION = "documentation"
+    TEST = "test"
+    CONFIG = "config"
+    SECURITY = "security"
+    PERFORMANCE = "performance"
+    UNKNOWN = "unknown"
+
+
+class RiskLevel(Enum):
+    """Enumeration of risk levels."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
 
 class PatchClassifier:
-    """Classifies patches by UI role and applies role-specific rules."""
-    
-    def __init__(self):
-        self.roles = self._define_roles()
-    
-    def _define_roles(self) -> Dict[str, PatchRole]:
-        """Define patch roles and their characteristics."""
-        return {
-            "button": PatchRole(
-                name="button",
-                patterns=[
-                    r"<Button",
-                    r"onPress",
-                    r"TouchableOpacity",
-                    r"TouchableHighlight",
-                    r"button",
-                    r"Button\."
-                ],
-                file_patterns=[
-                    r".*button.*\.tsx?$",
-                    r".*Button.*\.tsx?$",
-                    r".*Touchable.*\.tsx?$"
-                ],
-                safety_level="safe",
-                auto_approve=True,
-                requires_review=False,
-                description="Button component modifications"
-            ),
-            "modal": PatchRole(
-                name="modal",
-                patterns=[
-                    r"<Modal",
-                    r"Modal\.",
-                    r"modal",
-                    r"Dialog",
-                    r"Overlay"
-                ],
-                file_patterns=[
-                    r".*modal.*\.tsx?$",
-                    r".*Modal.*\.tsx?$",
-                    r".*dialog.*\.tsx?$"
-                ],
-                safety_level="medium",
-                auto_approve=False,
-                requires_review=True,
-                description="Modal and dialog modifications"
-            ),
-            "navigation": PatchRole(
-                name="navigation",
-                patterns=[
-                    r"<Navigation",
-                    r"navigator",
-                    r"router",
-                    r"Stack\.",
-                    r"Tab\.",
-                    r"Drawer\."
-                ],
-                file_patterns=[
-                    r".*nav.*\.tsx?$",
-                    r".*navigation.*\.tsx?$",
-                    r".*router.*\.tsx?$"
-                ],
-                safety_level="dangerous",
-                auto_approve=False,
-                requires_review=True,
-                description="Navigation component modifications"
-            ),
-            "form": PatchRole(
-                name="form",
-                patterns=[
-                    r"<Form",
-                    r"<Input",
-                    r"<TextInput",
-                    r"onSubmit",
-                    r"handleSubmit",
-                    r"validation"
-                ],
-                file_patterns=[
-                    r".*form.*\.tsx?$",
-                    r".*input.*\.tsx?$",
-                    r".*Form.*\.tsx?$"
-                ],
-                safety_level="medium",
-                auto_approve=False,
-                requires_review=True,
-                description="Form and input modifications"
-            ),
-            "layout": PatchRole(
-                name="layout",
-                patterns=[
-                    r"<View",
-                    r"<Container",
-                    r"<Layout",
-                    r"flexDirection",
-                    r"justifyContent",
-                    r"alignItems",
-                    r"position"
-                ],
-                file_patterns=[
-                    r".*layout.*\.tsx?$",
-                    r".*container.*\.tsx?$",
-                    r".*Layout.*\.tsx?$"
-                ],
-                safety_level="medium",
-                auto_approve=False,
-                requires_review=True,
-                description="Layout and container modifications"
-            ),
-            "text": PatchRole(
-                name="text",
-                patterns=[
-                    r"<Text",
-                    r"Text\.",
-                    r"label",
-                    r"title",
-                    r"heading",
-                    r"paragraph"
-                ],
-                file_patterns=[
-                    r".*text.*\.tsx?$",
-                    r".*label.*\.tsx?$",
-                    r".*typography.*\.tsx?$"
-                ],
-                safety_level="safe",
-                auto_approve=True,
-                requires_review=False,
-                description="Text and label modifications"
-            ),
-            "image": PatchRole(
-                name="image",
-                patterns=[
-                    r"<Image",
-                    r"Image\.",
-                    r"src=",
-                    r"source=",
-                    r"require\("
-                ],
-                file_patterns=[
-                    r".*image.*\.tsx?$",
-                    r".*Image.*\.tsx?$",
-                    r".*asset.*\.tsx?$"
-                ],
-                safety_level="safe",
-                auto_approve=True,
-                requires_review=False,
-                description="Image and asset modifications"
-            ),
-            "icon": PatchRole(
-                name="icon",
-                patterns=[
-                    r"<Icon",
-                    r"Icon\.",
-                    r"icon",
-                    r"svg",
-                    r"FontAwesome"
-                ],
-                file_patterns=[
-                    r".*icon.*\.tsx?$",
-                    r".*Icon.*\.tsx?$"
-                ],
-                safety_level="safe",
-                auto_approve=True,
-                requires_review=False,
-                description="Icon modifications"
-            ),
-            "style": PatchRole(
-                name="style",
-                patterns=[
-                    r"style=",
-                    r"StyleSheet",
-                    r"backgroundColor",
-                    r"color:",
-                    r"fontSize",
-                    r"margin",
-                    r"padding"
-                ],
-                file_patterns=[
-                    r".*style.*\.tsx?$",
-                    r".*css.*\.tsx?$"
-                ],
-                safety_level="safe",
-                auto_approve=True,
-                requires_review=False,
-                description="Style and CSS modifications"
-            ),
-            "unknown": PatchRole(
-                name="unknown",
-                patterns=[],
-                file_patterns=[],
-                safety_level="dangerous",
-                auto_approve=False,
-                requires_review=True,
-                description="Unknown component type"
-            )
-        }
-    
-    def classify_patch(self, patch_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Classify a patch by its role and characteristics."""
-        target_file = patch_data.get("target_file", "")
-        pattern = patch_data.get("patch", {}).get("pattern", "")
-        replacement = patch_data.get("patch", {}).get("replacement", "")
-        
-        # Find matching role
-        role = self._find_role(target_file, pattern, replacement)
-        
-        # Get role characteristics
-        role_info = self.roles[role]
-        
-        # Determine if patch should be auto-approved
-        auto_approve = role_info.auto_approve and self._is_safe_pattern(pattern)
-        
-        # Calculate confidence score
-        confidence = self._calculate_confidence(target_file, pattern, replacement, role)
-        
-        return {
-            "role": role,
-            "confidence": confidence,
-            "safety_level": role_info.safety_level,
-            "auto_approve": auto_approve,
-            "requires_review": role_info.requires_review,
-            "description": role_info.description,
-            "patterns_matched": self._get_matched_patterns(target_file, pattern, role)
-        }
-    
-    def _find_role(self, target_file: str, pattern: str, replacement: str) -> str:
-        """Find the best matching role for the patch."""
-        best_role = "unknown"
-        best_score = 0
-        
-        for role_name, role_info in self.roles.items():
-            if role_name == "unknown":
-                continue
-            
-            score = 0
-            
-            # Check file name patterns
-            for file_pattern in role_info.file_patterns:
-                if re.search(file_pattern, target_file, re.IGNORECASE):
-                    score += 2
-            
-            # Check content patterns
-            content = f"{pattern} {replacement}"
-            for content_pattern in role_info.patterns:
-                if re.search(content_pattern, content, re.IGNORECASE):
-                    score += 1
-            
-            if score > best_score:
-                best_score = score
-                best_role = role_name
-        
-        return best_role
-    
-    def _calculate_confidence(self, target_file: str, pattern: str, replacement: str, role: str) -> float:
-        """Calculate confidence score for role classification (0-1)."""
-        if role == "unknown":
-            return 0.0
-        
-        role_info = self.roles[role]
-        score = 0
-        max_score = 0
-        
-        # File name matching
-        for file_pattern in role_info.file_patterns:
-            max_score += 2
-            if re.search(file_pattern, target_file, re.IGNORECASE):
-                score += 2
-        
-        # Content matching
-        content = f"{pattern} {replacement}"
-        for content_pattern in role_info.patterns:
-            max_score += 1
-            if re.search(content_pattern, content, re.IGNORECASE):
-                score += 1
-        
-        return score / max_score if max_score > 0 else 0.0
-    
-    def _get_matched_patterns(self, target_file: str, pattern: str, role: str) -> List[str]:
-        """Get list of patterns that matched for the role."""
-        if role == "unknown":
-            return []
-        
-        role_info = self.roles[role]
-        matched = []
-        
-        # Check file patterns
-        for file_pattern in role_info.file_patterns:
-            if re.search(file_pattern, target_file, re.IGNORECASE):
-                matched.append(f"file:{file_pattern}")
-        
-        # Check content patterns
-        content = pattern
-        for content_pattern in role_info.patterns:
-            if re.search(content_pattern, content, re.IGNORECASE):
-                matched.append(f"content:{content_pattern}")
-        
-        return matched
-    
-    def _is_safe_pattern(self, pattern: str) -> bool:
-        """Check if pattern is considered safe."""
-        # Simple patterns are generally safe
-        if len(pattern) < 50 and pattern.count('*') == 0 and pattern.count('.') == 0:
-            return True
-        
-        # Patterns with specific text are safer
-        if any(word in pattern.lower() for word in ['text', 'label', 'title', 'color', 'style']):
-            return True
-        
-        return False
-    
-    def get_role_rules(self, role: str) -> Dict[str, Any]:
-        """Get rules and characteristics for a specific role."""
-        if role not in self.roles:
-            return {}
-        
-        role_info = self.roles[role]
-        return {
-            "name": role_info.name,
-            "safety_level": role_info.safety_level,
-            "auto_approve": role_info.auto_approve,
-            "requires_review": role_info.requires_review,
-            "description": role_info.description,
-            "patterns": role_info.patterns,
-            "file_patterns": role_info.file_patterns
-        }
-    
-    def get_all_roles(self) -> Dict[str, Dict[str, Any]]:
-        """Get all defined roles and their characteristics."""
-        return {
-            role_name: self.get_role_rules(role_name)
-            for role_name in self.roles.keys()
+    """Classifies patches based on content analysis."""
+
+    # Type hints for class attributes
+    security_keywords: set[str]
+    performance_keywords: set[str]
+    bugfix_keywords: set[str]
+    feature_keywords: set[str]
+    refactor_keywords: set[str]
+    documentation_keywords: set[str]
+    test_keywords: set[str]
+    config_keywords: set[str]
+
+    def __init__(self) -> None:
+        """Initialize the patch classifier with keyword sets."""
+        self.security_keywords = {
+            "security",
+            "vulnerability",
+            "auth",
+            "authentication",
+            "authorization",
+            "encrypt",
+            "decrypt",
+            "hash",
+            "salt",
+            "token",
+            "jwt",
+            "oauth",
+            "ssl",
+            "tls",
+            "cors",
+            "csrf",
+            "xss",
+            "sql injection",
+            "sanitize",
+            "validate",
         }
 
-# Global instance
-patch_classifier = PatchClassifier() 
+        self.performance_keywords = {
+            "performance",
+            "optimize",
+            "cache",
+            "memory",
+            "cpu",
+            "latency",
+            "throughput",
+            "efficiency",
+            "speed",
+            "fast",
+            "slow",
+            "bottleneck",
+            "profiling",
+            "benchmark",
+        }
+
+        self.bugfix_keywords = {
+            "bug",
+            "fix",
+            "bugfix",
+            "issue",
+            "error",
+            "exception",
+            "crash",
+            "fail",
+            "broken",
+            "defect",
+            "problem",
+            "resolve",
+            "correct",
+            "repair",
+            "patch",
+            "hotfix",
+        }
+
+        self.feature_keywords = {
+            "feature",
+            "new",
+            "add",
+            "implement",
+            "enhancement",
+            "improvement",
+            "upgrade",
+            "update",
+            "enhance",
+            "extend",
+            "functionality",
+            "capability",
+            "support",
+            "enable",
+        }
+
+        self.refactor_keywords = {
+            "refactor",
+            "refactoring",
+            "restructure",
+            "reorganize",
+            "cleanup",
+            "clean up",
+            "improve",
+            "optimize",
+            "simplify",
+            "modernize",
+            "update",
+            "migrate",
+            "consolidate",
+        }
+
+        self.documentation_keywords = {
+            "doc",
+            "documentation",
+            "comment",
+            "readme",
+            "guide",
+            "manual",
+            "tutorial",
+            "example",
+            "sample",
+            "note",
+        }
+
+        self.test_keywords = {
+            "test",
+            "testing",
+            "unit test",
+            "integration test",
+            "e2e",
+            "end to end",
+            "spec",
+            "specification",
+            "assert",
+            "mock",
+            "stub",
+            "fixture",
+            "coverage",
+        }
+
+        self.config_keywords = {
+            "config",
+            "configuration",
+            "setting",
+            "option",
+            "param",
+            "environment",
+            "env",
+            "flag",
+            "toggle",
+            "switch",
+        }
+
+    def classify_patch(
+        self, description: str, mutations: list[Any], files_modified: list[str]
+    ) -> dict[str, Any]:
+        """Classify a patch based on its content and metadata."""
+        patch_type = self._determine_patch_type(description, mutations, files_modified)
+        risk_level = self._determine_risk_level(description, mutations, files_modified)
+        complexity = self._determine_complexity(description, mutations, files_modified)
+        components = self._identify_components(files_modified)
+
+        return {
+            "type": patch_type.value,
+            "risk_level": risk_level.value,
+            "complexity": complexity,
+            "components": list(components),
+            "confidence": self._calculate_confidence(
+                description, mutations, files_modified
+            ),
+        }
+
+    def _determine_patch_type(
+        self, description: str, mutations: list[Any], files_modified: list[str]
+    ) -> PatchType:
+        """Determine the type of patch based on content."""
+        desc_lower = description.lower()
+
+        # Check for security-related content
+        if any(keyword in desc_lower for keyword in self.security_keywords):
+            return PatchType.SECURITY
+
+        # Check for performance-related content
+        if any(keyword in desc_lower for keyword in self.performance_keywords):
+            return PatchType.PERFORMANCE
+
+        # Check for bugfix content
+        if any(keyword in desc_lower for keyword in self.bugfix_keywords):
+            return PatchType.BUGFIX
+
+        # Check for feature content
+        if any(keyword in desc_lower for keyword in self.feature_keywords):
+            return PatchType.FEATURE
+
+        # Check for refactor content
+        if any(keyword in desc_lower for keyword in self.refactor_keywords):
+            return PatchType.REFACTOR
+
+        # Check for documentation content
+        if any(keyword in desc_lower for keyword in self.documentation_keywords):
+            return PatchType.DOCUMENTATION
+
+        # Check for test content
+        if any(keyword in desc_lower for keyword in self.test_keywords):
+            return PatchType.TEST
+
+        # Check for config content
+        if any(keyword in desc_lower for keyword in self.config_keywords):
+            return PatchType.CONFIG
+
+        return PatchType.UNKNOWN
+
+    def _determine_risk_level(
+        self, description: str, mutations: list[Any], files_modified: list[str]
+    ) -> RiskLevel:
+        """Determine the risk level of the patch."""
+        # Simple risk assessment based on file count and mutation count
+        file_count = len(files_modified)
+        mutation_count = len(mutations)
+
+        if file_count > 10 or mutation_count > 20:
+            return RiskLevel.CRITICAL
+        elif file_count > 5 or mutation_count > 10:
+            return RiskLevel.HIGH
+        elif file_count > 2 or mutation_count > 5:
+            return RiskLevel.MEDIUM
+        else:
+            return RiskLevel.LOW
+
+    def _determine_complexity(
+        self, description: str, mutations: list[Any], files_modified: list[str]
+    ) -> str:
+        """Determine the complexity of the patch."""
+        file_count = len(files_modified)
+        mutation_count = len(mutations)
+
+        if file_count > 10 or mutation_count > 20:
+            return "high"
+        elif file_count > 5 or mutation_count > 10:
+            return "medium"
+        else:
+            return "low"
+
+    def _identify_components(self, files_modified: list[str]) -> set[str]:
+        """Identify components affected by the patch."""
+        components: set[str] = set()
+
+        for file_path in files_modified:
+            # Extract component from file path
+            if "/" in file_path:
+                component = file_path.split("/")[0]
+                components.add(component)
+
+        return components
+
+    def _calculate_confidence(
+        self, description: str, mutations: list[Any], files_modified: list[str]
+    ) -> float:
+        """Calculate confidence in the classification."""
+        # Simple confidence calculation based on keyword matches
+        desc_lower = description.lower()
+        keyword_matches = 0
+
+        for keyword_set in [
+            self.security_keywords,
+            self.performance_keywords,
+            self.bugfix_keywords,
+            self.feature_keywords,
+            self.refactor_keywords,
+            self.documentation_keywords,
+            self.test_keywords,
+            self.config_keywords,
+        ]:
+            if any(keyword in desc_lower for keyword in keyword_set):
+                keyword_matches += 1
+
+        # Higher confidence if we have clear keyword matches
+        if keyword_matches > 0:
+            return min(0.9, 0.3 + (keyword_matches * 0.1))
+        else:
+            return 0.3  # Low confidence for unknown patches

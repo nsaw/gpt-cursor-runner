@@ -1,0 +1,4401 @@
+{
+  "events": [
+    {
+      "id": "patch_1751846916097",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-06T17:08:36.097486",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "author": "test",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "patch_id": "test-safe-patch",
+        "timestamp": "2025-07-06T17:08:36.097452"
+      }
+    },
+    {
+      "id": "patch_1751846941824",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-06T17:09:01.824039",
+      "patch_id": "test-safe-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+      "description": "Test patch with safe pattern",
+      "author": "test",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "patch_id": "test-safe-patch",
+        "timestamp": "2025-07-06T17:09:01.824023"
+      }
+    },
+    {
+      "id": "system_1751846952296",
+      "type": "system_event",
+      "event_type": "server_started",
+      "timestamp": "2025-07-06T17:09:12.296567",
+      "data": {
+        "port": 5050,
+        "timestamp": "2025-07-06T17:09:12.296544"
+      }
+    },
+    {
+      "id": "system_1751846952485",
+      "type": "system_event",
+      "event_type": "server_started",
+      "timestamp": "2025-07-06T17:09:12.485779",
+      "data": {
+        "port": 5050,
+        "timestamp": "2025-07-06T17:09:12.485765"
+      }
+    },
+    {
+      "id": "system_1751847722733",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-06T17:22:02.733657",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "feature-bundle_ui-dashboard_slash-preview_release",
+          "role": "ui_patch",
+          "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+          "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+          "patch": {
+            "pattern": ".*",
+            "replacement": "---\n## \ud83d\udee0\ufe0f Feature Bundle: UI Dashboard + Slack Previews + Release Prep\n\n### 1. \ud83d\udcca UI Status Dashboard\n- Add `dashboard.py` (or `ui_dashboard/` module) to launch a Flask route `/dashboard`\n- Visualizes:\n  - Latest patch applications\n  - Slack events summary\n  - Patch health status (success/failure rate)\n  - Logs filtered by type/date\n- Integrate with `event_log.json`\n- Optional: Use `plotly` or `dash` for richer graphs\n\n### 2. \u26a1 Slack Slash Command Auto-Response\n- Enhance `slack_proxy.py` or `/slack/command` to:\n  - Parse incoming `/patch` commands\n  - Look up patch preview by ID or description\n  - Return match preview or validation status inline to Slack\n- Requires: Slack OAuth Token, and `chat:write`, `commands` scopes\n- Optional: Format response with blocks/attachments for better UX\n\n### 3. \ud83d\ude80 GitHub Release & Version Bump\n- Add GitHub Action:\n  - On tag push: build + upload PyPI release (optional)\n  - Update changelog + bump version in `pyproject.toml`\n- Update `setup.py` and `pyproject.toml` to reflect new version (e.g. `0.2.0`)\n\n---\n"
+          },
+          "metadata": {
+            "author": "gpt-4",
+            "timestamp": "auto"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1751861721854",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-06T21:15:21.854268",
+      "data": {
+        "error": "415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.",
+        "headers": {
+          "Host": "localhost:5050",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": "127"
+        }
+      }
+    },
+    {
+      "id": "system_1751861759123",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-06T21:15:59.123411",
+      "data": {
+        "error": "415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.",
+        "headers": {
+          "Host": "localhost:5050",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": "127"
+        }
+      }
+    },
+    {
+      "id": "system_1751862547794",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-06T21:29:07.794295",
+      "data": {
+        "patch_id": "slack-test-patch-1751862547",
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "filepath": "patches/slack-test-patch-1751862547_20250706_212907.json"
+      }
+    },
+    {
+      "id": "system_1751862547794",
+      "type": "system_event",
+      "event_type": "slack_test_triggered",
+      "timestamp": "2025-07-06T21:29:07.794644",
+      "data": {
+        "patch_id": "slack-test-patch-1751862547",
+        "result": {
+          "success": true,
+          "message": "Patch saved to slack-test-patch-1751862547_20250706_212907.json",
+          "filepath": "patches/slack-test-patch-1751862547_20250706_212907.json",
+          "patch_id": "slack-test-patch-1751862547"
+        }
+      }
+    },
+    {
+      "id": "system_1751862553073",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-06T21:29:13.073971",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-123",
+          "role": "ui_patch",
+          "target_file": "test.py",
+          "description": "Test patch",
+          "patch": {
+            "pattern": "old",
+            "replacement": "new"
+          },
+          "metadata": {
+            "author": "test",
+            "source": "test"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1751862553074",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-06T21:29:13.074662",
+      "data": {
+        "patch_id": "test-patch-123",
+        "target_file": "test.py",
+        "filepath": "patches/test-patch-123_20250706_212913.json"
+      }
+    },
+    {
+      "id": "system_1751933248587",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:07:28.587290",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "text": "\ufffd\ufffd **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ufffd\ufffd **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933248588",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-07T17:07:28.588170",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "text": "\ufffd\ufffd **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ufffd\ufffd **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933271564",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:07:51.564711",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "progress-update",
+          "text": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933271565",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-07T17:07:51.565298",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "progress-update",
+          "text": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!"
+        }
+      }
+    },
+    {
+      "id": "system_1751933296301",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:08:16.301231",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "progress-update",
+          "role": "system",
+          "target_file": "status.md",
+          "patch": "\ud83e\udd16 **GPT Cursor Runner Update**\n\n\u2705 **Runner Status**: Restarted and running on port 5050\n\u2705 **Watchdog**: Monitoring and auto-recovery enabled\n\u2705 **1Password Integration**: Persistent session authentication implemented\n\n\ud83d\udd10 **Secrets Pipeline**:\n- All scripts now source ~/.1password-session.env\n- Auto fallback to op signin --auth-device if session expires\n- chmod 600 enforced on session file\n- .1password-session.env added to .gitignore\n\n\ud83d\ude80 **Dev Pipeline**:\n- No more fingerprint prompts for 1Password\n- Headless automation ready for Cursor + runner\n- Persistent session for all secrets-dependent commands\n\n\u26a0\ufe0f **Note**: GitHub push blocked due to secrets in repo history\n- Local backup and tags created successfully\n- Need to clean git history with BFG/git filter-repo\n\n\ud83c\udfaf **Status**: Ready for persistent, secure, automated secrets injection and runner uptime!",
+          "description": "Progress update on secrets pipeline and runner setup"
+        }
+      }
+    },
+    {
+      "id": "system_1751933296302",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-07T17:08:16.302199",
+      "data": {
+        "patch_id": "progress-update",
+        "target_file": "status.md",
+        "filepath": "patches/progress-update_20250707_170816.json"
+      }
+    },
+    {
+      "id": "system_1751933371836",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-07T17:09:31.836628",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "watchdog-status",
+          "role": "system",
+          "target_file": "status.md",
+          "patch": "\ud83d\udd27 **Watchdog Daemon Status**\n\n\u2705 **Launchd Service**: Installed and running\n\u2705 **Monitoring**: Active on port 5050\n\u2705 **Auto-restart**: Enabled\n\u2705 **Logging**: ~/.gpt-runner-watchdog.log\n\n\ud83d\ude80 **Dev Pipeline**:\n- npm run dev:secrets working correctly\n- Secrets injection functional\n- 1Password persistent session active\n\n\ufffd\ufffd **Status**: All systems operational and monitored!",
+          "description": "Watchdog daemon installation and status confirmation"
+        }
+      }
+    },
+    {
+      "id": "system_1751933371838",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-07T17:09:31.838693",
+      "data": {
+        "patch_id": "watchdog-status",
+        "target_file": "status.md",
+        "filepath": "patches/watchdog-status_20250707_170931.json"
+      }
+    },
+    {
+      "id": "system_1752000776874",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-08T11:52:56.875000",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "webhook"
+        }
+      }
+    },
+    {
+      "id": "system_1752000776875",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-08T11:52:56.875985",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "webhook"
+        }
+      }
+    },
+    {
+      "id": "system_1752003704181",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-08T12:41:44.181499",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-ghost-tunnel",
+          "role": "system",
+          "description": "Ghost CMS tunnel daemon test",
+          "target_file": "ghost-tunnel-test.md",
+          "patch": "Test Ghost tunnel daemon"
+        }
+      }
+    },
+    {
+      "id": "system_1752003704182",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-08T12:41:44.182365",
+      "data": {
+        "patch_id": "test-ghost-tunnel",
+        "target_file": "ghost-tunnel-test.md",
+        "filepath": "patches/test-ghost-tunnel_20250708_124144.json"
+      }
+    },
+    {
+      "id": "slack_1752106823183",
+      "type": "slack_event",
+      "event_type": "status_runner_request",
+      "timestamp": "2025-07-09T17:20:23.183564",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
+    },
+    {
+      "id": "slack_1752106826321",
+      "type": "slack_event",
+      "event_type": "dashboard_request",
+      "timestamp": "2025-07-09T17:20:26.321978",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
+    },
+    {
+      "id": "slack_1752106953945",
+      "type": "slack_event",
+      "event_type": "status_runner_request",
+      "timestamp": "2025-07-09T17:22:33.945352",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "command": "",
+      "text": "",
+      "result": {}
+    },
+    {
+      "id": "patch_1752864666639",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.639787",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.639686"
+      }
+    },
+    {
+      "id": "patch_1752864666669",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.669982",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.669959"
+      }
+    },
+    {
+      "id": "patch_1752864666673",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T11:51:06.673124",
+      "patch_id": "test-patch",
+      "target_file": "non_existent_file.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: non_existent_file.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "non_existent_file.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.673106"
+      }
+    },
+    {
+      "id": "patch_1752864666676",
+      "type": "patch_event",
+      "event_type": "missing_pattern",
+      "timestamp": "2025-07-18T11:51:06.676727",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No pattern specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.676717"
+      }
+    },
+    {
+      "id": "patch_1752864666680",
+      "type": "patch_event",
+      "event_type": "missing_replacement",
+      "timestamp": "2025-07-18T11:51:06.680802",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No replacement specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.680785"
+      }
+    },
+    {
+      "id": "patch_1752864666684",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.684899",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <NonExistentComponent>.*?</NonExistentComponent>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.684876"
+      }
+    },
+    {
+      "id": "patch_1752864666689",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.689345",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:51:06.689326"
+      }
+    },
+    {
+      "id": "patch_1752864666698",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.698926",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <View>.*?</View>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T11:51:06.698907"
+      }
+    },
+    {
+      "id": "patch_1752864666703",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T11:51:06.703211",
+      "patch_id": "multi-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "multi-test",
+        "timestamp": "2025-07-18T11:51:06.703182"
+      }
+    },
+    {
+      "id": "system_1752864666929",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T11:51:06.929998",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-id",
+          "patch": {
+            "pattern": "foo",
+            "replacement": "bar"
+          },
+          "role": "test-role"
+        }
+      }
+    },
+    {
+      "id": "system_1752864666931",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-18T11:51:06.931013",
+      "data": {
+        "error": "Missing required field: target_file",
+        "block_data": {
+          "id": "test-id",
+          "patch": {
+            "pattern": "foo",
+            "replacement": "bar"
+          },
+          "role": "test-role"
+        }
+      }
+    },
+    {
+      "id": "patch_1752864798735",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T11:53:18.735514",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:53:18.735467"
+      }
+    },
+    {
+      "id": "patch_1752864827062",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T11:53:47.062462",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:53:47.062403"
+      }
+    },
+    {
+      "id": "patch_1752864846330",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T11:54:06.330466",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:54:06.329861",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_115406"
+      }
+    },
+    {
+      "id": "patch_1752864852166",
+      "type": "patch_event",
+      "event_type": "dry_run",
+      "timestamp": "2025-07-18T11:54:12.166484",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Dry run: Would apply patch to tmp_test_target.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:54:12.166433"
+      }
+    },
+    {
+      "id": "patch_1752864852174",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T11:54:12.174258",
+      "patch_id": "test-patch",
+      "target_file": "non_existent_file.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: non_existent_file.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "non_existent_file.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:54:12.174228"
+      }
+    },
+    {
+      "id": "patch_1752864852176",
+      "type": "patch_event",
+      "event_type": "missing_pattern",
+      "timestamp": "2025-07-18T11:54:12.176207",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No pattern specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T11:54:12.176197"
+      }
+    },
+    {
+      "id": "system_1752865891608",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T12:11:31.608195",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1752865891610",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-18T12:11:31.610578",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "patch_1752874537267",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:35:37.267316",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:35:37.267221"
+      }
+    },
+    {
+      "id": "patch_1752874549251",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:35:49.251651",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:35:49.251554"
+      }
+    },
+    {
+      "id": "patch_1752874580824",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:36:20.824035",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:36:20.823936"
+      }
+    },
+    {
+      "id": "patch_1752874586717",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T14:36:26.717017",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: tmp_test_target.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:36:26.717001"
+      }
+    },
+    {
+      "id": "patch_1752874597730",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:36:37.730455",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:36:37.730351"
+      }
+    },
+    {
+      "id": "patch_1752874612769",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:36:52.769601",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:36:52.769511"
+      }
+    },
+    {
+      "id": "patch_1752874621089",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:37:01.089320",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:37:01.088641",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_143701"
+      }
+    },
+    {
+      "id": "patch_1752874646498",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:37:26.498831",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:37:26.498255",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_143726"
+      }
+    },
+    {
+      "id": "system_1752874651834",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:37:31.834733",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_143731.json"
+      }
+    },
+    {
+      "id": "system_1752874656811",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:37:36.811917",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_143736.json"
+      }
+    },
+    {
+      "id": "system_1752874668828",
+      "type": "system_event",
+      "event_type": "test_event",
+      "timestamp": "2025-07-18T14:37:48.828010",
+      "data": {
+        "test": "data"
+      }
+    },
+    {
+      "id": "system_1752874703351",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T14:38:23.351120",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "patch": {
+            "pattern": "test",
+            "replacement": "replaced"
+          },
+          "role": "ui_patch",
+          "target_file": "test.tsx"
+        }
+      }
+    },
+    {
+      "id": "system_1752874703352",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:38:23.352616",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_143823.json"
+      }
+    },
+    {
+      "id": "system_1752875308860",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T14:48:28.860541",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "patch": {
+            "pattern": "test",
+            "replacement": "replaced"
+          },
+          "role": "ui_patch",
+          "target_file": "test.tsx"
+        }
+      }
+    },
+    {
+      "id": "system_1752875308861",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:48:28.861772",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_144828.json"
+      }
+    },
+    {
+      "id": "patch_1752875312879",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:48:32.879593",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:48:32.879007",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_144832"
+      }
+    },
+    {
+      "id": "patch_1752875323724",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:48:43.724904",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:48:43.724807"
+      }
+    },
+    {
+      "id": "patch_1752875340572",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:49:00.572259",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:00.571783",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_144900"
+      }
+    },
+    {
+      "id": "patch_1752875345590",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:49:05.590793",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.590311",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_144905"
+      }
+    },
+    {
+      "id": "patch_1752875345593",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:49:05.593517",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.593493"
+      }
+    },
+    {
+      "id": "patch_1752875345617",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T14:49:05.617870",
+      "patch_id": "test-patch",
+      "target_file": "non_existent_file.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: non_existent_file.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "non_existent_file.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.617853"
+      }
+    },
+    {
+      "id": "patch_1752875345619",
+      "type": "patch_event",
+      "event_type": "missing_pattern",
+      "timestamp": "2025-07-18T14:49:05.619605",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No pattern specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.619594"
+      }
+    },
+    {
+      "id": "patch_1752875345621",
+      "type": "patch_event",
+      "event_type": "missing_replacement",
+      "timestamp": "2025-07-18T14:49:05.621339",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No replacement specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.621331"
+      }
+    },
+    {
+      "id": "patch_1752875345623",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:49:05.623823",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <NonExistentComponent>.*?</NonExistentComponent>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.623803"
+      }
+    },
+    {
+      "id": "patch_1752875345626",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:49:05.626042",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>This text will be patched.</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:05.626030"
+      }
+    },
+    {
+      "id": "patch_1752875345630",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:49:05.630967",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <View>.*?</View>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:49:05.630954"
+      }
+    },
+    {
+      "id": "patch_1752875345635",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T14:49:05.635318",
+      "patch_id": "multi-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "multi-test",
+        "timestamp": "2025-07-18T14:49:05.635296"
+      }
+    },
+    {
+      "id": "system_1752875345815",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T14:49:05.815337",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-id",
+          "patch": {
+            "pattern": "foo",
+            "replacement": "bar"
+          },
+          "role": "test-role"
+        }
+      }
+    },
+    {
+      "id": "system_1752875345816",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-18T14:49:05.816608",
+      "data": {
+        "error": "Missing required field: target_file",
+        "block_data": {
+          "id": "test-id",
+          "patch": {
+            "pattern": "foo",
+            "replacement": "bar"
+          },
+          "role": "test-role"
+        }
+      }
+    },
+    {
+      "id": "patch_1752875377679",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:49:37.679680",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.679045",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_144937"
+      }
+    },
+    {
+      "id": "patch_1752875377682",
+      "type": "patch_event",
+      "event_type": "dry_run",
+      "timestamp": "2025-07-18T14:49:37.682259",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Dry run: Would apply patch to tmp_test_target.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.682221"
+      }
+    },
+    {
+      "id": "patch_1752875377684",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T14:49:37.684029",
+      "patch_id": "test-patch",
+      "target_file": "non_existent_file.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: non_existent_file.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "non_existent_file.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.684018"
+      }
+    },
+    {
+      "id": "patch_1752875377685",
+      "type": "patch_event",
+      "event_type": "missing_pattern",
+      "timestamp": "2025-07-18T14:49:37.685731",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No pattern specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.685723"
+      }
+    },
+    {
+      "id": "patch_1752875377687",
+      "type": "patch_event",
+      "event_type": "missing_replacement",
+      "timestamp": "2025-07-18T14:49:37.687640",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No replacement specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.687630"
+      }
+    },
+    {
+      "id": "patch_1752875377689",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:49:37.689655",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <NonExistentComponent>.*?</NonExistentComponent>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.689575"
+      }
+    },
+    {
+      "id": "patch_1752875377692",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:49:37.692906",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:49:37.692361",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_144937"
+      }
+    },
+    {
+      "id": "patch_1752875377697",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:49:37.697939",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <View>.*?</View>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:49:37.697882"
+      }
+    },
+    {
+      "id": "patch_1752875377724",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:49:37.724301",
+      "patch_id": "multi-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <Text>.*?</Text>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "multi-test",
+        "timestamp": "2025-07-18T14:49:37.724203"
+      }
+    },
+    {
+      "id": "patch_1752875384220",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:49:44.220850",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Pattern not found in file: <View>.*?</View>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:49:44.220479"
+      }
+    },
+    {
+      "id": "system_1752875670228",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T14:54:30.228188",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "patch": {
+            "pattern": "test",
+            "replacement": "replaced"
+          },
+          "role": "ui_patch",
+          "target_file": "test.tsx"
+        }
+      }
+    },
+    {
+      "id": "system_1752875670231",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:54:30.231014",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_145430.json"
+      }
+    },
+    {
+      "id": "patch_1752875696033",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:54:56.033945",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Regex pattern not found in file: <View>.*?</View>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:54:56.033744"
+      }
+    },
+    {
+      "id": "patch_1752875723902",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:23.902541",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:55:23.894787",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145523"
+      }
+    },
+    {
+      "id": "patch_1752875735314",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:35.314378",
+      "patch_id": "multi-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "multi-test",
+        "timestamp": "2025-07-18T14:55:35.313646",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145535"
+      }
+    },
+    {
+      "id": "patch_1752875745026",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:45.026641",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.025868",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145545"
+      }
+    },
+    {
+      "id": "patch_1752875745030",
+      "type": "patch_event",
+      "event_type": "dry_run",
+      "timestamp": "2025-07-18T14:55:45.030149",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Dry run: Would apply patch to tmp_test_target.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.030093"
+      }
+    },
+    {
+      "id": "patch_1752875745033",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T14:55:45.033048",
+      "patch_id": "test-patch",
+      "target_file": "non_existent_file.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: non_existent_file.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "non_existent_file.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.033015"
+      }
+    },
+    {
+      "id": "patch_1752875745035",
+      "type": "patch_event",
+      "event_type": "missing_pattern",
+      "timestamp": "2025-07-18T14:55:45.035623",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No pattern specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.035612"
+      }
+    },
+    {
+      "id": "patch_1752875745038",
+      "type": "patch_event",
+      "event_type": "missing_replacement",
+      "timestamp": "2025-07-18T14:55:45.038321",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "No replacement specified",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.038302"
+      }
+    },
+    {
+      "id": "patch_1752875745041",
+      "type": "patch_event",
+      "event_type": "pattern_not_found",
+      "timestamp": "2025-07-18T14:55:45.041307",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Regex pattern not found in file: <NonExistentComponent>.*?</NonExistentComponent>",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.041187"
+      }
+    },
+    {
+      "id": "patch_1752875745045",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:45.045906",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:55:45.045320",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145545"
+      }
+    },
+    {
+      "id": "patch_1752875745053",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:45.053430",
+      "patch_id": "complex-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "complex-test",
+        "timestamp": "2025-07-18T14:55:45.052811",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145545"
+      }
+    },
+    {
+      "id": "patch_1752875745057",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:55:45.057440",
+      "patch_id": "multi-test",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "multi-test",
+        "timestamp": "2025-07-18T14:55:45.056975",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145545"
+      }
+    },
+    {
+      "id": "system_1752875760594",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T14:56:00.594130",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "patch": {
+            "pattern": "test",
+            "replacement": "replaced"
+          },
+          "role": "ui_patch",
+          "target_file": "test.tsx"
+        }
+      }
+    },
+    {
+      "id": "system_1752875760596",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T14:56:00.596329",
+      "data": {
+        "patch_id": "test",
+        "target_file": "test.tsx",
+        "filepath": "patches/test_20250718_145600.json"
+      }
+    },
+    {
+      "id": "patch_1752875764884",
+      "type": "patch_event",
+      "event_type": "patch_applied",
+      "timestamp": "2025-07-18T14:56:04.884266",
+      "patch_id": "test-patch",
+      "target_file": "tmp_test_target.tsx",
+      "description": "",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": true,
+        "message": "Successfully applied patch to tmp_test_target.tsx",
+        "changes_made": true,
+        "backup_created": true,
+        "target_file": "tmp_test_target.tsx",
+        "patch_id": "test-patch",
+        "timestamp": "2025-07-18T14:56:04.883242",
+        "backup_file": "tmp_test_target.tsx.bak_20250718_145604"
+      }
+    },
+    {
+      "id": "system_1752898666904",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T21:17:46.904912",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "patch"
+        }
+      }
+    },
+    {
+      "id": "system_1752898666906",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-18T21:17:46.906962",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "patch"
+        }
+      }
+    },
+    {
+      "id": "system_1752899602711",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T21:33:22.711638",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-001",
+          "role": "ui_patch",
+          "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+          "patch": {
+            "pattern": "Test",
+            "replacement": "\u2705 Test patch applied"
+          },
+          "description": "Test patch for Ghost runner"
+        }
+      }
+    },
+    {
+      "id": "system_1752899602714",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T21:33:22.714763",
+      "data": {
+        "patch_id": "test-patch-001",
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches/test-patch-001_20250718_213322.json"
+      }
+    },
+    {
+      "id": "system_1752899610673",
+      "type": "system_event",
+      "event_type": "api_summaries_received",
+      "timestamp": "2025-07-18T21:33:30.673581",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-summary-001",
+          "content": "# Test Summary\n\nThis is a test summary for Ghost runner patch delivery verification.\n\n## Status\n\u2705 Patch delivery working correctly\n\u2705 Summary delivery working correctly\n\n**Timestamp**: 2025-07-18T21:33:22"
+        }
+      }
+    },
+    {
+      "id": "system_1752899610675",
+      "type": "system_event",
+      "event_type": "summary_created",
+      "timestamp": "2025-07-18T21:33:30.675504",
+      "data": {
+        "summary_id": "test-summary-001",
+        "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/summaries/test-summary-001.md"
+      }
+    },
+    {
+      "id": "system_1752899656841",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-18T21:34:16.841792",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ngrok-test-patch",
+          "role": "ui_patch",
+          "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+          "patch": {
+            "pattern": "Ngrok",
+            "replacement": "\u2705 Ngrok tunnel working"
+          },
+          "description": "Test patch via ngrok tunnel"
+        }
+      }
+    },
+    {
+      "id": "system_1752899656843",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T21:34:16.843659",
+      "data": {
+        "patch_id": "ngrok-test-patch",
+        "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+        "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches/ngrok-test-patch_20250718_213416.json"
+      }
+    },
+    {
+      "id": "system_1752901066700",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-18T21:57:46.700874",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-diagnostic-patch",
+          "role": "ui_patch",
+          "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+          "patch": {
+            "pattern": "Test",
+            "replacement": "\u2705 Diagnostic test passed"
+          },
+          "description": "Diagnostic test patch"
+        }
+      }
+    },
+    {
+      "id": "system_1752901066702",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-18T21:57:46.702923",
+      "data": {
+        "patch_id": "test-diagnostic-patch",
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches/test-diagnostic-patch_20250718_215746.json"
+      }
+    },
+    {
+      "id": "patch_1752901240979",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:00:40.979266",
+      "patch_id": "test-diagnostic-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "Diagnostic test patch",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "test-diagnostic-patch",
+        "timestamp": "2025-07-18T22:00:40.979202"
+      }
+    },
+    {
+      "id": "patch_1752901240981",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:00:40.981421",
+      "patch_id": "ngrok-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+      "description": "Test patch via ngrok tunnel",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+        "patch_id": "ngrok-test-patch",
+        "timestamp": "2025-07-18T22:00:40.981405"
+      }
+    },
+    {
+      "id": "patch_1752901240983",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:00:40.983111",
+      "patch_id": "test-patch-001",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "Test patch for Ghost runner",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "test-patch-001",
+        "timestamp": "2025-07-18T22:00:40.983090"
+      }
+    },
+    {
+      "id": "patch_1752902071392",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.392400",
+      "patch_id": "patch-1.4.1e-1-4e_theme-role-token-audit",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "theme-role-token-audit patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-4e_theme-role-token-audit",
+        "timestamp": "2025-07-18T22:14:31.392373"
+      }
+    },
+    {
+      "id": "patch_1752902071394",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.394643",
+      "patch_id": "patch-1.4.1e-1-3e_src-nextgen-init",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "src-nextgen-init patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-3e_src-nextgen-init",
+        "timestamp": "2025-07-18T22:14:31.394623"
+      }
+    },
+    {
+      "id": "patch_1752902071397",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.397299",
+      "patch_id": "patch-1.4.1e-1-5e_blueprint-scan",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "blueprint-scan patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-5e_blueprint-scan",
+        "timestamp": "2025-07-18T22:14:31.397281"
+      }
+    },
+    {
+      "id": "patch_1752902071399",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.399629",
+      "patch_id": "test-diagnostic-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "Diagnostic test patch",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "test-diagnostic-patch",
+        "timestamp": "2025-07-18T22:14:31.399613"
+      }
+    },
+    {
+      "id": "patch_1752902071401",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.401943",
+      "patch_id": "ngrok-test-patch",
+      "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+      "description": "Test patch via ngrok tunnel",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/NgrokTestComponent.tsx",
+        "patch_id": "ngrok-test-patch",
+        "timestamp": "2025-07-18T22:14:31.401921"
+      }
+    },
+    {
+      "id": "patch_1752902071404",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.404133",
+      "patch_id": "test-patch-001",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "Test patch for Ghost runner",
+      "author": "unknown",
+      "source": "unknown",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "test-patch-001",
+        "timestamp": "2025-07-18T22:14:31.404123"
+      }
+    },
+    {
+      "id": "patch_1752902071406",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.406263",
+      "patch_id": "patch-1.4.1e-1-2e_structure-checks",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "structure-checks patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-2e_structure-checks",
+        "timestamp": "2025-07-18T22:14:31.406230"
+      }
+    },
+    {
+      "id": "patch_1752902071408",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:14:31.408493",
+      "patch_id": "patch-1.4.1e-1-1e_src-crawl-snapshot",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "src-crawl-snapshot patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-1e_src-crawl-snapshot",
+        "timestamp": "2025-07-18T22:14:31.408481"
+      }
+    },
+    {
+      "id": "patch_1752902408550",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:20:08.550932",
+      "patch_id": "patch-1.4.1e-1-4e_theme-role-token-audit",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "theme-role-token-audit patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-4e_theme-role-token-audit",
+        "timestamp": "2025-07-18T22:20:08.550897"
+      }
+    },
+    {
+      "id": "patch_1752902408553",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:20:08.553516",
+      "patch_id": "patch-1.4.1e-1-3e_src-nextgen-init",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "src-nextgen-init patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-3e_src-nextgen-init",
+        "timestamp": "2025-07-18T22:20:08.553496"
+      }
+    },
+    {
+      "id": "patch_1752902408555",
+      "type": "patch_event",
+      "event_type": "file_not_found",
+      "timestamp": "2025-07-18T22:20:08.555941",
+      "patch_id": "patch-1.4.1e-1-5e_blueprint-scan",
+      "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+      "description": "blueprint-scan patch for tm-mobile-cursor",
+      "author": "gpt",
+      "source": "ghost_runner",
+      "result": {
+        "success": false,
+        "message": "Target file not found: mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "mobile-native-fresh/src/components/ui/TestComponent.tsx",
+        "patch_id": "patch-1.4.1e-1-5e_blueprint-scan",
+        "timestamp": "2025-07-18T22:20:08.555926"
+      }
+    },
+    {
+      "id": "patch_1752907870110",
+      "type": "patch_event",
+      "event_type": "dangerous_pattern",
+      "timestamp": "2025-07-18T23:51:10.110506",
+      "patch_id": "patch-1.4.1e-1-3e_src-nextgen-readme-inject",
+      "target_file": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/src-nextgen/README.md",
+      "description": "Injects authoritative roadmap and guardrail doc into src-nextgen/ as README.md",
+      "author": "gpt",
+      "source": "src-nextgen bootstrap",
+      "result": {
+        "success": false,
+        "message": "Dangerous pattern detected: .*",
+        "changes_made": false,
+        "backup_created": false,
+        "target_file": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/src-nextgen/README.md",
+        "patch_id": "patch-1.4.1e-1-3e_src-nextgen-readme-inject",
+        "timestamp": "2025-07-18T23:51:10.110433"
+      }
+    },
+    {
+      "id": "system_1752953836171",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-19T12:37:16.171594",
+      "data": {
+        "patch_id": "slack-test-patch-1752953836",
+        "target_file": "mobile-native-fresh/src/components/ui/OnboardingModal_RUNNER-TEST.tsx",
+        "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches/slack-test-patch-1752953836_20250719_123716.json"
+      }
+    },
+    {
+      "id": "system_1752953836428",
+      "type": "system_event",
+      "event_type": "slack_test_triggered",
+      "timestamp": "2025-07-19T12:37:16.428253",
+      "data": {
+        "patch_id": "slack-test-patch-1752953836",
+        "result": {
+          "success": true,
+          "message": "Patch saved to slack-test-patch-1752953836_20250719_123716.json",
+          "filepath": "/Users/sawyer/gitSync/tm-mobile-cursor/mobile-native-fresh/tasks/patches/slack-test-patch-1752953836_20250719_123716.json",
+          "patch_id": "slack-test-patch-1752953836"
+        }
+      }
+    },
+    {
+      "id": "system_1753306104138",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-23T14:28:24.138366",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-delivery",
+          "role": "test",
+          "target_file": "/tmp/test.txt",
+          "patch": {
+            "pattern": "test",
+            "replacement": "success"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753306104141",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-23T14:28:24.141169",
+      "data": {
+        "patch_id": "test-patch-delivery",
+        "target_file": "/tmp/test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-delivery_20250723_142824.json"
+      }
+    },
+    {
+      "id": "system_1753650903790",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-27T14:15:03.790378",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-cyops-patch-delivery",
+          "role": "ui_patch",
+          "target_file": "test.txt",
+          "patch": {
+            "pattern": ".*",
+            "replacement": "Test patch delivery working"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753650903793",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-27T14:15:03.793095",
+      "data": {
+        "patch_id": "test-cyops-patch-delivery",
+        "target_file": "test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-cyops-patch-delivery_20250727_141503.json"
+      }
+    },
+    {
+      "id": "system_1753678640290",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-27T21:57:20.290025",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-001",
+          "role": "test",
+          "target_file": "test.txt",
+          "patch": "test content"
+        }
+      }
+    },
+    {
+      "id": "system_1753678640293",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-27T21:57:20.293501",
+      "data": {
+        "patch_id": "test-patch-001",
+        "target_file": "test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-001_20250727_215720.json"
+      }
+    },
+    {
+      "id": "system_1753678730748",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-27T21:58:50.748685",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-002",
+          "role": "test",
+          "target_file": "test.txt",
+          "patch": "test content"
+        }
+      }
+    },
+    {
+      "id": "system_1753678730754",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-27T21:58:50.754892",
+      "data": {
+        "patch_id": "test-patch-002",
+        "target_file": "test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-002_20250727_215850.json"
+      }
+    },
+    {
+      "id": "system_1753690383980",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T01:13:03.980842",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-patch",
+          "role": "test",
+          "target_file": "test.ts",
+          "patch": {
+            "pattern": "test",
+            "replacement": "test"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753690383984",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-28T01:13:03.984221",
+      "data": {
+        "patch_id": "test-patch",
+        "target_file": "test.ts",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch_20250728_011303.json"
+      }
+    },
+    {
+      "id": "system_1753766338217",
+      "type": "system_event",
+      "event_type": "api_summaries_received",
+      "timestamp": "2025-07-28T22:18:58.217629",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753766338227",
+      "type": "system_event",
+      "event_type": "summary_created",
+      "timestamp": "2025-07-28T22:18:58.227642",
+      "data": {
+        "summary_id": "ghost-bridge-test",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/ghost-bridge-test.md"
+      }
+    },
+    {
+      "id": "system_1753766338250",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:18:58.250075",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753766338258",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:18:58.258098",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:18:58.203Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185675",
+      "type": "system_event",
+      "event_type": "api_summaries_received",
+      "timestamp": "2025-07-28T22:49:45.675765",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185685",
+      "type": "system_event",
+      "event_type": "summary_created",
+      "timestamp": "2025-07-28T22:49:45.685350",
+      "data": {
+        "summary_id": "ghost-bridge-test",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/ghost-bridge-test.md"
+      }
+    },
+    {
+      "id": "system_1753768185707",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:49:45.707071",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768185713",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:49:45.713518",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "ghost-bridge-test",
+          "content": "Test summary from ghost bridge",
+          "timestamp": "2025-07-29T05:49:45.661Z",
+          "source": "ghost-bridge-test"
+        }
+      }
+    },
+    {
+      "id": "system_1753768293763",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:51:33.763090",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-patch-gpt-interface",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": ["test", "gpt", "interface"],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768293774",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-28T22:51:33.774754",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test-patch-gpt-interface",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": ["test", "gpt", "interface"],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768325148",
+      "type": "system_event",
+      "event_type": "api_patches_received",
+      "timestamp": "2025-07-28T22:52:05.148595",
+      "data": {
+        "source": "ghost_bridge",
+        "data": {
+          "id": "test-patch-gpt-interface",
+          "role": "ghost-system",
+          "target_file": "/tmp/gpt-interface-test.log",
+          "patch": "echo 'GPT interface test completed successfully at $(date)' >> /tmp/gpt-interface-test.log",
+          "version": "1.0.0",
+          "phase": "P8.10.02",
+          "timestamp": "2025-07-29T05:55:00Z",
+          "description": "Test patch for GPT interface verification",
+          "enforceValidationGate": true,
+          "strictRuntimeAudit": true,
+          "runDryCheck": true,
+          "forceRuntimeTrace": true,
+          "requireMutationProof": true,
+          "requireServiceUptime": true,
+          "target": "ghost-system",
+          "priority": "high",
+          "autoExecute": true,
+          "preCommit": {
+            "shell": [
+              "echo '\ud83e\udd16 Pre-commit: GPT interface test...'",
+              "date",
+              "echo 'GPT interface test started at $(date)' > /tmp/gpt-interface-test.log",
+              "echo '\u2705 Pre-commit phase completed'"
+            ]
+          },
+          "validate": {
+            "shell": [
+              "echo '\ud83d\udd0d Validation: Checking GPT interface...'",
+              "curl -s http://localhost:5051/health | grep -q 'ok' && echo '\u2705 Runner healthy' || echo '\u274c Runner unhealthy'",
+              "echo 'GPT interface validation completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Validation phase completed'"
+            ]
+          },
+          "postMutationBuild": {
+            "shell": [
+              "echo '\ud83c\udfd7\ufe0f Post-mutation: Finalizing GPT interface test...'",
+              "echo 'GPT interface test completed at $(date)' >> /tmp/gpt-interface-test.log",
+              "echo 'Test Results:' >> /tmp/gpt-interface-test.log",
+              "echo '- Runner: $(curl -s http://localhost:5051/health | grep -o '\"status\":\"[^\"]*\"' | cut -d\" -f4)' >> /tmp/gpt-interface-test.log",
+              "echo '\u2705 Post-mutation phase completed'"
+            ]
+          },
+          "metadata": {
+            "author": "gpt-interface",
+            "tags": ["test", "gpt", "interface"],
+            "dependencies": [],
+            "estimatedDuration": "30s"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753768325155",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-28T22:52:05.155412",
+      "data": {
+        "patch_id": "test-patch-gpt-interface",
+        "target_file": "/tmp/gpt-interface-test.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-gpt-interface_20250728_225205.json"
+      }
+    },
+    {
+      "id": "system_1753838320856",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:18:40.856494",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "verify-hotpatch-final",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+          "patch": "echo \"[\u2705 HOTPATCH EXECUTION TEST FINAL] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753838320888",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:18:40.888249",
+      "data": {
+        "patch_id": "verify-hotpatch-final",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/verify-hotpatch-final_20250729_181840.json"
+      }
+    },
+    {
+      "id": "system_1753838321212",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T18:18:41.212820",
+      "data": {
+        "patch_id": "verify-hotpatch-final",
+        "error": "All Ghost Runner endpoints failed for patch verify-hotpatch-final"
+      }
+    },
+    {
+      "id": "system_1753838365925",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:19:25.925470",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-final",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+          "patch": "echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753838365934",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:19:25.934838",
+      "data": {
+        "patch_id": "test-final",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-final_20250729_181925.json"
+      }
+    },
+    {
+      "id": "system_1753838366183",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T18:19:26.183144",
+      "data": {
+        "patch_id": "test-final",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-final",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 3 patch files to process.\n[EXECUTOR] Processing patch: test-final.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: test-final.json\n[EXECUTOR] \ud83d\udcc1 Moved test-final.json to .completed\n[EXECUTOR] Processing patch: test-final_20250729_181925.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 FINAL TEST SUCCESS] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: test-final_20250729_181925.json\n[EXECUTOR] \ud83d\udcc1 Moved test-final_20250729_181925.json to .completed\n[EXECUTOR] Processing patch: verify-hotpatch-final_20250729_181840.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 HOTPATCH EXECUTION TEST FINAL] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/delivery-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: verify-hotpatch-final_20250729_181840.json\n[EXECUTOR] \ud83d\udcc1 Moved verify-hotpatch-final_20250729_181840.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753839976239",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T18:46:16.239229",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log",
+          "patch": "echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753839976281",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T18:46:16.281491",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_184616.json"
+      }
+    },
+    {
+      "id": "system_1753839976655",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T18:46:16.655140",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_184616.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL WEBHOOK STILL WORKING] at $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/local-test.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_184616.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_184616.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753847299448",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T20:48:19.448474",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "final-tunnel-confirm",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log",
+          "patch": "echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753847299493",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T20:48:19.493136",
+      "data": {
+        "patch_id": "final-tunnel-confirm",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/final-tunnel-confirm_20250729_204819.json"
+      }
+    },
+    {
+      "id": "system_1753847299880",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T20:48:19.880872",
+      "data": {
+        "patch_id": "final-tunnel-confirm",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "final-tunnel-confirm",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: final-tunnel-confirm.json\n[EXECUTOR] Running GPT patch command: echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log\n[EXECUTOR] \u2705 Patch execution successful: final-tunnel-confirm.json\n[EXECUTOR] \ud83d\udcc1 Moved final-tunnel-confirm.json to .completed\n[EXECUTOR] Processing patch: final-tunnel-confirm_20250729_204819.json\n[EXECUTOR] Running GPT patch command: echo \\\"[\u2705 FINAL EXECUTED THROUGH TUNNEL] $(date)\\\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-final-execution.log\n[EXECUTOR] \u2705 Patch execution successful: final-tunnel-confirm_20250729_204819.json\n[EXECUTOR] \ud83d\udcc1 Moved final-tunnel-confirm_20250729_204819.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848141014",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:02:21.014422",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "monitor-cycle",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log",
+          "patch": "echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848141067",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:02:21.067205",
+      "data": {
+        "patch_id": "monitor-cycle",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/monitor-cycle_20250729_210221.json"
+      }
+    },
+    {
+      "id": "system_1753848141437",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:02:21.437565",
+      "data": {
+        "patch_id": "monitor-cycle",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "monitor-cycle",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: monitor-cycle.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log\n[EXECUTOR] \u2705 Patch execution successful: monitor-cycle.json\n[EXECUTOR] \ud83d\udcc1 Moved monitor-cycle.json to .completed\n[EXECUTOR] Processing patch: monitor-cycle_20250729_210221.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 MONITOR PING RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/monitor-execution.log\n[EXECUTOR] \u2705 Patch execution successful: monitor-cycle_20250729_210221.json\n[EXECUTOR] \ud83d\udcc1 Moved monitor-cycle_20250729_210221.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848278305",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:38.305687",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848278317",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:04:38.317229",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283315",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:43.315585",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283330",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:04:43.330221",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "minimal",
+          "timestamp": "1753848278"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283571",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:43.571114",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "tunnel-trace-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848283580",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:43.580503",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/tunnel-trace-test_20250729_210443.json"
+      }
+    },
+    {
+      "id": "system_1753848283814",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:43.814837",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "tunnel-trace-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: tunnel-trace-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test.json to .completed\n[EXECUTOR] Processing patch: tunnel-trace-test_20250729_210443.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test_20250729_210443.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test_20250729_210443.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288575",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:48.575845",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "tunnel-trace-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288585",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:48.585695",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/tunnel-trace-test_20250729_210448.json"
+      }
+    },
+    {
+      "id": "system_1753848288809",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:48.809308",
+      "data": {
+        "patch_id": "tunnel-trace-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "tunnel-trace-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: tunnel-trace-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test.json to .completed\n[EXECUTOR] Processing patch: tunnel-trace-test_20250729_210448.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 TUNNEL TRACE RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: tunnel-trace-test_20250729_210448.json\n[EXECUTOR] \ud83d\udcc1 Moved tunnel-trace-test_20250729_210448.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288861",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:48.861187",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848288872",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:48.872635",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_210448.json"
+      }
+    },
+    {
+      "id": "system_1753848289114",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:49.114435",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_210448.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_210448.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_210448.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848293866",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:04:53.866512",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "local-test",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+          "patch": "echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848293881",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:04:53.881994",
+      "data": {
+        "patch_id": "local-test",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/local-test_20250729_210453.json"
+      }
+    },
+    {
+      "id": "system_1753848294112",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:04:54.112039",
+      "data": {
+        "patch_id": "local-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "local-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: local-test.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test.json to .completed\n[EXECUTOR] Processing patch: local-test_20250729_210453.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 LOCAL FLASK RECEIVED] $(date)\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/tunnel-trace-diagnostic.log\n[EXECUTOR] \u2705 Patch execution successful: local-test_20250729_210453.json\n[EXECUTOR] \ud83d\udcc1 Moved local-test_20250729_210453.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753848520359",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:08:40.359714",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "resume-delivery",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+          "patch": "echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753848520375",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:08:40.375693",
+      "data": {
+        "patch_id": "resume-delivery",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/resume-delivery_20250729_210840.json"
+      }
+    },
+    {
+      "id": "system_1753848520737",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:08:40.737790",
+      "data": {
+        "patch_id": "resume-delivery",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "resume-delivery",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: resume-delivery.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery.json to .completed\n[EXECUTOR] Processing patch: resume-delivery_20250729_210840.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] $(date) - Webhook delivery system verified and operational\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery_20250729_210840.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery_20250729_210840.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753849202157",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:20:02.157774",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "resume-delivery",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+          "patch": "echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log"
+        }
+      }
+    },
+    {
+      "id": "system_1753849202176",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T21:20:02.176273",
+      "data": {
+        "patch_id": "resume-delivery",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/resume-delivery_20250729_212002.json"
+      }
+    },
+    {
+      "id": "system_1753849202543",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T21:20:02.543352",
+      "data": {
+        "patch_id": "resume-delivery",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "resume-delivery",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: resume-delivery.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery.json to .completed\n[EXECUTOR] Processing patch: resume-delivery_20250729_212002.json\n[EXECUTOR] Running GPT patch command: echo \"[\u2705 DELIVERY OPS ACTIVE] Tue Jul 29 21:20:02 PDT 2025\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/webhook-delivery-ops.log\n[EXECUTOR] \u2705 Patch execution successful: resume-delivery_20250729_212002.json\n[EXECUTOR] \ud83d\udcc1 Moved resume-delivery_20250729_212002.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753850745317",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T21:45:45.317580",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753850745329",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T21:45:45.329381",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753851635476",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:00:35.476501",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.20",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.28(P8.13.20)_system-state-log-health-audit.json",
+          "patch": "test"
+        }
+      }
+    },
+    {
+      "id": "system_1753851635697",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:00:35.697751",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.20",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.28(P8.13.20)_system-state-log-health-audit.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.20_20250729_220035.json"
+      }
+    },
+    {
+      "id": "system_1753851636119",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:00:36.119803",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.20",
+        "error": "All Ghost Runner endpoints failed for patch ghost-dispatch-P8.13.20"
+      }
+    },
+    {
+      "id": "system_1753852088139",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:08.140020",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852088159",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:08.159920",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix_20250729_220808.json"
+      }
+    },
+    {
+      "id": "system_1753852088612",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:08.612840",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix"
+      }
+    },
+    {
+      "id": "system_1753852115017",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:35.017214",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-2",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852115028",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:35.028265",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-2",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-2_20250729_220835.json"
+      }
+    },
+    {
+      "id": "system_1753852115328",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:35.328667",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-2",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix-2"
+      }
+    },
+    {
+      "id": "system_1753852132870",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:08:52.870913",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-3",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852132885",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:08:52.885796",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-3",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-3_20250729_220852.json"
+      }
+    },
+    {
+      "id": "system_1753852133160",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-29T22:08:53.160249",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-3",
+        "error": "All Ghost Runner endpoints failed for patch test-patch-timestamp-fix-3"
+      }
+    },
+    {
+      "id": "system_1753852154475",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:09:14.475054",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch-timestamp-fix-4",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852154487",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:09:14.487524",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-4",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-patch-timestamp-fix-4_20250729_220914.json"
+      }
+    },
+    {
+      "id": "system_1753852154710",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:09:14.710143",
+      "data": {
+        "patch_id": "test-patch-timestamp-fix-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-patch-timestamp-fix-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 10 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.20.json\n[EXECUTOR] Running GPT patch command: test\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.20.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.20_20250729_220035.json\n[EXECUTOR] Running GPT patch command: test\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.20_20250729_220035.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-2.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-2.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-2_20250729_220835.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-2_20250729_220835.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-3.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-3.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-3_20250729_220852.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-3_20250729_220852.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-4.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-4.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix-4_20250729_220914.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix-4_20250729_220914.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix.json to .failed\n[EXECUTOR] Processing patch: test-patch-timestamp-fix_20250729_220808.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-patch-timestamp-fix_20250729_220808.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852159282",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:09:19.282747",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852159294",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:09:19.294919",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook_20250729_220919.json"
+      }
+    },
+    {
+      "id": "system_1753852159499",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:09:19.499653",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook.json to .failed\n[EXECUTOR] Processing patch: test-external-webhook_20250729_220919.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook_20250729_220919.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852439268",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:13:59.268698",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852439280",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:13:59.280392",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21_20250729_221359.json"
+      }
+    },
+    {
+      "id": "system_1753852439569",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:13:59.569724",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21_20250729_221359.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21_20250729_221359.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753852446303",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:14:06.303802",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook-2",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "data"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753852446316",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:14:06.316647",
+      "data": {
+        "patch_id": "test-external-webhook-2",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook-2_20250729_221406.json"
+      }
+    },
+    {
+      "id": "system_1753852446522",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:14:06.522608",
+      "data": {
+        "patch_id": "test-external-webhook-2",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook-2",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook-2.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook-2.json to .failed\n[EXECUTOR] Processing patch: test-external-webhook-2_20250729_221406.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook-2_20250729_221406.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753853262554",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:27:42.554326",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+          "patch": {
+            "showInUI": true,
+            "blockId": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "description": "Live test patch to confirm webhook and Ghost delivery path post-timestamp fix",
+            "target": "DEV",
+            "version": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts",
+                "contents": "export const confirmationPatch = \"\u2705 TEST PATCH RECEIVED\";"
+              }
+            ],
+            "postMutationBuild": {
+              "shell": [
+                "echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "validate": {
+              "shell": [
+                "test -f /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log",
+                "grep -q \"\\[\u2705 TEST PATCH RECEIVED\\]\" /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "final": {
+              "git": {
+                "commit": "[PATCH P8.13.21] webhook-dispatch-confirmation-test \u2014 Confirm Ghost delivery pipeline",
+                "tag": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test"
+              },
+              "summary": "\u2705 patch-v3.3.29(P8.13.21): Confirmed successful dispatch to Ghost.",
+              "summaryFile": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.md"
+            },
+            "blockCommitOnError": true,
+            "watchConsole": true,
+            "execution": {
+              "autoReleaseTimeoutMs": 30000,
+              "onReloadHang": "Move to background and resume automatically"
+            },
+            "enforceValidationGate": true,
+            "strictRuntimeAudit": true,
+            "runDryCheck": true,
+            "forceRuntimeTrace": true,
+            "requireMutationProof": true,
+            "requireServiceUptime": true
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753853262572",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:27:42.572193",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21_20250729_222742.json"
+      }
+    },
+    {
+      "id": "system_1753853262982",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:27:42.982805",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21.json to .failed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21_20250729_222742.json\n[EXECUTOR] Running GPT patch command: [object Object]\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21_20250729_222742.json to .failed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753853309910",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:28:29.910144",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-P8.13.21-fixed",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+          "patch": {
+            "showInUI": true,
+            "blockId": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "description": "Live test patch to confirm webhook and Ghost delivery path post-timestamp fix",
+            "target": "DEV",
+            "version": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test",
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts",
+                "contents": "export const confirmationPatch = \"\u2705 TEST PATCH RECEIVED\";"
+              }
+            ],
+            "postMutationBuild": {
+              "shell": [
+                "echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "validate": {
+              "shell": [
+                "test -f /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log",
+                "grep -q \"\\[\u2705 TEST PATCH RECEIVED\\]\" /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log"
+              ]
+            },
+            "final": {
+              "git": {
+                "commit": "[PATCH P8.13.21] webhook-dispatch-confirmation-test \u2014 Confirm Ghost delivery pipeline",
+                "tag": "patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test"
+              },
+              "summary": "\u2705 patch-v3.3.29(P8.13.21): Confirmed successful dispatch to Ghost.",
+              "summaryFile": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.md"
+            },
+            "blockCommitOnError": true,
+            "watchConsole": true,
+            "execution": {
+              "autoReleaseTimeoutMs": 30000,
+              "onReloadHang": "Move to background and resume automatically"
+            },
+            "enforceValidationGate": true,
+            "strictRuntimeAudit": true,
+            "runDryCheck": true,
+            "forceRuntimeTrace": true,
+            "requireMutationProof": true,
+            "requireServiceUptime": true
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753853309942",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T22:28:29.942402",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21-fixed",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.29(P8.13.21)_webhook-dispatch-confirmation-test.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-P8.13.21-fixed_20250729_222829.json"
+      }
+    },
+    {
+      "id": "system_1753853310184",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T22:28:30.184755",
+      "data": {
+        "patch_id": "ghost-dispatch-P8.13.21-fixed",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-P8.13.21-fixed",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21-fixed.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts\n[EXECUTOR] Running: echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-P8.13.21-fixed.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21-fixed.json to .completed\n[EXECUTOR] Processing patch: ghost-dispatch-P8.13.21-fixed_20250729_222829.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch.ts\n[EXECUTOR] Running: echo \"[\u2705 TEST PATCH RECEIVED]\" >> /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/.logs/patch-confirmation.log\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-P8.13.21-fixed_20250729_222829.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-P8.13.21-fixed_20250729_222829.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753854163890",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:42:43.890195",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854163903",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:42:43.903570",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854510096",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:48:30.096175",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test",
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753854510113",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:48:30.113890",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test",
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855135503",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:58:55.503318",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855135515",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:58:55.515201",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855138511",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T22:58:58.511121",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855138523",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T22:58:58.523804",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "data"
+        }
+      }
+    },
+    {
+      "id": "system_1753855979918",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-29T23:12:59.918381",
+      "data": {
+        "error": "400 Bad Request: Failed to decode JSON object: Expecting ',' delimiter: line 1 column 718 (char 717)",
+        "headers": {
+          "Host": "localhost:5555",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/json",
+          "Content-Length": "2220"
+        }
+      }
+    },
+    {
+      "id": "system_1753857492042",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:38:12.042439",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "test": "patch-v3.3.33(P8.13.25)_ghost-confirmation-hotpatch-3"
+        }
+      }
+    },
+    {
+      "id": "system_1753857492061",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T23:38:12.061778",
+      "data": {
+        "error": "Missing required field: id",
+        "block_data": {
+          "test": "patch-v3.3.33(P8.13.25)_ghost-confirmation-hotpatch-3"
+        }
+      }
+    },
+    {
+      "id": "system_1753857768509",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:42:48.509376",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-patch",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857768518",
+      "type": "system_event",
+      "event_type": "webhook_validation_error",
+      "timestamp": "2025-07-29T23:42:48.518905",
+      "data": {
+        "error": "Missing required field: role",
+        "block_data": {
+          "id": "test-patch",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857794478",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:43:14.478672",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+          "role": "test",
+          "target_file": "/tmp/test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/test.txt",
+                "contents": "test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753857794491",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T23:43:14.491709",
+      "data": {
+        "patch_id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+        "target_file": "/tmp/test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json"
+      }
+    },
+    {
+      "id": "system_1753857794702",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T23:43:14.702294",
+      "data": {
+        "patch_id": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] Applying mutation to: /tmp/test.txt\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json\n[EXECUTOR] Applying mutation to: /tmp/test.txt\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.34(P8.13.26)_ghost-confirmation-hotpatch-4_20250729_234314.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753858600153",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-29T23:56:40.153182",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-dispatch-test",
+          "role": "command_patch",
+          "target_file": "/test/path.json",
+          "patch": {
+            "test": "value"
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753858600166",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-29T23:56:40.166413",
+      "data": {
+        "patch_id": "ghost-dispatch-test",
+        "target_file": "/test/path.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-dispatch-test_20250729_235640.json"
+      }
+    },
+    {
+      "id": "system_1753858600584",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-29T23:56:40.585001",
+      "data": {
+        "patch_id": "ghost-dispatch-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-dispatch-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-dispatch-test.json\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-test.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-test.json to .completed\n[EXECUTOR] Processing patch: ghost-dispatch-test_20250729_235640.json\n[EXECUTOR] \u2705 Patch execution successful: ghost-dispatch-test_20250729_235640.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-dispatch-test_20250729_235640.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753859591576",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:13:11.576794",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "test-external-webhook",
+          "role": "test",
+          "target_file": "/tmp/external-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/external-test.txt",
+                "contents": "external test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753859591588",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:13:11.588720",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "target_file": "/tmp/external-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/test-external-webhook_20250730_001311.json"
+      }
+    },
+    {
+      "id": "system_1753859591928",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:13:11.928500",
+      "data": {
+        "patch_id": "test-external-webhook",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "test-external-webhook",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: test-external-webhook.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: test-external-webhook.json\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook.json to .completed\n[EXECUTOR] Processing patch: test-external-webhook_20250730_001311.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: test-external-webhook_20250730_001311.json\n[EXECUTOR] \ud83d\udcc1 Moved test-external-webhook_20250730_001311.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753859693330",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:14:53.330080",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts",
+                "contents": "export const confirmationPatch4 = \"\u2705 TEST PATCH RECEIVED \u2014 GHOST RELAY #4\";"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753859693341",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:14:53.341642",
+      "data": {
+        "patch_id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+        "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json"
+      }
+    },
+    {
+      "id": "system_1753859693601",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:14:53.601310",
+      "data": {
+        "patch_id": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-4.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.33(P8.13.27)_ghost-confirmation-hotpatch-4_20250730_001453.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860174822",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:22:54.822654",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+          "role": "command_patch",
+          "target_file": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+                "contents": "export const confirmationPatch5 = \"\u2705 TEST PATCH RECEIVED \u2014 GHOST RELAY #5\";"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860174845",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:22:54.845083",
+      "data": {
+        "patch_id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+        "target_file": "/Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json"
+      }
+    },
+    {
+      "id": "system_1753860175226",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:22:55.226281",
+      "data": {
+        "patch_id": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5.json to .completed\n[EXECUTOR] Processing patch: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json\n[EXECUTOR] Applying mutation to: /Users/sawyer/gitSync/gpt-cursor-runner/test/test-confirm-patch-5.ts\n[EXECUTOR] \u2705 Patch execution successful: patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json\n[EXECUTOR] \ud83d\udcc1 Moved patch-v3.3.35(P8.13.28)_ghost-confirmation-hotpatch-5_20250730_002254.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860679965",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:31:19.965567",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-test-patch",
+          "role": "test",
+          "target_file": "/tmp/secure-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-test.txt",
+                "contents": "secure test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860679983",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:31:19.983525",
+      "data": {
+        "patch_id": "secure-test-patch",
+        "target_file": "/tmp/secure-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-test-patch_20250730_003119.json"
+      }
+    },
+    {
+      "id": "system_1753860680306",
+      "type": "system_event",
+      "event_type": "ghost_forward_failed",
+      "timestamp": "2025-07-30T00:31:20.306283",
+      "data": {
+        "patch_id": "secure-test-patch",
+        "error": "All Ghost Runner endpoints failed for patch secure-test-patch"
+      }
+    },
+    {
+      "id": "system_1753860701585",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:31:41.585792",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-test-patch-2",
+          "role": "test",
+          "target_file": "/tmp/secure-test-2.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-test-2.txt",
+                "contents": "secure test 2"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860701600",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:31:41.600832",
+      "data": {
+        "patch_id": "secure-test-patch-2",
+        "target_file": "/tmp/secure-test-2.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-test-patch-2_20250730_003141.json"
+      }
+    },
+    {
+      "id": "system_1753860701830",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:31:41.830879",
+      "data": {
+        "patch_id": "secure-test-patch-2",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "secure-test-patch-2",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 3 patch files to process.\n[EXECUTOR] Processing patch: secure-test-patch-2.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test-2.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch-2.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch-2.json to .completed\n[EXECUTOR] Processing patch: secure-test-patch-2_20250730_003141.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test-2.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch-2_20250730_003141.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch-2_20250730_003141.json to .completed\n[EXECUTOR] Processing patch: secure-test-patch_20250730_003119.json\n[EXECUTOR] Applying mutation to: /tmp/secure-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-test-patch_20250730_003119.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-test-patch_20250730_003119.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860817646",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:33:37.646840",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "secure-cors-test",
+          "role": "test",
+          "target_file": "/tmp/secure-cors-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/secure-cors-test.txt",
+                "contents": "secure CORS test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860817659",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:33:37.659180",
+      "data": {
+        "patch_id": "secure-cors-test",
+        "target_file": "/tmp/secure-cors-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/secure-cors-test_20250730_003337.json"
+      }
+    },
+    {
+      "id": "system_1753860817905",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:33:37.905299",
+      "data": {
+        "patch_id": "secure-cors-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "secure-cors-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: secure-cors-test.json\n[EXECUTOR] Applying mutation to: /tmp/secure-cors-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-cors-test.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-cors-test.json to .completed\n[EXECUTOR] Processing patch: secure-cors-test_20250730_003337.json\n[EXECUTOR] Applying mutation to: /tmp/secure-cors-test.txt\n[EXECUTOR] \u2705 Patch execution successful: secure-cors-test_20250730_003337.json\n[EXECUTOR] \ud83d\udcc1 Moved secure-cors-test_20250730_003337.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753860865625",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:34:25.625999",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "external-origin-test",
+          "role": "test",
+          "target_file": "/tmp/external-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/external-test.txt",
+                "contents": "external origin test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753860865644",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:34:25.644150",
+      "data": {
+        "patch_id": "external-origin-test",
+        "target_file": "/tmp/external-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/external-origin-test_20250730_003425.json"
+      }
+    },
+    {
+      "id": "system_1753860865887",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:34:25.887308",
+      "data": {
+        "patch_id": "external-origin-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "external-origin-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: external-origin-test.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: external-origin-test.json\n[EXECUTOR] \ud83d\udcc1 Moved external-origin-test.json to .completed\n[EXECUTOR] Processing patch: external-origin-test_20250730_003425.json\n[EXECUTOR] Applying mutation to: /tmp/external-test.txt\n[EXECUTOR] \u2705 Patch execution successful: external-origin-test_20250730_003425.json\n[EXECUTOR] \ud83d\udcc1 Moved external-origin-test_20250730_003425.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753861264173",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T00:41:04.173894",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "watchdog-test",
+          "role": "test",
+          "target_file": "/tmp/watchdog-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/watchdog-test.txt",
+                "contents": "watchdog auto-healing test"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753861264194",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T00:41:04.194742",
+      "data": {
+        "patch_id": "watchdog-test",
+        "target_file": "/tmp/watchdog-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/watchdog-test_20250730_004104.json"
+      }
+    },
+    {
+      "id": "system_1753861264554",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T00:41:04.554838",
+      "data": {
+        "patch_id": "watchdog-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "watchdog-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: watchdog-test.json\n[EXECUTOR] Applying mutation to: /tmp/watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: watchdog-test.json\n[EXECUTOR] \ud83d\udcc1 Moved watchdog-test.json to .completed\n[EXECUTOR] Processing patch: watchdog-test_20250730_004104.json\n[EXECUTOR] Applying mutation to: /tmp/watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: watchdog-test_20250730_004104.json\n[EXECUTOR] \ud83d\udcc1 Moved watchdog-test_20250730_004104.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    },
+    {
+      "id": "system_1753862216274",
+      "type": "system_event",
+      "event_type": "webhook_error",
+      "timestamp": "2025-07-30T00:56:56.274457",
+      "data": {
+        "error": "400 Bad Request: Failed to decode JSON object: Expecting ',' delimiter: line 1 column 678 (char 677)",
+        "headers": {
+          "Host": "localhost:5555",
+          "User-Agent": "curl/8.7.1",
+          "Accept": "*/*",
+          "Content-Type": "application/json",
+          "Content-Length": "691"
+        }
+      }
+    },
+    {
+      "id": "system_1753862404608",
+      "type": "system_event",
+      "event_type": "webhook_received",
+      "timestamp": "2025-07-30T01:00:04.608743",
+      "data": {
+        "source": "gpt_hybrid_block",
+        "data": {
+          "id": "ghost-runner-watchdog-test",
+          "role": "test",
+          "target_file": "/tmp/ghost-runner-watchdog-test.txt",
+          "patch": {
+            "mutations": [
+              {
+                "path": "/tmp/ghost-runner-watchdog-test.txt",
+                "contents": "watchdog validation"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "system_1753862404625",
+      "type": "system_event",
+      "event_type": "patch_created",
+      "timestamp": "2025-07-30T01:00:04.625102",
+      "data": {
+        "patch_id": "ghost-runner-watchdog-test",
+        "target_file": "/tmp/ghost-runner-watchdog-test.txt",
+        "filepath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/ghost-runner-watchdog-test_20250730_010004.json"
+      }
+    },
+    {
+      "id": "system_1753862404895",
+      "type": "system_event",
+      "event_type": "patch_forwarded_to_ghost",
+      "timestamp": "2025-07-30T01:00:04.895686",
+      "data": {
+        "patch_id": "ghost-runner-watchdog-test",
+        "endpoint": "http://localhost:5053/patch",
+        "ghost_response": {
+          "success": true,
+          "patchId": "ghost-runner-watchdog-test",
+          "output": "[EXECUTOR] Starting async patch processor...\n[EXECUTOR] Found 2 patch files to process.\n[EXECUTOR] Processing patch: ghost-runner-watchdog-test.json\n[EXECUTOR] Applying mutation to: /tmp/ghost-runner-watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: ghost-runner-watchdog-test.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-runner-watchdog-test.json to .completed\n[EXECUTOR] Processing patch: ghost-runner-watchdog-test_20250730_010004.json\n[EXECUTOR] Applying mutation to: /tmp/ghost-runner-watchdog-test.txt\n[EXECUTOR] \u2705 Patch execution successful: ghost-runner-watchdog-test_20250730_010004.json\n[EXECUTOR] \ud83d\udcc1 Moved ghost-runner-watchdog-test_20250730_010004.json to .completed\n[EXECUTOR] \u2705 Patch execution successful: All patches processed successfully.\n"
+        }
+      }
+    }
+  ],
+  "last_updated": "2025-07-30T01:00:04.898928",
+  "total_events": 266
+}

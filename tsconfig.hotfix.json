@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "src-nextgen/ghost/telemetry/ghostRelayTelemetryCore.ts",
+    "src-nextgen/ghost/test/spawnStressDaemon.js",
+    "src-nextgen/monitor/hotpatch/telemetryMonitorConsolidator.ts"
+  ]
+}

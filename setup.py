@@ -1,7 +1,47 @@
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
+# Company Confidential
 #!/usr/bin/env python3
-"""
-Setup script for GPT-Cursor Runner.
-"""
+"""Setup script for GPT-Cursor Runner."""
 
 from setuptools import setup, find_packages
 
@@ -58,4 +98,4 @@ setup(
     },
     include_package_data=True,
     zip_safe=False,
-) 
+)

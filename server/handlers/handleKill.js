@@ -1,25 +1,55 @@
-const runnerController = require('../utils/runnerController');
+const { spawn } = require('child_process');
 
-module.exports = async function handleKill(req, res) {
-  const { user_name } = req.body;
-  console.log("⚡️ /kill triggered by:", user_name);
+module.exports = async ({ command, ack, respond }) => {
+  await ack();
   
   try {
-    const status = runnerController.getRunnerStatus();
+    await respond({
+      response_type: 'in_channel',
+      text: '🛑 *Emergency Stop - Killing Runner*\n\n'
+            'Force stopping the GPT-Cursor Runner service.'
+    });
     
-    if (!status.isRunning) {
-      res.send(`❌ Runner is not currently running.`);
-      return;
-    }
+    // Kill runner process
+    const killProcess = spawn('pkill', ['-f', 'python3 -m gpt_cursor_runner.main']);
     
-    const killResult = await runnerController.killRunner();
-    if (killResult.success) {
-      res.send(`💀 *Runner Killed*\n\nThe GPT-Cursor Runner has been forcefully terminated by ${user_name}.`);
-    } else {
-      res.send(`❌ Failed to kill runner: ${killResult.message}`);
-    }
+    killProcess.on('close', (code) => {
+      console.log(`Killed runner process with code ${code}`);
+      
+      setTimeout(async () => {
+        try {
+          // Verify runner is stopped
+          const axios = require('axios');
+          await axios.get('https://gpt-cursor-runner.thoughtmarks.app/api/status', {
+            timeout: 2000
+          });
+          
+          await respond({
+            response_type: 'in_channel',
+            text: '⚠️ *Kill Command Executed*\n\n'
+                  '• Status: Runner process killed\n'
+                  '• Note: Runner server may still be responding\n'
+                  '• Use `/restart-runner` to restart when ready.'
+          });
+        } catch (error) {
+          await respond({
+            response_type: 'in_channel',
+            text: '✅ *Runner Successfully Killed*\n\n'
+                  '• Status: Runner is now stopped\n'
+                  '• Server is not responding\n'
+                  '• Use `/restart-runner` to restart when ready.'
+          });
+        }
+      }, 2000);
+    });
+    
   } catch (error) {
-    console.error('Error killing runner:', error);
-    res.send(`❌ Error killing runner: ${error.message}`);
+    console.error('Kill command failed:', error);
+    await respond({
+      response_type: 'in_channel',
+      text: '❌ *Kill Command Failed*\n\n'
+            `• Error: ${error.message}\n`
+            '• Runner may still be running.'
+    });
   }
 }; 

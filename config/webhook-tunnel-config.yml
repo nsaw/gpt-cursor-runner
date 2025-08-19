@@ -1,0 +1,11 @@
+tunnel: 9401ee23-3a46-409b-b0e7-b035371afe32
+credentials-file: ~/.cloudflared/9401ee23-3a46-409b-b0e7-b035371afe32.json
+
+ingress:
+  # Route webhook endpoint to dedicated service on port 5432
+  - hostname: webhook-thoughtmarks.thoughtmarks.app
+    service: http://localhost:5432
+    originRequest:
+      noTLSVerify: true
+  # Catch-all rule (required by cloudflared)
+  - service: http_status:404

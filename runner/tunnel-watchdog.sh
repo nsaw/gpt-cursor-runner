@@ -4,8 +4,8 @@
 # PURPOSE: Auto-restarts Cloudflare tunnel if DNS or port is down
 
 TUNNEL_NAME="tm-runner-expo"
-RUNNER_PORT=5555
-CHECK_URL="http://localhost:$RUNNER_PORT/health"
+RUNNER_PORT=5556
+CHECK_URL="http://localhost:5556/health"
 
 if ! curl -s --max-time 2 "$CHECK_URL" | grep -q "OK"; then
   echo "⚠️ Runner tunnel appears down. Restarting Cloudflare tunnel..."

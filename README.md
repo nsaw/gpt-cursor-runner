@@ -1,109 +1,120 @@
-# GPT-Cursor Runner
+# GPT Cursor Runner
 
-A hybrid automation pipeline that enables GPT to control Cursor through structured instructional blocks and real-time patch orchestration.
+A comprehensive automation system for managing and executing patches across multiple projects.
 
-## 🚀 Quick Start
+## CI/CD Dashboard Green-State Enforcement
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Cloudflare Tunnel (replaces ngrok)
+All pushes and PRs are blocked unless the dashboard shows ALL GREEN status.
 
-### Environment Setup
-
-1. **Copy environment template:**
-   ```bash
-   cp env.example .env
-   ```
-
-2. **Configure environment variables:**
-   ```bash
-   # Cloudflare Tunnel Configuration
-   RUNNER_URL=https://runner.thoughtmarks.app
-   RUNNER_DEV_URL=https://runner-dev.thoughtmarks.app
-   
-   # Webhook Endpoints
-   ENDPOINT_URL=https://runner.thoughtmarks.app/webhook
-   ENDPOINT_DEV_URL=https://runner-dev.thoughtmarks.app/webhook
-   
-   # Dashboard URLs
-   DASHBOARD_URL=https://runner.thoughtmarks.app/dashboard
-   DASHBOARD_DEV_URL=https://runner-dev.thoughtmarks.app/dashboard
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   npm install
-   ```
-
-### Development URLs
-- **Production Runner**: `https://runner.thoughtmarks.app` (port 5555)
-- **Development Runner**: `https://runner-dev.thoughtmarks.app` (port 5051)
-- **Dashboard**: `https://runner-dev.thoughtmarks.app/dashboard`
-- **Health Check**: `https://runner-dev.thoughtmarks.app/health`
-
-### Starting the Servers
+- Playwright test fails on any non-green status indicator.
+- Headless mode: no manual browser required.
+- [CI config](.github/workflows/dashboard-green.yml) enforces this check.
 
 ```bash
-# Start Node.js server (Slack commands)
-npm run dev
-
-# Start Python runner (GPT webhooks)
-python3 -m gpt_cursor_runner.main
+yarn test:dashboard  # (manual, local check)
 ```
 
-## 🔧 Configuration
+You must visually confirm green-state after each release or major update.
+Contact an admin if this check is ever bypassed.
 
-### Cloudflare Tunnel Setup
-- **Production**: `runner.thoughtmarks.app` → `http://localhost:5555`
-- **Development**: `runner-dev.thoughtmarks.app` → `http://localhost:5051`
+### Playwright Headless Testing Setup
 
-### Slack App Configuration
-1. Configure your Slack app with Request URLs pointing to:
-   - `https://runner.thoughtmarks.app/slack/commands` (production)
-   - `https://runner-dev.thoughtmarks.app/slack/commands` (development)
+The project includes automated Playwright testing for dashboard validation:
 
-2. Set up OAuth redirect URLs:
-   - `https://runner.thoughtmarks.app/slack/oauth/callback`
-   - `https://runner-dev.thoughtmarks.app/slack/oauth/callback`
+#### Installation
 
-## 📊 Monitoring
-
-### Health Checks
-- **Production**: `https://runner.thoughtmarks.app/health`
-- **Development**: `https://runner-dev.thoughtmarks.app/health`
-
-### Event Logging
-- Event logs: `event-log.json`
-- Runner state: `runner.state.json`
-- Patch files: `patches/` directory
-
-## 🛠️ Development
-
-### Testing
 ```bash
-# Test Slack commands
-node scripts/verify_slack_commands.js
-
-# Test webhook endpoint
-curl -X POST https://runner-dev.thoughtmarks.app/webhook \
-  -H "Content-Type: application/json" \
-  -d '{"id": "test", "role": "system", "description": "Test"}'
+# Install Playwright and dependencies
+yarn add --dev playwright @playwright/test
+yarn playwright install --with-deps
 ```
 
-### Debug Mode
+#### Configuration
+
+- **Headless by default**: Optimized for CI/CD environments
+- **No retries**: Immediate failure on non-green status
+- **60s timeout**: Suitable for dashboard loading
+- **Environment configurable**: Custom dashboard URLs via `DASHBOARD_URL`
+
+#### Test Structure
+
+```javascript
+// tests/dashboard/all-green.test.js
+test("Dashboard must be all green", async ({ page }) => {
+  await page.goto(DASHBOARD_URL, {
+    waitUntil: "domcontentloaded",
+    timeout: 30000,
+  });
+  await page.waitForSelector(".status-indicator", { timeout: 15000 });
+  const statuses = await page.$$eval(".status-indicator", (els) =>
+    els.map((e) => e.className),
+  );
+  statuses.forEach((cls, idx) => {
+    expect(cls).toContain("status-ok");
+  });
+});
+```
+
+#### Usage
+
 ```bash
-export DEBUG_MODE=true
-python3 -m gpt_cursor_runner.main
+# Run headless dashboard validation
+yarn test:dashboard
+
+# Run with custom dashboard URL
+DASHBOARD_URL=https://your-url yarn test:dashboard
+
+# Run with headed browser for debugging
+yarn playwright test tests/dashboard/all-green.test.js --headed
 ```
 
-## 📚 Documentation
+### Dashboard Green-State E2E Check
 
-- [Development Guide](CURSOR_DEVELOPMENT_GUIDE.md)
-- [Slack Commands](SLACK_COMMANDS_VERIFICATION.md)
-- [Deployment Guide](FLYio_GPT_Cursor_Deployment_Summary.md)
+Run Playwright in headless mode to fail the build if ANY block is not green:
 
-## 🔄 Migration from ngrok
+```bash
+yarn test:dashboard
+# or with custom dashboard URL:
+DASHBOARD_URL=https://your-url yarn test:dashboard
+```
 
-This project has migrated from ngrok to Cloudflare tunnels for better reliability and performance. All ngrok references have been replaced with Cloudflare tunnel URLs.
+The test will fail if any `.status-indicator` is not green (status-ok).
+
+- Works headless by default (in CI/CD and local)
+- Can be run in interactive mode via Playwright CLI if needed
+
+## Available Scripts
+
+- `yarn test:dashboard` - Run Playwright dashboard green-state validation
+- `yarn lint:fix` - Fix ESLint issues
+- `yarn lint:scripts` - Lint script files
+- `yarn lint:server` - Lint server files
+
+## Project Structure
+
+- `tests/dashboard/` - Playwright E2E tests for dashboard validation
+- `dashboard/` - Dashboard application files
+- `scripts/` - Utility and automation scripts
+- `gpt_cursor_runner/` - Main Python application
+- `patches/` - Patch files for automation
+- `summaries/` - Execution summaries and logs
+
+## Non-Blocking Command Pattern (CI/CD + Local)
+
+- **Bash/Zsh:**
+  ```bash
+  timeout 60s your_command_here & disown
+  ```
+- **PowerShell:**
+  ```powershell
+  $job = Start-Job -ScriptBlock { your_command_here }
+  Start-Sleep -Seconds 60
+  Stop-Job $job -Force
+  ```
+- Always tail logs if async:
+  ```bash
+  timeout 60s tail -f yourlog.log & disown
+  ```
+
+All daemons, launchers, and test scripts must use these patterns—never launch a process blocking the shell or main job runner.
+**CI/CD pipeline will fail if any command blocks, hangs, or exceeds timeout.**

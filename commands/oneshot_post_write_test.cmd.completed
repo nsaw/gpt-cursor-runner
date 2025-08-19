@@ -1,0 +1,59 @@
+#!/bin/bash
+set -euo pipefail
+
+# Create the write-access test patch JSON
+cat > /tmp/write_access_test_patch.json <<'PATCH_EOF'
+{
+  "id": "patch-v3.3.38(P8.13.31f)_write-access-test",
+  "role": "command_patch",
+  "target_file": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.38(P8.13.31f)_write-access-test.json",
+  "patch": {
+    "showInUI": true,
+    "blockId": "patch-v3.3.38(P8.13.31f)_write-access-test",
+    "description": "Verify write access to /.cursor-cache/CYOPS/patches/ via command-queue daemon.",
+    "target": "DEV",
+    "version": "patch-v3.3.38(P8.13.31f)_write-access-test",
+    "notes": [
+      "Drops write_access_test.cmd into /commands/.",
+      "The script echoes a test file into the executor's watched path.",
+      "Validator checks the file exists; success confirms correct permissions."
+    ],
+    "mutations": [
+      {
+        "path": "/Users/sawyer/gitSync/gpt-cursor-runner/commands/write_access_test.cmd",
+        "contents": "#!/bin/bash\nset -euo pipefail\necho \"COACH write-access OK $(date)\" > /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/COACH_write_test.txt"
+      }
+    ],
+    "postMutationBuild": { "shell": [] },
+    "validate": {
+      "shell": [
+        "test -f /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/COACH_write_test.txt || exit 1"
+      ]
+    },
+    "final": {
+      "summary": "✅ write-access test passed — executor and command queue can write to .cursor-cache/CYOPS/patches/.",
+      "summaryFile": "/Users/sawyer/gitSync/gpt-cursor-runner/summaries/patch-v3.3.38(P8.13.31f)_write-access-test.md"
+    },
+    "blockCommitOnError": true,
+    "watchConsole": true,
+    "execution": {
+      "autoReleaseTimeoutMs": 30000,
+      "onReloadHang": "Move to background and resume automatically"
+    },
+    "enforceValidationGate": true,
+    "strictRuntimeAudit": true,
+    "runDryCheck": true,
+    "forceRuntimeTrace": true,
+    "requireMutationProof": true,
+    "requireServiceUptime": true
+  }
+}
+PATCH_EOF
+
+# Post the patch to the webhook
+echo "🚀 Posting write-access test patch to webhook..."
+curl -s -X POST https://gpt-cursor-runner.fly.dev/webhook \
+  -H "Content-Type: application/json" \
+  --data-binary @/tmp/write_access_test_patch.json
+
+echo "✅ Patch posted successfully"

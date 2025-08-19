@@ -1,12 +1,12 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require("../utils/stateManager");
 
 module.exports = async function handleShowRoadmap(req, res) {
   const { user_name } = req.body;
   console.log("⚡️ /show-roadmap triggered by:", user_name);
-  
+
   try {
     const roadmap = await stateManager.getRoadmap();
-    
+
     const roadmapText = `
 🗺️ *GPT-Cursor Runner Roadmap*
 
@@ -14,10 +14,10 @@ module.exports = async function handleShowRoadmap(req, res) {
 *Next Phase:* ${roadmap.nextPhase}
 
 *Completed Phases:*
-${roadmap.completedPhases.map(phase => `✅ ${phase}`).join('\n')}
+${roadmap.completedPhases.map((phase) => `✅ ${phase}`).join("\n")}
 
 *Milestones:*
-${roadmap.milestones.map(milestone => `• ${milestone}`).join('\n')}
+${roadmap.milestones.map((milestone) => `• ${milestone}`).join("\n")}
 
 *Timeline:*
 • Phase 1: ✅ Complete (Basic Runner)
@@ -35,7 +35,7 @@ ${roadmap.milestones.map(milestone => `• ${milestone}`).join('\n')}
 
     res.send(roadmapText);
   } catch (error) {
-    console.error('Error getting roadmap:', error);
+    console.error("Error getting roadmap:", error);
     res.send(`❌ Error getting roadmap: ${error.message}`);
   }
 };

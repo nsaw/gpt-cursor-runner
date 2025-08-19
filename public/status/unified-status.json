@@ -1,0 +1,24 @@
+{
+  "MAIN": {
+    "patches": {
+      "summaries": 53,
+      "patches": 0,
+      "completed": 10
+    },
+    "ghost": {
+      "status": "UNKNOWN"
+    },
+    "lastUpdate": "2025-07-26T09:24:56.136Z"
+  },
+  "CYOPS": {
+    "patches": {
+      "summaries": 27,
+      "patches": 0,
+      "completed": 6
+    },
+    "ghost": {
+      "status": "UNKNOWN"
+    },
+    "lastUpdate": "2025-07-26T09:24:56.137Z"
+  }
+}

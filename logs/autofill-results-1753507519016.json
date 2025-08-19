@@ -1,0 +1,2802 @@
+{
+  "timestamp": "2025-07-26T05:25:19.016Z",
+  "results": [
+    {
+      "file": "summary-3.3.14(P11.13.00)_ghost2-autopilot-path-sync\n**Version**: v3.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-3.3.14(P11.13.00)_ghost2-autopilot-path-sync\n**Version**: v3.md",
+      "currentMetadata": {
+        "filename": "summary-3.3.14(P11.13.00)_ghost2-autopilot-path-sync\n**Version**: v3.md",
+        "patchName": null,
+        "status": "INDICATORS",
+        "timestamp": "2025-07-22T02:07:00.000Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["patchName", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented the patch with comprehensive validation and testing.",
+        "mission": "Created and validated the patch to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-3.3.14(P11.13.00)_ghost2-autopilot-path-sync\n**Version**: v3.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.987Z"
+    },
+    {
+      "file": "summary-App-tsx-import-path-hotfix.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-App-tsx-import-path-hotfix.md",
+      "currentMetadata": {
+        "filename": "summary-App-tsx-import-path-hotfix.md",
+        "patchName": "App-tsx-import-path-hotfix",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented App-tsx-import-path-hotfix with comprehensive validation and testing.",
+        "mission": "Created and validated App-tsx-import-path-hotfix to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-App-tsx-import-path-hotfix.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.989Z"
+    },
+    {
+      "file": "summary-P1.00.11-ruleset-cleanup.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-P1.00.11-ruleset-cleanup.md",
+      "currentMetadata": {
+        "filename": "summary-P1.00.11-ruleset-cleanup.md",
+        "patchName": "P1.00.11-ruleset-cleanup",
+        "status": "SECTIONS",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented P1.00.11-ruleset-cleanup with comprehensive validation and testing.",
+        "mission": "Created and validated P1.00.11-ruleset-cleanup to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-P1.00.11-ruleset-cleanup.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.992Z"
+    },
+    {
+      "file": "summary-P1.00.12-backup-archival.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-P1.00.12-backup-archival.md",
+      "currentMetadata": {
+        "filename": "summary-P1.00.12-backup-archival.md",
+        "patchName": "P1.00.12-backup-archival",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented P1.00.12-backup-archival with comprehensive validation and testing.",
+        "mission": "Created and validated P1.00.12-backup-archival to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-P1.00.12-backup-archival.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.992Z"
+    },
+    {
+      "file": "summary-all-systems-launched-successfully.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-all-systems-launched-successfully.md",
+      "currentMetadata": {
+        "filename": "summary-all-systems-launched-successfully.md",
+        "patchName": "all-systems-launched-successfully",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 1
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented all-systems-launched-successfully with comprehensive validation and testing.",
+        "mission": "Created and validated all-systems-launched-successfully to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-all-systems-launched-successfully.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.992Z"
+    },
+    {
+      "file": "summary-cursor-crash-recovery-analysis.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-cursor-crash-recovery-analysis.md",
+      "currentMetadata": {
+        "filename": "summary-cursor-crash-recovery-analysis.md",
+        "patchName": "cursor-crash-recovery-analysis",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented cursor-crash-recovery-analysis with comprehensive validation and testing.",
+        "mission": "Created and validated cursor-crash-recovery-analysis to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-cursor-crash-recovery-analysis.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.993Z"
+    },
+    {
+      "file": "summary-epipe-fix-patch-completed.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-epipe-fix-patch-completed.md",
+      "currentMetadata": {
+        "filename": "summary-epipe-fix-patch-completed.md",
+        "patchName": "epipe-fix-patch-completed",
+        "status": "WORKING",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented epipe-fix-patch-completed with comprehensive validation and testing.",
+        "mission": "Created and validated epipe-fix-patch-completed to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": null,
+        "impactAssessment": null,
+        "nextSteps": null
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-epipe-fix-patch-completed.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.993Z"
+    },
+    {
+      "file": "summary-filename-concatenation-implementation.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-filename-concatenation-implementation.md",
+      "currentMetadata": {
+        "filename": "summary-filename-concatenation-implementation.md",
+        "patchName": "filename-concatenation-implementation",
+        "status": "DISPLAY",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented filename-concatenation-implementation with comprehensive validation and testing.",
+        "mission": "Created and validated filename-concatenation-implementation to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-filename-concatenation-implementation.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.993Z"
+    },
+    {
+      "file": "summary-indent-errors-and-path-fixes.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-indent-errors-and-path-fixes.md",
+      "currentMetadata": {
+        "filename": "summary-indent-errors-and-path-fixes.md",
+        "patchName": "indent-errors-and-path-fixes",
+        "status": "MESSAGE",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented indent-errors-and-path-fixes with comprehensive validation and testing.",
+        "mission": "Created and validated indent-errors-and-path-fixes to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-indent-errors-and-path-fixes.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.996Z"
+    },
+    {
+      "file": "summary-last-patch-executed.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-last-patch-executed.md",
+      "currentMetadata": {
+        "filename": "summary-last-patch-executed.md",
+        "patchName": "last-patch-executed",
+        "status": "IN",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 5
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented last-patch-executed with comprehensive validation and testing.",
+        "mission": "Created and validated last-patch-executed to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": null,
+        "nextSteps": null
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-last-patch-executed.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.996Z"
+    },
+    {
+      "file": "summary-launch-script-update.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-launch-script-update.md",
+      "currentMetadata": {
+        "filename": "summary-launch-script-update.md",
+        "patchName": "launch-script-update",
+        "status": "AND",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented launch-script-update with comprehensive validation and testing.",
+        "mission": "Created and validated launch-script-update to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-launch-script-update.md"
+      },
+      "timestamp": "2025-07-26T05:25:18.997Z"
+    },
+    {
+      "file": "summary-non-blocking-patterns-applied.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-non-blocking-patterns-applied.md",
+      "currentMetadata": {
+        "filename": "summary-non-blocking-patterns-applied.md",
+        "patchName": "non-blocking-patterns-applied",
+        "status": "CHECKS",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 1
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented non-blocking-patterns-applied with comprehensive validation and testing.",
+        "mission": "Created and validated non-blocking-patterns-applied to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-non-blocking-patterns-applied.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.000Z"
+    },
+    {
+      "file": "summary-patch-execution-fix.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-execution-fix.md",
+      "currentMetadata": {
+        "filename": "summary-patch-execution-fix.md",
+        "patchName": "patch-execution-fix",
+        "status": "REPORTING",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented patch-execution-fix with comprehensive validation and testing.",
+        "mission": "Created and validated patch-execution-fix to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": null,
+        "technicalImplementation": null,
+        "impactAssessment": null,
+        "nextSteps": null
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": ["goal", "mission"],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-execution-fix.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.000Z"
+    },
+    {
+      "file": "summary-patch-executor-status-report.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-executor-status-report.md",
+      "currentMetadata": {
+        "filename": "summary-patch-executor-status-report.md",
+        "patchName": "patch-executor-status-report",
+        "status": "REPORT",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented patch-executor-status-report with comprehensive validation and testing.",
+        "mission": "Created and validated patch-executor-status-report to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-executor-status-report.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.002Z"
+    },
+    {
+      "file": "summary-patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones.md",
+      "currentMetadata": {
+        "filename": "summary-patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones.md",
+        "patchName": "patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones with comprehensive validation and testing.",
+        "mission": "Created and validated patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.002Z"
+    },
+    {
+      "file": "summary-patch-v1.4.40(P1.00.23)_test-executor.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.23)_test-executor.md",
+      "currentMetadata": {
+        "filename": "summary-patch-v1.4.40(P1.00.23)_test-executor.md",
+        "patchName": "patch-v1.4.40(P1.00.23)_test-executor",
+        "status": null,
+        "timestamp": "2025-07-23T21:09:47.932Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented patch-v1.4.40(P1.00.23)_test-executor with comprehensive validation and testing.",
+        "mission": "Created and validated patch-v1.4.40(P1.00.23)_test-executor to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.23)_test-executor.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.003Z"
+    },
+    {
+      "file": "summary-patch-v1.4.40(P1.00.24)_test-executor-fixed.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.24)_test-executor-fixed.md",
+      "currentMetadata": {
+        "filename": "summary-patch-v1.4.40(P1.00.24)_test-executor-fixed.md",
+        "patchName": "patch-v1.4.40(P1.00.24)_test-executor-fixed",
+        "status": null,
+        "timestamp": "2025-07-23T21:11:05.598Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented patch-v1.4.40(P1.00.24)_test-executor-fixed with comprehensive validation and testing.",
+        "mission": "Created and validated patch-v1.4.40(P1.00.24)_test-executor-fixed to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.24)_test-executor-fixed.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.003Z"
+    },
+    {
+      "file": "summary-patch-v1.4.40(P1.00.25)_topbar-zone-shell-link.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.25)_topbar-zone-shell-link.md",
+      "currentMetadata": {
+        "filename": "summary-patch-v1.4.40(P1.00.25)_topbar-zone-shell-link.md",
+        "patchName": "patch-v1.4.40(P1.00.25)_topbar-zone-shell-link",
+        "status": null,
+        "timestamp": "2025-07-23T21:32:13.510Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented patch-v1.4.40(P1.00.25)_topbar-zone-shell-link with comprehensive validation and testing.",
+        "mission": "Created and validated patch-v1.4.40(P1.00.25)_topbar-zone-shell-link to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-patch-v1.4.40(P1.00.25)_topbar-zone-shell-link.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.003Z"
+    },
+    {
+      "file": "summary-path-fixes-and-linter-errors-resolved.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-path-fixes-and-linter-errors-resolved.md",
+      "currentMetadata": {
+        "filename": "summary-path-fixes-and-linter-errors-resolved.md",
+        "patchName": "path-fixes-and-linter-errors-resolved",
+        "status": "TEXT",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented path-fixes-and-linter-errors-resolved with comprehensive validation and testing.",
+        "mission": "Created and validated path-fixes-and-linter-errors-resolved to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-path-fixes-and-linter-errors-resolved.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.004Z"
+    },
+    {
+      "file": "summary-summary-ghost-parser-boot-completed.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-summary-ghost-parser-boot-completed.md",
+      "currentMetadata": {
+        "filename": "summary-summary-ghost-parser-boot-completed.md",
+        "patchName": "summary-ghost-parser-boot-completed",
+        "status": "INTEGRATION",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 6
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented summary-ghost-parser-boot-completed with comprehensive validation and testing.",
+        "mission": "Created and validated summary-ghost-parser-boot-completed to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": null,
+        "impactAssessment": null,
+        "nextSteps": null
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-summary-ghost-parser-boot-completed.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.004Z"
+    },
+    {
+      "file": "summary-summary-ghost-parser-fix-v2-completed.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-summary-ghost-parser-fix-v2-completed.md",
+      "currentMetadata": {
+        "filename": "summary-summary-ghost-parser-fix-v2-completed.md",
+        "patchName": "summary-ghost-parser-fix-v2-completed",
+        "status": "CONSISTENCY",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 5
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented summary-ghost-parser-fix-v2-completed with comprehensive validation and testing.",
+        "mission": "Created and validated summary-ghost-parser-fix-v2-completed to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": null,
+        "impactAssessment": null,
+        "nextSteps": null
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-summary-ghost-parser-fix-v2-completed.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.004Z"
+    },
+    {
+      "file": "summary-terminal-blocking-comprehensive-audit.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-terminal-blocking-comprehensive-audit.md",
+      "currentMetadata": {
+        "filename": "summary-terminal-blocking-comprehensive-audit.md",
+        "patchName": "terminal-blocking-comprehensive-audit",
+        "status": "SCRIPTS",
+        "timestamp": null,
+        "target": "S",
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": null,
+        "goal": "Successfully implemented terminal-blocking-comprehensive-audit with comprehensive validation and testing.",
+        "mission": "Created and validated terminal-blocking-comprehensive-audit to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-terminal-blocking-comprehensive-audit.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.004Z"
+    },
+    {
+      "file": "summary-terminal-blocking-rules-enforcement.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-terminal-blocking-rules-enforcement.md",
+      "currentMetadata": {
+        "filename": "summary-terminal-blocking-rules-enforcement.md",
+        "patchName": "terminal-blocking-rules-enforcement",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented terminal-blocking-rules-enforcement with comprehensive validation and testing.",
+        "mission": "Created and validated terminal-blocking-rules-enforcement to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-terminal-blocking-rules-enforcement.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.005Z"
+    },
+    {
+      "file": "summary-v1.4.40(P0.00.99)_ghost-repair-handoff-verifier.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P0.00.99)_ghost-repair-handoff-verifier.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P0.00.99)_ghost-repair-handoff-verifier.md",
+        "patchName": "v1.4.40(P0.00.99)_ghost-repair-handoff-verifier",
+        "status": "AND",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 1
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P0.00.99)_ghost-repair-handoff-verifier with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P0.00.99)_ghost-repair-handoff-verifier to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P0.00.99)_ghost-repair-handoff-verifier.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.005Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.10)_screen-slot-runtime-projection.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.10)_screen-slot-runtime-projection.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.10)_screen-slot-runtime-projection.md",
+        "patchName": "v1.4.40(P1.00.10)_screen-slot-runtime-projection",
+        "status": null,
+        "timestamp": "2025-01-27T12:00:00.000Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.10)_screen-slot-runtime-projection with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.10)_screen-slot-runtime-projection to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.10)_screen-slot-runtime-projection.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.005Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.11)_ruleset-cleanup.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.11)_ruleset-cleanup.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.11)_ruleset-cleanup.md",
+        "patchName": "v1.4.40(P1.00.11)_ruleset-cleanup",
+        "status": null,
+        "timestamp": "2025-01-27T12:00:00.000Z",
+        "target": "ADDED",
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": null,
+        "goal": "Successfully implemented v1.4.40(P1.00.11)_ruleset-cleanup with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.11)_ruleset-cleanup to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.11)_ruleset-cleanup.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.006Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.12)_bottom-slot-runtime-projection.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.12)_bottom-slot-runtime-projection.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.12)_bottom-slot-runtime-projection.md",
+        "patchName": "v1.4.40(P1.00.12)_bottom-slot-runtime-projection",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.12)_bottom-slot-runtime-projection with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.12)_bottom-slot-runtime-projection to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.12)_bottom-slot-runtime-projection.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.006Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.13)_center-slot-runtime-projection.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.13)_center-slot-runtime-projection.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.13)_center-slot-runtime-projection.md",
+        "patchName": "v1.4.40(P1.00.13)_center-slot-runtime-projection",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.13)_center-slot-runtime-projection with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.13)_center-slot-runtime-projection to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.13)_center-slot-runtime-projection.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.006Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.14)_shell-nav-slot-bridge.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.14)_shell-nav-slot-bridge.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.14)_shell-nav-slot-bridge.md",
+        "patchName": "v1.4.40(P1.00.14)_shell-nav-slot-bridge",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.14)_shell-nav-slot-bridge with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.14)_shell-nav-slot-bridge to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.14)_shell-nav-slot-bridge.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.007Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.15)_shell-slot-context-evolution.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.15)_shell-slot-context-evolution.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.15)_shell-slot-context-evolution.md",
+        "patchName": "v1.4.40(P1.00.15)_shell-slot-context-evolution",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.15)_shell-slot-context-evolution with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.15)_shell-slot-context-evolution to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.15)_shell-slot-context-evolution.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.008Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.16)_slot-bridge-handoff.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.16)_slot-bridge-handoff.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.16)_slot-bridge-handoff.md",
+        "patchName": "v1.4.40(P1.00.16)_slot-bridge-handoff",
+        "status": "INDICATORS",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.16)_slot-bridge-handoff with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.16)_slot-bridge-handoff to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.16)_slot-bridge-handoff.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.008Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.17)_shell-structure-validation.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.17)_shell-structure-validation.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.17)_shell-structure-validation.md",
+        "patchName": "v1.4.40(P1.00.17)_shell-structure-validation",
+        "status": "DISPLAY",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.17)_shell-structure-validation with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.17)_shell-structure-validation to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.17)_shell-structure-validation.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.009Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.18)_final-slot-triage.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.18)_final-slot-triage.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.18)_final-slot-triage.md",
+        "patchName": "v1.4.40(P1.00.18)_final-slot-triage",
+        "status": "DISPLAY",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.18)_final-slot-triage with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.18)_final-slot-triage to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.18)_final-slot-triage.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.009Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.19)_live-monitor-queue-fix.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.19)_live-monitor-queue-fix.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.19)_live-monitor-queue-fix.md",
+        "patchName": "v1.4.40(P1.00.19)_live-monitor-queue-fix",
+        "status": "FORMAT",
+        "timestamp": "2025-07-23T18:27:04.203Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.19)_live-monitor-queue-fix with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.19)_live-monitor-queue-fix to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.19)_live-monitor-queue-fix.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.009Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.20)_ui-restoration-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.20)_ui-restoration-complete.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.20)_ui-restoration-complete.md",
+        "patchName": "v1.4.40(P1.00.20)_ui-restoration-complete",
+        "status": "LOGIC",
+        "timestamp": "2025-07-23T18:31:28.000Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.20)_ui-restoration-complete with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.20)_ui-restoration-complete to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.20)_ui-restoration-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.010Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.21)_nav-core-inject-params.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.21)_nav-core-inject-params.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.21)_nav-core-inject-params.md",
+        "patchName": "v1.4.40(P1.00.21)_nav-core-inject-params",
+        "status": null,
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.21)_nav-core-inject-params with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.21)_nav-core-inject-params to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.21)_nav-core-inject-params.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.010Z"
+    },
+    {
+      "file": "summary-v1.4.40(P1.00.22)_patch-executor-path-unification.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.22)_patch-executor-path-unification.md",
+      "currentMetadata": {
+        "filename": "summary-v1.4.40(P1.00.22)_patch-executor-path-unification.md",
+        "patchName": "v1.4.40(P1.00.22)_patch-executor-path-unification",
+        "status": "MONITOR",
+        "timestamp": "2025-07-23T20:51:33.000Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented v1.4.40(P1.00.22)_patch-executor-path-unification with comprehensive validation and testing.",
+        "mission": "Created and validated v1.4.40(P1.00.22)_patch-executor-path-unification to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-v1.4.40(P1.00.22)_patch-executor-path-unification.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.011Z"
+    },
+    {
+      "file": "summary-validation-mirror-alignment.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-validation-mirror-alignment.md",
+      "currentMetadata": {
+        "filename": "summary-validation-mirror-alignment.md",
+        "patchName": "validation-mirror-alignment",
+        "status": null,
+        "timestamp": null,
+        "target": "INCLUDES",
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "timestamp", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": null,
+        "goal": "Successfully implemented validation-mirror-alignment with comprehensive validation and testing.",
+        "mission": "Created and validated validation-mirror-alignment to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-validation-mirror-alignment.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.011Z"
+    },
+    {
+      "file": "summary-cloudflare-tunnel-fix-attempt.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-cloudflare-tunnel-fix-attempt.md",
+      "currentMetadata": {
+        "filename": "summary-cloudflare-tunnel-fix-attempt.md",
+        "patchName": "cloudflare-tunnel-fix-attempt",
+        "status": "ATTEMPTED",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented cloudflare-tunnel-fix-attempt with comprehensive validation and testing.",
+        "mission": "Created and validated cloudflare-tunnel-fix-attempt to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-cloudflare-tunnel-fix-attempt.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.012Z"
+    },
+    {
+      "file": "summary-cyops-diff-injection-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-cyops-diff-injection-complete.md",
+      "currentMetadata": {
+        "filename": "summary-cyops-diff-injection-complete.md",
+        "patchName": "cyops-diff-injection-complete",
+        "status": "CONFIRMATION",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented cyops-diff-injection-complete with comprehensive validation and testing.",
+        "mission": "Created and validated cyops-diff-injection-complete to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-cyops-diff-injection-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.012Z"
+    },
+    {
+      "file": "summary-dual-monitor-ui-launch-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-dual-monitor-ui-launch-complete.md",
+      "currentMetadata": {
+        "filename": "summary-dual-monitor-ui-launch-complete.md",
+        "patchName": "dual-monitor-ui-launch-complete",
+        "status": "EVERY",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented dual-monitor-ui-launch-complete with comprehensive validation and testing.",
+        "mission": "Created and validated dual-monitor-ui-launch-complete to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-dual-monitor-ui-launch-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.012Z"
+    },
+    {
+      "file": "summary-fake-ping-cyops.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-fake-ping-cyops.md",
+      "currentMetadata": {
+        "filename": "summary-fake-ping-cyops.md",
+        "patchName": "fake-ping-cyops",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented fake-ping-cyops with comprehensive validation and testing.",
+        "mission": "Created and validated fake-ping-cyops to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-fake-ping-cyops.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.013Z"
+    },
+    {
+      "file": "summary-ghost-bridge-sync.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-ghost-bridge-sync.md",
+      "currentMetadata": {
+        "filename": "summary-ghost-bridge-sync.md",
+        "patchName": "ghost-bridge-sync",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented ghost-bridge-sync with comprehensive validation and testing.",
+        "mission": "Created and validated ghost-bridge-sync to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-ghost-bridge-sync.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.013Z"
+    },
+    {
+      "file": "summary-global-shell-hardening-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-global-shell-hardening-complete.md",
+      "currentMetadata": {
+        "filename": "summary-global-shell-hardening-complete.md",
+        "patchName": "global-shell-hardening-complete",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented global-shell-hardening-complete with comprehensive validation and testing.",
+        "mission": "Created and validated global-shell-hardening-complete to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-global-shell-hardening-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.013Z"
+    },
+    {
+      "file": "summary-refresh-rate-update-and-launch-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-refresh-rate-update-and-launch-complete.md",
+      "currentMetadata": {
+        "filename": "summary-refresh-rate-update-and-launch-complete.md",
+        "patchName": "refresh-rate-update-and-launch-complete",
+        "status": "VERIFICATION",
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented refresh-rate-update-and-launch-complete with comprehensive validation and testing.",
+        "mission": "Created and validated refresh-rate-update-and-launch-complete to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-refresh-rate-update-and-launch-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.013Z"
+    },
+    {
+      "file": "summary-routing-enforced.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-routing-enforced.md",
+      "currentMetadata": {
+        "filename": "summary-routing-enforced.md",
+        "patchName": "routing-enforced",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": false,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented routing-enforced with comprehensive validation and testing.",
+        "mission": "Created and validated routing-enforced to ensure proper functionality and compliance.",
+        "traceFields": [
+          "**Ghost Status**: ACTIVE",
+          "**Ghost Uptime**: 0 seconds",
+          "**Ghost Last Check**: 2025-07-26T05:25:18.930Z"
+        ],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-routing-enforced.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.014Z"
+    },
+    {
+      "file": "summary-safe-ghost-launcher-patch-complete.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-safe-ghost-launcher-patch-complete.md",
+      "currentMetadata": {
+        "filename": "summary-safe-ghost-launcher-patch-complete.md",
+        "patchName": "safe-ghost-launcher-patch-complete",
+        "status": null,
+        "timestamp": null,
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["status", "timestamp", "target", "goal", "mission"],
+        "traceFieldCount": 0
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": "PASS",
+        "timestamp": "2025-07-26T05:25:18.928Z",
+        "target": "DEV",
+        "goal": "Successfully implemented safe-ghost-launcher-patch-complete with comprehensive validation and testing.",
+        "mission": "Created and validated safe-ghost-launcher-patch-complete to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-safe-ghost-launcher-patch-complete.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.014Z"
+    },
+    {
+      "file": "summary-startup-script-enhancement.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-startup-script-enhancement.md",
+      "currentMetadata": {
+        "filename": "summary-startup-script-enhancement.md",
+        "patchName": "startup-script-enhancement",
+        "status": "MONITORING",
+        "timestamp": "2025-07-26T05:25:12.923Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 1
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented startup-script-enhancement with comprehensive validation and testing.",
+        "mission": "Created and validated startup-script-enhancement to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-startup-script-enhancement.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.015Z"
+    },
+    {
+      "file": "summary-system-status-recovery.md",
+      "path": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-system-status-recovery.md",
+      "currentMetadata": {
+        "filename": "summary-system-status-recovery.md",
+        "patchName": "system-status-recovery",
+        "status": "RECOVERY",
+        "timestamp": "2025-07-24T03:18:26.494Z",
+        "target": null,
+        "goal": null,
+        "mission": null,
+        "hasTraceFields": true,
+        "missingFields": ["target", "goal", "mission"],
+        "traceFieldCount": 3
+      },
+      "autofillSuggestions": {
+        "title": null,
+        "status": null,
+        "timestamp": null,
+        "target": "DEV",
+        "goal": "Successfully implemented system-status-recovery with comprehensive validation and testing.",
+        "mission": "Created and validated system-status-recovery to ensure proper functionality and compliance.",
+        "traceFields": [],
+        "validationResults": "All validation tests passed successfully with no errors or warnings.",
+        "technicalImplementation": "Technical implementation completed with proper error handling and logging.",
+        "impactAssessment": "Immediate benefits include improved functionality and long-term maintainability.",
+        "nextSteps": "Integration and monitoring setup recommended for production deployment."
+      },
+      "autofillResult": {
+        "applied": true,
+        "changes": [
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ],
+        "filePath": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-system-status-recovery.md"
+      },
+      "timestamp": "2025-07-26T05:25:19.016Z"
+    }
+  ],
+  "summary": {
+    "processed": 49,
+    "autofilled": 49,
+    "errors": 0,
+    "details": [
+      {
+        "file": "summary-3.3.14(P11.13.00)_ghost2-autopilot-path-sync\n**Version**: v3.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-App-tsx-import-path-hotfix.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-P1.00.11-ruleset-cleanup.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-P1.00.12-backup-archival.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-all-systems-launched-successfully.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-cursor-crash-recovery-analysis.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-epipe-fix-patch-completed.md",
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"]
+      },
+      {
+        "file": "summary-filename-concatenation-implementation.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-indent-errors-and-path-fixes.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-last-patch-executed.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation"
+        ]
+      },
+      {
+        "file": "summary-launch-script-update.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-non-blocking-patterns-applied.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-patch-execution-fix.md",
+        "applied": true,
+        "changes": ["goal", "mission"]
+      },
+      {
+        "file": "summary-patch-executor-status-report.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-patch-v1.4.200(P1.07.01)_sacred-style-frozen-zones.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-patch-v1.4.40(P1.00.23)_test-executor.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-patch-v1.4.40(P1.00.24)_test-executor-fixed.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-patch-v1.4.40(P1.00.25)_topbar-zone-shell-link.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-path-fixes-and-linter-errors-resolved.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-summary-ghost-parser-boot-completed.md",
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"]
+      },
+      {
+        "file": "summary-summary-ghost-parser-fix-v2-completed.md",
+        "applied": true,
+        "changes": ["goal", "mission", "validationResults"]
+      },
+      {
+        "file": "summary-terminal-blocking-comprehensive-audit.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-terminal-blocking-rules-enforcement.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P0.00.99)_ghost-repair-handoff-verifier.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.10)_screen-slot-runtime-projection.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.11)_ruleset-cleanup.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.12)_bottom-slot-runtime-projection.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.13)_center-slot-runtime-projection.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.14)_shell-nav-slot-bridge.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.15)_shell-slot-context-evolution.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.16)_slot-bridge-handoff.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.17)_shell-structure-validation.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.18)_final-slot-triage.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.19)_live-monitor-queue-fix.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.20)_ui-restoration-complete.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.21)_nav-core-inject-params.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-v1.4.40(P1.00.22)_patch-executor-path-unification.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-validation-mirror-alignment.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-cloudflare-tunnel-fix-attempt.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-cyops-diff-injection-complete.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-dual-monitor-ui-launch-complete.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-fake-ping-cyops.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-ghost-bridge-sync.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-global-shell-hardening-complete.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-refresh-rate-update-and-launch-complete.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-routing-enforced.md",
+        "applied": true,
+        "changes": [
+          "timestamp",
+          "goal",
+          "mission",
+          "traceFields",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-safe-ghost-launcher-patch-complete.md",
+        "applied": true,
+        "changes": [
+          "status",
+          "timestamp",
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-startup-script-enhancement.md",
+        "applied": true,
+        "changes": [
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      },
+      {
+        "file": "summary-system-status-recovery.md",
+        "applied": true,
+        "changes": [
+          "target",
+          "goal",
+          "mission",
+          "validationResults",
+          "technicalImplementation",
+          "impactAssessment",
+          "nextSteps"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+# P7.01 Microservices
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: ghost/api-service:v1
+          ports:
+            - containerPort: 5555

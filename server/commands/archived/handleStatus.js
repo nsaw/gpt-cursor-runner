@@ -1,39 +1,39 @@
-const stateManager = require('../utils/stateManager');
-const runnerController = require('../utils/runnerController');
-const patchManager = require('../utils/patchManager');
+const _stateManager = require("../utils/stateManager");
+const _runnerController = require("../utils/runnerController");
+const _patchManager = require("../utils/patchManager");
 
-module.exports = async function handleStatus(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleStatus(_req, _res) {
+  const { _user_name } = req.body;
   console.log("⚡️ /status triggered by:", user_name);
-  
+
   try {
     const [state, runnerStatus, patchStats] = await Promise.all([
       stateManager.getRunnerStatus(),
       runnerController.getRunnerStatus(),
-      patchManager.getPatchStats()
+      patchManager.getPatchStats(),
     ]);
 
-    const status = {
+    const _status = {
       ...state,
       runner: runnerStatus,
       patches: patchStats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    const statusText = `
+    const _statusText = `
 🚀 *GPT-Cursor Runner Status*
 
 *Runner State:*
-• Status: ${status.runner.isRunning ? '🟢 Running' : '🔴 Stopped'}
-• Paused: ${status.paused ? '⏸️ Yes' : '▶️ No'}
-• Auto Mode: ${status.autoMode ? '🤖 Enabled' : '👤 Manual'}
-• Lockdown: ${status.lockdown ? '🔒 Locked' : '🔓 Unlocked'}
-• Crash Fence: ${status.crashFence ? '🚧 Active' : '✅ Clear'}
+• Status: ${status.runner.isRunning ? "🟢 Running" : "🔴 Stopped"}
+• Paused: ${status.paused ? "⏸️ Yes" : "▶️ No"}
+• Auto Mode: ${status.autoMode ? "🤖 Enabled" : "👤 Manual"}
+• Lockdown: ${status.lockdown ? "🔒 Locked" : "🔓 Unlocked"}
+• Crash Fence: ${status.crashFence ? "🚧 Active" : "✅ Clear"}
 
 *Runner Process:*
-• PID: ${status.runner.pid || 'N/A'}
+• PID: ${status.runner.pid || "N/A"}
 • Uptime: ${Math.floor(status.runner.uptime / 1000)}s
-• Last Error: ${status.runner.lastError || 'None'}
+• Last Error: ${status.runner.lastError || "None"}
 
 *Patch Statistics:*
 • Total: ${status.patches.total}
@@ -49,8 +49,8 @@ module.exports = async function handleStatus(req, res) {
     `.trim();
 
     res.send(statusText);
-  } catch (error) {
-    console.error('Error getting status:', error);
+  } catch (_error) {
+    console.error("Error getting status:", error);
     res.send(`❌ Error getting status: ${error.message}`);
   }
 };

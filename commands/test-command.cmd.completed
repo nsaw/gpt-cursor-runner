@@ -1,0 +1,4 @@
+echo "Testing command-queue daemon functionality"
+echo "Current time: $(date)"
+echo "Current directory: $(pwd)"
+echo "Command-queue daemon test completed successfully" 

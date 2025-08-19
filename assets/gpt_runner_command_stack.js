@@ -26,35 +26,38 @@
 // === END PHASE 3 ===
 
 // Phase 4 (START)
-const README = path.join(BASE, 'README.md');
-const CHEATSHEET = path.join(BASE, 'tasks/_SLACK_COMMAND_CHEATSHEET.md');
-const lintTarget = path.join(BASE, 'server/handlers');
+const _README = path.join(BASE, "README.md");
+const _CHEATSHEET = path.join(BASE, "tasks/_SLACK_COMMAND_CHEATSHEET.md");
+const _lintTarget = path.join(BASE, "server/handlers");
 
 try {
-  execSync(`npx eslint ${lintTarget} --fix`, { stdio: 'inherit' });
-  console.log('✅ ESLint pass complete.');
-} catch (e) {
-  console.warn('⚠️ Linting failed or eslint not configured.');
+  execSync(`npx eslint ${lintTarget} --fix`, { stdio: "inherit" });
+  console.log("✅ ESLint pass complete.");
+} catch (_e) {
+  console.warn("⚠️ Linting failed or eslint not configured.");
 }
 
 try {
-  execSync('./runner-diagnose.sh', { stdio: 'inherit' });
-  console.log('✅ Dry run passed.');
-} catch (e) {
-  console.warn('⚠️ Dry run encountered warnings.');
+  execSync("./runner-diagnose.sh", { stdio: "inherit" });
+  console.log("✅ Dry run passed.");
+} catch (_e) {
+  console.warn("⚠️ Dry run encountered warnings.");
 }
 
 try {
-  execSync('git add . && git commit -m "✅ Initialized GPT-Cursor runner stack with Slack integration"', { stdio: 'inherit' });
-} catch (e) {
-  console.warn('⚠️ Git commit skipped or failed.');
+  execSync(
+    'git add . && git commit -m "✅ Initialized GPT-Cursor runner stack with Slack integration"',
+    { stdio: "inherit" },
+  );
+} catch (_e) {
+  console.warn("⚠️ Git commit skipped or failed.");
 }
 
 // Generate Markdown cheatsheet
-const cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
+const _cheatText = `# 📌 GPT-Cursor Runner Slack Command Cheat Sheet
 
 ## Available Slash Commands
-${ALL_COMMANDS.map(c => `- \`/${c}\``).join('\n')}
+${ALL_COMMANDS.map((c) => `- \`/${c}\``).join("\n")}
 
 ## Request URL
 All commands use this endpoint:
@@ -70,6 +73,8 @@ POST https://7474-2601-1c0-577e-325e-00-1009.ngrok-free.app/slack/commands
 `;
 fs.writeFileSync(CHEATSHEET, cheatText);
 
-console.log('✅ Phase 4 complete: Lint, dry run, commit, cheat sheet written. Setup finalized.');
+console.log(
+  "✅ Phase 4 complete: Lint, dry run, commit, cheat sheet written. Setup finalized.",
+);
 
 // === END PHASE 4 ===

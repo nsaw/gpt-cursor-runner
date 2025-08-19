@@ -1,0 +1,12 @@
+{
+  "service": "consolidated-daemon",
+  "status": "healthy",
+  "timestamp": "2025-07-21T01:37:27.218Z",
+  "stats": {
+    "startTime": "2025-07-21T01:33:27.197Z",
+    "processedRequests": 0,
+    "errors": 0,
+    "lastHeartbeat": "2025-07-21T01:36:27.218Z"
+  },
+  "uptime": 240021
+}

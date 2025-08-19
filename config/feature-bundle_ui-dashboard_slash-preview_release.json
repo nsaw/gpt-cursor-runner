@@ -1,0 +1,14 @@
+{
+  "id": "feature-bundle_ui-dashboard_slash-preview_release",
+  "role": "ui_patch",
+  "description": "Implements a UI status dashboard for patch/event logs, enables Slack slash command auto-response with match previews, and prepares for a GitHub release with version bump.",
+  "target_file": "gpt_cursor_runner/hybrid_bundle_init.md",
+  "patch": {
+    "pattern": ".*",
+    "replacement": "---\n## 🛠️ Feature Bundle: UI Dashboard + Slack Previews + Release Prep\n\n### 1. 📊 UI Status Dashboard\n- Add `dashboard.py` (or `ui_dashboard/` module) to launch a Flask route `/dashboard`\n- Visualizes:\n  - Latest patch applications\n  - Slack events summary\n  - Patch health status (success/failure rate)\n  - Logs filtered by type/date\n- Integrate with `event_log.json`\n- Optional: Use `plotly` or `dash` for richer graphs\n\n### 2. ⚡ Slack Slash Command Auto-Response\n- Enhance `slack_proxy.py` or `/slack/command` to:\n  - Parse incoming `/patch` commands\n  - Look up patch preview by ID or description\n  - Return match preview or validation status inline to Slack\n- Requires: Slack OAuth Token, and `chat:write`, `commands` scopes\n- Optional: Format response with blocks/attachments for better UX\n\n### 3. 🚀 GitHub Release & Version Bump\n- Add GitHub Action:\n  - On tag push: build + upload PyPI release (optional)\n  - Update changelog + bump version in `pyproject.toml`\n- Update `setup.py` and `pyproject.toml` to reflect new version (e.g. `0.2.0`)\n\n---\n"
+  },
+  "metadata": {
+    "author": "gpt-4",
+    "timestamp": "auto"
+  }
+}

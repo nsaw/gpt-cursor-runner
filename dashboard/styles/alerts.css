@@ -1,0 +1,458 @@
+/* Alert Engine Styles */
+.alert-engine {
+  background: var(--bg-secondary, #1a1a1a);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.alert-engine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.alert-engine-header h2 {
+  margin: 0;
+  color: var(--text-primary, #ffffff);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.alert-stats {
+  display: flex;
+  gap: 15px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+}
+
+.stat-value.critical {
+  color: #ff4444;
+}
+
+.stat-value.error {
+  color: #ff8800;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+  color: var(--text-secondary, #888);
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  font-size: 1.5rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 1rem;
+}
+
+/* Error State */
+.alert-engine.error {
+  border: 2px solid #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ff4444;
+}
+
+.error-icon {
+  font-size: 1.5rem;
+}
+
+.error-text {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.retry-button {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: #cc3333;
+}
+
+/* No Alerts State */
+.no-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px;
+  color: var(--text-secondary, #888);
+}
+
+.no-alerts-icon {
+  font-size: 3rem;
+}
+
+.no-alerts-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Alert History */
+.alert-history {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.alert-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-history-header h3 {
+  margin: 0;
+  color: var(--text-primary, #ffffff);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.refresh-button {
+  background: var(--accent-color, #007acc);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: var(--accent-hover, #005a9e);
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Alert List */
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Individual Alert Items */
+.alert-item {
+  background: var(--bg-tertiary, #2a2a2a);
+  border-radius: 6px;
+  border-left: 4px solid var(--border-color, #333);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.alert-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.alert-item.expanded {
+  border-left-width: 6px;
+}
+
+/* Alert Severity Colors */
+.alert-item.alert-critical {
+  border-left-color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.alert-item.alert-error {
+  border-left-color: #ff8800;
+  background: rgba(255, 136, 0, 0.1);
+}
+
+.alert-item.alert-warning {
+  border-left-color: #ffcc00;
+  background: rgba(255, 204, 0, 0.1);
+}
+
+.alert-item.alert-info {
+  border-left-color: #0088ff;
+  background: rgba(0, 136, 255, 0.1);
+}
+
+.alert-item.alert-success {
+  border-left-color: #00cc44;
+  background: rgba(0, 204, 68, 0.1);
+}
+
+.alert-item.alert-default {
+  border-left-color: #888;
+  background: rgba(136, 136, 136, 0.1);
+}
+
+/* Alert Header */
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 48px;
+}
+
+.alert-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.alert-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.alert-severity {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #888);
+}
+
+.alert-message {
+  font-size: 0.875rem;
+  color: var(--text-primary, #ffffff);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alert-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.alert-timestamp {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #888);
+}
+
+.alert-toggle {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #888);
+  transition: transform 0.2s;
+}
+
+.alert-item.expanded .alert-toggle {
+  transform: rotate(90deg);
+}
+
+/* Alert Details */
+.alert-details {
+  padding: 0 16px 16px 16px;
+  border-top: 1px solid var(--border-color, #333);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+
+.alert-description,
+.alert-component,
+.alert-source {
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.alert-description strong,
+.alert-component strong,
+.alert-source strong {
+  color: var(--text-secondary, #888);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.alert-metadata {
+  margin-top: 12px;
+}
+
+.alert-metadata strong {
+  display: block;
+  color: var(--text-secondary, #888);
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.metadata-json {
+  background: var(--bg-primary, #000000);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 4px;
+  padding: 12px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-primary, #ffffff);
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.running {
+  background: rgba(0, 204, 68, 0.2);
+  color: #00cc44;
+  border: 1px solid rgba(0, 204, 68, 0.3);
+}
+
+.status-badge.stopped {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.status-badge.timeout {
+  background: rgba(255, 136, 0, 0.2);
+  color: #ff8800;
+  border: 1px solid rgba(255, 136, 0, 0.3);
+}
+
+.status-badge.error {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .alert-engine {
+    margin: 10px 0;
+    padding: 15px;
+  }
+
+  .alert-engine-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .alert-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .alert-header {
+    padding: 10px 12px;
+  }
+
+  .alert-meta {
+    align-items: flex-start;
+  }
+
+  .alert-message {
+    white-space: normal;
+    line-height: 1.3;
+  }
+}
+
+/* Dark/Light Theme Variables */
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --border-color: #333333;
+  --accent-color: #007acc;
+  --accent-hover: #005a9e;
+}
+
+/* Light theme support */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e8e8e8;
+    --text-primary: #000000;
+    --text-secondary: #666666;
+    --border-color: #cccccc;
+    --accent-color: #007acc;
+    --accent-hover: #005a9e;
+  }
+
+  .metadata-json {
+    background: #f8f8f8;
+    color: #000000;
+    border-color: #cccccc;
+  }
+}

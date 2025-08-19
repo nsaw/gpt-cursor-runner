@@ -1,0 +1,105 @@
+const fs = require('fs/promises')';'';
+const path = require('path')';'';
+const { exec } = require('child_process');
+;
+(_async () => {;
+  try {';'';
+    console.log('[EXECUTOR] Starting async patch processor...');
+;
+    // Use the unified patch directory';'';
+    const _patchDir = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
+;
+    // Ensure patch directory exists;
+    try {;
+      await fs.access(patchDir)} catch (_error) {;
+      await fs.mkdir(patchDir, { recursive: true })};
+
+    // Get all patch files from patch directory;
+    const _files = await fs.readdir(patchDir);
+    const _patchFiles = files.filter(_';'';
+      (file) => file.endsWith('.json') && !file.startsWith('.'),
+    );
+;
+    if (patchFiles.length === 0) {';'';
+      console.log('[EXECUTOR] No patch files found in queue.');
+      return};
+
+    console.log(;
+      `[EXECUTOR] Found ${patchFiles.length} patch files to process.`,
+    );
+;
+    // Process each patch sequentially with await;
+    for (const file of patchFiles) {;
+      const _patchFile = path.join(patchDir, file);
+;
+      try {`;
+        console.log(`[EXECUTOR] Processing patch: ${file}`);
+';'';
+        const _patchData = JSON.parse(await fs.readFile(patchFile, 'utf8'));
+;
+        // Execute patch mutations with await;
+        if (patchData.mutations) {;
+          for (const mutation of patchData.mutations) {`;
+            console.log(`[EXECUTOR] Applying mutation to: ${mutation.path}`);
+;
+            // Create directory if needed;
+            const _dir = path.dirname(mutation.path);
+            try {;
+              await fs.access(dir)} catch (_error) {;
+              await fs.mkdir(dir, { recursive: true })};
+
+            // Write file with await;
+            await fs.writeFile(mutation.path, mutation.contents)}};
+
+        // Execute post-mutation build commands;
+        if (patchData.postMutationBuild && patchData.postMutationBuild.shell) {;
+          for (const command of patchData.postMutationBuild.shell) {`;
+            console.log(`[EXECUTOR] Running: ${command}`);
+            await runCommand(command)}}`;
+
+        console.log(`[EXECUTOR] ✅ Patch completed: ${file}`);
+;
+        // Move completed patch to .completed directory';'';
+        const _completedDir = path.join(patchDir, '.completed');
+        try {;
+          await fs.mkdir(completedDir, { recursive: true });
+          await fs.rename(patchFile, path.join(completedDir, file))`;
+          console.log(`[EXECUTOR] 📁 Moved ${file} to .completed`)} catch (moveError) {;
+          console.error(`;
+            `[EXECUTOR] ❌ Failed to move ${file} to .completed: `,
+            moveError.message,
+          )}} catch (_error) {`;
+        console.error(`[EXECUTOR] ❌ Error processing ${file}:`, error.message);
+;
+        // Move failed patch to .failed directory';'';
+        const _failedDir = path.join(patchDir, '.failed');
+        try {;
+          await fs.mkdir(failedDir, { recursive: true });
+          await fs.rename(patchFile, path.join(failedDir, file))`;
+          console.log(`[EXECUTOR] 📁 Moved ${file} to .failed`)} catch (moveError) {;
+          console.error(`;
+            `[EXECUTOR] ❌ Failed to move ${file} to .failed: `,
+            moveError.message,
+          )};
+        // Continue with next patch instead of throwing}}';
+'';
+    console.log('[EXECUTOR] ✅ All patches processed successfully.')} catch (_error) {';'';
+    console.error('[EXECUTOR] ❌ Patch processing failed:', error.message);
+    process.exit(1)}})();
+;
+// Replace execSync with non-blocking exec;
+function executeCommand(_command) {;
+  return new Promise(_(resolve, _reject) => {';'';
+    exec(_command, _{ stdio: 'inherit' }, _(error, _stdout, _stderr) => {;
+      if (error) {;
+        reject(error)} else {;
+        resolve(stdout)}})})};
+
+// Update the command execution logic;
+async function runCommand(_command) {;
+  try {;
+    const _result = await executeCommand(command);
+    return result} catch (_error) {`;
+    console.error(`Command execution failed: ${error.message}`);
+    throw error}}';
+''`;

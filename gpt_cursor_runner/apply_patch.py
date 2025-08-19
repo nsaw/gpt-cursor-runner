@@ -4,132 +4,126 @@ Script to apply saved patches to target files.
 This demonstrates Option 3 functionality - direct patch application.
 """
 
-import os
 import json
-import re
-import glob
+import os
+import sys
+from pathlib import Path
+from typing import Dict, Optional, Any
 
-def load_patch(patch_file):
-    """Load a patch from a JSON file."""
+
+def load_patch(patch_file: str) -> Optional[Dict[str, Any]]:
+    """Load patch data from JSON file."""
     try:
-        with open(patch_file, 'r') as f:
-            return json.load(f)
+        with open(patch_file, "r") as f:
+            return json.load(f)  # type: ignore
     except Exception as e:
-        print(f"❌ Error loading patch {patch_file}: {e}")
+        print(f"❌ Error loading patch: {e}")
         return None
 
-def apply_patch_to_file(patch_data, target_file_path):
-    """Apply a patch to a target file."""
-    if not os.path.exists(target_file_path):
-        print(f"❌ Target file not found: {target_file_path}")
-        return False
-    
+
+def apply_patch_to_file(patch_data: Dict[str, Any], target_file: str) -> bool:
+    """Apply patch mutations to target file."""
     try:
-        # Read the target file
-        with open(target_file_path, 'r') as f:
-            content = f.read()
-        
-        # Get patch information
-        pattern = patch_data['patch']['pattern']
-        replacement = patch_data['patch']['replacement']
-        
-        # Apply the patch
-        new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE | re.DOTALL)
-        
-        # Check if content changed
-        if new_content == content:
-            print(f"⚠️  No changes applied to {target_file_path}")
-            return False
-        
-        # Write the modified content back
-        with open(target_file_path, 'w') as f:
-            f.write(new_content)
-        
-        print(f"✅ Applied patch to {target_file_path}")
-        return True
-        
+        mutations = patch_data.get("mutations", [])
+
+        for mutation in mutations:
+            mutation_type = mutation.get("type")
+            target = mutation.get("target")
+            content = mutation.get("content", "")
+
+            if mutation_type == "create":
+                # Ensure directory exists
+                target_path = Path(target)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Create file
+                with open(target, "w") as f:
+                    f.write(content)
+                print(f"✅ Created: {target}")
+
+            elif mutation_type == "update":
+                # Update existing file
+                with open(target, "w") as f:
+                    f.write(content)
+                print(f"✅ Updated: {target}")
+
+            elif mutation_type == "delete":
+                # Delete file
+                if os.path.exists(target):
+                    os.remove(target)
+                    print(f"✅ Deleted: {target}")
+
     except Exception as e:
-        print(f"❌ Error applying patch to {target_file_path}: {e}")
+        print(f"❌ Error applying patch: {e}")
         return False
 
-def create_sample_target_file():
-    """Create a sample target file for demonstration."""
-    sample_content = """import React from 'react';
-import { View, Image } from 'react-native';
+    return True
 
-export default function OnboardingModal() {
-  return (
-    <View>
-      <Image source={require('../assets/onboarding.png')} />
-    </View>
-  );
-}
-"""
-    
-    # Create directories if they don't exist
-    os.makedirs('src/screens', exist_ok=True)
-    
-    # Write sample file
-    with open('src/screens/OnboardingModal.tsx', 'w') as f:
-        f.write(sample_content)
-    
-    print("📝 Created sample target file: src/screens/OnboardingModal.tsx")
 
-def main():
-    """Main function to apply patches."""
-    print("🔧 Patch Application Demo")
-    print("=" * 40)
-    
-    # Create a sample target file if it doesn't exist
-    if not os.path.exists('src/screens/OnboardingModal.tsx'):
-        create_sample_target_file()
-    
-    # Find the most recent patch
-    patch_files = glob.glob('patches/*.json')
-    if not patch_files:
-        print("❌ No patches found in patches/ directory")
-        return
-    
-    # Use the most recent patch
-    latest_patch = max(patch_files, key=os.path.getctime)
-    print(f"📦 Using patch: {latest_patch}")
-    
-    # Load the patch
-    patch_data = load_patch(latest_patch)
+def validate_patch(patch_data: Dict[str, Any]) -> bool:
+    """Run validation commands for the patch."""
+    try:
+        validation_commands = patch_data.get("validate", {}).get("shell", [])
+
+        for cmd in validation_commands:
+            print(f"🔍 Running validation: {cmd}")
+            result = os.system(cmd)
+            if result != 0:
+                print(f"❌ Validation failed: {cmd}")
+                return False
+
+        return True
+    except Exception as e:
+        print(f"❌ Error during validation: {e}")
+        return False
+
+
+def run_post_build(patch_data: Dict[str, Any]) -> None:
+    """Run post-mutation build commands."""
+    try:
+        post_commands = patch_data.get("postMutationBuild", {}).get("shell", [])
+
+        for cmd in post_commands:
+            print(f"🔧 Running post-build: {cmd}")
+            result = os.system(cmd)
+            if result != 0:
+                print(f"⚠️ Post-build command failed: {cmd}")
+
+    except Exception as e:
+        print(f"❌ Error during post-build: {e}")
+
+
+def main() -> None:
+    """Main function to apply a patch."""
+    if len(sys.argv) != 2:
+        print("Usage: python apply_patch.py <patch_file>")
+        sys.exit(1)
+
+    patch_file = sys.argv[1]
+    if not os.path.exists(patch_file):
+        print(f"❌ Patch file not found: {patch_file}")
+        sys.exit(1)
+
+    # Load patch data
+    patch_data = load_patch(patch_file)
     if not patch_data:
-        return
-    
-    # Get target file path
-    target_file = patch_data.get('target_file')
-    if not target_file:
-        print("❌ No target_file specified in patch")
-        return
-    
-    print(f"🎯 Target file: {target_file}")
-    print(f"📝 Description: {patch_data.get('description', 'N/A')}")
-    
-    # Show before/after preview
-    if os.path.exists(target_file):
-        with open(target_file, 'r') as f:
-            before_content = f.read()
-        
-        print("\n📄 Before:")
-        print("-" * 20)
-        print(before_content)
-        
-        # Apply the patch
-        success = apply_patch_to_file(patch_data, target_file)
-        
-        if success:
-            print("\n📄 After:")
-            print("-" * 20)
-            with open(target_file, 'r') as f:
-                print(f.read())
-    
-    print("\n💡 This demonstrates how Option 3 would work:")
-    print("   - Read patches from JSON files")
-    print("   - Apply them directly to target files")
-    print("   - Optionally commit changes to Git")
+        print("❌ Failed to load patch data")
+        sys.exit(1)
+
+    # Validate patch
+    if not validate_patch(patch_data):
+        print("❌ Patch validation failed")
+        sys.exit(1)
+
+    # Apply patch
+    if not apply_patch_to_file(patch_data, patch_file):
+        print("❌ Failed to apply patch")
+        sys.exit(1)
+
+    # Run post-build commands
+    run_post_build(patch_data)
+    print("✅ Patch applied successfully!")
+
 
 if __name__ == "__main__":
-    main() 
+    main()

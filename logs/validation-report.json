@@ -1,0 +1,1007 @@
+{
+  "timestamp": "2025-07-23T21:50:05.438Z",
+  "overallStatus": "FAIL",
+  "summary": {
+    "commandValidation": {
+      "total": 67,
+      "passed": 0,
+      "failed": 28,
+      "warnings": 39,
+      "details": [
+        {
+          "file": ".eslintrc.js",
+          "path": "scripts/.eslintrc.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "clear-cache.js",
+          "path": "scripts/clear-cache.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "check-status.js",
+          "path": "scripts/cli/check-status.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "fly-repair.js",
+          "path": "scripts/cli/fly-repair.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [18]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "ghost-status.js",
+          "path": "scripts/cli/ghost-status.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "validate-summary.js",
+          "path": "scripts/cli/validate-summary.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "agent-training.js",
+          "path": "scripts/compliance/agent-training.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "consolidated-daemon.js",
+          "path": "scripts/consolidated-daemon.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "paths.js",
+          "path": "scripts/constants/paths.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "doc-daemon.js",
+          "path": "scripts/daemons/doc-daemon.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-dispatch-loop.js",
+          "path": "scripts/diagnostics/ghost-dispatch-loop.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "fix-summary-routing.js",
+          "path": "scripts/fix-summary-routing.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "generate-indexes.js",
+          "path": "scripts/generate-indexes.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-relay.js",
+          "path": "scripts/ghost/ghost-relay.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-unified-daemon.js",
+          "path": "scripts/ghost/ghost-unified-daemon.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [4, 202]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "integrate-with-gpt-runner.js",
+          "path": "scripts/ghost/integrate-with-gpt-runner.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "route-summary.js",
+          "path": "scripts/ghost/route-summary.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-bridge-simple.js",
+          "path": "scripts/ghost-bridge-simple.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-bridge.js",
+          "path": "scripts/ghost-bridge.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [19]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "health-aggregator.js",
+          "path": "scripts/health-aggregator.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ghost-bridge.js",
+          "path": "scripts/hooks/ghost-bridge.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "heartbeat-monitor.js",
+          "path": "scripts/hooks/heartbeat-monitor.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "patch-validation-loop.js",
+          "path": "scripts/hooks/patch-validation-loop.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "role-aware-router.js",
+          "path": "scripts/hooks/role-aware-router.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "summary-monitor.js",
+          "path": "scripts/hooks/summary-monitor.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "ping-ghost.js",
+          "path": "scripts/internal/ping-ghost.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [19]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [8]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [8]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "kill-zombies.js",
+          "path": "scripts/kill-zombies.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "launch-orchestrator.js",
+          "path": "scripts/launch-orchestrator.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "local-summary-processor.js",
+          "path": "scripts/local-summary-processor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [16]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "collect-resource.js",
+          "path": "scripts/metrics/collect-resource.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "migrate-to-granite.js",
+          "path": "scripts/migrate-to-granite.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [73, 78, 148, 220, 237]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [12]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [12]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "alert-if-anomaly.js",
+          "path": "scripts/ml/alert-if-anomaly.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "anomaly-checker.js",
+          "path": "scripts/ml/anomaly-checker.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "classify-log.js",
+          "path": "scripts/ml/classify-log.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "predict.js",
+          "path": "scripts/ml/predict.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "compliance-monitor.js",
+          "path": "scripts/monitor/compliance-monitor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "ghost-json-dump.js",
+          "path": "scripts/monitor/ghost-json-dump.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [10]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [5]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [5]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "real-dual_monitor.js",
+          "path": "scripts/monitor/real-dual_monitor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [11]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "accurate-patch-status.js",
+          "path": "scripts/monitor/reference/accurate-patch-status.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [11]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "agent-status-display.js",
+          "path": "scripts/monitor/reference/agent-status-display.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [11]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "dual-view-monitor.js",
+          "path": "scripts/monitor/reference/dual-view-monitor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [138, 150, 162, 174, 191]
+            },
+            {
+              "pattern": "/\\.execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [138, 150, 162, 174, 191]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [11, 138, 150, 162, 174, 191]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "filename-concatenator.js",
+          "path": "scripts/monitor/reference/filename-concatenator.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "realtime-monitor.js",
+          "path": "scripts/monitor/reference/realtime-monitor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [11]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "reliable-status.js",
+          "path": "scripts/monitor/reference/reliable-status.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "patch-executor-simple.js",
+          "path": "scripts/patch-executor-simple.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "patch-executor.js",
+          "path": "scripts/patch-executor.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [3]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "processor.js",
+          "path": "scripts/processor.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "kill-zombies.js",
+          "path": "scripts/recovery/kill-zombies.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [12]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "ghost-dispatch.js",
+          "path": "scripts/relay/ghost-dispatch.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "runner.js",
+          "path": "scripts/runner.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "init-unified-ghost-roots.js",
+          "path": "scripts/setup/init-unified-ghost-roots.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "summary-monitor-simple.js",
+          "path": "scripts/summary-monitor-simple.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "summary-monitor.js",
+          "path": "scripts/summary-monitor.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "orchestrator.js",
+          "path": "scripts/system/orchestrator.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "test-error-recovery.js",
+          "path": "scripts/test-error-recovery.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "test-rate-limiting.js",
+          "path": "scripts/test-rate-limiting.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "test_slack_webhook.js",
+          "path": "scripts/test_slack_webhook.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "launch-viewer-tunnel.js",
+          "path": "scripts/tunnel/launch-viewer-tunnel.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "update_slack_manifest_cli.js",
+          "path": "scripts/update_slack_manifest_cli.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [223]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [10]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "expoGuard.js",
+          "path": "scripts/utils/expoGuard.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "command-validator.js",
+          "path": "scripts/validate/command-validator.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [176]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [1, 175, 179]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [175]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/new Promise\\s*\\(\\s*\\(resolve,\\s*reject\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "full-validator.js",
+          "path": "scripts/validate/full-validator.js",
+          "blockingIssues": [
+            {
+              "pattern": "/execSync\\s*\\(/",
+              "matches": 1,
+              "lines": [11, 42, 44]
+            },
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            },
+            {
+              "pattern": "/const\\s+\\{\\s*execSync\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            }
+          ],
+          "nonBlockingPatterns": [],
+          "status": "FAIL"
+        },
+        {
+          "file": "validation-runner.js",
+          "path": "scripts/validate/validation-runner.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [2]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "verify_slack_commands.js",
+          "path": "scripts/verify_slack_commands.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "server.js",
+          "path": "scripts/viewer/server.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        },
+        {
+          "file": "heartbeat-loop.js",
+          "path": "scripts/watchdog/heartbeat-loop.js",
+          "blockingIssues": [
+            {
+              "pattern": "/require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1,
+              "lines": [5]
+            }
+          ],
+          "nonBlockingPatterns": [
+            {
+              "pattern": "/const\\s+\\{\\s*exec\\s*\\}\\s*=\\s*require\\s*\\(\\s*['\"]child_process['\"]\\s*\\)/",
+              "matches": 1
+            },
+            {
+              "pattern": "/exec\\s*\\(\\s*[^,]+,\\s*\\([^)]*\\)\\s*=>\\s*\\{/",
+              "matches": 1
+            }
+          ],
+          "status": "FAIL"
+        },
+        {
+          "file": "live-status-server.js",
+          "path": "scripts/web/live-status-server.js",
+          "blockingIssues": [],
+          "nonBlockingPatterns": [],
+          "status": "WARNING"
+        }
+      ]
+    },
+    "runtimeValidation": {
+      "passed": 3,
+      "failed": 1,
+      "details": [
+        {
+          "name": "Ghost Runner Health",
+          "status": "PASS",
+          "output": "{\n  \"components\": {},\n  \"overall_status\": \"unknown\",\n  \"system_metrics\": {\n    \"cpu\": {\n      \"count\": 20,\n      \"load_average\": [\n        5.11376953125,\n        6.28076171875,\n        8.92919921875\n      ],\n      \"percent\": 29.2\n    },\n    \"disk\": {\n      \"free\": 881716125696,\n      \"percent\": 0.5639569118354497,\n      \"total\": 1995218165760,\n      \"used\": 11252170752\n    },\n    \"memory\": {\n      \"available\": 80007331840,\n      \"percent\": 41.8,\n      \"total\": 137438953472,\n      \"used\": 56189583360\n    },\n    \"network\": {\n      \"bytes_recv\": 4843077632,\n      \"bytes_sent\": 9324650496,\n      \"packets_recv\": 339161711,\n      \"packets_sent\": 173348104\n    }\n  },\n  \"timestamp\": \"2025-07-23T14:50:04.932371\",\n  \"version\": \"3.1.0\"\n}"
+        },
+        {
+          "name": "Patch Executor Status",
+          "status": "PASS",
+          "output": "sawyer           20731   0.0  0.0 411414384  44640 s071  SN    2:11PM   0:00.06 node scripts/direct-patch-executor.js"
+        },
+        {
+          "name": "Daemon Processes",
+          "status": "FAIL",
+          "error": "Command failed: ps aux | grep \"consolidated-daemon\" | grep -v grep\n",
+          "output": ""
+        },
+        {
+          "name": "Monitoring Scripts",
+          "status": "PASS",
+          "output": "sawyer           50337   1.3  0.1 413877616  77792 s075  S+    1:07PM   0:14.54 node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/real-dual_monitor.js start"
+        }
+      ]
+    },
+    "complianceCheck": {
+      "passed": 3,
+      "failed": 1,
+      "details": [
+        {
+          "name": "Non-blocking patterns enforced",
+          "status": "FAIL",
+          "details": false
+        },
+        {
+          "name": "Validation gates active",
+          "status": "PASS",
+          "details": true
+        },
+        {
+          "name": "Monitoring systems active",
+          "status": "PASS",
+          "details": true
+        },
+        {
+          "name": "Error handling implemented",
+          "status": "PASS",
+          "details": true
+        }
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "action": "Fix blocking patterns in scripts",
+      "files": [
+        "fly-repair.js",
+        "agent-training.js",
+        "consolidated-daemon.js",
+        "ghost-unified-daemon.js",
+        "ghost-bridge.js",
+        "ping-ghost.js",
+        "kill-zombies.js",
+        "local-summary-processor.js",
+        "migrate-to-granite.js",
+        "compliance-monitor.js",
+        "ghost-json-dump.js",
+        "real-dual_monitor.js",
+        "accurate-patch-status.js",
+        "agent-status-display.js",
+        "dual-view-monitor.js",
+        "realtime-monitor.js",
+        "reliable-status.js",
+        "patch-executor-simple.js",
+        "patch-executor.js",
+        "kill-zombies.js",
+        "orchestrator.js",
+        "launch-viewer-tunnel.js",
+        "update_slack_manifest_cli.js",
+        "expoGuard.js",
+        "command-validator.js",
+        "full-validator.js",
+        "validation-runner.js",
+        "heartbeat-loop.js"
+      ]
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Restart failed services",
+      "services": ["Daemon Processes"]
+    }
+  ]
+}

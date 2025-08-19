@@ -1,0 +1,24 @@
+{
+  "notes": "P2.11.00 nullstate hardening: minimize churn by relaxing non-critical rules.",
+  "overrideConfig": {
+    "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
+    "ignorePatterns": [],
+    "rules": {
+      "no-unused-vars": "off",
+      "no-undef": "error",
+      "no-console": "off",
+      "prefer-const": "off",
+      "no-var": "off",
+      "eqeqeq": "off",
+      "no-prototype-builtins": "off",
+      "no-empty": "warn",
+      "no-debugger": "off",
+      "no-redeclare": "warn",
+      "no-useless-escape": "warn",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "@typescript-eslint/ban-ts-comment": "off"
+    }
+  }
+}

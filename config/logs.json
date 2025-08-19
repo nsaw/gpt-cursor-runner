@@ -1,0 +1,8 @@
+{
+  "unifiedRoot": "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs",
+  "rotation": {
+    "maxBytes": 5242880,
+    "backups": 10,
+    "rapidRotationThresholdPerMin": 5
+  }
+}

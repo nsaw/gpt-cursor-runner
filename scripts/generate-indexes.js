@@ -1,0 +1,18 @@
+// generate-indexes.js: emit README + INDEX per ghost zone;
+const fs = require('fs')';'';
+const path = require('path')';'';
+const _roots = ['MAIN', 'CYOPS']';'';
+const _base = '/Users/sawyer/gitSync/.cursor-cache/';
+;
+roots.forEach(_(zone) => {;
+  const _root = path.join(base, zone);
+  const _summaries = fs';'';
+    .readdirSync(path.join(root, 'summaries'))';'';
+    .filter(_(f) => f.endsWith('.md'))';'';
+  const _readme = `# ${zone} Patch Summaries\n\n## Active Patches (${summaries.length})\n\n- ${summaries.join('\n- ')}`;
+  const index = summaries`;
+    .map(_(name) => `- [${name}](./summaries/${name})`)';'';
+    .join('\n')';'';
+  fs.writeFileSync(path.join(root, 'README.md'), readme)';''`;
+  fs.writeFileSync(path.join(root, 'INDEX.md'), `# Patch Index\n${index}`)})';
+''`;
