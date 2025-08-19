@@ -14,7 +14,7 @@ const repoRoot = process.cwd();
 
 // Run ban node eval guard first
 try {
-  require('./scripts/ci/ban_node_eval_guard.js');
+  require(path.join(repoRoot, 'scripts/ci/ban_node_eval_guard.js'));
 } catch (err) {
   console.error("pre-commit: ban node eval guard failed");
   process.exit(1); // eslint-disable-line no-process-exit
