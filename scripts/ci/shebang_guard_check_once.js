@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, require-await, @typescript-eslint/no-unused-vars */
 #!/usr/bin/env node
 // shebang_guard_check_once.js — read-only; no auto-fix
 const fs = require('fs'), path = require('path');
