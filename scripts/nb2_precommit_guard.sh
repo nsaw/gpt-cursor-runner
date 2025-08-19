@@ -12,6 +12,14 @@ const path = require("path");
 const MAX_WARN = 20; // contract gate for staged set only
 const repoRoot = process.cwd();
 
+// Run ban node eval guard first
+try {
+  require('./scripts/ci/ban_node_eval_guard.js');
+} catch (err) {
+  console.error("pre-commit: ban node eval guard failed");
+  process.exit(1); // eslint-disable-line no-process-exit
+}
+
 // Get staged files (nul-separated, robust to spaces/newlines)
 const diff = spawnSync("git", ["diff", "--cached", "--name-only", "-z"], { encoding: "buffer" });
 if (diff.status !== 0) {
