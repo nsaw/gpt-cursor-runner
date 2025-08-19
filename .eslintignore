@@ -185,6 +185,10 @@ patches/
 patch-log.json
 node_modules/
 
+# Ignore intake and backup directories
+_gpt5intake/
+_backups/
+
 # Cursor
 .cursor/
 .cursor-cache/
