@@ -13,7 +13,8 @@
     "lint:fix": "eslint . --fix",
     "lint:scripts": "eslint scripts/",
     "lint:server": "eslint server/",
-    "test:dashboard": "playwright test --project=chromium --headed=false tests/dashboard-green-state.spec.ts"
+    "test:dashboard": "playwright test --project=chromium --headed=false tests/dashboard-green-state.spec.ts",
+    "postinstall": "node -e \"const fs=require('fs');try{fs.cpSync('scripts/nb2_precommit_guard.sh','.git/hooks/pre-commit');fs.chmodSync('.git/hooks/pre-commit',0o755);console.log('HOOK_ENFORCED');}catch(e){console.log('HOOK_SKIP_CI');}\""
   },
   "keywords": [
     "gpt",
