@@ -29,10 +29,32 @@ jobs:
       - name: Run tests
         run: npm test -- --watchAll=false
 
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run validation checks
+        run: |
+          node scripts/g2o/inline_node_e_guard.js --paths scripts/g2o,scripts/ci,scripts/metrics,scripts/validate,config --mode fail-on-violation
+          node scripts/ci/shebang_guard_precommit_once.js scripts/ci/*.js scripts/g2o/*.js
+
   deploy:
     runs-on: ubuntu-latest
-    needs: tests
-    if: ${{ github.ref == 'refs/heads/main' && needs.tests.result == 'success' }}
+    needs: [tests, validate]
+    if: ${{ github.ref == 'refs/heads/main' && needs.tests.result == 'success' && needs.validate.result == 'success' }}
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
 
