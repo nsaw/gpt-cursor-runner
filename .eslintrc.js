@@ -31,7 +31,19 @@ module.exports = {
     "max-depth": "warn",
     "no-constant-condition": "warn",
   },
-  ignorePatterns: ["dist/", "node_modules/", "*.min.js"],
+  ignorePatterns: [
+    "dist/", 
+    "node_modules/", 
+    "*.min.js",
+    "_gpt5intake/",
+    "_backups/",
+    ".cursor-cache/",
+    "coverage/",
+    "**/node_modules/**",
+    "**/_gpt5intake/**",
+    "**/_backups/**",
+    "**/.cursor-cache/**"
+  ],
   overrides: [
     {
       files: ["*.ts", "*.tsx"],

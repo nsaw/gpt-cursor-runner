@@ -22,8 +22,15 @@ const raw = diff.stdout || Buffer.alloc(0);
 const parts = raw.toString("utf8").split("\u0000").filter(Boolean);
 
 // Filter to lintable extensions, ensure they still exist and are inside repo
+// Explicitly exclude node_modules, _gpt5intake, _backups, and other excluded directories
 const lintable = parts
   .filter(f => /\.(?:js|ts|tsx)$/.test(f))
+  .filter(f => !f.includes('node_modules/'))
+  .filter(f => !f.includes('_gpt5intake/'))
+  .filter(f => !f.includes('_backups/'))
+  .filter(f => !f.includes('.cursor-cache/'))
+  .filter(f => !f.includes('dist/'))
+  .filter(f => !f.includes('coverage/'))
   .map(f => path.resolve(repoRoot, f))
   .filter(f => fs.existsSync(f));
 
@@ -32,7 +39,20 @@ if (lintable.length === 0) {
 }
 
 (async () => {
-  const eslint = new ESLint({ useEslintrc: true, cache: true, fix: false });
+  const eslint = new ESLint({ 
+    useEslintrc: true, 
+    cache: true, 
+    fix: false,
+    ignorePath: path.join(repoRoot, '.eslintignore'),
+    ignorePattern: [
+      "**/node_modules/**",
+      "**/_gpt5intake/**", 
+      "**/_backups/**",
+      "**/.cursor-cache/**",
+      "**/dist/**",
+      "**/coverage/**"
+    ]
+  });
   const results = await eslint.lintFiles(lintable);
   const errorCount = results.reduce((a, r) => a + (r.errorCount || 0), 0);
   const warningCount = results.reduce((a, r) => a + (r.warningCount || 0), 0);
