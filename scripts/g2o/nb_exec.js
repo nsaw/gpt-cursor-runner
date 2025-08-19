@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Tiny non-blocking exec with TTL; no interactive patterns.
 const { exec } = require('child_process');
 

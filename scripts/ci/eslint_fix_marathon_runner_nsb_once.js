@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // eslint_fix_marathon_runner_nsb_once.js — no shebang
 const fs=require('fs'), {spawnSync}=require('child_process'); const path=require('path');
 const [,, passBudget, intervalMs, maxMs, jsonOut, outLog, errLog, stateFile, hotspotsJs, hotspotsOut, ...globs]=process.argv;
