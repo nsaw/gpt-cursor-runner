@@ -21,4 +21,4 @@ jobs:
           pip install -e .[dev]
       - name: Run tests
         run: |
-          pytest --maxfail=1 --disable-warnings -v
+          pytest -q --maxfail=1 --disable-warnings
