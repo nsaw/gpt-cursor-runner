@@ -1,0 +1,20 @@
+# Code ownership patterns
+# These patterns are used to automatically request reviews from code owners
+
+# Critical scripts and CI configuration
+scripts/** @nsaw
+.github/** @nsaw
+
+# Configuration files
+*.config.js @nsaw
+*.config.json @nsaw
+.eslintrc.js @nsaw
+tsconfig.json @nsaw
+
+# Security and policy files
+SECURITY-POLICY.md @nsaw
+CODEOWNERS @nsaw
+
+# Core application files
+src-nextgen/** @nsaw
+gpt_cursor_runner/** @nsaw
