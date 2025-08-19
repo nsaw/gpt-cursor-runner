@@ -1,0 +1,147 @@
+display_information:
+  name: ***REMOVED***
+  description: ***REMOVED*** - GPT-powered Cursor automation control
+
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Ghost
+    always_online: true
+  slash_commands:
+    - command: /dashboard
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: View dashboard, roadmap, or current system stats
+      usage_hint: "[roadmap|stats|help]"
+    - command: /status-runner
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Check runner/system status, pulse, or phase info
+      usage_hint: "[push|phase|full]"
+    - command: /patch-approve
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Approve, preview, or list pending patches
+      usage_hint: "[next|all|preview|<patch_id>|MAIN|BRAUN|CYOPS|DEV]"
+    - command: /patch-revert
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Revert latest applied patch (by ID optional)
+      usage_hint: "[<patch_id>|MAIN|BRAUN|CYOPS|DEV]"
+    - command: /revert-phase
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Revert last completed phase (with confirm)
+      usage_hint: "[confirm|<phase_id>|MAIN|BRAUN|CYOPS|DEV]"
+    - command: /log-phase-status
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Log or display current phase status
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /cursor-mode
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Switch Cursor operation mode (auto/manual/test/lockdown)
+      usage_hint: "<auto|manual|test|lockdown>"
+    - command: /kill
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Emergency hard stop for the runner (confirm required)
+      usage_hint: "confirm"
+    - command: /interrupt
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Pause, force stop, or redirect the current operation
+      usage_hint: "[pause|force|resume <patch_id>]"
+    - command: /toggle-runner
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Toggle runner state (on/off/lock/unlock)
+      usage_hint: "[on|off|lock|unlock]"
+    - command: /summary-logs
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Get summary logs
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /system-manager
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: System manage, repair, or health check
+      usage_hint: "[boot|shutdown|repair|health|restart|MAIN|BRAUN|CYOPS|DEV]"
+    - command: /manual-revise
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Manual patch revision or append notes/content
+      usage_hint: "<revision notes|append [notes]|MAIN|BRAUN|CYOPS|DEV>"
+    - command: /proceed
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Continue, approve, or resume queued action
+      usage_hint: "[screenshot|continue|approve|nostop]"
+    - command: /again
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Retry failed or restart runner, with arguments
+      usage_hint: "[retry|restart|manual <task>]"
+    - command: /troubleshoot
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Run diagnostics and auto-fix routines
+      usage_hint: "[fix|full|logs]"
+    - command: /troubleshoot-oversight
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Manual oversight for troubleshooting fixes
+      usage_hint: "[approve|reject]"
+    - command: /poke-agent
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Unstick and resume agent (DEV/BRAUN/all) with non-blocking nudge
+      usage_hint: "<DEV|BRAUN|ALL|MAIN|CYOPS> [resume|restart]"
+    - command: /manual-handoff
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Directly send patch to DEV or BRAUN for execution
+      usage_hint: "<DEV|BRAUN|MAIN|CYOPS> [file|text|notes]"
+    - command: /patch-preview
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Preview pending patches
+      usage_hint: "[preview|MAIN|BRAUN|CYOPS|DEV]"
+    - command: /restart-runner
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Restart the GPT-Cursor Runner service
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /patch-status
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Patch queue status
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /approve-screenshot
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Approve screenshot-based patches
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /status-queue
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Status of patch queue
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+    - command: /alert-runner-crash
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Send crash alert notification
+      usage_hint: "[none]"
+    - command: /daemon-status
+      url: https://slack.thoughtmarks.app/slack/commands
+      description: Detailed daemon/process health
+      usage_hint: "[MAIN|BRAUN|CYOPS|DEV]"
+oauth_config:
+  redirect_urls:
+    - https://slack.thoughtmarks.app/slack/oauth/callback
+  scopes:
+    bot:
+      - assistant:write
+      - chat:write
+      - commands
+      - incoming-webhook
+      - users:read
+      - app_mentions:read
+      - channels:history
+      - channels:read
+      - groups:read
+      - im:read
+      - im:history
+      - mpim:read
+settings:
+  event_subscriptions:
+    request_url: https://slack.thoughtmarks.app/slack/events
+    bot_events:
+      - app_mention
+      - message.channels
+      - message.im
+  interactivity:
+    is_enabled: true
+    request_url: https://slack.thoughtmarks.app/slack/interactions
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: true

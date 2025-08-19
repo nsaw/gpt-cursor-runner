@@ -7,4 +7,4 @@ export default function DummyScreen() {
       <Text>This text will be patched.</Text>
     </View>
   );
-} 
+}

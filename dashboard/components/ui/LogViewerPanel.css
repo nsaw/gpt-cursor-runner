@@ -1,0 +1,267 @@
+/* Log Viewer Panel Styles */
+.log-viewer-panel {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
+
+.log-viewer-panel .panel-header {
+  background: #2a2a2a;
+  padding: 12px 16px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.log-viewer-panel .panel-header h3 {
+  margin: 0;
+  color: #e5e5e5;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.log-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-group label {
+  color: #a0a0a0;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-select {
+  background: #333;
+  border: 1px solid #555;
+  color: #e5e5e5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  min-width: 80px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.search-input {
+  background: #333;
+  border: 1px solid #555;
+  color: #e5e5e5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  min-width: 120px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.search-input::placeholder {
+  color: #666;
+}
+
+.refresh-button {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.refresh-button:hover {
+  background: #2563eb;
+}
+
+.log-stats {
+  background: #222;
+  padding: 8px 16px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  color: #a0a0a0;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.log-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #0a0a0a;
+  padding: 8px;
+}
+
+.log-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.log-container::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+.log-entries {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.log-entry {
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin-bottom: 1px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  word-break: break-word;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.log-entry.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 2px solid #ef4444;
+}
+
+.log-entry.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 2px solid #f59e0b;
+}
+
+.log-entry.info {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 2px solid #3b82f6;
+}
+
+.log-timestamp {
+  color: #666;
+  font-size: 11px;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.log-level-icon {
+  font-size: 10px;
+  min-width: 12px;
+  flex-shrink: 0;
+}
+
+.log-source {
+  color: #888;
+  font-size: 11px;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.log-message {
+  flex: 1;
+  color: #e5e5e5;
+}
+
+.no-logs {
+  color: #666;
+  text-align: center;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.panel-footer {
+  background: #2a2a2a;
+  padding: 8px 16px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #a0a0a0;
+}
+
+.last-update {
+  font-weight: 500;
+}
+
+.log-info {
+  font-style: italic;
+}
+
+/* Error state */
+.log-viewer-panel.error .panel-header {
+  background: #2a1a1a;
+  border-bottom-color: #ef4444;
+}
+
+.log-viewer-panel.error .error-indicator {
+  color: #ef4444;
+  font-size: 16px;
+}
+
+.log-viewer-panel.error .error-message {
+  color: #ef4444;
+  padding: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .log-viewer-panel .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .log-controls {
+    justify-content: space-between;
+  }
+
+  .control-group {
+    flex: 1;
+  }
+
+  .log-stats {
+    justify-content: space-between;
+  }
+
+  .panel-footer {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+}

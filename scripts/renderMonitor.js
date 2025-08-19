@@ -1,0 +1,1 @@
+// TODO: Inject live disk check for summary-monitor, patch-executor, and daemon liveness;

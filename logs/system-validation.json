@@ -1,0 +1,184 @@
+{
+  "timestamp": "2025-07-27T05:40:04.500Z",
+  "validation": "***REMOVED*** RUNNER System Validation (Enhanced)",
+  "endpoints": [
+    {
+      "name": "ghost-thoughtmarks.thoughtmarks.app",
+      "url": "https://ghost-thoughtmarks.thoughtmarks.app/health",
+      "type": "dns_record",
+      "status": "DOWN",
+      "dns_target": "c9a7bf54-dab4-4c9f-a05d-2022f081f4e0.cfargotunnel.com"
+    },
+    {
+      "name": "gpt-cursor-runner.thoughtmarks.app",
+      "url": "https://gpt-cursor-runner.thoughtmarks.app/health",
+      "type": "dns_record",
+      "status": "DOWN",
+      "dns_target": "f1545c78-1a94-408f-ba6b-9c4223b4c2bf.cfargotunnel.com"
+    },
+    {
+      "name": "health-thoughtmarks.thoughtmarks.app",
+      "url": "https://health-thoughtmarks.thoughtmarks.app/health",
+      "type": "dns_record",
+      "status": "DOWN",
+      "dns_target": "4d633ac0-9bfe-41e7-8ef7-6dfd7aecd378.cfargotunnel.com"
+    },
+    {
+      "name": "webhook-thoughtmarks.thoughtmarks.app",
+      "url": "https://webhook-thoughtmarks.thoughtmarks.app/health",
+      "type": "dns_record",
+      "status": "DOWN",
+      "dns_target": "9401ee23-3a46-409b-b0e7-b035371afe32.cfargotunnel.com"
+    },
+    {
+      "name": "ngrok-tunnel",
+      "url": "https://deciding-externally-caiman.ngrok-free.app/health",
+      "type": "ngrok",
+      "status": "ACTIVE",
+      "domain": "deciding-externally-caiman.ngrok-free.app"
+    }
+  ],
+  "results": {
+    "pathRouting": {
+      "CYOPS Patches": {
+        "exists": true,
+        "writable": true,
+        "status": "PASS"
+      },
+      "CYOPS Summaries": {
+        "exists": true,
+        "writable": true,
+        "status": "PASS"
+      },
+      "MAIN Patches": {
+        "exists": true,
+        "writable": true,
+        "status": "PASS"
+      },
+      "MAIN Summaries": {
+        "exists": true,
+        "writable": true,
+        "status": "PASS"
+      }
+    },
+    "monitoring": {
+      "log": {
+        "exists": true,
+        "hasRecentActivity": true,
+        "status": "PASS"
+      },
+      "heartbeat": {
+        "exists": true,
+        "isRecent": false,
+        "status": "FAIL",
+        "data": {
+          "timestamp": "2025-07-27T04:40:25.592Z",
+          "monitor": "unified-system-monitor",
+          "status": "running",
+          "systems": {},
+          "processes": {},
+          "restartCounts": {},
+          "tunnels": [
+            {
+              "name": "ghost-thoughtmarks.thoughtmarks.app",
+              "url": "https://ghost-thoughtmarks.thoughtmarks.app/health",
+              "type": "dns_record",
+              "status": "DOWN",
+              "dns_target": "c9a7bf54-dab4-4c9f-a05d-2022f081f4e0.cfargotunnel.com"
+            },
+            {
+              "name": "gpt-cursor-runner.thoughtmarks.app",
+              "url": "https://gpt-cursor-runner.thoughtmarks.app/health",
+              "type": "dns_record",
+              "status": "DOWN",
+              "dns_target": "f1545c78-1a94-408f-ba6b-9c4223b4c2bf.cfargotunnel.com"
+            },
+            {
+              "name": "health-thoughtmarks.thoughtmarks.app",
+              "url": "https://health-thoughtmarks.thoughtmarks.app/health",
+              "type": "dns_record",
+              "status": "DOWN",
+              "dns_target": "4d633ac0-9bfe-41e7-8ef7-6dfd7aecd378.cfargotunnel.com"
+            },
+            {
+              "name": "webhook-thoughtmarks.thoughtmarks.app",
+              "url": "https://webhook-thoughtmarks.thoughtmarks.app/health",
+              "type": "dns_record",
+              "status": "DOWN",
+              "dns_target": "9401ee23-3a46-409b-b0e7-b035371afe32.cfargotunnel.com"
+            },
+            {
+              "name": "ngrok-tunnel",
+              "url": "https://deciding-externally-caiman.ngrok-free.app/health",
+              "type": "ngrok",
+              "status": "ACTIVE",
+              "domain": "deciding-externally-caiman.ngrok-free.app"
+            }
+          ],
+          "uptime": 0.020151583
+        }
+      }
+    },
+    "processes": {
+      "ghost-bridge.js": {
+        "running": true,
+        "status": "PASS"
+      },
+      "heartbeat-loop.js": {
+        "running": true,
+        "status": "PASS"
+      },
+      "doc-daemon.js": {
+        "running": true,
+        "status": "PASS"
+      },
+      "dual-m": {
+        "running": true,
+        "status": "PASS"
+      }
+    },
+    "health": {
+      "ghost-thoughtmarks.thoughtmarks.app": {
+        "reachable": true,
+        "status": "PASS",
+        "url": "https://ghost-thoughtmarks.thoughtmarks.app/health",
+        "type": "dns_record",
+        "response": "error code: 1016"
+      },
+      "gpt-cursor-runner.thoughtmarks.app": {
+        "reachable": true,
+        "status": "PASS",
+        "url": "https://gpt-cursor-runner.thoughtmarks.app/health",
+        "type": "dns_record",
+        "response": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<"
+      },
+      "health-thoughtmarks.thoughtmarks.app": {
+        "reachable": true,
+        "status": "PASS",
+        "url": "https://health-thoughtmarks.thoughtmarks.app/health",
+        "type": "dns_record",
+        "response": "error code: 1033"
+      },
+      "webhook-thoughtmarks.thoughtmarks.app": {
+        "reachable": true,
+        "status": "PASS",
+        "url": "https://webhook-thoughtmarks.thoughtmarks.app/health",
+        "type": "dns_record",
+        "response": "error code: 1033"
+      },
+      "ngrok-tunnel": {
+        "reachable": true,
+        "status": "PASS",
+        "url": "https://deciding-externally-caiman.ngrok-free.app/health",
+        "type": "ngrok",
+        "response": "<!DOCTYPE html>\n<html class=\"h-full\" lang=\"en-US\" dir=\"ltr\">\n  <head>\n    <link rel=\"preload\" href=\""
+      }
+    },
+    "overall": "PASS",
+    "summary": {
+      "passCount": 14,
+      "totalCount": 15,
+      "passRate": 93.33
+    }
+  }
+}

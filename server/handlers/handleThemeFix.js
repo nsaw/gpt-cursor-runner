@@ -1,37 +1,37 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require("../utils/stateManager");
 
-module.exports = async function handleThemeFix(req, res) {
-  const { user_name } = req.body;
+module.exports = async function handleThemeFix(_req, _res) {
+  const { _user_name } = req.body;
   console.log("⚡️ /theme-fix triggered by:", user_name);
-  
+
   try {
-    const themeStatus = await stateManager.getThemeStatus();
-    
+    const _themeStatus = await stateManager.getThemeStatus();
+
     if (!themeStatus.needsFix) {
-      res.send(`✅ Theme is already healthy. No fixes needed.`);
+      res.send("✅ Theme is already healthy. No fixes needed.");
       return;
     }
 
     // Simulate theme fix process
-    const fixResult = {
+    const _fixResult = {
       success: true,
       fixesApplied: themeStatus.themeIssues.length,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Update theme audit with fix information
     await stateManager.updateThemeAudit({
       timestamp: new Date().toISOString(),
-      mode: 'auto-fix',
-      version: '1.0.0',
+      mode: "auto-fix",
+      version: "1.0.0",
       customized: false,
       issues: [],
       needsFix: false,
       fixesApplied: fixResult.fixesApplied,
-      fixedBy: user_name
+      fixedBy: user_name,
     });
 
-    const fixText = `
+    const _fixText = `
 🔧 *Theme Fixes Applied*
 
 *Status:* ✅ Successfully applied ${fixResult.fixesApplied} fixes
@@ -39,7 +39,7 @@ module.exports = async function handleThemeFix(req, res) {
 *Timestamp:* ${new Date(fixResult.timestamp).toLocaleString()}
 
 *Fixes Applied:*
-${themeStatus.themeIssues.map(issue => `• Fixed: ${issue}`).join('\n')}
+${themeStatus.themeIssues.map((issue) => `• Fixed: ${issue}`).join("\n")}
 
 *Next Steps:*
 • Review the changes with \`/theme\`
@@ -48,8 +48,8 @@ ${themeStatus.themeIssues.map(issue => `• Fixed: ${issue}`).join('\n')}
     `.trim();
 
     res.send(fixText);
-  } catch (error) {
-    console.error('Error applying theme fixes:', error);
+  } catch (_error) {
+    console.error("Error applying theme fixes:", error);
     res.send(`❌ Error applying theme fixes: ${error.message}`);
   }
 };

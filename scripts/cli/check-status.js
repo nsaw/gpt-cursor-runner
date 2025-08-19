@@ -1,0 +1,22 @@
+#!/usr/bin/env node;
+/**;
+ * CLI tool to check ghost status;
+ * Uses unified ***REMOVED***_STATUS_PATH from constants;
+ */;
+
+import { ***REMOVED***_STATUS_PATH } from '../constants/paths.js'';'';
+import fs from 'fs';
+;
+try {;
+  if (!fs.existsSync(***REMOVED***_STATUS_PATH)) {;
+    console.error(`❌ Ghost status file not found at: ${***REMOVED***_STATUS_PATH}`);
+    process.exit(1)}';
+'';
+  const _statusData = fs.readFileSync(***REMOVED***_STATUS_PATH, 'utf-8');
+  const _status = JSON.parse(statusData);
+';'';
+  console.log('✅ Ghost Status:');
+  console.log(JSON.stringify(status, null, 2))} catch (_error) {`;
+  console.error(`❌ Failed to read ghost status: ${error.message}`);
+  process.exit(1)}';
+''`;

@@ -1,0 +1,48 @@
+# Shell Enforcement Rules for gpt-cursor-runner
+# Enforces zsh or bash usage, prevents PowerShell
+
+## CRITICAL: Shell Usage Enforcement
+
+### Allowed Shells
+- `/bin/zsh` (preferred)
+- `/bin/bash` (fallback)
+
+### Blocked Shells
+- `powershell` (PowerShell Core)
+- `pwsh` (PowerShell 7+)
+- `cmd` (Windows Command Prompt)
+- `cmd.exe` (Windows Command Prompt)
+
+### Terminal Configuration
+- Default terminal profile: zsh
+- Fallback terminal profile: bash
+- All terminal commands must use Unix shell syntax
+- No PowerShell-specific commands or syntax allowed
+
+### Script Execution
+- All shell scripts must use bash or zsh syntax
+- No .ps1 files should be executed
+- All commands must be compatible with Unix shells
+- Use `{ command & } >/dev/null 2>&1 & disown` pattern for background processes
+
+##***REMOVED***
+- SHELL must be set to /bin/zsh or /bin/bash
+- No PowerShell-specific environment variables
+- Use Unix-style path separators (/)
+
+### File Associations
+- .ps1 files should be treated as plaintext
+- .sh files should be executable with bash/zsh
+- All script files should use Unix line endings
+
+### Validation
+- Check shell type before executing commands
+- Verify commands are Unix-compatible
+- Block any PowerShell-specific syntax
+- Ensure all paths use absolute Unix paths
+
+## Enforcement
+- Automatic detection and blocking of PowerShell usage
+- Redirect to zsh/bash when PowerShell detected
+- Log all shell usage for compliance monitoring
+- Prevent execution of PowerShell scripts 

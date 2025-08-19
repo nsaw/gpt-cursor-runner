@@ -38,6 +38,7 @@ dev = [
     "black>=22.0.0",
     "flake8>=5.0.0",
     "mypy>=1.0.0",
+    "markdownlint-cli>=0.37.0",
 ]
 dashboard = [
     "plotly>=5.0.0",
@@ -60,10 +61,71 @@ include = ["gpt_cursor_runner*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
 
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true 
+disallow_untyped_defs = true
+exclude = [
+    "tests/",
+    "*.md",
+    "docs/",
+    "logs/",
+    "patches/",
+    "assets/",
+    "public/",
+    "server/",
+    "slack/",
+    "scripts/",
+    "tasks/",
+    "runner/",
+    "init/",
+    "quarantine/",
+    "Free/",
+    "Pro/",
+    "Team/",
+    "Enterprise/",
+    "config/",
+    "data/",
+    "state/",
+    "temp/",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.markdownlint]
+MD032 = false
+MD013 = {line_length = 120, code_blocks = false, tables = false}
+MD033 = false
+MD041 = false
+MD002 = false
+MD026 = {punctuation = ".,;:!"} 

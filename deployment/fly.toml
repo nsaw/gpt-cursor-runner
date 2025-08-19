@@ -1,0 +1,42 @@
+# fly.toml app configuration file generated for gpt-cursor-runner on 2025-07-19T10:20:00-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'gpt-cursor-runner'
+primary_region = 'sea'
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = 'production'
+  PUBLIC_RUNNER_URL = 'https://runner.thoughtmarks.app'
+  FLY_APP_NAME = 'gpt-cursor-runner'
+  PATCHES_DIRECTORY = '/tmp/patches'
+
+[http_service]
+  internal_port = 5555
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'get'
+    path = '/health'
+
+# Removed port 5555 service - causing health check failures
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[metrics]]
+  port = 9091
+  path = '/metrics'

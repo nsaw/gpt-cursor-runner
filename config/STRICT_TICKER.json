@@ -1,0 +1,7 @@
+{
+  "intervalSeconds": 12,
+  "maxMinutes": 20,
+  "suppressUserUpdates": true,
+  "stopOnPass": true,
+  "writeMeta": "/Users/sawyer/gitSync/_GPTsync/meta/visual_validation.json"
+}

@@ -1,0 +1,11 @@
+{
+  "blockId": "test-patch-v347",
+  "version": "patch-v3.4.7(P4.HOT2)_patch-router-schema-fix-handoff-validation",
+  "description": "test patch for router fix",
+  "mutations": [
+    {
+      "path": "foo/bar/baz.js",
+      "contents": "console.log('patched')"
+    }
+  ]
+}

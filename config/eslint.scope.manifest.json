@@ -1,0 +1,7 @@
+{
+  "include": [
+    "scripts/g2o/**/*.{js,ts,tsx}",
+    "scripts/ci/**/*.{js,ts,tsx}",
+    "scripts/metrics/**/*.{js,ts,tsx}"
+  ]
+}

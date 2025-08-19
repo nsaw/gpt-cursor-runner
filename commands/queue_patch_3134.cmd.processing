@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+mv /Users/sawyer/gitSync/gpt-cursor-runner/tmp/patch-v3.3.41(P8.13.34)_ghost-runner-patch-endpoint-fix.json \
+   /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/
+chmod 644 /Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/patch-v3.3.41(P8.13.34)_ghost-runner-patch-endpoint-fix.json

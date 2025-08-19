@@ -1,25 +1,26 @@
-const stateManager = require('../utils/stateManager');
+const _stateManager = require("../utils/stateManager");
 
 module.exports = async function handleThemeStatus(req, res) {
   const { user_name } = req.body;
   console.log("⚡️ /theme-status triggered by:", user_name);
-  
+
   try {
     const themeStatus = await stateManager.getThemeStatus();
-    
+
     const statusText = `
 🎨 *Theme Status Report*
 
-*Last Audit:* ${themeStatus.lastThemeAudit ? new Date(themeStatus.lastThemeAudit.timestamp).toLocaleString() : 'Never'}
-*Needs Fix:* ${themeStatus.needsFix ? '🔴 Yes' : '🟢 No'}
+*Last Audit:* ${themeStatus.lastThemeAudit ? new Date(themeStatus.lastThemeAudit.timestamp).toLocaleString() : "Never"}
+*Needs Fix:* ${themeStatus.needsFix ? "🔴 Yes" : "🟢 No"}
 
 *Theme Issues:*
-${themeStatus.themeIssues.length > 0 
-  ? themeStatus.themeIssues.map(issue => `• ${issue}`).join('\n')
-  : '✅ No issues detected'
+${
+  themeStatus.themeIssues.length > 0
+    ? themeStatus.themeIssues.map((issue) => `• ${issue}`).join("\n")
+    : "✅ No issues detected"
 }
 
-*Theme Health:* ${themeStatus.needsFix ? '⚠️ Needs Attention' : '✅ Healthy'}
+*Theme Health:* ${themeStatus.needsFix ? "⚠️ Needs Attention" : "✅ Healthy"}
 
 *Actions:*
 • Use \`/theme\` to view current theme
@@ -29,7 +30,7 @@ ${themeStatus.themeIssues.length > 0
 
     res.send(statusText);
   } catch (error) {
-    console.error('Error getting theme status:', error);
+    console.error("Error getting theme status:", error);
     res.send(`❌ Error getting theme status: ${error.message}`);
   }
 };

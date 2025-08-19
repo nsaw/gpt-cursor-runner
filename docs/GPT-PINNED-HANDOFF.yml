@@ -1,0 +1,146 @@
+handoff:
+kind: nb2\_session\_handoff
+version: 1.0
+owner: DEV/CYOPS
+scope: "G2o + MAIN (NB-2.0 hardening, P1 sequencing, CI-debt trend)"
+summary: >
+Manual-first, NB-2.0-strict workflow is active. Direct Node execution only
+for critical file ops (summaries, PM2 health JSON, env). Sequencer supports
+quick-win recognition and clears stale blocks. Guard scope is limited to
+{scripts/g2o, scripts/ci, scripts/metrics}. Dual summaries and PM2 health
+JSON (pre+post) are mandatory per run.
+
+contract:
+exec:
+mode: direct\_node\_only
+forbid:
+\- shells
+\- heredocs
+\- inline\_node\_e
+require:
+\- absolute\_paths
+guard:
+tool: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid\_inline\_node\_e\_lint\_once.js"
+scope:
+include:
+\- "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o"
+\- "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci"
+\- "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/metrics"
+exclude:
+\- "**/archive/**"
+\- "**/node\_modules/**"
+mode\_default: "fail"   # fail run if violations in scope
+artifacts\_required\_per\_run:
+\- pm2\_health\_pre\_json
+\- pm2\_health\_post\_json
+\- main\_summary\_md
+\- cyops\_summary\_md
+blocking\_policy:
+on\_block\_detected:
+\- "switch\_to\_file\_utility\_immediately"
+\- "emit\_dual\_summaries (manual fallback allowed)"
+\- "do\_not\_use\_inline\_shell\_or\_node\_-e"
+reset\_policy:
+trigger\_if\_two\_within\_three\_exchanges:
+\- "non-YAML/JSON drift for manual patches"
+\- "skip of dual-summary OR pm2 health JSON step"
+action: "open new chat with this handoff header pasted first"
+
+paths:
+roots:
+repo: "/Users/sawyer/gitSync/gpt-cursor-runner"
+cache: "/Users/sawyer/gitSync/.cursor-cache"
+logs:
+root\_logs: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs"
+cyops:
+summaries: "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries"
+triage: "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage"
+main:
+summaries: "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries"
+validation\_root: "/Users/sawyer/gitSync/.cursor-cache/MAIN/validation"
+env\_file: "/Users/sawyer/gitSync/.cursor-cache/MAIN/validation/.env.main"
+public:
+monitor\_html: "/Users/sawyer/gitSync/\_GPTsync/public/monitor.html"
+redirects: "/Users/sawyer/gitSync/\_GPTsync/public/\_redirects"
+
+pm2:
+allowlist\_services:
+\- "g2o-completed-validator"
+\- "g2o-handoff-watcher"
+\- "main-failure-emitter"
+\- "main-queue-counters"
+\- "p0-patch-sla-watch"
+\- "p0-queue-shape-assessor"
+health\_json:
+pre: "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_pre.json"
+post: "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_post.json"
+
+state:
+sequencer:
+mode: "manual-first-hardened"
+quickwin\_detection: true
+single\_flight: true
+guard\_scope\_status:
+scripts\_g2o: "clean (0 violations)"
+scripts\_ci: "triage-only; enforce fail on new"
+scripts\_metrics: "triage-only; enforce fail on new"
+out\_of\_scope: "archives/node\_modules still contain legacy patterns (non-blocking)"
+pm2\_last\_known:
+errored\_candidates\_may\_exist: true   # confirm via pre/post health on next run
+env\_normalization:
+newline\_safe: true  # .env.main must contain real newlines
+ci\_debt\_trend:
+enabled: true
+gating: false
+
+utilities\_required:
+
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/ack\_ready\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/validate\_plain\_empty\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid\_inline\_node\_e\_lint\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pm2\_health\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pm2\_restart\_update\_env\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write\_text\_file\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write\_b64\_file\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat\_file\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/restore\_from\_failed\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/quote\_safe\_edit\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/exec\_patch\_with\_compat\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/direct\_seq\_hardened\_manual\_first\_once.js"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/fix\_ts\_console\_declare\_once.sh"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/ts\_partition\_compile\_once.sh"
+* "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/metrics/ci\_trend\_append\_once.js"
+
+runbook:
+preflight:
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/ack\_ready\_once.js"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/validate\_plain\_empty\_once.js"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid\_inline\_node\_e\_lint\_once.js --mode=fail --root /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid\_inline\_node\_e\_lint\_once.js --mode=fail --root /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid\_inline\_node\_e\_lint\_once.js --mode=fail --root /Users/sawyer/gitSync/gpt-cursor-runner/scripts/metrics"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pm2\_health\_once.js --json-out /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_pre.json --allowlist g2o-completed-validator,g2o-handoff-watcher,main-failure-emitter,main-queue-counters,p0-patch-sla-watch,p0-queue-shape-assessor"
+execution:
+\- note: "Run manual-first sequencer; it restores, repairs, executes, and marks quick-wins."
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/direct\_seq\_hardened\_manual\_first\_once.js"
+postflight:
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pm2\_health\_once.js --json-out /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_post.json --allowlist g2o-completed-validator,g2o-handoff-watcher,main-failure-emitter,main-queue-counters,p0-patch-sla-watch,p0-queue-shape-assessor"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write\_text\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-latest.md "# NB2 run summary (MAIN)\n- artifacts: pm2 pre+post, dual summaries present\n""
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write\_text\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-latest.md "# NB2 run summary (CYOPS)\n- artifacts: pm2 pre+post, dual summaries present\n""
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write\_b64\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/MAIN/validation/.env.main TUFJTl9WQUxJREFUSU9OX1JPT1Q9L1VzZXJzL3Nhd3llci9naXRTeW5jLy5jdXJzb3ItY2FjaGUvTUFJTi92YWxpZGF0aW9uCkpFU1RfUkVTVUxUU19ESVI9L1VzZXJzL3Nhd3llci9naXRTeW5jLy5jdXJzb3ItY2FjaGUvTUFJTi92YWxpZGF0aW9uL2plc3QvdGVzdC1yZXN1bHRzCkpFU1RfTU9DS1NfRElSPS9Vc2Vycy9zYXd5ZXIvZ2l0U3luYy8uY3Vyc29yLWNhY2hlL01BSU4vdmFsaWRhdGlvbi9qZXN0L19fbW9ja3NfXwpNQUVTVFJPX09VVF9ESVI9L1VzZXJzL3Nhd3llci9naXRTeW5jLy5jdXJzb3ItY2FjaGUvTUFJTi92YWxpZGF0aW9uL21hZXN0cm8KREVUT1hfQVJUSUZBQ1RTX0RJUj0vVXNlcnMvc2F3eWVyL2dpdFN5bmMvLmN1cnNvci1jYWNoZS9NQUlOL3ZhbGlkYXRpb24vZGV0b3gvYXJ0aWZhY3RzCkRFVE9YX1ZJU1VBTF9ESVI9L1VzZXJzL3Nhd3llci9naXRTeW5jLy5jdXJzb3ItY2FjaGUvTUFJTi92YWxpZGF0aW9uL2RldG94L3Zpc3VhbAo="
+verification:
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_pre.json --min-bytes 200"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/\_triage/pm2\_health\_post.json --min-bytes 200"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/summary-latest.md --min-bytes 80"
+\- cmd: "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat\_file\_once.js /Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/summary-latest.md --min-bytes 80"
+
+open\_items:
+pm2\_degraded\_services\_possible: true   # verify via next pre/post health
+out\_of\_scope\_inline\_node\_e: "archives/node\_modules contain legacy patterns; maintain triage plan"
+wrapper\_fileops: "nb-safe-detach wrapper avoided for critical writes; keep using direct Node"
+
+next\_agent\_notes:
+
+* "If any step would require shell quoting/heredocs/inline node -e: STOP and author a tiny file-based utility, then continue."
+* "If summaries or PM2 JSON fail to write via a utility: immediately write manual summaries via write\_text\_file\_once.js / write\_b64\_file\_once.js."
+* "If two-strike reset criteria trigger, start a new chat and paste this handoff YAML first."
+* "Keep P1 moving with the hardened manual-first sequencer; treat quick-wins as completed and clear stale block markers."

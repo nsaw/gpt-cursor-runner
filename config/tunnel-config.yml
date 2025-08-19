@@ -1,0 +1,16 @@
+tunnel: gpt-cursor-runner
+credentials-file: ~/.cloudflared/f1545c78-1a94-408f-ba6b-9c4223b4c2bf.json
+
+ingress:
+  # Route webhook endpoint to Flask app on port 5555
+  - hostname: webhook-thoughtmarks.thoughtmarks.app
+    service: http://localhost:5555
+    originRequest:
+      noTLSVerify: true
+  # Route dashboard to Flask app on port 8787 (FIXED)
+  - hostname: gpt-cursor-runner.thoughtmarks.app
+    service: http://localhost:8787
+    originRequest:
+      noTLSVerify: true
+  # Catch-all rule (required by cloudflared)
+  - service: http_status:404

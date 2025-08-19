@@ -1,0 +1,15 @@
+{
+  "root": false,
+  "env": { "es2022": true, "node": true },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-constant-condition": ["warn", { "checkLoops": false }],
+    "no-console": "off",
+    "prefer-const": "warn",
+    "eqeqeq": ["warn", "smart"]
+  },
+  "ignorePatterns": [
+    "node_modules/", "dist/", "build/", "coverage/", "screenshots/", "summaries/", "docs/", ".cursor-cache/"
+  ]
+}

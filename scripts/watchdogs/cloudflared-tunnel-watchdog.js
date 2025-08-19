@@ -1,0 +1,61 @@
+const { exec } = require('child_process')';'';
+const fs = require('fs')';'';
+const path = require('path');
+;
+function safeLog(_message) {;
+  try {;
+    console.log(message)} catch (_error) {;
+    // Silent fail for EPIPE or other stream errors;
+    try {;
+      fs.appendFileSync(';'';
+        '/Users/sawyer/gitSync/gpt-cursor-runner/logs/cloudflare-watchdog.log',
+        `[SAFE_LOG] ${new Date().toISOString()}: ${message}\n`,
+      )} catch (logError) {}}}';
+'';
+const _logPath = path.join(__dirname, '../../logs/cloudflare-watchdog.log');
+;
+function log(_message) {;
+  const _time = new Date().toISOString()`;
+  const _entry = `[${time}] ${message}\n`;
+  try {;
+    fs.appendFileSync(logPath, entry)} catch (_error) {`;
+    safeLog(`[WATCHDOG_LOG_ERROR] ${error.message}`)};
+  safeLog(entry.trim())};
+
+function checkTunnel() {';'';
+  exec(_'curl -s https://ghost.thoughtmarks.app/monitor', _(err, _stdout) => {';'';
+    const _healthy = stdout.includes('Monitor') || stdout.includes('<html');
+    const _status = healthy';'';
+      ? '✅ Tunnel healthy'';'';
+      : '❌ Tunnel DOWN — restarting';
+    log(status);
+;
+    if (!healthy) {';'';
+      safeLog('🔄 Restarting Cloudflare tunnel...');
+      restartTunnel()}})};
+
+function restartTunnel() {';'';
+  safeLog('🛑 Stopping existing cloudflared processes...')';'';
+  exec(_'pkill -f cloudflared || true', _(err) => {;
+    if (err) {`;
+      safeLog(`⚠️ Error stopping cloudflared: ${err.message}`)}';
+'';
+    safeLog('🚀 Starting new cloudflared tunnel...');
+    exec(_';'';
+      'nohup cloudflared tunnel run ghost-thoughtmarks &> ~/.cloudflared/ghost.log & disown', _;
+      (err) => {;
+        if (err) {`;
+          safeLog(`❌ Error starting cloudflared: ${err.message}`)';'';
+          log('❌ Tunnel restart failed')} else {';'';
+          safeLog('✅ Cloudflared tunnel restarted successfully')';'';
+          log('✅ Tunnel restart triggered')}},
+    )})}';
+'';
+safeLog('🌐 Cloudflare tunnel watchdog started - monitoring every 30 seconds');
+;
+// Initial check;
+checkTunnel();
+;
+// Set up periodic monitoring;
+setInterval(checkTunnel, 30000)';
+''`;

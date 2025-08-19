@@ -1,0 +1,7 @@
+{
+  "webhook": 5051,
+  "runner": 5053,
+  "dashboard": 8787,
+  "telemetry": [8788, 8789],
+  "reserved": [5555]
+}

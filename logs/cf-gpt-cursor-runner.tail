@@ -1,0 +1,200 @@
+2025-08-08T01:38:54:   between your server and the Cloudflare edge. You can provide name or UUID of tunnel to run either as the
+2025-08-08T01:38:54:   last command line argument or in the configuration file using "tunnel: TUNNEL".
+2025-08-08T01:38:54: 
+2025-08-08T01:38:54:   This command requires the tunnel credentials file created when "cloudflared tunnel create" was run,
+2025-08-08T01:38:54:   however it does not need access to cert.pem from "cloudflared login" if you identify the tunnel by UUID.
+2025-08-08T01:38:54:   If you experience other problems running the tunnel, "cloudflared tunnel cleanup" may help by removing
+2025-08-08T01:38:54:   any old connection records.
+2025-08-08T01:38:54: 
+2025-08-08T01:38:54: 
+2025-08-08T01:38:54: TUNNEL COMMAND OPTIONS:
+2025-08-08T01:38:54:    --config value           Specifies a config file in YAML format. (default: "/Users/sawyer/.cloudflared/config.yml")
+2025-08-08T01:38:54:    --origincert value       Path to the certificate generated for your origin when you run cloudflared login. (default: "/Users/sawyer/.cloudflared/cert.pem") [$TUNNEL_ORIGIN_CERT]
+2025-08-08T01:38:54:    --autoupdate-freq value  Autoupdate frequency. Default is 24h0m0s. (default: 24h0m0s)
+2025-08-08T01:38:54:    --no-autoupdate          Disable periodic check for updates, restarting the server with the new version. (default: false) [$NO_AUTOUPDATE]
+2025-08-08T01:38:54:    --metrics value          Listen address for metrics reporting. If no address is passed cloudflared will try to bind to [localhost:20241 localhost:20242 localhost:20243 localhost:20244 localhost:20245].
+2025-08-08T01:38:54: 
+2025-08-08T01:38:54: environment the default address binds to all interfaces, hence, it is important to isolate the host
+2025-08-08T01:38:54: and virtualized host network stacks from each other (default: "localhost:0") [$TUNNEL_METRICS]
+2025-08-08T01:38:54:    --pidfile value                                     Write the application's PID to this file after first successful connection. [$TUNNEL_PIDFILE]
+2025-08-08T01:38:54:    --loglevel value                                    Application logging level {debug, info, warn, error, fatal}. At debug level cloudflared will log request URL, method, protocol, content length, as well as, all request and response headers. This can expose sensitive information in your logs. (default: "info") [$TUNNEL_LOGLEVEL]
+2025-08-08T01:38:54:    --transport-loglevel value, --proto-loglevel value  Transport logging level(previously called protocol logging level) {debug, info, warn, error, fatal} (default: "info") [$TUNNEL_PROTO_LOGLEVEL, $TUNNEL_TRANSPORT_LOGLEVEL]
+2025-08-08T01:38:54:    --logfile value                                     Save application log to this file for reporting issues. [$TUNNEL_LOGFILE]
+2025-08-08T01:38:54:    --log-directory value                               Save application log to this directory for reporting issues. [$TUNNEL_LOGDIRECTORY]
+2025-08-08T01:38:54:    --trace-output value                                Name of trace output file, generated when cloudflared stops. [$TUNNEL_TRACE_OUTPUT]
+2025-08-08T01:38:54:    --output value                                      Output format for the logs (default, json) (default: "default") [$TUNNEL_MANAGEMENT_OUTPUT, $TUNNEL_LOG_OUTPUT]
+2025-08-08T01:38:54:   
+2025-08-08T01:38:54: SUBCOMMAND OPTIONS:
+2025-08-08T01:38:54:   --credentials-file value, --cred-file value  Filepath at which to read/write the tunnel credentials [$TUNNEL_CRED_FILE]
+2025-08-08T01:38:54:   --credentials-contents value                 Contents of the tunnel credentials JSON file to use. When provided along with credentials-file, this will take precedence. [$TUNNEL_CRED_CONTENTS]
+2025-08-08T01:38:54:   --post-quantum, --pq                         When given creates an experimental post-quantum secure tunnel (default: false) [$TUNNEL_POST_QUANTUM]
+2025-08-08T01:38:54:   --features value, -F value                   Opt into various features that are still being developed or tested.  (accepts multiple inputs)
+2025-08-08T01:38:54:   --token value                                The Tunnel token. When provided along with credentials, this will take precedence. Also takes precedence over token-file [$TUNNEL_TOKEN]
+2025-08-08T01:38:54:   --token-file value                           Filepath at which to read the tunnel token. When provided along with credentials, this will take precedence. [$TUNNEL_TOKEN_FILE]
+2025-08-08T01:38:54:   --icmpv4-src value                           Source address to send/receive ICMPv4 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to 0.0.0.0. [$TUNNEL_ICMPV4_SRC]
+2025-08-08T01:38:54:   --icmpv6-src value                           Source address and the interface name to send/receive ICMPv6 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to ::. [$TUNNEL_ICMPV6_SRC]
+2025-08-08T01:38:54:   --max-active-flows value                     Overrides the remote configuration for max active private network flows (TCP/UDP) that this cloudflared instance supports (default: 0) [$TUNNEL_MAX_ACTIVE_FLOWS]
+2025-08-08T01:38:54:   --dns-resolver-addrs value                   Overrides the dynamic DNS resolver resolution to use these address:port's instead.  (accepts multiple inputs) [$TUNNEL_DNS_RESOLVER_ADDRS]
+2025-08-08T01:38:54:   --url URL                                    Connect to the local webserver at URL. (default: "http://localhost:8080") [$TUNNEL_URL]
+2025-08-08T01:38:54:   --hello-world                                Run Hello World Server (default: false) [$TUNNEL_HELLO_WORLD]
+2025-08-08T01:38:54:   --socks5 --url                               specify if this tunnel is running as a SOCK5 Server This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_SOCKS]
+2025-08-08T01:38:54:   --proxy-connect-timeout --url                HTTP proxy timeout for establishing a new connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:54:   --proxy-tls-timeout --url                    HTTP proxy timeout for completing a TLS handshake This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 10s)
+2025-08-08T01:38:54:   --proxy-tcp-keepalive --url                  HTTP proxy TCP keepalive duration This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:54:   --proxy-no-happy-eyeballs --url              HTTP proxy should disable "happy eyeballs" for IPv4/v6 fallback This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false)
+2025-08-08T01:38:54:   --proxy-keepalive-connections --url          HTTP proxy maximum keepalive connection pool size This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 100)
+2025-08-08T01:38:54:   --proxy-keepalive-timeout --url              HTTP proxy timeout for closing an idle connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 1m30s)
+2025-08-08T01:38:54:   --proxy-connection-timeout value             DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:54:   --proxy-expect-continue-timeout value        DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:54:   --http-host-header --url                     Sets the HTTP Host header for the local webserver. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_HTTP_HOST_HEADER]
+2025-08-08T01:38:54:   --origin-server-name --url                   Hostname on the origin server certificate. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_SERVER_NAME]
+2025-08-08T01:38:54:   --unix-socket value                          Path to unix socket to use instead of --url [$TUNNEL_UNIX_SOCKET]
+2025-08-08T01:38:54: Path to the CA for the certificate of your origin. This option should be used only if your certificate is not signed by Cloudflare. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_CA_POOL]
+2025-08-08T01:38:54:   --no-tls-verify --url                        Disables TLS verification of the certificate presented by your origin. Will allow any certificate from the origin to be accepted. Note: The connection from your machine to Cloudflare's Edge is still encrypted. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$NO_TLS_VERIFY]
+2025-08-08T01:38:54:   --no-chunked-encoding --url                  Disables chunked transfer encoding; useful if you are running a WSGI server. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_NO_CHUNKED_ENCODING]
+2025-08-08T01:38:54:   --http2-origin                               Enables HTTP/2 origin servers. (default: false) [$TUNNEL_ORIGIN_ENABLE_HTTP2]
+2025-08-08T01:38:54:   --bastion                                    Runs as jump host (default: false) [$TUNNEL_BASTION]
+2025-08-08T01:38:54:   --proxy-address value                        Listen address for the proxy. (default: "127.0.0.1") [$TUNNEL_PROXY_ADDRESS]
+2025-08-08T01:38:54:   --proxy-port value                           Listen port for the proxy. (default: 0) [$TUNNEL_PROXY_PORT]
+2025-08-08T01:38:54:   --help, -h                                   show help (default: false)
+2025-08-08T01:38:54:   
+2025-08-08T01:38:55: Incorrect Usage: flag provided but not defined: -logfile
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: NAME:
+2025-08-08T01:38:55:   cloudflared tunnel run - Proxy a local web server by running the given tunnel
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: USAGE:
+2025-08-08T01:38:55:   cloudflared tunnel [tunnel command options] run [subcommand options] [TUNNEL]
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: DESCRIPTION:
+2025-08-08T01:38:55:   Runs the tunnel identified by name or UUID, creating highly available connections
+2025-08-08T01:38:55:   between your server and the Cloudflare edge. You can provide name or UUID of tunnel to run either as the
+2025-08-08T01:38:55:   last command line argument or in the configuration file using "tunnel: TUNNEL".
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55:   This command requires the tunnel credentials file created when "cloudflared tunnel create" was run,
+2025-08-08T01:38:55:   however it does not need access to cert.pem from "cloudflared login" if you identify the tunnel by UUID.
+2025-08-08T01:38:55:   If you experience other problems running the tunnel, "cloudflared tunnel cleanup" may help by removing
+2025-08-08T01:38:55:   any old connection records.
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: TUNNEL COMMAND OPTIONS:
+2025-08-08T01:38:55:    --config value           Specifies a config file in YAML format. (default: "/Users/sawyer/.cloudflared/config.yml")
+2025-08-08T01:38:55:    --origincert value       Path to the certificate generated for your origin when you run cloudflared login. (default: "/Users/sawyer/.cloudflared/cert.pem") [$TUNNEL_ORIGIN_CERT]
+2025-08-08T01:38:55:    --autoupdate-freq value  Autoupdate frequency. Default is 24h0m0s. (default: 24h0m0s)
+2025-08-08T01:38:55:    --no-autoupdate          Disable periodic check for updates, restarting the server with the new version. (default: false) [$NO_AUTOUPDATE]
+2025-08-08T01:38:55:    --metrics value          Listen address for metrics reporting. If no address is passed cloudflared will try to bind to [localhost:20241 localhost:20242 localhost:20243 localhost:20244 localhost:20245].
+2025-08-08T01:38:55: If all are unavailable, a random port will be used. Note that when running cloudflared from an virtual
+2025-08-08T01:38:55: environment the default address binds to all interfaces, hence, it is important to isolate the host
+2025-08-08T01:38:55: and virtualized host network stacks from each other (default: "localhost:0") [$TUNNEL_METRICS]
+2025-08-08T01:38:55:    --pidfile value                                     Write the application's PID to this file after first successful connection. [$TUNNEL_PIDFILE]
+2025-08-08T01:38:55:    --loglevel value                                    Application logging level {debug, info, warn, error, fatal}. At debug level cloudflared will log request URL, method, protocol, content length, as well as, all request and response headers. This can expose sensitive information in your logs. (default: "info") [$TUNNEL_LOGLEVEL]
+2025-08-08T01:38:55:    --transport-loglevel value, --proto-loglevel value  Transport logging level(previously called protocol logging level) {debug, info, warn, error, fatal} (default: "info") [$TUNNEL_PROTO_LOGLEVEL, $TUNNEL_TRANSPORT_LOGLEVEL]
+2025-08-08T01:38:55:    --logfile value                                     Save application log to this file for reporting issues. [$TUNNEL_LOGFILE]
+2025-08-08T01:38:55:    --log-directory value                               Save application log to this directory for reporting issues. [$TUNNEL_LOGDIRECTORY]
+2025-08-08T01:38:55:    --trace-output value                                Name of trace output file, generated when cloudflared stops. [$TUNNEL_TRACE_OUTPUT]
+2025-08-08T01:38:55:    --output value                                      Output format for the logs (default, json) (default: "default") [$TUNNEL_MANAGEMENT_OUTPUT, $TUNNEL_LOG_OUTPUT]
+2025-08-08T01:38:55:   
+2025-08-08T01:38:55: SUBCOMMAND OPTIONS:
+2025-08-08T01:38:55:   --credentials-file value, --cred-file value  Filepath at which to read/write the tunnel credentials [$TUNNEL_CRED_FILE]
+2025-08-08T01:38:55:   --credentials-contents value                 Contents of the tunnel credentials JSON file to use. When provided along with credentials-file, this will take precedence. [$TUNNEL_CRED_CONTENTS]
+2025-08-08T01:38:55:   --post-quantum, --pq                         When given creates an experimental post-quantum secure tunnel (default: false) [$TUNNEL_POST_QUANTUM]
+2025-08-08T01:38:55:   --features value, -F value                   Opt into various features that are still being developed or tested.  (accepts multiple inputs)
+2025-08-08T01:38:55:   --token value                                The Tunnel token. When provided along with credentials, this will take precedence. Also takes precedence over token-file [$TUNNEL_TOKEN]
+2025-08-08T01:38:55:   --token-file value                           Filepath at which to read the tunnel token. When provided along with credentials, this will take precedence. [$TUNNEL_TOKEN_FILE]
+2025-08-08T01:38:55:   --icmpv4-src value                           Source address to send/receive ICMPv4 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to 0.0.0.0. [$TUNNEL_ICMPV4_SRC]
+2025-08-08T01:38:55:   --icmpv6-src value                           Source address and the interface name to send/receive ICMPv6 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to ::. [$TUNNEL_ICMPV6_SRC]
+2025-08-08T01:38:55:   --max-active-flows value                     Overrides the remote configuration for max active private network flows (TCP/UDP) that this cloudflared instance supports (default: 0) [$TUNNEL_MAX_ACTIVE_FLOWS]
+2025-08-08T01:38:55:   --dns-resolver-addrs value                   Overrides the dynamic DNS resolver resolution to use these address:port's instead.  (accepts multiple inputs) [$TUNNEL_DNS_RESOLVER_ADDRS]
+2025-08-08T01:38:55:   --url URL                                    Connect to the local webserver at URL. (default: "http://localhost:8080") [$TUNNEL_URL]
+2025-08-08T01:38:55:   --hello-world                                Run Hello World Server (default: false) [$TUNNEL_HELLO_WORLD]
+2025-08-08T01:38:55:   --socks5 --url                               specify if this tunnel is running as a SOCK5 Server This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_SOCKS]
+2025-08-08T01:38:55:   --proxy-connect-timeout --url                HTTP proxy timeout for establishing a new connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:55:   --proxy-tls-timeout --url                    HTTP proxy timeout for completing a TLS handshake This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 10s)
+2025-08-08T01:38:55:   --proxy-tcp-keepalive --url                  HTTP proxy TCP keepalive duration This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:55:   --proxy-no-happy-eyeballs --url              HTTP proxy should disable "happy eyeballs" for IPv4/v6 fallback This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false)
+2025-08-08T01:38:55:   --proxy-keepalive-connections --url          HTTP proxy maximum keepalive connection pool size This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 100)
+2025-08-08T01:38:55:   --proxy-keepalive-timeout --url              HTTP proxy timeout for closing an idle connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 1m30s)
+2025-08-08T01:38:55:   --proxy-connection-timeout value             DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:55:   --proxy-expect-continue-timeout value        DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:55:   --http-host-header --url                     Sets the HTTP Host header for the local webserver. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_HTTP_HOST_HEADER]
+2025-08-08T01:38:55:   --origin-server-name --url                   Hostname on the origin server certificate. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_SERVER_NAME]
+2025-08-08T01:38:55:   --unix-socket value                          Path to unix socket to use instead of --url [$TUNNEL_UNIX_SOCKET]
+2025-08-08T01:38:55:   --origin-ca-pool --url                       Path to the CA for the certificate of your origin. This option should be used only if your certificate is not signed by Cloudflare. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_CA_POOL]
+2025-08-08T01:38:55:   --no-tls-verify --url                        Disables TLS verification of the certificate presented by your origin. Will allow any certificate from the origin to be accepted. Note: The connection from your machine to Cloudflare's Edge is still encrypted. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$NO_TLS_VERIFY]
+2025-08-08T01:38:55:   --no-chunked-encoding --url                  Disables chunked transfer encoding; useful if you are running a WSGI server. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_NO_CHUNKED_ENCODING]
+2025-08-08T01:38:55:   --http2-origin                               Enables HTTP/2 origin servers. (default: false) [$TUNNEL_ORIGIN_ENABLE_HTTP2]
+2025-08-08T01:38:55:   --bastion                                    Runs as jump host (default: false) [$TUNNEL_BASTION]
+2025-08-08T01:38:55:                 Listen address for the proxy. (default: "127.0.0.1") [$TUNNEL_PROXY_ADDRESS]
+2025-08-08T01:38:55:   --proxy-port value                           Listen port for the proxy. (default: 0) [$TUNNEL_PROXY_PORT]
+2025-08-08T01:38:55:   --help, -h                                   show help (default: false)
+2025-08-08T01:38:55:   
+2025-08-08T01:38:55: Incorrect Usage: flag provided but not defined: -logfile
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: NAME:
+2025-08-08T01:38:55:   cloudflared tunnel run - Proxy a local web server by running the given tunnel
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: USAGE:
+2025-08-08T01:38:55:   cloudflared tunnel [tunnel command options] run [subcommand options] [TUNNEL]
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: DESCRIPTION:
+2025-08-08T01:38:55:   Runs the tunnel identified by name or UUID, creating highly available connections
+2025-08-08T01:38:55:   between your server and the Cloudflare edge. You can provide name or UUID of tunnel to run either as the
+2025-08-08T01:38:55:   last command line argument or in the configuration file using "tunnel: TUNNEL".
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55:   This command requires the tunnel credentials file created when "cloudflared tunnel create" was run,
+2025-08-08T01:38:55:   however it does not need access to cert.pem from "cloudflared login" if you identify the tunnel by UUID.
+2025-08-08T01:38:55:   If you experience other problems running the tunnel, "cloudflared tunnel cleanup" may help by removing
+2025-08-08T01:38:55:   any old connection records.
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: 
+2025-08-08T01:38:55: TUNNEL COMMAND OPTIONS:
+2025-08-08T01:38:55:    --config value           Specifies a config file in YAML format. (default: "/Users/sawyer/.cloudflared/config.yml")
+2025-08-08T01:38:55:    --origincert value       Path to the certificate generated for your origin when you run cloudflared login. (default: "/Users/sawyer/.cloudflared/cert.pem") [$TUNNEL_ORIGIN_CERT]
+2025-08-08T01:38:55:    --autoupdate-freq value  Autoupdate frequency. Default is 24h0m0s. (default: 24h0m0s)
+2025-08-08T01:38:55:    --no-autoupdate          Disable periodic check for updates, restarting the server with the new version. (default: false) [$NO_AUTOUPDATE]
+2025-08-08T01:38:55:    --metrics value          Listen address for metrics reporting. If no address is passed cloudflared will try to bind to [localhost:20241 localhost:20242 localhost:20243 localhost:20244 localhost:20245].
+2025-08-08T01:38:55: If all are unavailable, a random port will be used. Note that when running cloudflared from an virtual
+2025-08-08T01:38:55: environment the default address binds to all interfaces, hence, it is important to isolate the host
+2025-08-08T01:38:55: and virtualized host network stacks from each other (default: "localhost:0") [$TUNNEL_METRICS]
+2025-08-08T01:38:55:    --pidfile value                                     Write the application's PID to this file after first successful connection. [$TUNNEL_PIDFILE]
+2025-08-08T01:38:55:    --loglevel value                                    Application logging level {debug, info, warn, error, fatal}. At debug level cloudflared will log request URL, method, protocol, content length, as well as, all request and response headers. This can expose sensitive information in your logs. (default: "info") [$TUNNEL_LOGLEVEL]
+2025-08-08T01:38:55:    --transport-loglevel value, --proto-loglevel value  Transport logging level(previously called protocol logging level) {debug, info, warn, error, fatal} (default: "info") [$TUNNEL_PROTO_LOGLEVEL, $TUNNEL_TRANSPORT_LOGLEVEL]
+2025-08-08T01:38:55:    --logfile value                                     Save application log to this file for reporting issues. [$TUNNEL_LOGFILE]
+2025-08-08T01:38:55:    --log-directory value                               Save application log to this directory for reporting issues. [$TUNNEL_LOGDIRECTORY]
+2025-08-08T01:38:55:    --trace-output value                                Name of trace output file, generated when cloudflared stops. [$TUNNEL_TRACE_OUTPUT]
+2025-08-08T01:38:55:    --output value                                      Output format for the logs (default, json) (default: "default") [$TUNNEL_MANAGEMENT_OUTPUT, $TUNNEL_LOG_OUTPUT]
+2025-08-08T01:38:55:   
+2025-08-08T01:38:55: SUBCOMMAND OPTIONS:
+2025-08-08T01:38:55:   --credentials-file value, --cred-file value  Filepath at which to read/write the tunnel credentials [$TUNNEL_CRED_FILE]
+2025-08-08T01:38:55:   --credentials-contents value                 Contents of the tunnel credentials JSON file to use. When provided along with credentials-file, this will take precedence. [$TUNNEL_CRED_CONTENTS]
+2025-08-08T01:38:55:   --post-quantum, --pq                         When given creates an experimental post-quantum secure tunnel (default: false) [$TUNNEL_POST_QUANTUM]
+2025-08-08T01:38:55:   --features value, -F value                   Opt into various features that are still being developed or tested.  (accepts multiple inputs)
+2025-08-08T01:38:55:   --token value                                The Tunnel token. When provided along with credentials, this will take precedence. Also takes precedence over token-file [$TUNNEL_TOKEN]
+2025-08-08T01:38:55:   --token-file value                           Filepath at which to read the tunnel token. When provided along with credentials, this will take precedence. [$TUNNEL_TOKEN_FILE]
+2025-08-08T01:38:55:   --icmpv4-src value                           Source address to send/receive ICMPv4 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to 0.0.0.0. [$TUNNEL_ICMPV4_SRC]
+2025-08-08T01:38:55:   --icmpv6-src value                           Source address and the interface name to send/receive ICMPv6 messages. If not provided cloudflared will dial a local address to determine the source IP or fallback to ::. [$TUNNEL_ICMPV6_SRC]
+2025-08-08T01:38:55:   --max-active-flows value                     Overrides the remote configuration for max active private network flows (TCP/UDP) that this cloudflared instance supports (default: 0) [$TUNNEL_MAX_ACTIVE_FLOWS]
+2025-08-08T01:38:55:   --dns-resolver-addrs value                   Overrides the dynamic DNS resolver resolution to use these address:port's instead.  (accepts multiple inputs) [$TUNNEL_DNS_RESOLVER_ADDRS]
+2025-08-08T01:38:55:   --url URL                                    Connect to the local webserver at URL. (default: "http://localhost:8080") [$TUNNEL_URL]
+2025-08-08T01:38:55:   --hello-world                                Run Hello World Server (default: false) [$TUNNEL_HELLO_WORLD]
+2025-08-08T01:38:55:   --socks5 --url                               specify if this tunnel is running as a SOCK5 Server This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_SOCKS]
+2025-08-08T01:38:55:   --proxy-connect-timeout --url                HTTP proxy timeout for establishing a new connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:55:   --proxy-tls-timeout --url                    HTTP proxy timeout for completing a TLS handshake This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 10s)
+2025-08-08T01:38:55:   --proxy-tcp-keepalive --url                  HTTP proxy TCP keepalive duration This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 30s)
+2025-08-08T01:38:55:   --proxy-no-happy-eyeballs --url              HTTP proxy should disable "happy eyeballs" for IPv4/v6 fallback This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false)
+2025-08-08T01:38:55:   --proxy-keepalive-connections --url          HTTP proxy maximum keepalive connection pool size This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 100)
+2025-08-08T01:38:55:   --proxy-keepalive-timeout --url              HTTP proxy timeout for closing an idle connection This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: 1m30s)
+2025-08-08T01:38:55:   --proxy-connection-timeout value             DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:55:   --proxy-expect-continue-timeout value        DEPRECATED. No longer has any effect. (default: 1m30s)
+2025-08-08T01:38:55:   --http-host-header --url                     Sets the HTTP Host header for the local webserver. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_HTTP_HOST_HEADER]
+2025-08-08T01:38:55:   --origin-server-name --url                   Hostname on the origin server certificate. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_SERVER_NAME]
+2025-08-08T01:38:55:   --unix-socket value                          Path to unix socket to use instead of --url [$TUNNEL_UNIX_SOCKET]
+2025-08-08T01:38:55:   --origin-ca-pool --url                       Path to the CA for the certificate of your origin. This option should be used only if your certificate is not signed by Cloudflare. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress [$TUNNEL_ORIGIN_CA_POOL]
+2025-08-08T01:38:55:   --no-tls-verify --url                        Disables TLS verification of the certificate presented by your origin. Will allow any certificate from the origin to be accepted. Note: The connection from your machine to Cloudflare's Edge is still encrypted. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$NO_TLS_VERIFY]
+2025-08-08T01:38:55:   --no-chunked-encoding --url                  Disables chunked transfer encoding; useful if you are running a WSGI server. This flag only takes effect if you define your origin with --url and if you do not use ingress rules. The recommended way is to rely on ingress rules and define this property under `originRequest` as per https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress (default: false) [$TUNNEL_NO_CHUNKED_ENCODING]
+2025-08-08T01:38:55:   --http2-origin                               Enables HTTP/2 origin servers. (default: false) [$TUNNEL_ORIGIN_ENABLE_HTTP2]
+2025-08-08T01:38:55:   --bastion                                    Runs as jump host (default: false) [$TUNNEL_BASTION]
+2025-08-08T01:38:55:   --proxy-address value                        Listen address for the proxy. (default: "127.0.0.1") [$TUNNEL_PROXY_ADDRESS]
+2025-08-08T01:38:55:   --proxy-port value                           Listen port for the proxy. (default: 0) [$TUNNEL_PROXY_PORT]
+2025-08-08T01:38:55:   --help, -h                                   show help (default: false)
+2025-08-08T01:38:55:   

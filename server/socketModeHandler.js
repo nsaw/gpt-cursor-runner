@@ -1,9 +1,9 @@
-const { SocketModeClient } = require('@slack/socket-mode');
-const { WebClient } = require('@slack/web-api');
+const { SocketModeClient } = require("@slack/socket-mode");
+const { WebClient } = require("@slack/web-api");
 
 /**
  * Socket Mode Handler for GPT-Cursor Runner
- * 
+ *
  * Handles real-time communication with Slack using Socket Mode v2
  * This replaces webhook-based communication for better reliability
  */
@@ -27,17 +27,17 @@ class SocketModeHandler {
       const botToken = process.env.SLACK_BOT_TOKEN;
 
       if (!appToken) {
-        throw new Error('SLACK_APP_TOKEN is required for Socket Mode');
+        throw new Error("SLACK_APP_TOKEN is required for Socket Mode");
       }
 
       if (!botToken) {
-        throw new Error('SLACK_BOT_TOKEN is required for Socket Mode');
+        throw new Error("SLACK_BOT_TOKEN is required for Socket Mode");
       }
 
       // Initialize Socket Mode client
       this.socketMode = new SocketModeClient({
-        appToken: appToken,
-        logLevel: process.env.NODE_ENV === 'production' ? 'info' : 'debug'
+        appToken,
+        logLevel: process.env.NODE_ENV === "production" ? "info" : "debug",
       });
 
       // Initialize Web client
@@ -46,10 +46,10 @@ class SocketModeHandler {
       // Set up event listeners
       this.setupEventListeners();
 
-      console.log('🔌 Socket Mode handler initialized');
+      console.log("🔌 Socket Mode handler initialized");
       return true;
     } catch (error) {
-      console.error('❌ Failed to initialize Socket Mode:', error.message);
+      console.error("❌ Failed to initialize Socket Mode:", error.message);
       return false;
     }
   }
@@ -59,53 +59,53 @@ class SocketModeHandler {
    */
   setupEventListeners() {
     // Handle incoming events
-    this.socketMode.on('events_api', async (event) => {
+    this.socketMode.on("events_api", async (event) => {
       try {
-        console.log('📨 Received event:', event.type);
+        console.log("📨 Received event:", event.type);
         await this.handleEvent(event);
       } catch (error) {
-        console.error('❌ Error handling event:', error);
+        console.error("❌ Error handling event:", error);
       }
     });
 
     // Handle slash commands
-    this.socketMode.on('slash_commands', async (event) => {
+    this.socketMode.on("slash_commands", async (event) => {
       try {
-        console.log('🔪 Received slash command:', event.command);
+        console.log("🔪 Received slash command:", event.command);
         await this.handleSlashCommand(event);
       } catch (error) {
-        console.error('❌ Error handling slash command:', error);
+        console.error("❌ Error handling slash command:", error);
       }
     });
 
     // Handle interactive components
-    this.socketMode.on('interactive', async (event) => {
+    this.socketMode.on("interactive", async (event) => {
       try {
-        console.log('🔘 Received interactive component');
+        console.log("🔘 Received interactive component");
         await this.handleInteractive(event);
       } catch (error) {
-        console.error('❌ Error handling interactive component:', error);
+        console.error("❌ Error handling interactive component:", error);
       }
     });
 
     // Connection events
-    this.socketMode.on('connecting', () => {
-      console.log('🔄 Connecting to Slack...');
+    this.socketMode.on("connecting", () => {
+      console.log("🔄 Connecting to Slack...");
     });
 
-    this.socketMode.on('connected', () => {
-      console.log('✅ Connected to Slack via Socket Mode');
+    this.socketMode.on("connected", () => {
+      console.log("✅ Connected to Slack via Socket Mode");
       this.isConnected = true;
       this.reconnectAttempts = 0;
     });
 
-    this.socketMode.on('disconnected', () => {
-      console.log('🔌 Disconnected from Slack');
+    this.socketMode.on("disconnected", () => {
+      console.log("🔌 Disconnected from Slack");
       this.isConnected = false;
     });
 
-    this.socketMode.on('error', (error) => {
-      console.error('❌ Socket Mode error:', error);
+    this.socketMode.on("error", (error) => {
+      console.error("❌ Socket Mode error:", error);
       this.handleReconnection();
     });
   }
@@ -115,12 +115,12 @@ class SocketModeHandler {
    */
   async start() {
     try {
-      console.log('🚀 Starting Socket Mode connection...');
+      console.log("🚀 Starting Socket Mode connection...");
       await this.socketMode.start();
-      console.log('✅ Socket Mode started successfully');
+      console.log("✅ Socket Mode started successfully");
       return true;
     } catch (error) {
-      console.error('❌ Failed to start Socket Mode:', error.message);
+      console.error("❌ Failed to start Socket Mode:", error.message);
       return false;
     }
   }
@@ -132,11 +132,11 @@ class SocketModeHandler {
     try {
       if (this.socketMode) {
         await this.socketMode.disconnect();
-        console.log('🔌 Socket Mode stopped');
+        console.log("🔌 Socket Mode stopped");
       }
       this.isConnected = false;
     } catch (error) {
-      console.error('❌ Error stopping Socket Mode:', error);
+      console.error("❌ Error stopping Socket Mode:", error);
     }
   }
 
@@ -145,18 +145,20 @@ class SocketModeHandler {
    */
   async handleReconnection() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ Max reconnection attempts reached');
+      console.error("❌ Max reconnection attempts reached");
       return;
     }
 
     this.reconnectAttempts++;
-    console.log(`🔄 Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+    console.log(
+      `🔄 Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts}`,
+    );
 
     setTimeout(async () => {
       try {
         await this.start();
       } catch (error) {
-        console.error('❌ Reconnection failed:', error);
+        console.error("❌ Reconnection failed:", error);
         this.handleReconnection();
       }
     }, this.reconnectDelay);
@@ -169,10 +171,10 @@ class SocketModeHandler {
     const { type, event: eventData } = event;
 
     switch (type) {
-      case 'app_mention':
+      case "app_mention":
         await this.handleAppMention(eventData);
         break;
-      case 'message':
+      case "message":
         await this.handleMessage(eventData);
         break;
       default:
@@ -190,11 +192,11 @@ class SocketModeHandler {
 
       // Send acknowledgment
       await this.webClient.chat.postMessage({
-        channel: channel,
-        text: `Hello! I'm the GPT-Cursor Runner. Use /status to check my current status.`
+        channel,
+        text: "Hello! I'm the GPT-Cursor Runner. Use /status to check my current status.",
       });
     } catch (error) {
-      console.error('❌ Error handling app mention:', error);
+      console.error("❌ Error handling app mention:", error);
     }
   }
 
@@ -204,18 +206,18 @@ class SocketModeHandler {
   async handleMessage(eventData) {
     try {
       const { text, channel, user, subtype } = eventData;
-      
+
       // Skip bot messages and other subtypes
-      if (subtype || user === 'USLACKBOT') {
+      if (subtype || user === "USLACKBOT") {
         return;
       }
 
       console.log(`💬 Message from ${user} in ${channel}: ${text}`);
-      
+
       // Add your message handling logic here
       // For example, detect keywords and respond accordingly
     } catch (error) {
-      console.error('❌ Error handling message:', error);
+      console.error("❌ Error handling message:", error);
     }
   }
 
@@ -225,23 +227,30 @@ class SocketModeHandler {
   async handleSlashCommand(event) {
     try {
       const { command, text, user_id, channel_id } = event;
-      console.log(`🔪 Slash command: ${command} from ${user_id} in ${channel_id}`);
+      console.log(
+        `🔪 Slash command: ${command} from ${user_id} in ${channel_id}`,
+      );
 
       // Route to appropriate command handler
-      const response = await this.routeCommand(command, text, user_id, channel_id);
-      
+      const response = await this.routeCommand(
+        command,
+        text,
+        user_id,
+        channel_id,
+      );
+
       // Send response
       await this.webClient.chat.postMessage({
         channel: channel_id,
-        ...response
+        ...response,
       });
     } catch (error) {
-      console.error('❌ Error handling slash command:', error);
-      
+      console.error("❌ Error handling slash command:", error);
+
       // Send error response
       await this.webClient.chat.postMessage({
         channel: event.channel_id,
-        text: '❌ Sorry, there was an error processing your command.'
+        text: "❌ Sorry, there was an error processing your command.",
       });
     }
   }
@@ -252,21 +261,23 @@ class SocketModeHandler {
   async handleInteractive(event) {
     try {
       const { type, user, channel } = event;
-      console.log(`🔘 Interactive component: ${type} from ${user.id} in ${channel.id}`);
+      console.log(
+        `🔘 Interactive component: ${type} from ${user.id} in ${channel.id}`,
+      );
 
       // Handle different interactive component types
       switch (type) {
-        case 'block_actions':
+        case "block_actions":
           await this.handleBlockActions(event);
           break;
-        case 'view_submission':
+        case "view_submission":
           await this.handleViewSubmission(event);
           break;
         default:
           console.log(`🔘 Unhandled interactive type: ${type}`);
       }
     } catch (error) {
-      console.error('❌ Error handling interactive component:', error);
+      console.error("❌ Error handling interactive component:", error);
     }
   }
 
@@ -275,21 +286,21 @@ class SocketModeHandler {
    */
   async routeCommand(command, text, userId, channelId) {
     // Import command handlers
-    const { handleStatus } = require('./handlers/handleStatus');
-    const { handleDashboard } = require('./handlers/handleDashboard');
-    const { handleWhoami } = require('./handlers/handleWhoami');
+    const { handleStatus } = require("./handlers/handleStatus");
+    const { handleDashboard } = require("./handlers/handleDashboard");
+    const { handleWhoami } = require("./handlers/handleWhoami");
     // Add other handlers as needed
 
     switch (command) {
-      case '/status':
+      case "/status":
         return await handleStatus(userId, channelId);
-      case '/dashboard':
+      case "/dashboard":
         return await handleDashboard(userId, channelId);
-      case '/whoami':
+      case "/whoami":
         return await handleWhoami(userId, channelId);
       default:
         return {
-          text: `❌ Unknown command: ${command}. Use /status to see available commands.`
+          text: `❌ Unknown command: ${command}. Use /status to see available commands.`,
         };
     }
   }
@@ -299,7 +310,7 @@ class SocketModeHandler {
    */
   async handleBlockActions(event) {
     // Handle button clicks, select menus, etc.
-    console.log('🔘 Block action received:', event.actions);
+    console.log("🔘 Block action received:", event.actions);
   }
 
   /**
@@ -307,7 +318,7 @@ class SocketModeHandler {
    */
   async handleViewSubmission(event) {
     // Handle modal submissions
-    console.log('🔘 View submission received:', event.view);
+    console.log("🔘 View submission received:", event.view);
   }
 
   /**
@@ -316,8 +327,8 @@ class SocketModeHandler {
   async sendMessage(channel, text, attachments = null) {
     try {
       const message = {
-        channel: channel,
-        text: text
+        channel,
+        text,
       };
 
       if (attachments) {
@@ -327,7 +338,7 @@ class SocketModeHandler {
       const result = await this.webClient.chat.postMessage(message);
       return result;
     } catch (error) {
-      console.error('❌ Error sending message:', error);
+      console.error("❌ Error sending message:", error);
       throw error;
     }
   }
@@ -339,9 +350,9 @@ class SocketModeHandler {
     return {
       connected: this.isConnected,
       reconnectAttempts: this.reconnectAttempts,
-      maxReconnectAttempts: this.maxReconnectAttempts
+      maxReconnectAttempts: this.maxReconnectAttempts,
     };
   }
 }
 
-module.exports = SocketModeHandler; 
+module.exports = SocketModeHandler;

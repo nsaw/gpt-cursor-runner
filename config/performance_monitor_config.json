@@ -1,0 +1,63 @@
+{
+  "services": {
+    "ghost_runner": {
+      "name": "Ghost Runner",
+      "port": 5051,
+      "health_endpoint": "/health",
+      "expected_status": "healthy"
+    },
+    "flask_dashboard": {
+      "name": "Flask Dashboard",
+      "port": 8787,
+      "health_endpoint": "/monitor",
+      "expected_status": "html"
+    },
+    "telemetry_api": {
+      "name": "Telemetry API",
+      "port": 8788,
+      "health_endpoint": "/health",
+      "expected_status": "ok"
+    }
+  },
+  "monitoring": {
+    "check_interval": 30,
+    "timeout": 10,
+    "retry_attempts": 3,
+    "alert_threshold": 2
+  },
+  "logging": {
+    "level": "info",
+    "file": "logs/performance_monitor.log",
+    "max_size": "10MB",
+    "max_files": 5
+  },
+  "alerts": {
+    "email": {
+      "enabled": false,
+      "recipients": []
+    },
+    "slack": {
+      "enabled": true,
+      "webhook_url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  },
+  "metrics": {
+    "collection_interval": 60,
+    "retention_days": 30,
+    "storage": {
+      "type": "file",
+      "path": "logs/metrics.json"
+    }
+  },
+  "health_checks": {
+    "enabled": true,
+    "endpoints": [
+      "http://localhost:5051/health",
+      "http://localhost:8787/monitor",
+      "http://localhost:8788/health"
+    ],
+    "timeout": 5,
+    "retry_attempts": 2
+  },
+  "tunnel_ports": [5051, 8787, 8788]
+}

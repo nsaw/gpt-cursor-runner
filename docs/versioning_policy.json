@@ -1,0 +1,6 @@
+{
+  "regex": "^patch-v(?<maj>\\d+)\\.(?<min>\\d+)\\.(?<pat>\\d+)\\(P(?<phase>\\d+)\\.(?<sect>\\d+)\\.(?<sub>\\d+)\\)_(?<slug>[a-z0-9]+(?:-[a-z0-9]+)*)(?:-(?<qp>(?:hotpatch|handoff))-(?<qpn>\\d{1,3}))?\\.json(?:\\.(?<hold>hold))?$",
+  "notes": [
+    "See repo scripts/tools/validate_patch_naming_strict.mjs for enforcement."
+  ]
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>G2o Monitor</title
+  ><style>
+    body {
+      font-family: system-ui;
+      margin: 2rem;
+    }
+    .ok {
+      color: #0a0;
+    }
+    .warn {
+      color: #c80;
+    }
+    .bad {
+      color: #c00;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px #0001;
+      max-width: 720px;
+    }
+  </style>
+  <body>
+    <div class="card">
+      <h1>G2o Monitor</h1>
+      <ul>
+        <li><strong>UTC:</strong> <span id="ts"></span></li>
+        <li>
+          <strong>Priority Lock:</strong>
+          <span id="prio" class="warn">unknown</span>
+        </li>
+        <li>
+          <strong>Baton Status:</strong>
+          <span id="baton" class="warn">unknown</span>
+        </li>
+      </ul>
+      <script>
+        const Z = () => new Date().toISOString();
+        document.getElementById("ts").textContent = Z();
+      </script>
+    </div>
+  </body>
+</html>

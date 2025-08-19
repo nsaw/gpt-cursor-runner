@@ -1,19 +1,19 @@
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require("fs").promises;
+const path = require("path");
 
 class StateManager {
   constructor() {
-    this.stateFile = path.join(__dirname, '../../runner.state.json');
+    this.stateFile = path.join(__dirname, "../../runner.state.json");
     this.state = null;
   }
 
   async loadState() {
     try {
-      const data = await fs.readFile(this.stateFile, 'utf8');
+      const data = await fs.readFile(this.stateFile, "utf8");
       this.state = JSON.parse(data);
       return this.state;
     } catch (error) {
-      console.error('Error loading state:', error);
+      console.error("Error loading state:", error);
       // Initialize default state if file doesn't exist
       this.state = {
         paused: false,
@@ -23,12 +23,16 @@ class StateManager {
         retryQueue: [],
         lastThemeAudit: null,
         crashFence: false,
-        public_url: process.env.PUBLIC_URL || "https://runner-dev.thoughtmarks.app",
+        public_url:
+          process.env.PUBLIC_URL ||
+          "https://gpt-cursor-runner.thoughtmarks.app",
         slack_tokens: {
           access_token: process.env.SLACK_ACCESS_TOKEN || "",
           refresh_token: process.env.SLACK_REFRESH_TOKEN || "",
-          public_url: process.env.PUBLIC_URL || "https://gpt-cursor-runner.fly.dev"
-        }
+          public_url:
+            process.env.PUBLIC_URL ||
+            "https://gpt-cursor-runner.thoughtmarks.app",
+        },
       };
       await this.saveState();
       return this.state;
@@ -40,7 +44,7 @@ class StateManager {
       await fs.writeFile(this.stateFile, JSON.stringify(this.state, null, 2));
       return true;
     } catch (error) {
-      console.error('Error saving state:', error);
+      console.error("Error saving state:", error);
       return false;
     }
   }
@@ -119,7 +123,7 @@ class StateManager {
       lastThemeAudit: state.lastThemeAudit,
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -128,7 +132,7 @@ class StateManager {
     return {
       lastThemeAudit: state.lastThemeAudit,
       themeIssues: state.lastThemeAudit?.issues || [],
-      needsFix: state.lastThemeAudit?.needsFix || false
+      needsFix: state.lastThemeAudit?.needsFix || false,
     };
   }
 
@@ -143,10 +147,10 @@ class StateManager {
         "✅ Basic patch processing",
         "🔄 Advanced error handling",
         "⏳ Real-time monitoring",
-        "⏳ Predictive analytics"
-      ]
+        "⏳ Predictive analytics",
+      ],
     };
   }
 }
 
-module.exports = new StateManager(); 
+module.exports = new StateManager();

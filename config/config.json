@@ -1,0 +1,5 @@
+{
+  "relayPort": 5051,
+  "environment": "production",
+  "logLevel": "info"
+}

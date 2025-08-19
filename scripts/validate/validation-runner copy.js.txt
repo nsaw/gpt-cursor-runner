@@ -1,0 +1,48 @@
+const fs = require('fs').promises;
+const path = require('path');
+
+class ValidationRunner {
+  constructor() {
+    this.validators = [];
+  }
+
+  async runValidations() {
+    const results = {
+      validations: [],
+      summary: {
+        total: 0,
+        passed: 0,
+        failed: 0,
+      },
+    };
+
+    try {
+      for (const validator of this.validators) {
+        const result = await validator.validate();
+        results.validations.push(result);
+        
+        if (result.status === 'PASS') {
+          results.summary.passed++;
+        } else {
+          results.summary.failed++;
+        }
+      }
+      
+      results.summary.total = results.validations.length;
+      return results;
+    } catch (error) {
+      console.error('Validation runner failed:', error.message);
+      return {
+        validations: [],
+        summary: {
+          total: 0,
+          passed: 0,
+          failed: 1,
+        },
+        error: error.message,
+      };
+    }
+  }
+}
+
+module.exports = ValidationRunner;

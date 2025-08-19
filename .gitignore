@@ -102,7 +102,7 @@ ipython_config.py
 #poetry.lock
 
 # pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #pdm.lock
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
@@ -166,5 +166,127 @@ node_modules/
 
 # Cursor
 .cursor/
+.cursor-cache/
 .env
 .env.*
+*.env
+
+# Credentials and Secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cert
+*.token
+*.secret
+*.auth
+*.cred
+*.pass
+*.pwd
+
+# ngrok
+.ngrok2/
+ngrok.yml
+ngrok.conf
+
+# Slack
+.slack/
+slack-tokens.json
+slack-config.json
+
+# GitHub
+.github-token
+github-token.txt
+
+# Fly.io
+.fly/
+fly.toml.local
+fly.toml.backup
+
+# Cloudflare
+.cloudflare/
+cloudflare-tunnel.json
+
+# 1Password CLI
+.op/
+.oprc
+
+# Logs with sensitive data
+logs/*.log
+logs/*.error
+logs/*.pid
+
+# Temporary files with credentials
+temp/
+tmp/
+*.tmp
+*.temp
+tmp_*
+test_*
+
+# IDE files that might contain credentials
+.vscode/settings.json
+.idea/workspace.xml
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Additional security entries
+*.env
+*.env.local
+*.env.production
+*.env.staging
+*.env.development
+secrets.json
+config/secrets.json
+credentials.json
+auth.json
+tokens.json
+*.jwt
+*.jws
+*.jwe
+
+# Runtime files
+.crash.lock
+.cursor-failed-blocks.json
+.cursor-patch-log.json
+.runner.locked
+runner.state.json
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# ML model files (large binary files)
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.onnx
+
+# Performance data
+performance_data/
+metrics_data/
+ml_data/
+
+# Cache directories
+.cache/
+cache/
+__pycache__/
+*.pyc
+!.cursor/rules/
+
+# Ghost shadow watcher output files
+.ghost-md-status.json
+.last-md-write.log
+.route-error.log
+.log-audit-warnings.log
+.ghost-relay.log
+.patch-runner.log
+_gpt5intake/
