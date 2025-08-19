@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Ban inline node eval
+        run: node scripts/ci/ban_node_eval_guard.js
+
       - name: Run ESLint fullscope
         run: |
           CACHE_ROOT="$HOME/.cache"
