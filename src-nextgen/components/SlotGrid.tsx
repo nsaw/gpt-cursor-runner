@@ -4,24 +4,21 @@ import { useSlotMode } from "../state/slotMode";
 import { injectSlot, hydrateSlot } from "../lib/slotBridge";
 import { SlotRouter } from "../lib/slotRouter";
 
-declare const console: any;
-
 const slotTypes = ["DASHBOARD_ENTRY", "TASKS_ENTRY", "AI_TOOLS_ENTRY"];
 
 export const SlotGrid = () => {
   const [slotMode] = useSlotMode();
 
-  const hydratedSlots = slotTypes.map((type) => {
+  const slots = slotTypes.reduce((acc, type) => {
     const injected = injectSlot(type, slotMode);
     const hydrated = hydrateSlot(injected);
-    return hydrated;
-  });
+    acc[type] = hydrated;
+    return acc;
+  }, {} as Record<string, React.ReactNode>);
 
   return (
     <View style={{ gap: 16 }}>
-      {hydratedSlots.map((slot, index) => (
-        <React.Fragment key={index}>{SlotRouter(slot)}</React.Fragment>
-      ))}
+      <SlotRouter slots={slots} />
     </View>
   );
 };
