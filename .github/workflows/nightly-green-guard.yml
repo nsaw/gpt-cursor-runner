@@ -18,6 +18,6 @@ jobs:
             "$HOME/.cache/eslint-now.stderr.log" \
             "scripts/g2o/**/*.{js,ts,tsx}" "scripts/ci/**/*.{js,ts,tsx}" \
             "scripts/metrics/**/*.{js,ts,tsx}" "scripts/validate/**/*.{js,ts,tsx}" "config/**/*.{js,ts,tsx}"
-          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.HOME+'/.cache/eslint-report.now.json'));let e=0,w=0;r.forEach(x=>{e+=x.errorCount||0;w+=x.warningCount||0}); if(e>0||w>20){console.error('GREEN-GUARD FAIL',{errors:e,warnings:w});process.exit(1)}"
+          node scripts/ci/validate_eslint_green.js
       - name: TSC
         run: npx tsc --noEmit
