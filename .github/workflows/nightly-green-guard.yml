@@ -1,0 +1,23 @@
+name: nightly-green-guard
+on:
+  schedule: [{ cron: "17 7 * * *" }]
+  workflow_dispatch: {}
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 'lts/*' }
+      - run: npm ci
+      - name: ESLint fullscope
+        run: |
+          node scripts/ci/run_eslint_fast_now_once.js 120000 \
+            "$HOME/.cache/eslint-report.now.json" \
+            "$HOME/.cache/eslint-now.stdout.log" \
+            "$HOME/.cache/eslint-now.stderr.log" \
+            "scripts/g2o/**/*.{js,ts,tsx}" "scripts/ci/**/*.{js,ts,tsx}" \
+            "scripts/metrics/**/*.{js,ts,tsx}" "scripts/validate/**/*.{js,ts,tsx}" "config/**/*.{js,ts,tsx}"
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.env.HOME+'/.cache/eslint-report.now.json'));let e=0,w=0;r.forEach(x=>{e+=x.errorCount||0;w+=x.warningCount||0}); if(e>0||w>20){console.error('GREEN-GUARD FAIL',{errors:e,warnings:w});process.exit(1)}"
+      - name: TSC
+        run: npx tsc --noEmit
