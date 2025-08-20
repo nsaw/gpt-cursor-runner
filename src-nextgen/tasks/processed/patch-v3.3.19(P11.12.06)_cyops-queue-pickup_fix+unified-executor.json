@@ -65,6 +65,6 @@
   },
 
   "validate": {
-    "shell": ["node -e \"process.exit(0)\""]
+    "shell": ["node scripts/ci/validate_success.js"]
   }
 }
