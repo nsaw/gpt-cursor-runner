@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "eslint-fullscope",
+    "typescript-noemit",
+    "inline-node-e-guard",
+    "shebang-guard",
+    "ban-node-e",
+    "dashboard-green",
+    "python-tests"
+  ],
+  "warningBudget": 20
+}
