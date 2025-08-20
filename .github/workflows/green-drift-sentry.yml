@@ -14,6 +14,15 @@ jobs:
         run: node scripts/ci/ban_node_eval_guard.js --fail-on-find
       - name: Check required checks sync
         run: node scripts/ci/check_required_checks_sync.js
+      - name: Emit drift findings JSON
+        if: always()
+        run: node scripts/ci/open_issue_on_guard_fail.js --emit-json .cursor-cache/ROOT/.logs/drift-findings.json
+      - name: Upload drift findings artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-findings
+          path: .cursor-cache/ROOT/.logs/drift-findings.json
 
   warnings-budget-watch:
     runs-on: ubuntu-latest
@@ -26,6 +35,15 @@ jobs:
         run: npm ci
       - name: ESLint warning budget
         run: node scripts/ci/eslint_warn_budget.js
+      - name: Emit drift findings JSON
+        if: always()
+        run: node scripts/ci/open_issue_on_guard_fail.js --emit-json .cursor-cache/ROOT/.logs/drift-findings.json
+      - name: Upload drift findings artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-findings
+          path: .cursor-cache/ROOT/.logs/drift-findings.json
 
   auto-issue-on-failure:
     needs: [required-checks-drift, warnings-budget-watch]
