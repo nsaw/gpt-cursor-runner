@@ -1,0 +1,40 @@
+name: main-push-guard
+on:
+  push:
+    branches: [ main ]
+permissions:
+  contents: write
+jobs:
+  guard:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve last green SHA (tag)
+        id: green
+        run: |
+          set -euo pipefail
+          GREEN_TAG="green/main"
+          if git rev-parse -q --verify "refs/tags/${GREEN_TAG}" >/dev/null; then
+            echo "sha=$(git rev-list -n1 ${GREEN_TAG})" >> $GITHUB_OUTPUT
+          else
+            # If no tag, pick previous commit to avoid loops.
+            echo "sha=$(git rev-parse HEAD~1)" >> $GITHUB_OUTPUT
+          fi
+      - name: Auto-revert unauthorized push to main
+        env:
+          PAT: ${{ secrets.RELEASE_BOT_PAT }}
+        run: |
+          set -euo pipefail
+          git config user.name  "release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+          # Hard restore main to last green SHA
+          git fetch origin
+          git checkout -B main
+          git reset --hard "${{ steps.green.outputs.sha }}"
+          git push https://x-access-token:${PAT}@github.com/${{ github.repository }} main --force
+      - name: Annotate run
+        run: echo "::warning title=Main push blocked::Human push reverted to last green."
