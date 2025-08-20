@@ -10,12 +10,13 @@ const workflows = [
 const jobs = new Set();
 const getJobsFromYaml = (y) => {
   // Lightweight extraction to avoid extra deps
-  const m = [...y.matchAll(/^\s{0,2}jobs:\s*\n([\s\S]*?)(^\S|$)/gm)];
-  if(!m.length) return;
-  m.forEach(mm => {
-    const block = mm[1]||'';
-    [...block.matchAll(/^\s{2,}([A-Za-z0-9_-]+):\s*$/gm)]
-      .forEach(x => jobs.add(x[1]));
+  const jobMatches = [...y.matchAll(/^\s{0,2}([A-Za-z0-9_-]+):\s*$/gm)];
+  jobMatches.forEach(match => {
+    const jobName = match[1];
+    // Skip if it's not a job (could be other YAML keys)
+    if (jobName && !['on', 'name', 'jobs', 'runs-on', 'steps', 'uses', 'with', 'env'].includes(jobName)) {
+      jobs.add(jobName);
+    }
   });
 };
 workflows.forEach(fp => getJobsFromYaml(fs.readFileSync(fp,'utf8')));
