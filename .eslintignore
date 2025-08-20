@@ -6,10 +6,13 @@ node_modules/
 packages/
 apps/
 src/
-server/
 api/
 app/
+# Exclude server files with syntax errors (need separate fix)
+server/handlers/
+server/routes/
 # keep these INCLUDED (negations must be last to override)
 !scripts/**
 !config/**
 !src-nextgen/**
+!server/**
