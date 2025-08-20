@@ -16,7 +16,7 @@ function scan(dir){
     } else {
       if(rel === SELF) continue;
       // Skip validation tools that check for node -e
-      if(rel.includes('inline_node_e_scan_once.js') || rel.includes('ban_node_eval_guard.js')) continue;
+      if(rel.includes('inline_node_e_scan_once.js') || rel.includes('ban_node_eval_guard.js') || rel.includes('assert_no_inline_node_e_once.js')) continue;
       // text-ish files only
       if(!/\.(js|ts|tsx|sh|bash|zsh|yml|yaml|md|json|workflow)$/.test(entry.name)) continue;
       const s = fs.readFileSync(p,'utf8');
