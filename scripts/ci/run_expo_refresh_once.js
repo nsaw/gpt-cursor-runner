@@ -3,8 +3,13 @@ const { spawn, execSync } = require('child_process');
 const http = require('http');
 const PORT = 8081;
 try { execSync(`lsof -ti:${PORT}`); } catch {}
-// Kill anything on 8081 quietly (best-effort)
-try { execSync(`bash -lc "kill $(lsof -ti:${PORT}) 2>/dev/null || true"`); } catch {}
+// Kill anything on 8081 quietly (best-effort) - NB2.0 compliant
+try { 
+  const pids = execSync(`lsof -ti:${PORT}`, { encoding: 'utf8' }).trim().split('\n').filter(pid => pid);
+  pids.forEach(pid => {
+    try { execSync(`kill ${pid}`); } catch {}
+  });
+} catch {}
 const p = spawn('npx', ['expo', 'start', '--ios', '--clear'], { stdio: 'ignore', detached: true });
 const deadline = Date.now() + 30000;
 const check = () => new Promise((resolve)=> {
