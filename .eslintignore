@@ -1,17 +1,15 @@
-# Aggressive ESLint baseline (triage phase)
-# Exclude all problematic areas to achieve Block-Until-Pass
 dist/
 build/
 coverage/
 node_modules/
 .cache/
-# Legacy areas (exclude entirely)
+packages/
+apps/
 src/
 server/
 api/
 app/
-# Allow scripts for Phase-1 validation
+# keep these INCLUDED (negations must be last to override)
 !scripts/**
-# Keep only config files for now
-!.eslintrc*
-!eslint.config.js
+!config/**
+!src-nextgen/**
