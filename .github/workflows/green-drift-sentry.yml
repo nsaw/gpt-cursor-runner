@@ -1,0 +1,44 @@
+name: GREEN Drift Sentry
+on:
+  schedule: [{ cron: "0 */6 * * *" }]
+  workflow_dispatch:
+jobs:
+  required-checks-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Ban node -e
+        run: node scripts/ci/ban_node_eval_guard.js --fail-on-find
+      - name: Check required checks sync
+        run: node scripts/ci/check_required_checks_sync.js
+
+  warnings-budget-watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install deps (ci)
+        run: npm ci
+      - name: ESLint warning budget
+        run: node scripts/ci/eslint_warn_budget.js
+
+  auto-issue-on-failure:
+    needs: [required-checks-drift, warnings-budget-watch]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open issue on failure
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_TITLE: Green Gate — drift or budget breach
+          ISSUE_BODY: |
+            A GREEN guard failed in workflow **${{ github.workflow }}** on ref **${{ github.ref }}**.
+            Please fix-as-you-go and re-run the green pack. See prior job logs for details.
+        run: node scripts/ci/open_issue_on_guard_fail.js
