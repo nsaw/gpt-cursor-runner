@@ -1,37 +1,37 @@
 // Hardened Orchestrator (backported MAIN fix) — With Restart Dampening + Ghost Relay
-const { exec, spawn } = require("child_process");
-const fs = require("fs");
-const path = require("path");
-const registryFile = path.join(__dirname, "../registry/process-registry.json");
+const { exec, spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const registryFile = path.join(__dirname, '../registry/process-registry.json');
 const diagFile = path.join(
   __dirname,
-  "../registry/orchestrator.diagnostic.json",
+  '../registry/orchestrator.diagnostic.json',
 );
 
 // Ghost relay integration - Unified paths
-const PATCH_DIR = path.resolve(__dirname, "../../.cursor-cache/CYOPS/patches");
+const PATCH_DIR = path.resolve(__dirname, '../../.cursor-cache/CYOPS/patches');
 const LOG = path.resolve(
   __dirname,
-  "../../.cursor-cache/CYOPS/.logs/ghost-relay.log",
+  '../../.cursor-cache/CYOPS/.logs/ghost-relay.log',
 );
 
 // Live status endpoint
 const statusPath = path.resolve(
   __dirname,
-  "../../.cursor-cache/CYOPS/ghost/status.json",
+  '../../.cursor-cache/CYOPS/ghost/status.json',
 );
 
 const MAX_RESTARTS = 3;
 const WINDOW_MS = 15000;
 const processes = [
-  { name: "ghost-bridge", cmd: "node scripts/hooks/ghost-bridge.js" },
-  { name: "patch-executor", cmd: "node scripts/patch-executor-loop.js" },
-  { name: "summary-monitor", cmd: "node scripts/summary-monitor-simple.js" },
+  { name: 'ghost-bridge', cmd: 'node scripts/hooks/ghost-bridge.js' },
+  { name: 'patch-executor', cmd: 'node scripts/patch-executor-loop.js' },
+  { name: 'summary-monitor', cmd: 'node scripts/summary-monitor-simple.js' },
   {
-    name: "realtime-monitor",
-    cmd: "node scripts/validate/realtime-monitor.js",
+    name: 'realtime-monitor',
+    cmd: 'node scripts/validate/realtime-monitor.js',
   },
-  { name: "heartbeat-loop", cmd: "node scripts/watchdog/heartbeat-loop.js" },
+  { name: 'heartbeat-loop', cmd: 'node scripts/watchdog/heartbeat-loop.js' },
 ];
 
 const restarts = {}; // Tracks restart timestamps
@@ -39,10 +39,10 @@ const restarts = {}; // Tracks restart timestamps
 // Check if process is already running
 function isProcessRunning(processName) {
   try {
-    const { execSync } = require("child_process");
+    const { execSync } = require('child_process');
     const result = execSync(
       `ps aux | grep "${processName}" | grep -v grep | wc -l`,
-      { encoding: "utf8" },
+      { encoding: 'utf8' },
     );
     return parseInt(result.trim()) > 0;
   } catch (_e) {
@@ -54,7 +54,7 @@ function launchProcess(p) {
   if (!restarts[p.name]) restarts[p.name] = [];
 
   // Check if process is already running
-  if (isProcessRunning(p.cmd.split(" ").pop())) {
+  if (isProcessRunning(p.cmd.split(' ').pop())) {
     console.log(`[✅ SKIPPING] ${p.name} is already running`);
     updateRegistry(p.name, true);
     return;
@@ -76,7 +76,7 @@ function launchProcess(p) {
   const child = exec(p.cmd, { detached: true });
   updateRegistry(p.name, true);
 
-  child.on("exit", () => {
+  child.on('exit', () => {
     updateRegistry(p.name, false);
     restarts[p.name].push(Date.now());
     updateDiag(p.name);
@@ -109,12 +109,12 @@ function writeStatus(daemonRegistry) {
     const state = {
       updatedAt: new Date().toISOString(),
       daemons: daemonRegistry,
-      host: require("os").hostname(),
+      host: require('os').hostname(),
       uptime: process.uptime(),
       summaryHeartbeat: fs.existsSync(
         path.resolve(
           __dirname,
-          "../../.cursor-cache/CYOPS/.heartbeat/.last-md-write.log",
+          '../../.cursor-cache/CYOPS/.heartbeat/.last-md-write.log',
         ),
       ),
     };
@@ -131,7 +131,7 @@ function ghostRelay(filename, content, attempt = 1) {
   const fullPath = path.join(PATCH_DIR, filename);
   try {
     fs.writeFileSync(fullPath, content);
-    if (!fs.existsSync(fullPath)) throw new Error("write failed");
+    if (!fs.existsSync(fullPath)) throw new Error('write failed');
     fs.appendFileSync(
       LOG,
       `[✅ ghost-relay] ${filename} written at attempt ${attempt}\n`,
@@ -153,24 +153,24 @@ function ghostRelay(filename, content, attempt = 1) {
 function main() {
   processes.forEach((p) => launchProcess(p));
   console.log(
-    "[Orchestrator] Resilience patch applied. Processes under supervision.",
+    '[Orchestrator] Resilience patch applied. Processes under supervision.',
   );
 
   // Launch viewer tunnel
   try {
-    require("../tunnel/launch-viewer-tunnel");
-    console.log("[Tunnel] Viewer tunnel launch initiated");
+    require('../tunnel/launch-viewer-tunnel');
+    console.log('[Tunnel] Viewer tunnel launch initiated');
   } catch (_e) {
     console.error(`[TUNNEL ERROR] ${e.message}`);
   }
 
   // Launch doc daemon attached
   try {
-    spawn("node", ["scripts/daemons/doc-daemon.js"], {
-      stdio: "ignore",
+    spawn('node', ['scripts/daemons/doc-daemon.js'], {
+      stdio: 'ignore',
       detached: true,
     }).unref();
-    console.log("[Doc Daemon] Documentation daemon launched");
+    console.log('[Doc Daemon] Documentation daemon launched');
   } catch (_e) {
     console.error(`[DOC DAEMON ERROR] ${e.message}`);
   }

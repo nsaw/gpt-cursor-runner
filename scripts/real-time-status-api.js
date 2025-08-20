@@ -369,23 +369,23 @@ class RealTimeStatusAPI extends EventEmitter {
     console.log(`📊 [STATUS-API] Processing patch event: ${patchId} - ${event}`);
 
     switch (event) {
-      case "created":
-        await this.updatePatchStatus(patchId, 'created', data);
-        break;
-      case 'executing':
-        await this.updatePatchStatus(patchId, 'executing', data);
-        break;
-      case 'completed':
-        await this.updatePatchStatus(patchId, 'completed', data);
-        break;
-      case 'failed':
-        await this.updatePatchStatus(patchId, 'failed', data);
-        break;
-      case 'validating':
-        await this.updatePatchStatus(patchId, 'validating', data);
-        break;
-      default:
-        console.warn(`⚠️ [STATUS-API] Unknown patch event: ${event}`);
+    case 'created':
+      await this.updatePatchStatus(patchId, 'created', data);
+      break;
+    case 'executing':
+      await this.updatePatchStatus(patchId, 'executing', data);
+      break;
+    case 'completed':
+      await this.updatePatchStatus(patchId, 'completed', data);
+      break;
+    case 'failed':
+      await this.updatePatchStatus(patchId, 'failed', data);
+      break;
+    case 'validating':
+      await this.updatePatchStatus(patchId, 'validating', data);
+      break;
+    default:
+      console.warn(`⚠️ [STATUS-API] Unknown patch event: ${event}`);
     }
   }
 
@@ -429,20 +429,20 @@ class RealTimeStatusAPI extends EventEmitter {
     }
 
     switch (data.type) {
-      case 'subscribe_patch':
-        this.handlePatchSubscription(clientId, data.patchId);
-        break;
-      case 'unsubscribe_patch':
-        this.handlePatchUnsubscription(clientId, data.patchId);
-        break;
-      case 'ping':
-        this.sendToClient(clientId, {
-          type: 'pong',
-          timestamp: new Date().toISOString(),
-        });
-        break;
-      default:
-        console.warn(`⚠️ [STATUS-API] Unknown WebSocket message type: ${data.type}`);
+    case 'subscribe_patch':
+      this.handlePatchSubscription(clientId, data.patchId);
+      break;
+    case 'unsubscribe_patch':
+      this.handlePatchUnsubscription(clientId, data.patchId);
+      break;
+    case 'ping':
+      this.sendToClient(clientId, {
+        type: 'pong',
+        timestamp: new Date().toISOString(),
+      });
+      break;
+    default:
+      console.warn(`⚠️ [STATUS-API] Unknown WebSocket message type: ${data.type}`);
     }
   }
 

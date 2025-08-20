@@ -12,15 +12,15 @@ const COMPREHENSIVE_FIXES = [
   // Fix logEvent calls missing severity parameter
   {
     pattern: /this\.logEvent\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*['"`]([^'"`]+)['"`]\s*\)/g,
-    replacement: "this.logEvent('$1', '$2', 'info')",
+    replacement: 'this.logEvent(\'$1\', \'$2\', \'info\')',
     description: 'Add missing severity parameter to logEvent calls',
   },
 
   // Fix logEvent calls with invalid event types
   {
     pattern: /this\.logEvent\s*\(\s*['"`]error['"`]\s*,\s*['"`]([^'"`]+)['"`]\s*,\s*['"`]([^'"`]+)['"`]\s*\)/g,
-    replacement: "this.logEvent('system_error', '$1', '$2')",
-    description: "Replace invalid 'error' event type with 'system_error'",
+    replacement: 'this.logEvent(\'system_error\', \'$1\', \'$2\')',
+    description: 'Replace invalid \'error\' event type with \'system_error\'',
   },
 
   // Fix unused error variables in catch blocks
@@ -108,7 +108,7 @@ const COMPREHENSIVE_FIXES = [
   // Fix process.exit() usage
   {
     pattern: /process\.exit\(\)/g,
-    replacement: "throw new Error('Process terminated')",
+    replacement: 'throw new Error(\'Process terminated\')',
     description: 'Replace process.exit() with error throwing',
   },
 
@@ -234,7 +234,7 @@ function main() {
   console.log('='.repeat(60));
 
   let totalFilesProcessed = 0;
-  let totalFixesApplied = 0;
+  const totalFixesApplied = 0;
 
   // Process each target file
   TARGET_FILES.forEach((filePath) => {

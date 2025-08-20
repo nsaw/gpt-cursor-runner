@@ -59,7 +59,7 @@ class EnhancedSystemTester {
         id: 'test-patch-1',
         role: 'test-role',
         target_file: '/test/file.ts',
-        patch: "console.log('test');",
+        patch: 'console.log(\'test\');',
       };
 
       const executorPatch = converter.convertWebhookToExecutor(webhookPatch);
@@ -74,7 +74,7 @@ class EnhancedSystemTester {
         'Path preserved',
       );
       this.assert(
-        executorPatch.mutations[0].contents === "console.log('test');",
+        executorPatch.mutations[0].contents === 'console.log(\'test\');',
         'Content preserved',
       );
 
@@ -354,7 +354,7 @@ class EnhancedSystemTester {
     });
 
     console.log(
-      `  ${status === 'PASS' ? "✅" : "❌"} ${testName}: ${message}\n`,
+      `  ${status === 'PASS' ? '✅' : '❌'} ${testName}: ${message}\n`,
     );
   }
 
@@ -370,15 +370,15 @@ class EnhancedSystemTester {
 ## Test Results
 
 ${this.testResults
-  .map(
-    (result) => `
+    .map(
+      (result) => `
 ### ${result.name}
 - **Status**: ${result.status}
 - **Message**: ${result.message}
 - **Timestamp**: ${result.timestamp}
 `,
-  )
-  .join('')}
+    )
+    .join('')}
 
 ## Summary
 ${this.failCount === 0 ? '✅ All tests passed' : `❌ ${this.failCount} tests failed`}

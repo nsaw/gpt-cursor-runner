@@ -1,7 +1,7 @@
 declare const console: any;
 // Add dual-write logic to mirror instruction and summary into .cursor-cache
-import fs from "fs-extra";
-import path from "path";
+import fs from 'fs-extra';
+import path from 'path';
 
 export function mirrorPatchToCache(patchPath: string) {
   const patchFile = path.basename(patchPath);

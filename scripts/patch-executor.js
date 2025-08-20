@@ -173,14 +173,14 @@ async function main() {
     : { watchDirs: [] };
   const envDirs = process.env.PATCH_QUEUE_DIRS
     ? process.env.PATCH_QUEUE_DIRS.split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
+      .map((s) => s.trim())
+      .filter(Boolean)
     : [];
   const argDirs = explicitDirs
     ? explicitDirs
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     : [];
   const watchDirs = [...new Set([...argDirs, ...envDirs, ...cfg.watchDirs])];
   if (watchDirs.length === 0) {

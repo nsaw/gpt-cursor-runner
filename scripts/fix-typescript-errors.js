@@ -85,11 +85,11 @@ function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments to health status
   content = content.replace(
     /health:\s*['"]unknown['"]/g,
-    "health: 'unhealthy'",
+    'health: \'unhealthy\'',
   );
   content = content.replace(
     /overall:\s*['"]unknown['"]/g,
-    "overall: 'unhealthy'",
+    'overall: \'unhealthy\'',
   );
 
   return content;

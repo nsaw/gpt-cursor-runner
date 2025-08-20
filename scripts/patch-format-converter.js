@@ -366,12 +366,12 @@ class PatchFormatConverter {
       unifiedPatch.content.type === 'multi_mutation'
         ? unifiedPatch.content.mutations
         : [
-            {
-              path: unifiedPatch.target.file,
-              contents: unifiedPatch.content.data,
-              type: 'file_modification',
-            },
-          ];
+          {
+            path: unifiedPatch.target.file,
+            contents: unifiedPatch.content.data,
+            type: 'file_modification',
+          },
+        ];
 
     return {
       id: unifiedPatch.id,

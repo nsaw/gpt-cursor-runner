@@ -92,114 +92,114 @@ class TelemetryOrchestrator {
         let responseData = {};
 
         switch (pathname) {
-          case '/health':
-            responseData = {
-              status: 'healthy',
-              timestamp: new Date().toISOString(),
-              uptime: process.uptime(),
-              version: '1.0.0',
-            };
-            break;
+        case '/health':
+          responseData = {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            version: '1.0.0',
+          };
+          break;
 
-          case '/metrics':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              metrics: {
-                totalComponents: 4,
-                healthyComponents: 4,
-                degradedComponents: 0,
-                unhealthyComponents: 0,
-                criticalComponents: 0,
+        case '/metrics':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            metrics: {
+              totalComponents: 4,
+              healthyComponents: 4,
+              degradedComponents: 0,
+              unhealthyComponents: 0,
+              criticalComponents: 0,
+            },
+          };
+          break;
+
+        case '/alerts':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            alerts: {
+              active: [],
+              history: [],
+              summary: {
+                totalActive: 0,
+                totalHistory: 0,
+                criticalCount: 0,
+                errorCount: 0,
+                warningCount: 0,
               },
-            };
-            break;
+            },
+          };
+          break;
 
-          case '/alerts':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              alerts: {
-                active: [],
-                history: [],
-                summary: {
-                  totalActive: 0,
-                  totalHistory: 0,
-                  criticalCount: 0,
-                  errorCount: 0,
-                  warningCount: 0,
-                },
+        case '/components':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            components: {
+              fly: { status: 'running', health: 'healthy' },
+              'webhook-tunnel': { status: 'running', health: 'healthy' },
+              'dashboard-tunnel': { status: 'running', health: 'healthy' },
+              flask: { status: 'running', health: 'healthy' },
+              'braun-daemon': { status: 'running', health: 'healthy' },
+              'ghost-runner': { status: 'running', health: 'healthy' },
+              'patch-executor': { status: 'running', health: 'healthy' },
+              'dashboard-uplink': { status: 'running', health: 'healthy' },
+              'summary-watcher': { status: 'running', health: 'healthy' },
+              'comprehensive-dashboard': {
+                status: 'running',
+                health: 'healthy',
               },
-            };
-            break;
-
-          case '/components':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              components: {
-                fly: { status: 'running', health: 'healthy' },
-                'webhook-tunnel': { status: 'running', health: 'healthy' },
-                'dashboard-tunnel': { status: 'running', health: 'healthy' },
-                flask: { status: 'running', health: 'healthy' },
-                'braun-daemon': { status: 'running', health: 'healthy' },
-                'ghost-runner': { status: 'running', health: 'healthy' },
-                'patch-executor': { status: 'running', health: 'healthy' },
-                'dashboard-uplink': { status: 'running', health: 'healthy' },
-                'summary-watcher': { status: 'running', health: 'healthy' },
-                'comprehensive-dashboard': {
-                  status: 'running',
-                  health: 'healthy',
-                },
-                'autonomous-decision': { status: 'running', health: 'healthy' },
-                'telemetry-orchestrator': {
-                  status: 'running',
-                  health: 'healthy',
-                },
-                'metrics-aggregator': { status: 'running', health: 'healthy' },
-                'alert-engine': { status: 'running', health: 'healthy' },
-                'enhanced-doc-daemon': { status: 'running', health: 'healthy' },
+              'autonomous-decision': { status: 'running', health: 'healthy' },
+              'telemetry-orchestrator': {
+                status: 'running',
+                health: 'healthy',
               },
-            };
-            break;
+              'metrics-aggregator': { status: 'running', health: 'healthy' },
+              'alert-engine': { status: 'running', health: 'healthy' },
+              'enhanced-doc-daemon': { status: 'running', health: 'healthy' },
+            },
+          };
+          break;
 
-          case '/trends':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              trends: {
-                systemHealth: 'stable',
-                componentUptime: 'increasing',
-                alertFrequency: 'decreasing',
-              },
-            };
-            break;
+        case '/trends':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            trends: {
+              systemHealth: 'stable',
+              componentUptime: 'increasing',
+              alertFrequency: 'decreasing',
+            },
+          };
+          break;
 
-          case '/anomalies':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              anomalies: [],
-            };
-            break;
+        case '/anomalies':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            anomalies: [],
+          };
+          break;
 
-          case '/stats':
-            responseData = {
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              api_stats: {
-                totalRequests: 0,
-                successfulRequests: 0,
-                failedRequests: 0,
-                averageResponseTime: 0,
-              },
-            };
-            break;
+        case '/stats':
+          responseData = {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            api_stats: {
+              totalRequests: 0,
+              successfulRequests: 0,
+              failedRequests: 0,
+              averageResponseTime: 0,
+            },
+          };
+          break;
 
-          default:
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Endpoint not found' }));
-            return;
+        default:
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Endpoint not found' }));
+          return;
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(responseData));

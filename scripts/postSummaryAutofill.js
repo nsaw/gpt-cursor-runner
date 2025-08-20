@@ -662,60 +662,60 @@ if (require.main === module) {
   const command = process.argv[2] || 'autofill';
 
   switch (command) {
-    case 'autofill':
-      autofill
-        .runAutofill()
-        .then(() => {
-          console.log('✅ [AUTOFILL] Autofill cycle completed');
-          process.exit(0);
-        })
-        .catch((error) => {
-          console.error('❌ [AUTOFILL] Autofill failed:', error.message);
-          process.exit(1);
-        });
-      break;
+  case 'autofill':
+    autofill
+      .runAutofill()
+      .then(() => {
+        console.log('✅ [AUTOFILL] Autofill cycle completed');
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error('❌ [AUTOFILL] Autofill failed:', error.message);
+        process.exit(1);
+      });
+    break;
 
-    case 'report':
-      autofill
-        .runAutofill()
-        .then(() => {
-          console.log(`\n${autofill.generateReport()}`);
-          process.exit(0);
-        })
-        .catch((error) => {
-          console.error(
-            '❌ [AUTOFILL] Report generation failed: ',
-            error.message,
-          );
-          process.exit(1);
-        });
-      break;
+  case 'report':
+    autofill
+      .runAutofill()
+      .then(() => {
+        console.log(`\n${autofill.generateReport()}`);
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error(
+          '❌ [AUTOFILL] Report generation failed: ',
+          error.message,
+        );
+        process.exit(1);
+      });
+    break;
 
-    case 'export':
-      const format = process.argv[3] || 'json';
-      autofill
-        .runAutofill()
-        .then(() => {
-          const exportPath = autofill.exportResults(format);
-          if (exportPath) {
-            console.log(`✅ [AUTOFILL] Results exported to: ${exportPath}`);
-          }
-          process.exit(0);
-        })
-        .catch((error) => {
-          console.error('❌ [AUTOFILL] Export failed:', error.message);
-          process.exit(1);
-        });
-      break;
+  case 'export':
+    const format = process.argv[3] || 'json';
+    autofill
+      .runAutofill()
+      .then(() => {
+        const exportPath = autofill.exportResults(format);
+        if (exportPath) {
+          console.log(`✅ [AUTOFILL] Results exported to: ${exportPath}`);
+        }
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error('❌ [AUTOFILL] Export failed:', error.message);
+        process.exit(1);
+      });
+    break;
 
-    default:
-      console.log(
-        'Usage: node postSummaryAutofill.js [autofill|report|export] [format]',
-      );
-      console.log('  autofill - Run full autofill cycle');
-      console.log('  report   - Generate and display autofill report');
-      console.log('  export   - Export results (json|md)');
-      process.exit(0);
+  default:
+    console.log(
+      'Usage: node postSummaryAutofill.js [autofill|report|export] [format]',
+    );
+    console.log('  autofill - Run full autofill cycle');
+    console.log('  report   - Generate and display autofill report');
+    console.log('  export   - Export results (json|md)');
+    process.exit(0);
   }
 }
 

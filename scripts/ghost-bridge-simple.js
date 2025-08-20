@@ -328,14 +328,14 @@ function routePatch(patch, target) {
   const targetUpper = target.toUpperCase();
 
   switch (targetUpper) {
-    case 'MAIN':
-      return MAIN_PATCH_DIR;
-    case 'CYOPS':
-    case 'DEV':
-      return PATCH_DIR;
-    default:
-      console.log(`[BRIDGE] Unknown target '${target}', defaulting to CYOPS`);
-      return PATCH_DIR;
+  case 'MAIN':
+    return MAIN_PATCH_DIR;
+  case 'CYOPS':
+  case 'DEV':
+    return PATCH_DIR;
+  default:
+    console.log(`[BRIDGE] Unknown target '${target}', defaulting to CYOPS`);
+    return PATCH_DIR;
   }
 }
 

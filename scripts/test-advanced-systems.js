@@ -435,7 +435,7 @@ class AdvancedSystemsTestSuite {
       await rollbackSystem.initializeDependencyTracker();
 
       const testFile = path.join(__dirname, 'test-file.js');
-      fs.writeFileSync(testFile, "console.log('test');");
+      fs.writeFileSync(testFile, 'console.log(\'test\');');
 
       const dependencies =
         await rollbackSystem.dependencyTracker.trackDependencies(testFile);

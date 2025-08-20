@@ -19,7 +19,7 @@ function fixLogEventArguments(content) {
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](system_startup|system_shutdown|system_maintenance|orchestrator_start|orchestrator_stop|dashboard_integration|heartbeat|snapshot_start|snapshot_complete|loop_complete|validation_complete|relay_complete)['"],\s*['"][^'"]+['"]\s*\)/g,
     (match, eventType) => {
-      return match.replace(')', ", 'info')");
+      return match.replace(')', ', \'info\')');
     },
   );
 
@@ -60,11 +60,11 @@ function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments
   content = content.replace(
     /health:\s*['"]unknown['"]/g,
-    "health: 'unhealthy'",
+    'health: \'unhealthy\'',
   );
   content = content.replace(
     /overall:\s*['"]unknown['"]/g,
-    "overall: 'unhealthy'",
+    'overall: \'unhealthy\'',
   );
 
   return content;

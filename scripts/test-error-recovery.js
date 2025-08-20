@@ -9,7 +9,7 @@ async function testErrorRecovery() {
     mutations: [
       {
         path: '/nonexistent/path/test.js',
-        contents: "console.log('test');",
+        contents: 'console.log(\'test\');',
       },
     ],
   };

@@ -7,7 +7,7 @@
  */
 
 // PATCHED: Expo conflict guard
-require("./utils/expoGuard").detectExpoProcesses();
+require('./utils/expoGuard').detectExpoProcesses();
 
 // Launch the main orchestrator
-require("./orchestrator.js");
+require('./orchestrator.js');

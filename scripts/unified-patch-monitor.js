@@ -166,7 +166,7 @@ async function sendSlackAlert(alertData) {
         method: 'POST',
         hostname: url.hostname,
         path: url.pathname + url.search,
-        headers: { "Content-Type": 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
       }, (res) => {
         // Consider 2xx as success;
         if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {

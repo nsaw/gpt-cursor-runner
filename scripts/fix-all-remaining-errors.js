@@ -74,15 +74,15 @@ function fixTypeMismatches(content) {
   // Fix 'unknown' type assignments
   content = content.replace(
     /health\s*=\s*['"]unknown['"]/g,
-    "health = 'unhealthy'",
+    'health = \'unhealthy\'',
   );
   content = content.replace(
     /overall\s*=\s*['"]unknown['"]/g,
-    "overall = 'unhealthy'",
+    'overall = \'unhealthy\'',
   );
 
   // Fix invalid severity values
-  content = content.replace(/['"]orchestrator['"]/g, "'info'");
+  content = content.replace(/['"]orchestrator['"]/g, '\'info\'');
 
   return content;
 }

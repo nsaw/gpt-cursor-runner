@@ -10,9 +10,8 @@ src/
 server/
 api/
 app/
-# Problematic script areas
-scripts/
-src-nextgen/
+# Allow scripts for Phase-1 validation
+!scripts/**
 # Keep only config files for now
 !.eslintrc*
 !eslint.config.js

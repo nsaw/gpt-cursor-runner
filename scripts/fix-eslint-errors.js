@@ -142,7 +142,7 @@ async function main() {
       }
     }
 
-    console.log(`\n🎉 ESLint fixes complete!`);
+    console.log('\n🎉 ESLint fixes complete!');
     console.log(`✅ Fixed ${fixedCount} files`);
     console.log(`📁 Processed ${jsFiles.length} total files`);
 
