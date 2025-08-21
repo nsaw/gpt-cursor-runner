@@ -106,7 +106,7 @@ async function checkWatchdogHealth(): Promise<boolean> {
 
 async function getDaemonCount(): Promise<number> {
   try {
-    const cmd = `ps aux | grep -E "\.ts|\.js" | grep -v grep | grep -E "relayCore|diffMonitor|roleVerifier|summarySyncValidator|bootstrapDaemon|monitorWatcher|executor" | wc -l`;
+    const cmd = "ps aux | grep -E \"\.ts|\.js\" | grep -v grep | grep -E \"relayCore|diffMonitor|roleVerifier|summarySyncValidator|bootstrapDaemon|monitorWatcher|executor\" | wc -l";
     const { stdout } = await execAsync(cmd);
     return parseInt(stdout.trim()) || 0;
   } catch (err) {

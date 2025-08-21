@@ -414,7 +414,7 @@ export async function startGhostLifecycleGovernor(): Promise<void> {
 }
 
 export async function shutdownAllDaemons(): Promise<void> {
-  logGovernanceEvent(`🛑 Initiating shutdown sequence...`);
+  logGovernanceEvent("🛑 Initiating shutdown sequence...");
 
   lifecycleState.isShuttingDown = true;
 
@@ -428,7 +428,7 @@ export async function shutdownAllDaemons(): Promise<void> {
     }
   }
 
-  logGovernanceEvent(`✅ Shutdown sequence completed`);
+  logGovernanceEvent("✅ Shutdown sequence completed");
 }
 
 export function getLifecycleState(): LifecycleState {

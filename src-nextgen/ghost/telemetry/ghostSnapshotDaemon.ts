@@ -620,7 +620,7 @@ class GhostSnapshotDaemon {
     try {
       // CPU metrics
       const { stdout: cpuInfo } = await execAsync(
-        'top -l 1 | grep "CPU usage"',
+        "top -l 1 | grep \"CPU usage\"",
       );
       const cpuUsage = this.parseCpuUsage(cpuInfo);
 
@@ -686,8 +686,8 @@ class GhostSnapshotDaemon {
 
           for (const line of lines) {
             if (
-              line.includes('"severity":"error"') ||
-              line.includes('"severity":"critical"')
+              line.includes("\"severity\":\"error\"") ||
+              line.includes("\"severity\":\"critical\"")
             ) {
               try {
                 const logEntry = JSON.parse(line);

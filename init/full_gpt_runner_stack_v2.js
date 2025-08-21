@@ -234,7 +234,7 @@ try {
 
 try {
   execSync(
-    'git add . && git commit -m "✅ Initialized GPT-Cursor runner stack with Slack integration"',
+    "git add . && git commit -m \"✅ Initialized GPT-Cursor runner stack with Slack integration\"",
     { stdio: "inherit" },
   );
 } catch (_e) {

@@ -708,7 +708,7 @@ class GhostTelemetryApi {
 
     const apiKey =
       req.headers["x-api-key"] ||
-      req.headers["authorization"]?.replace("Bearer ", "");
+      req.headers.authorization?.replace("Bearer ", "");
     return this.config.authentication.apiKeys.includes(apiKey || "");
   }
 

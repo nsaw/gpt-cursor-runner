@@ -231,7 +231,7 @@ function getCommandDescription(_command) {
     "cursor-mode": "Switch Cursor operation modes",
 
     // Workflow Control
-    proceed: 'passes through "proceed" with option to specify',
+    proceed: "passes through \"proceed\" with option to specify",
     again: "restarts or retry last with optional manual input",
     "manual-revise": "returns to sender with notes for another attempt",
     "manual-append": "conditional approval- passes through with notes",

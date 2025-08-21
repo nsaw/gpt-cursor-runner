@@ -20,7 +20,7 @@ module.exports = async function handleCursorSlackDispatch(req, res) {
       dispatchRequest = JSON.parse(text);
     } catch (error) {
       res.send(
-        '❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}',
+        "❌ Invalid JSON format. Expected: {\"action\": \"slack.postMessage\", \"channel\": \"#channel\", \"text\": \"message\"}",
       );
       return;
     }

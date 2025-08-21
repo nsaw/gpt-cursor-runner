@@ -328,7 +328,7 @@ export const logSystemStartup = (
   version: string,
 ): void => {
   const logger = createComponentLogger(componentName);
-  logger.info(`System startup initiated`, {
+  logger.info("System startup initiated", {
     version,
     timestamp: new Date().toISOString(),
   });
@@ -339,7 +339,7 @@ export const logSystemShutdown = (
   reason: string,
 ): void => {
   const logger = createComponentLogger(componentName);
-  logger.info(`System shutdown initiated`, {
+  logger.info("System shutdown initiated", {
     reason,
     timestamp: new Date().toISOString(),
   });

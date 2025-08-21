@@ -134,7 +134,7 @@ async function checkDiskSpace(): Promise<HealthCheckResult> {
   const timestamp = new Date().toISOString();
 
   try {
-    const cmd = `df -h /Users/sawyer/gitSync | tail -1 | awk '{print $5}' | sed 's/%//'`;
+    const cmd = "df -h /Users/sawyer/gitSync | tail -1 | awk '{print $5}' | sed 's/%//'";
     const { stdout } = await execAsync(cmd);
     const usagePercent = parseInt(stdout.trim());
 
@@ -175,7 +175,7 @@ async function checkMemoryUsage(): Promise<HealthCheckResult> {
   const timestamp = new Date().toISOString();
 
   try {
-    const cmd = `top -l 1 | grep 'PhysMem' | awk '{print $2}' | sed 's/[^0-9]//g'`;
+    const cmd = "top -l 1 | grep 'PhysMem' | awk '{print $2}' | sed 's/[^0-9]//g'";
     const { stdout } = await execAsync(cmd);
     const usedMB = parseInt(stdout.trim());
 
@@ -220,7 +220,7 @@ async function checkProcessCount(): Promise<HealthCheckResult> {
   const timestamp = new Date().toISOString();
 
   try {
-    const cmd = `ps aux | grep -E "\.ts|\.js" | grep -v grep | wc -l`;
+    const cmd = "ps aux | grep -E \"\.ts|\.js\" | grep -v grep | wc -l";
     const { stdout } = await execAsync(cmd);
     const processCount = parseInt(stdout.trim());
 

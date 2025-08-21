@@ -444,7 +444,7 @@ export async function pushToGit(): Promise<boolean> {
     const commands = [
       "cd /Users/sawyer/gitSync/gpt-cursor-runner",
       "git add .",
-      'git commit -m "[P5.COMPLETE] Phase 5 completion - all patches validated and tagged"',
+      "git commit -m \"[P5.COMPLETE] Phase 5 completion - all patches validated and tagged\"",
       "git push origin GHOST2.0_PHASE_5",
     ];
 

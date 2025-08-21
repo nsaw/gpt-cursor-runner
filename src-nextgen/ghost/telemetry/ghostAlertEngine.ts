@@ -1007,7 +1007,7 @@ class GhostAlertEngine {
           ruleName: alertEvent.ruleName,
           severity: alertEvent.severity,
           status: alertEvent.status,
-          message: message,
+          message,
           timestamp: alertEvent.timestamp,
           data: alertEvent.data,
         },
@@ -1191,7 +1191,7 @@ Please check the dashboard for more details: https://gpt-cursor-runner.thoughtma
         "daemon-failure": async () => {
           // Restart daemons if they're down
           const { stdout } = await execAsync(
-            'ps aux | grep -E "(braun-daemon|ghost-runner|patch-executor)" | grep -v grep',
+            "ps aux | grep -E \"(braun-daemon|ghost-runner|patch-executor)\" | grep -v grep",
           );
           if (!stdout.trim()) {
             this.logEvent(
@@ -1227,7 +1227,7 @@ Please check the dashboard for more details: https://gpt-cursor-runner.thoughtma
         "disk-usage": async () => {
           // Clean up old logs and temporary files
           await execAsync(
-            'find /Users/sawyer/gitSync/.cursor-cache/CYOPS/logs -name "*.log" -mtime +7 -delete 2>/dev/null || true',
+            "find /Users/sawyer/gitSync/.cursor-cache/CYOPS/logs -name \"*.log\" -mtime +7 -delete 2>/dev/null || true",
           );
           this.logEvent(
             "automation_disk_cleanup",

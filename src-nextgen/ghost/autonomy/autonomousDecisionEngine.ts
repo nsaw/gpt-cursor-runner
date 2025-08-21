@@ -329,7 +329,7 @@ class AutonomousDecisionEngine {
       decision.result = "failure";
       decision.executionTime = Date.now() - startTime;
       console.error(
-        `[AutonomousDecisionEngine] Decision execution failed:`,
+        "[AutonomousDecisionEngine] Decision execution failed:",
         error,
       );
     }
@@ -340,7 +340,7 @@ class AutonomousDecisionEngine {
 
   private async scaleCPUIntensiveProcesses(): Promise<void> {
     // Implement CPU scaling logic
-    await execAsync('pkill -f "node.*heavy" || true');
+    await execAsync("pkill -f \"node.*heavy\" || true");
     await execAsync(
       "nice -n 10 node src-nextgen/ghost/shell/ghostExecutorUnifier.ts &",
     );

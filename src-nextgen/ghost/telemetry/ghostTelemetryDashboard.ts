@@ -570,7 +570,7 @@ class GhostTelemetryDashboard {
     try {
       // CPU metrics
       const { stdout: cpuInfo } = await execAsync(
-        'top -l 1 | grep "CPU usage"',
+        "top -l 1 | grep \"CPU usage\"",
       );
       const cpuUsage = this.parseCpuUsage(cpuInfo);
 

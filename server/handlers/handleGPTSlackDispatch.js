@@ -20,7 +20,7 @@ module.exports = async function handleGPTSlackDispatch(_req, _res) {
       dispatchRequest = JSON.parse(text);
     } catch (_error) {
       res.send(
-        '❌ Invalid JSON format. Expected: {"action": "slack.postMessage", "channel": "#channel", "text": "message"}',
+        "❌ Invalid JSON format. Expected: {\"action\": \"slack.postMessage\", \"channel\": \"#channel\", \"text\": \"message\"}",
       );
       return;
     }
