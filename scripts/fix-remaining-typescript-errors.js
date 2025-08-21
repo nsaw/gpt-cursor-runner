@@ -10,7 +10,7 @@ function fixCatchVariableMismatches(content) {
   // Fix catch blocks where _err is used but err is referenced
   content = content.replace(
     /catch\s*\(\s*_err\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_err', 'err');
     },
   );
@@ -18,7 +18,7 @@ function fixCatchVariableMismatches(content) {
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_error', 'error');
     },
   );
@@ -52,7 +52,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with object arguments
   content = content.replace(
     /this\.logEvent\s*\(\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*\{([^}]+)\}\s*\)/g,
-    (match, objContent) => {
+    (match, ________objContent) => {
       return match.replace(/,\s*\{[^}]+\}/, '');
     },
   );
@@ -118,14 +118,14 @@ function fixMissingErrorVariables(content) {
   // Find catch blocks that reference 'err' but don't declare it
   content = content.replace(
     /catch\s*\(\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('catch ()', 'catch (err)');
     },
   );
 
   content = content.replace(
     /catch\s*\(\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('catch ()', 'catch (error)');
     },
   );

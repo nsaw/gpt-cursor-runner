@@ -1,19 +1,19 @@
 // Looping Patch Executor - Runs continuously and processes patches
-const _MONITOR_HOST = 'https://runner-thoughtmarks.THOUGHTMARKS.app';
-const _WEBHOOK_ROUTE = 'https://webhook-thoughtmarks.THOUGHTMARKS.app/webhook';
+const _________MONITOR_HOST = 'https://runner-thoughtmarks.THOUGHTMARKS.app';
+const _________WEBHOOK_ROUTE = 'https://webhook-thoughtmarks.THOUGHTMARKS.app/webhook';
 
 const fs = require('fs/promises');
 const path = require('path');
-const { exec } = require('child_process');
+const { ________exec } = require('child_process');
 
 // Configuration
 const _POLL_INTERVAL = 5000; // 5 seconds
 const _PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
 const _MAIN_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches';
-const _CYOPS_SUMMARIES_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
+const _________CYOPS_SUMMARIES_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries';
 const _ROOT_LOGS_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs';
 const _EXEC_STATUS_FILE = path.join(_ROOT_LOGS_DIR, 'patch-executor-status.json');
-let _lastHeartbeat = 0;
+cons_______t __lastHeartbeat = 0;
 
 // Ensure patch directories exist
 async function ensureDirectories() {

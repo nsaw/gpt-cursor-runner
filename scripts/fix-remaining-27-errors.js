@@ -39,7 +39,7 @@ function fixErrorVariableIssues(content) {
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_error', 'error');
     },
   );

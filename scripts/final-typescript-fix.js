@@ -18,7 +18,7 @@ function fixLogEventArguments(content) {
   // Add missing severity arguments to logEvent calls
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](system_startup|system_shutdown|system_maintenance|orchestrator_start|orchestrator_stop|dashboard_integration|heartbeat|snapshot_start|snapshot_complete|loop_complete|validation_complete|relay_complete)['"],\s*['"][^'"]+['"]\s*\)/g,
-    (match, eventType) => {
+    (match, ________eventType) => {
       return match.replace(')', ', \'info\')');
     },
   );

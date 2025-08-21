@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function safeLog(message) {
+function _________safeLog(message) {
   try {
     console.log(message);
   } catch (error) {

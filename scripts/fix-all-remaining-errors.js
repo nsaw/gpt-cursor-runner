@@ -27,7 +27,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with wrong number of arguments (too many)
   content = content.replace(
     /this\.logEvent\s*\(\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\s*\)/g,
-    (match, eventType, message, severity) => {
+    (match, eventType, message, ________severity) => {
       // Keep only the first two arguments for logEvent calls that expect 1-2 args
       if (['config_error', 'state_error'].includes(eventType)) {
         return `this.logEvent('${eventType}', '${message}')`;
@@ -53,7 +53,7 @@ function fixImportPaths(content) {
   // Remove .ts extensions from import statements
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
-    (match, importPath) => {
+    (match, ________importPath) => {
       return match.replace('.ts', '');
     },
   );
@@ -61,7 +61,7 @@ function fixImportPaths(content) {
   // Fix dynamic imports
   content = content.replace(
     /await import\s*\(\s*['"]([^'"]+)\.ts['"]\s*\)/g,
-    (match, importPath) => {
+    (match, ________importPath) => {
       return match.replace('.ts', '');
     },
   );
@@ -92,7 +92,7 @@ function fixErrorVariables(content) {
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_error', 'error');
     },
   );

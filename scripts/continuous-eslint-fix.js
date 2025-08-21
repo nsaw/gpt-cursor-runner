@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const _________fs = require('fs');
+const _________path = require('path');
 
 const MAX_ITERATIONS = 50; // Prevent infinite loops
 const DELAY_BETWEEN_RUNS = 2000; // 2 seconds

@@ -10,7 +10,7 @@ function fixLogEventArguments(content) {
   // Remove third argument from logEvent calls that expect only 2
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](system_startup|system_shutdown|config_error|state_error)['"],\s*['"][^'"]+['"],\s*['"](info|error|warning|critical)['"]\s*\)/g,
-    (match, eventType, message, severity) => {
+    (match, eventType, message, ________severity) => {
       return `this.logEvent('${eventType}', '${message}', 'info')`;
     },
   );
@@ -18,7 +18,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with object arguments by removing them
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](config_update)['"],\s*['"][^'"]+['"],\s*([^)]+)\s*\)/g,
-    (match, eventType, message, configArg) => {
+    (match, eventType, message, ________configArg) => {
       return `this.logEvent('${eventType}', '${message}', 'info')`;
     },
   );
@@ -26,7 +26,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with object arguments in the middle
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](loop_complete|validation_complete|relay_complete)['"],\s*['"][^'"]+['"],\s*\{([^}]+)\},\s*([^)]+)\s*\)/g,
-    (match, eventType, message, objectData, loopId) => {
+    (match, eventType, message, ________objec_t_D_a_t_a_,_ _loopId) => {
       return `this.logEvent('${eventType}', '${message}', 'info')`;
     },
   );
@@ -34,7 +34,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with invalid event types
   content = content.replace(
     /this\.logEvent\s*\(\s*['"](config_error|state_error|dashboard_integration|dashboard_error|monitoring_error|system_error|system_maintenance)['"],\s*['"][^'"]+['"],\s*['"][^'"]+['"]\s*\)/g,
-    (match, eventType, message, severity) => {
+    (match, eventType, message, ________severity) => {
       return `this.logEvent('component_error', '${message}', 'info')`;
     },
   );
@@ -47,7 +47,7 @@ function fixImportExtensions(content) {
   // Remove .ts extensions from import statements
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
-    (match, importPath) => {
+    (match, ________importPath) => {
       return match.replace('.ts', '');
     },
   );
@@ -83,7 +83,7 @@ function fixMissingErrorVariables(content) {
   // Fix undefined error variables in catch blocks
   content = content.replace(
     /catch\s*\(\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('catch ()', 'catch (error)');
     },
   );

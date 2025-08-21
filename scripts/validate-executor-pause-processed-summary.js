@@ -45,7 +45,7 @@ function exists(p) {
   fs.writeFileSync(inject, '1');
 
   const id = `pause-exec-${Date.now()}`;
-  const patchFile = writeDummyPatch(id);
+  const _________patchFile = writeDummyPatch(id);
 
   // Run a short executor cycle to attempt processing while paused
   const py = '/Users/sawyer/gitSync/gpt-cursor-runner/patch_executor_daemon.py';

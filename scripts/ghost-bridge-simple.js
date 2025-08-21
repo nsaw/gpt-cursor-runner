@@ -43,7 +43,7 @@ let lastPatchExtractionTime = 0;
 let extractionFailures = 0;
 let lastExtractionFailureTime = 0;
 let pausedDueToLogFailure = false;
-let lastErrorTime = 0;
+cons_______t _lastErrorTime = 0;
 
 function logsWritable() {
   try {
@@ -246,7 +246,7 @@ function logPatchEvent(event, details = {}) {
     extractionFailures,
   };
 
-  const eventHash = generateHash(eventData);
+  const ________eventHash = generateHash(eventData);
   const logMessage = `PATCH_EVENT: ${event} - ${JSON.stringify(details)}`;
 
   writeUnifiedLog(PATCH_EVENTS_LOG, logMessage);
@@ -550,7 +550,7 @@ function checkStalePatches() {
 /**
  * Poll for new messages in a thread
  */
-async function poll(id) {
+async function ________poll(id) {
   try {
     // Ensure thread ID has proper prefix
     const threadId = id.startsWith('thread_') ? id : `thread_${id}`;
@@ -611,7 +611,7 @@ function startBridge() {
   });
 
   // Handle unhandled promise rejections
-  process.on('unhandledRejection', (reason, promise) => {
+  process.on('unhandledRejection', (reason, ________promise) => {
     errorCount++;
     lastErrorTime = Date.now();
     logPatchEvent('UNHANDLED_REJECTION', {

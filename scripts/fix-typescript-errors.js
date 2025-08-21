@@ -34,7 +34,7 @@ function fixCatchBlockErrors(content) {
   // Fix catch blocks where _err is used but err is referenced
   content = content.replace(
     /catch\s*\(\s*_err\s*\)\s*\{([^}]*err[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_err', 'err');
     },
   );
@@ -42,7 +42,7 @@ function fixCatchBlockErrors(content) {
   // Fix catch blocks where _error is used but error is referenced
   content = content.replace(
     /catch\s*\(\s*_error\s*\)\s*\{([^}]*error[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace('_error', 'error');
     },
   );
@@ -72,7 +72,7 @@ function fixImportExtensions(content) {
   // Remove .ts extensions from import statements
   content = content.replace(
     /import\s+.*from\s+['"]([^'"]+)\.ts['"]/g,
-    (match, importPath) => {
+    (match, ________importPath) => {
       return match.replace('.ts', '');
     },
   );
@@ -100,7 +100,7 @@ function fixLogEventArguments(content) {
   // Fix logEvent calls with wrong number of arguments
   content = content.replace(
     /this\.logEvent\s*\(\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*['"][^'"]+['"],\s*([^)]+)\)/g,
-    (match, extraArgs) => {
+    (match, ________extraArgs) => {
       // Remove the third argument (level) if it's a string
       return match.replace(/,\s*['"](info|error|warn|debug)['"]/, '');
     },
@@ -114,7 +114,7 @@ function fixVariableUsageBeforeAssignment(content) {
   // Fix apiReq usage before assignment
   content = content.replace(
     /let\s+apiReq[^]*;\s*([^}]*apiReq[^}]*)\}/g,
-    (match, body) => {
+    (match, ________body) => {
       return match.replace(/let\s+apiReq/, 'let apiReq: any');
     },
   );
