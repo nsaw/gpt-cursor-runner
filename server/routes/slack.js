@@ -15,7 +15,7 @@ function verifySlackSignature(req, res, buf) {
     const errorLog = {
       ts: new Date().toISOString(),
       path: req.path,
-      reason: reason,
+      reason,
       signature: signature ? "present" : "missing",
       timestamp: timestamp || "missing",
     };

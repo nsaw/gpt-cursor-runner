@@ -2,9 +2,9 @@
 // FILENAME: tasks/7_auto_cloudflare_tunnel_watchdog_and_webhook_sync.js
 // PURPOSE: Adds Cloudflare tunnel watchdog, Slack webhook validator, and Docker injection for robust GPT-Cursor runner deployment.
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 const watchdogScript = `#!/bin/bash
 
@@ -25,11 +25,11 @@ else
 fi
 `;
 
-const watchdogPath = path.join(__dirname, '../runner/tunnel-watchdog.sh');
+const watchdogPath = path.join(__dirname, "../runner/tunnel-watchdog.sh");
 fs.mkdirSync(path.dirname(watchdogPath), { recursive: true });
 fs.writeFileSync(watchdogPath, watchdogScript);
 fs.chmodSync(watchdogPath, 0o755);
-console.log('✅ Tunnel watchdog script written.');
+console.log("✅ Tunnel watchdog script written.");
 
 const webhookValidator = `// FILENAME: server/middleware/validateSlackWebhook.js
 // PURPOSE: Verifies Slack slash command requests via signing secret
@@ -52,10 +52,10 @@ function validateSlackRequest(req, res, next) {
 
 module.exports = { validateSlackRequest };
 `;
-const middlewarePath = path.join(__dirname, '../server/middleware/validateSlackWebhook.js');
+const middlewarePath = path.join(__dirname, "../server/middleware/validateSlackWebhook.js");
 fs.mkdirSync(path.dirname(middlewarePath), { recursive: true });
 fs.writeFileSync(middlewarePath, webhookValidator);
-console.log('✅ Slack webhook validator middleware added.');
+console.log("✅ Slack webhook validator middleware added.");
 
 const dockerInject = `
 # Injects dynamic tunnel detection into Docker
@@ -63,14 +63,14 @@ ENV PUBLIC_RUNNER_URL=https://runner.thoughtmarks.app
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:5555/health || exit 1
 `;
-const dockerPath = path.join(__dirname, '../Dockerfile');
+const dockerPath = path.join(__dirname, "../Dockerfile");
 fs.appendFileSync(dockerPath, dockerInject);
-console.log('✅ Dockerfile enhanced with dynamic env + healthcheck.');
+console.log("✅ Dockerfile enhanced with dynamic env + healthcheck.");
 
 const crontabInstall = `*/2 * * * * ${watchdogPath} >> logs/tunnel_watchdog.log 2>&1`;
 try {
   execSync(`(crontab -l 2>/dev/null; echo "${crontabInstall}") | crontab -`);
-  console.log('✅ Watchdog crontab installed (runs every 2 min).');
+  console.log("✅ Watchdog crontab installed (runs every 2 min).");
 } catch (e) {
-  console.warn('⚠️ Could not install crontab (may need manual setup).');
+  console.warn("⚠️ Could not install crontab (may need manual setup).");
 } 

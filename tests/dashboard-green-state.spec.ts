@@ -14,7 +14,7 @@ test.describe("Dashboard Green-State Enforcement", () => {
 
     // Wait for component health indicators to appear
     await page.waitForSelector(
-      '[data-testid="component-health"], .component-status, .status-indicator',
+      "[data-testid=\"component-health\"], .component-status, .status-indicator",
       { timeout: 30000 },
     );
 

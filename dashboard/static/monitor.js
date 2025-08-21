@@ -13,7 +13,7 @@ async function loadStatus() {
     `;
   } catch (_e) {
     document.getElementById("status").innerHTML =
-      '<p style="color:red">❌ Failed to load status</p>';
+      "<p style=\"color:red\">❌ Failed to load status</p>";
   }
 }
 window.onload = loadStatus;

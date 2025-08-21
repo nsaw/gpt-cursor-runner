@@ -257,9 +257,9 @@ async function checkHealthStatus() {
       },
     );
 
-    return `• **Tunnel Status**: ✅ Active\n``• **Health Check**: ✅ Responding (${healthResponse.status})\n``• **Response Time**: ${healthResponse.headers["x-response-time"] || "N/A"}\n``• **Last Check**: ${new Date().toISOString()}`;
+    return "• **Tunnel Status**: ✅ Active\n"`• **Health Check**: ✅ Responding (${healthResponse.status})\n``• **Response Time**: ${healthResponse.headers["x-response-time"] || "N/A"}\n``• **Last Check**: ${new Date().toISOString()}`;
   } catch (error) {
-    return `• **Tunnel Status**: ❌ Error\n``• **Health Check**: ❌ Failed\n``• **Error**: ${error.message}\n``• **Last Check**: ${new Date().toISOString()}`;
+    return "• **Tunnel Status**: ❌ Error\n"`• **Health Check**: ❌ Failed\n``• **Error**: ${error.message}\n``• **Last Check**: ${new Date().toISOString()}`;
   }
 }
 

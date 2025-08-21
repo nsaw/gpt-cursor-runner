@@ -14,13 +14,13 @@ test("Dashboard Health Validation", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("GHOST RUNNER");
 
   // Wait for component health section to load
-  await page.waitForSelector('h3:has-text("⚙️ Component Health")', {
+  await page.waitForSelector("h3:has-text(\"⚙️ Component Health\")", {
     timeout: 30000,
   });
 
   // Check that all critical services are showing as healthy
   const healthSection = page
-    .locator('h3:has-text("⚙️ Component Health")')
+    .locator("h3:has-text(\"⚙️ Component Health\")")
     .locator("..");
 
   // Look for healthy status indicators

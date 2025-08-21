@@ -17,4 +17,4 @@ module.exports = {
       restart_delay: 2000
     }
   ]
-}
+};

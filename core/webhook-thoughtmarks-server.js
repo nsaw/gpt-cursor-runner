@@ -109,7 +109,7 @@ app.get("/slack/oauth/callback", async (req, res) => {
       {
         client_id: SLACK_CONFIG.clientId,
         client_secret: SLACK_CONFIG.clientSecret,
-        code: code,
+        code,
         redirect_uri:
           "https://webhook-thoughtmarks.thoughtmarks.app/slack/oauth/callback",
       },
@@ -418,9 +418,9 @@ async function checkHealthStatus() {
       },
     );
 
-    return `• **Tunnel Status**: ✅ Active\n``• **Health Check**: ✅ Responding (${healthResponse.status})\n``• **Response Time**: ${healthResponse.headers["x-response-time"] || "N/A"}\n``• **Last Check**: ${new Date().toISOString()}`;
+    return "• **Tunnel Status**: ✅ Active\n"`• **Health Check**: ✅ Responding (${healthResponse.status})\n``• **Response Time**: ${healthResponse.headers["x-response-time"] || "N/A"}\n``• **Last Check**: ${new Date().toISOString()}`;
   } catch (error) {
-    return `• **Tunnel Status**: ❌ Error\n``• **Health Check**: ❌ Failed\n``• **Error**: ${error.message}\n``• **Last Check**: ${new Date().toISOString()}`;
+    return "• **Tunnel Status**: ❌ Error\n"`• **Health Check**: ❌ Failed\n``• **Error**: ${error.message}\n``• **Last Check**: ${new Date().toISOString()}`;
   }
 }
 
