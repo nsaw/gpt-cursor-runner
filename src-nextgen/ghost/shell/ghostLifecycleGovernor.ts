@@ -3,7 +3,13 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: unknown;
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
 
 const execAsync = promisify(exec);
 const governorLogPath =
@@ -394,7 +400,7 @@ async function governLifecycle(): Promise<void> {
   }
 }
 
-export function startGhostLifecycleGovernor(): Promise<void> {
+export async function startGhostLifecycleGovernor(): Promise<void> {
   console.log("[lifecycle-governor] Starting daemon lifecycle governance...");
 
   // Initialize daemon statuses

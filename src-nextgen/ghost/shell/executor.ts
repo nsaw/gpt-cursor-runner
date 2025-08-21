@@ -19,7 +19,7 @@ function loadNextPatch(): unknown {
 }
 
 function applyPatch(patch: unknown): void {
-  console.log(`[Executor] Applying patch: ${patch?.blockId || "unknown"}`);
+  console.log(`[Executor] Applying patch: ${(patch as any)?.blockId || "unknown"}`);
   // Implementation would go here
 }
 

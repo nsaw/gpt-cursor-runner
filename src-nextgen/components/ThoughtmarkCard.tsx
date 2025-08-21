@@ -1,7 +1,14 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { useSlotMode } from "../state/slotMode";
-declare const console: unknown;
+
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
 
 export const ThoughtmarkCard = () => {
   const [slotMode] = useSlotMode();

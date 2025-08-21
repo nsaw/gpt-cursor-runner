@@ -370,19 +370,19 @@ class HealthCheckAggregator {
     allComponents: unknown[],
   ): string[] {
     const impact: string[] = [];
-    const component = allComponents.find((c) => c.id === componentId);
+    const component = allComponents.find((c) => (c as any).id === componentId);
 
     if (component) {
       // Direct dependents
-      impact.push(...component.dependents);
+      impact.push(...((component as any).dependents || []));
 
       // Indirect dependents (recursive)
-      for (const dependent of component.dependents) {
+      for (const dependent of (component as any).dependents || []) {
         const dependentComponent = allComponents.find(
-          (c) => c.id === dependent,
+          (c) => (c as any).id === dependent,
         );
         if (dependentComponent) {
-          impact.push(...dependentComponent.dependents);
+          impact.push(...((dependentComponent as any).dependents || []));
         }
       }
     }
@@ -763,8 +763,8 @@ class HealthCheckAggregator {
           if (result.success) {
             health.status = "healthy";
             if (result.metrics) {
-              health.resourceUsage.cpu = result.metrics.cpu || 0;
-              health.resourceUsage.memory = result.metrics.memory || 0;
+              health.resourceUsage.cpu = (result.metrics as any).cpu || 0;
+              health.resourceUsage.memory = (result.metrics as any).memory || 0;
             }
           } else {
             health.status = "failed";

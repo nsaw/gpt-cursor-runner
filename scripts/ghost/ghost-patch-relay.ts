@@ -1,4 +1,11 @@
-declare const console: unknown;
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
+
 // Add dual-write logic to mirror instruction and summary into .cursor-cache
 import fs from 'fs-extra';
 import path from 'path';

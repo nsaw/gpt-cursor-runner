@@ -5,7 +5,13 @@ import { promisify } from "util";
 import http from "http";
 import https from "https";
 
-declare const console: unknown;
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
 
 const execAsync = promisify(exec);
 const selfCheckLogPath =
@@ -448,7 +454,7 @@ async function runHealthChecks(): Promise<SystemHealth> {
   };
 }
 
-function logHealthStatus(health: SystemHealth): Promise<void> {
+async function logHealthStatus(health: SystemHealth): Promise<void> {
   const statusEmoji =
     health.overallStatus === "healthy"
       ? "🟢"

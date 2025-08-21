@@ -3,7 +3,13 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: unknown;
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
 
 const execAsync = promisify(exec);
 const executorLogPath =
@@ -48,7 +54,7 @@ const coordinationState: CoordinationState = {
 const maxConsecutiveErrors = 5;
 const coordinationInterval = 10000; // 10 seconds
 
-function checkSentinelHealth(): Promise<boolean> {
+async function checkSentinelHealth(): Promise<boolean> {
   try {
     if (!fs.existsSync(sentinelLogPath)) {
       return false;
@@ -75,7 +81,7 @@ function checkSentinelHealth(): Promise<boolean> {
   }
 }
 
-function checkWatchdogHealth(): Promise<boolean> {
+async function checkWatchdogHealth(): Promise<boolean> {
   try {
     if (!fs.existsSync(watchdogLogPath)) {
       return true; // Watchdog might not have restarted anything yet
@@ -115,12 +121,12 @@ async function getDaemonCount(): Promise<number> {
   }
 }
 
-function loadNextPatch(): Promise<any> {
+async function loadNextPatch(): Promise<any> {
   try {
     const patchDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
     const files = fs.readdirSync(patchDir).filter((f) => f.endsWith(".json"));
 
-    if (files.length === 0) return null;
+    if (files.length === 0) return Promise.resolve(null);
 
     // Sort by modification time to get the latest
     const patchFiles = files
@@ -131,37 +137,37 @@ function loadNextPatch(): Promise<any> {
       }))
       .sort((a, b) => b.mtime - a.mtime);
 
-    if (patchFiles.length === 0) return null;
+    if (patchFiles.length === 0) return Promise.resolve(null);
 
     const latestPatch = patchFiles[0];
     const content = fs.readFileSync(latestPatch.path, "utf8");
-    return JSON.parse(content);
+    return Promise.resolve(JSON.parse(content));
   } catch (err) {
     console.error("[executor-unifier] Error loading patch:", err);
-    return null;
+    return Promise.resolve(null);
   }
 }
 
 async function processPatch(patch: unknown): Promise<boolean> {
   try {
     console.log(
-      `[executor-unifier] Processing patch: ${patch?.blockId || "unknown"}`,
+      `[executor-unifier] Processing patch: ${(patch as any)?.blockId || "unknown"}`,
     );
 
     // Simulate patch processing with non-blocking execution
-    const cmd = `cd /Users/sawyer/gitSync/gpt-cursor-runner && python3 -m gpt_cursor_runner.apply_patch ${patch?.blockId ? `.cursor-cache/CYOPS/patches/${patch.blockId}.json` : ""}`;
+    const cmd = `cd /Users/sawyer/gitSync/gpt-cursor-runner && python3 -m gpt_cursor_runner.apply_patch ${(patch as any)?.blockId ? `.cursor-cache/CYOPS/patches/${(patch as any).blockId}.json` : ""}`;
 
-    const { stdout, stderr } = await execAsync(cmd);
+    const { stderr } = await execAsync(cmd);
 
     const success = !stderr || stderr.length === 0;
 
     if (success) {
       console.log(
-        `[executor-unifier] Patch ${patch?.blockId} processed successfully`,
+        `[executor-unifier] Patch ${(patch as any)?.blockId} processed successfully`,
       );
     } else {
       console.error(
-        `[executor-unifier] Patch ${patch?.blockId} failed:`,
+        `[executor-unifier] Patch ${(patch as any)?.blockId} failed:`,
         stderr,
       );
     }
@@ -173,7 +179,7 @@ async function processPatch(patch: unknown): Promise<boolean> {
   }
 }
 
-function logExecutorStatus(status: ExecutorStatus): Promise<void> {
+async function logExecutorStatus(status: ExecutorStatus): Promise<void> {
   const logEntry = `[${status.timestamp}] ${status.phase.toUpperCase()} | Patch: ${status.currentPatch || "none"} | Sentinel: ${status.sentinelHealth ? "🟢" : "🔴"} | Watchdog: ${status.watchdogHealth ? "🟢" : "🔴"} | Daemons: ${status.daemonCount}${status.error ? ` | Error: ${status.error}` : ""}\n`;
 
   try {

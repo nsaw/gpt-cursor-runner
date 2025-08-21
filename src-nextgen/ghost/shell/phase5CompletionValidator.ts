@@ -58,10 +58,8 @@ const requiredTags = [
   "patch-v3.5.5(P5.05.00)_ghost-lifecycle-governor",
 ];
 
-function validateFileExistence(
-  fileName: string,
-): Promise<ValidationResult> {
-  const filePath = `/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell/${fileName}`;
+async function validateFile(fileName: string): Promise<ValidationResult> {
+  const filePath = `/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/${fileName}`;
 
   try {
     if (fs.existsSync(filePath)) {
@@ -89,7 +87,7 @@ function validateFileExistence(
   }
 }
 
-function validateLogFile(logName: string): Promise<ValidationResult> {
+async function validateLogFile(logName: string): Promise<ValidationResult> {
   const logPath = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/${logName}`;
 
   try {
@@ -316,7 +314,7 @@ async function runPhase5Validation(): Promise<Phase5CompletionStatus> {
 
   // Validate required files
   for (const file of requiredFiles) {
-    const result = await validateFileExistence(file);
+    const result = await validateFile(file);
     validations.push(result);
   }
 

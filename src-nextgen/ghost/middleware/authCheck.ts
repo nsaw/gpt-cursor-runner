@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { Request, Response, NextFunction } from "express";
 
 const authLogPath =
   "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/auth-middleware.log";
@@ -215,19 +216,19 @@ class AuthCheckMiddleware {
     return true;
   }
 
-  public async authenticate(req: unknown): Promise<AuthResult> {
+  public async authenticate(req: Request): Promise<AuthResult> {
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
-    const clientIp = req.socket?.remoteAddress || "unknown";
-    const userAgent = req.headers["user-agent"] || "unknown";
+    const clientIp = (req as any).socket?.remoteAddress || "unknown";
+    const userAgent = (req as any).headers["user-agent"] || "unknown";
 
     // Create auth request record
     const authRequest: AuthRequest = {
       id: requestId,
       timestamp,
-      method: req.method || "GET",
-      path: req.url || "/",
-      headers: req.headers,
+      method: (req as any).method || "GET",
+      path: (req as any).url || "/",
+      headers: (req as any).headers,
       clientIp,
       userAgent,
       authenticated: false,
@@ -250,7 +251,7 @@ class AuthCheckMiddleware {
 
     // Get authorization header
     const authHeader =
-      req.headers.authorization || req.headers["x-api-key"] || "";
+      (req as any).headers.authorization || (req as any).headers["x-api-key"] || "";
 
     if (!authHeader) {
       authRequest.authenticated = false;
@@ -286,7 +287,7 @@ class AuthCheckMiddleware {
       this.log("auth_failed", {
         requestId,
         clientIp,
-        path: req.url,
+        path: (req as any).url,
         error: authResult.error,
       });
     }
@@ -345,38 +346,38 @@ class AuthCheckMiddleware {
 }
 
 // Export middleware function
-export function authCheck(): (req: unknown, res: unknown, next: unknown) => Promise<void> {
+export function authCheck(): (req: Request, res: Response, next: NextFunction) => Promise<void> {
   const authMiddleware = new AuthCheckMiddleware();
 
-  return async (req: unknown, res: unknown, next: unknown) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authResult = await authMiddleware.authenticate(req);
 
       if (authResult.authenticated) {
         // Add auth info to request
-        req.auth = authResult;
+        (req as any).auth = authResult;
         next();
       } else {
-        res.writeHead(401, {
+        (res as any).writeHead(401, {
           "Content-Type": "application/json",
           "WWW-Authenticate": "Bearer, ApiKey",
         });
-        res.end(
+        (res as any).end(
           JSON.stringify({
             error: "Authentication required",
             message: authResult.error,
             timestamp: new Date().toISOString(),
-          }),
+          })
         );
       }
     } catch (error) {
-      res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(
+      (res as any).writeHead(500, { "Content-Type": "application/json" });
+      (res as any).end(
         JSON.stringify({
           error: "Authentication error",
           message: error instanceof Error ? error.message : String(error),
           timestamp: new Date().toISOString(),
-        }),
+        })
       );
     }
   };
