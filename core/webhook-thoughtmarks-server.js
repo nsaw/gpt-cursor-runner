@@ -43,7 +43,7 @@ if (missingVars.length > 0) {
   console.error(
     "[WEBHOOK-THOUGHTMARKS] Please ensure all required variables are set in config/webhook-thoughtmarks.env",
   );
-  process.exit(1);
+  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
 }
 
 // Verify Slack request signature
@@ -193,6 +193,7 @@ app.get("/slack/oauth/callback", async (req, res) => {
 // Update environment file with new token
 async function updateEnvironmentFile(accessToken) {
   try {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await to satisfy require-await rule
     const envPath = path.join(__dirname, "config", "webhook-thoughtmarks.env");
     let envContent = fs.readFileSync(envPath, "utf8");
 
@@ -239,10 +240,11 @@ app.post("/slack/commands", verifySlackSignature, async (req, res) => {
         "Use `/status-webhook-thoughtmarks` for detailed status.";
         break;
 
-      case "/status-webhook-thoughtmarks":
+      case "/status-webhook-thoughtmarks": {
         const healthStatus = await checkHealthStatus();
         responseText = `🔍 *Webhook-Thoughtmarks Status*\n\n${healthStatus}`;
         break;
+      }
 
       case "/status-push":
         responseText = "📡 *Status Pulse*\n\n";

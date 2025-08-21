@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 
-import { createServer, IncomingMessage, ServerResponse } from "http";
+import { createServer, IncomingMessage, ServerResponse, Server } from "http";
 import { URL } from "url";
 
 const dashboardLogPath =
@@ -68,7 +68,7 @@ interface DashboardPanel {
 class MonitorDashboard {
   private config!: DashboardConfig;
   private state!: DashboardState;
-  private server: any;
+  private server!: Server;
   private isRunning = false;
   private startTime: Date;
   private panels: DashboardPanel[] = [];
@@ -311,24 +311,26 @@ class MonitorDashboard {
           }
           break;
 
-        case "alerts":
+        case "alerts": {
           const _alertsData = await this.fetchTelemetryData(
             "/api/telemetry/alerts?status=active&limit=10",
           );
           if (_alertsData) {
-            panel.data = (_alertsData as any).alerts || [];
+            panel.data = (_alertsData as Record<string, unknown>).alerts || [];
           }
           break;
+        }
 
-        case "logs":
+        case "logs": {
           // Fetch recent logs from telemetry API
           const _logsData = await this.fetchTelemetryData(
             "/api/telemetry/events?eventType=log&limit=20",
           );
           if (_logsData) {
-            panel.data = (_logsData as any).events || [];
+            panel.data = (_logsData as Record<string, unknown>).events || [];
           }
           break;
+        }
 
         case "events":
           if (panel.id === "system-snapshots") {
@@ -336,7 +338,7 @@ class MonitorDashboard {
               "/api/telemetry/events?eventType=snapshot&limit=5",
             );
             if (_snapshotData) {
-              panel.data = (_snapshotData as any).events || [];
+              panel.data = (_snapshotData as Record<string, unknown>).events || [];
             }
           }
           break;

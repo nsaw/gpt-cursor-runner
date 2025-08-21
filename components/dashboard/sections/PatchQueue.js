@@ -1,36 +1,36 @@
 // ✅ PatchQueue.js - Patch queue status component
-import { _{ _React, _{ useState, _useEffect } } } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function PatchQueue() {
   const [patchStatus, setPatchStatus] = useState({ main: [], cyops: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(_() => {
+  useEffect(() => {
     fetchPatchStatus();
-    const _interval = setInterval(fetchPatchStatus, 10000); // Refresh every 10 seconds
+    const interval = setInterval(fetchPatchStatus, 10000); // Refresh every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const _fetchPatchStatus = async () => {
+  const fetchPatchStatus = async () => {
     try {
-      const _response = await fetch('/api/patch-status');
+      const response = await fetch('/api/patch-status');
       if (!response.ok) throw new Error('Failed to fetch patch status');
-      const _data = await response.json();
+      const data = await response.json();
       setPatchStatus(data.patchStatus || { main: [], cyops: [] });
       setIsLoading(false);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }
   };
 
-  const _renderPatchList = (_patches) => {
+  const renderPatchList = (patches) => {
     if (!patches || patches.length === 0) {
       return <div className="no-patches">No pending patches</div>;
     }
 
-    return patches.map(_(patch, _index) => (
+    return patches.map((patch, index) => (
       <div key={index} className={`patch-item ${patch.status}`}>
         <div className="patch-name">{patch.name}</div>
         <div className="patch-status">{patch.status}</div>

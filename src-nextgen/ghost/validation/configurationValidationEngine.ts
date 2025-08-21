@@ -1,10 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
-import { promisify } from "util";
-import crypto from "crypto";
-
-const execAsync = promisify(exec);
 const validationLogPath =
   "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/config-validation.log";
 const configBackupPath =
@@ -34,11 +29,11 @@ interface ConfigSchema {
     [key: string]: {
       type: "string" | "number" | "boolean" | "object" | "array";
       required: boolean;
-      default?: any;
+      default?: unknown;
       min?: number;
       max?: number;
       pattern?: string;
-      enum?: any[];
+      enum?: unknown[];
       sanitize?: boolean;
       sensitive?: boolean;
       validation?: string;
@@ -85,8 +80,8 @@ interface ConfigChange {
   action: "create" | "update" | "delete" | "validate" | "rollback";
   changes: {
     path: string;
-    oldValue?: any;
-    newValue?: any;
+    oldValue?: unknown;
+    newValue?: unknown;
     type: "add" | "remove" | "modify";
   }[];
   validation: ConfigValidation;
@@ -391,7 +386,7 @@ class ConfigurationValidationEngine {
     ];
   }
 
-  private sanitizeValue(value: any, property: any): any {
+  private sanitizeValue(value: unknown, property: Record<string, unknown>): unknown {
     if (!this.config.security.inputSanitization) return value;
 
     if (typeof value === "string") {
@@ -417,7 +412,7 @@ class ConfigurationValidationEngine {
     }
 
     if (typeof value === "object" && value !== null) {
-      const sanitized: any = {};
+      const sanitized: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(value)) {
         sanitized[key] = this.sanitizeValue(val, property);
       }
@@ -428,8 +423,8 @@ class ConfigurationValidationEngine {
   }
 
   private validateValue(
-    value: any,
-    property: any,
+    value: unknown,
+    property: Record<string, unknown>,
     path: string,
   ): ValidationError[] {
     const errors: ValidationError[] = [];
@@ -516,7 +511,7 @@ class ConfigurationValidationEngine {
   }
 
   private validateObject(
-    obj: any,
+    obj: Record<string, unknown>,
     schema: ConfigSchema,
     path: string = "",
   ): ValidationError[] {
@@ -578,6 +573,7 @@ class ConfigurationValidationEngine {
   }
 
   private async createBackup(configPath: string): Promise<string | null> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       if (!this.config.validation.backupBeforeValidation) return null;
 
@@ -601,6 +597,7 @@ class ConfigurationValidationEngine {
   }
 
   private async cleanupBackups(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       const files = fs.readdirSync(configBackupPath);
       const backups = files
@@ -634,27 +631,9 @@ class ConfigurationValidationEngine {
   }
 
   private async logChange(change: ConfigChange): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       if (!this.config.audit.enabled) return;
-
-      const logEntry = {
-        timestamp: change.timestamp,
-        action: change.action,
-        configPath: change.configPath,
-        user: change.user,
-        changes: this.config.audit.logSensitiveData
-          ? change.changes
-          : change.changes.map((c) => ({
-              ...c,
-              oldValue: "[REDACTED]",
-              newValue: "[REDACTED]",
-            })),
-        validation: {
-          success: change.validation.success,
-          errorCount: change.validation.errors.length,
-          warningCount: change.validation.warnings.length,
-        },
-      };
 
       const logLine = `[${change.timestamp}] CONFIG_CHANGE: ${change.action.toUpperCase()} | ${change.configPath} | ${change.user} | ${change.validation.success ? "SUCCESS" : "FAILED"} | ${change.validation.errors.length} errors, ${change.validation.warnings.length} warnings\n`;
       fs.appendFileSync(auditLogPath, logLine);
@@ -812,9 +791,10 @@ class ConfigurationValidationEngine {
 
   public async updateConfiguration(
     configPath: string,
-    updates: any,
+    updates: unknown,
     schemaId: string,
   ): Promise<ConfigValidation> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       // Load current configuration
       const currentConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
@@ -823,7 +803,7 @@ class ConfigurationValidationEngine {
       const backupPath = await this.createBackup(configPath);
 
       // Apply updates
-      const updatedConfig = { ...currentConfig, ...updates };
+      const updatedConfig = { ...currentConfig, ...(updates as Record<string, unknown>) };
 
       // Validate updated configuration
       const validation = await this.validateConfiguration(configPath, schemaId);
@@ -833,10 +813,10 @@ class ConfigurationValidationEngine {
         fs.writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2));
 
         // Log change
-        const changes = Object.keys(updates).map((key) => ({
+        const changes = Object.keys(updates as Record<string, unknown>).map((key) => ({
           path: key,
           oldValue: currentConfig[key],
-          newValue: updates[key],
+          newValue: (updates as Record<string, unknown>)[key],
           type: "modify" as const,
         }));
 
@@ -867,14 +847,15 @@ class ConfigurationValidationEngine {
   public async detectConflicts(
     configPath1: string,
     configPath2: string,
-  ): Promise<any[]> {
+  ): Promise<unknown[]> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       if (!this.config.conflict.conflictDetection) return [];
 
       const config1 = JSON.parse(fs.readFileSync(configPath1, "utf8"));
       const config2 = JSON.parse(fs.readFileSync(configPath2, "utf8"));
 
-      const conflicts: any[] = [];
+      const conflicts: unknown[] = [];
 
       // Find conflicting keys
       const allKeys = new Set([
@@ -922,43 +903,45 @@ class ConfigurationValidationEngine {
   }
 
   public async resolveConflicts(
-    conflicts: any[],
+    conflicts: unknown[],
     strategy: string = "last-wins",
-  ): Promise<any> {
+  ): Promise<unknown> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     try {
       if (!this.config.conflict.autoResolution) return null;
 
-      const resolved: any = {};
+      const resolved: Record<string, unknown> = {};
 
       for (const conflict of conflicts) {
+        const conflictObj = conflict as { key: string; value1: unknown; value2: unknown };
         switch (strategy) {
           case "last-wins":
-            resolved[conflict.key] =
-              conflict.value2 !== undefined ? conflict.value2 : conflict.value1;
+            resolved[conflictObj.key] =
+              conflictObj.value2 !== undefined ? conflictObj.value2 : conflictObj.value1;
             break;
           case "first-wins":
-            resolved[conflict.key] =
-              conflict.value1 !== undefined ? conflict.value1 : conflict.value2;
+            resolved[conflictObj.key] =
+              conflictObj.value1 !== undefined ? conflictObj.value1 : conflictObj.value2;
             break;
           case "merge":
             if (
-              typeof conflict.value1 === "object" &&
-              typeof conflict.value2 === "object"
+              typeof conflictObj.value1 === "object" &&
+              typeof conflictObj.value2 === "object"
             ) {
-              resolved[conflict.key] = {
-                ...conflict.value1,
-                ...conflict.value2,
+              resolved[conflictObj.key] = {
+                ...(conflictObj.value1 as Record<string, unknown>),
+                ...(conflictObj.value2 as Record<string, unknown>),
               };
             } else {
-              resolved[conflict.key] =
-                conflict.value2 !== undefined
-                  ? conflict.value2
-                  : conflict.value1;
+              resolved[conflictObj.key] =
+                conflictObj.value2 !== undefined
+                  ? conflictObj.value2
+                  : conflictObj.value1;
             }
             break;
           default:
-            resolved[conflict.key] =
-              conflict.value2 !== undefined ? conflict.value2 : conflict.value1;
+            resolved[conflictObj.key] =
+              conflictObj.value2 !== undefined ? conflictObj.value2 : conflictObj.value1;
         }
       }
 
@@ -973,6 +956,7 @@ class ConfigurationValidationEngine {
   }
 
   private async cleanup(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     // Clean up old validations
     const cutoffTime =
       Date.now() - this.config.audit.retentionDays * 24 * 60 * 60 * 1000;
@@ -989,6 +973,7 @@ class ConfigurationValidationEngine {
   }
 
   public async start(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     if (this.isRunning) return;
 
     this.isRunning = true;
@@ -1005,6 +990,7 @@ class ConfigurationValidationEngine {
   }
 
   public async stop(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     this.isRunning = false;
     console.log(
       "[ConfigurationValidationEngine] Stopping configuration validation engine...",

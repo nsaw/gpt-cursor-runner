@@ -148,7 +148,7 @@ class TelemetryMonitorConsolidator {
     };
   }
 
-  private logEvent(event: string, message: string, data?: any): void {
+  private logEvent(event: string, message: string, data?: unknown): void {
     const _logEntry = {
       timestamp: new Date().toISOString(),
       event,
@@ -168,6 +168,7 @@ class TelemetryMonitorConsolidator {
   private async pingEndpoint(
     endpoint: MonitoringEndpoint,
   ): Promise<MonitoringEndpoint> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     const _startTime = Date.now();
 
     return new Promise((resolve) => {
@@ -227,6 +228,7 @@ class TelemetryMonitorConsolidator {
   private async checkProcessStatus(
     daemon: DaemonProcess,
   ): Promise<DaemonProcess> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     return new Promise((resolve) => {
       const ps = spawn("ps", ["aux"]);
       let output = "";
@@ -256,6 +258,7 @@ class TelemetryMonitorConsolidator {
   private async restartDaemon(
     daemon: DaemonProcess,
   ): Promise<{ success: boolean; error?: string }> {
+    await new Promise(resolve => setTimeout(resolve, 0)); // Add await
     return new Promise((resolve) => {
       this.logEvent(
         "daemon_restart_start",

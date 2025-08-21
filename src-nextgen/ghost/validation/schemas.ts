@@ -530,6 +530,15 @@ function validateAgainstSchema(data: unknown, schema: unknown): boolean {
   if (!data || typeof data !== "object") return false;
 
   // Check required properties
+  if (!validateRequiredProperties(data, schema)) return false;
+
+  // Check properties
+  if (!validateSchemaProperties(data, schema)) return false;
+
+  return true;
+}
+
+function validateRequiredProperties(data: unknown, schema: unknown): boolean {
   if (schema && typeof schema === "object" && "required" in schema) {
     const schemaObj = schema as { required?: string[] };
     if (schemaObj.required) {
@@ -538,8 +547,10 @@ function validateAgainstSchema(data: unknown, schema: unknown): boolean {
       }
     }
   }
+  return true;
+}
 
-  // Check properties
+function validateSchemaProperties(data: unknown, schema: unknown): boolean {
   if (schema && typeof schema === "object" && "properties" in schema) {
     const schemaObj = schema as { properties?: Record<string, unknown> };
     if (schemaObj.properties) {
@@ -548,50 +559,67 @@ function validateAgainstSchema(data: unknown, schema: unknown): boolean {
           const value = (data as Record<string, unknown>)[prop];
           const schemaProp = propSchema as Record<string, unknown>;
 
-          // Type validation
-          if (schemaProp.type === "string" && typeof value !== "string")
-            return false;
-          if (schemaProp.type === "number" && typeof value !== "number")
-            return false;
-          if (schemaProp.type === "boolean" && typeof value !== "boolean")
-            return false;
-          if (schemaProp.type === "array" && !Array.isArray(value)) return false;
-          if (
-            schemaProp.type === "object" &&
-            (typeof value !== "object" || value === null)
-          )
-            return false;
-
-          // Enum validation
-          if (schemaProp.enum && Array.isArray(schemaProp.enum) && !schemaProp.enum.includes(value)) return false;
-
-          // Pattern validation
-          if (schemaProp.pattern && typeof value === "string") {
-            const regex = new RegExp(schemaProp.pattern as string);
-            if (!regex.test(value)) return false;
-          }
-
-          // Range validation
-          if (schemaProp.minimum !== undefined && typeof value === "number" && value < (schemaProp.minimum as number))
-            return false;
-          if (schemaProp.maximum !== undefined && typeof value === "number" && value > (schemaProp.maximum as number))
-            return false;
-          if (
-            schemaProp.minLength !== undefined &&
-            typeof value === "string" &&
-            value.length < (schemaProp.minLength as number)
-          )
-            return false;
-          if (
-            schemaProp.maxLength !== undefined &&
-            typeof value === "string" &&
-            value.length > (schemaProp.maxLength as number)
-          )
-            return false;
+          if (!validatePropertyValue(value, schemaProp)) return false;
         }
       }
     }
   }
+  return true;
+}
 
+function validatePropertyValue(value: unknown, schemaProp: Record<string, unknown>): boolean {
+  // Type validation
+  if (!validatePropertyType(value, schemaProp)) return false;
+
+  // Enum validation
+  if (!validatePropertyEnum(value, schemaProp)) return false;
+
+  // Pattern validation
+  if (!validatePropertyPattern(value, schemaProp)) return false;
+
+  // Range validation
+  if (!validatePropertyRange(value, schemaProp)) return false;
+
+  return true;
+}
+
+function validatePropertyType(value: unknown, schemaProp: Record<string, unknown>): boolean {
+  if (schemaProp.type === "string" && typeof value !== "string") return false;
+  if (schemaProp.type === "number" && typeof value !== "number") return false;
+  if (schemaProp.type === "boolean" && typeof value !== "boolean") return false;
+  if (schemaProp.type === "array" && !Array.isArray(value)) return false;
+  if (
+    schemaProp.type === "object" &&
+    (typeof value !== "object" || value === null)
+  ) return false;
+  return true;
+}
+
+function validatePropertyEnum(value: unknown, schemaProp: Record<string, unknown>): boolean {
+  if (schemaProp.enum && Array.isArray(schemaProp.enum) && !schemaProp.enum.includes(value)) return false;
+  return true;
+}
+
+function validatePropertyPattern(value: unknown, schemaProp: Record<string, unknown>): boolean {
+  if (schemaProp.pattern && typeof value === "string") {
+    const regex = new RegExp(schemaProp.pattern as string);
+    if (!regex.test(value)) return false;
+  }
+  return true;
+}
+
+function validatePropertyRange(value: unknown, schemaProp: Record<string, unknown>): boolean {
+  if (schemaProp.minimum !== undefined && typeof value === "number" && value < (schemaProp.minimum as number)) return false;
+  if (schemaProp.maximum !== undefined && typeof value === "number" && value > (schemaProp.maximum as number)) return false;
+  if (
+    schemaProp.minLength !== undefined &&
+    typeof value === "string" &&
+    value.length < (schemaProp.minLength as number)
+  ) return false;
+  if (
+    schemaProp.maxLength !== undefined &&
+    typeof value === "string" &&
+    value.length > (schemaProp.maxLength as number)
+  ) return false;
   return true;
 }

@@ -1,25 +1,25 @@
 // Webhook handler for GitHub-based Slack integration
-const _express = require('express');
-const _crypto = require('crypto');
+const express = require('express');
+const crypto = require('crypto');
 require('dotenv').config();
 
-const _app = express();
-const _PORT = process.env.PORT || 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
 
 // Verify GitHub webhook signature
-function verifyGitHubWebhook(_req, _res, _next) {
-  const _signature = req.headers['x-hub-signature-256'];
-  const _payload = JSON.stringify(req.body);
-  const _secret = process.env.GITHUB_WEBHOOK_SECRET;
+function verifyGitHubWebhook(req, res, next) {
+  const signature = req.headers['x-hub-signature-256'];
+  const payload = JSON.stringify(req.body);
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
   
   if (!signature || !secret) {
     return res.status(401).json({ error: 'Missing signature or secret' });
   }
   
-  const _expectedSignature = `sha256=${  crypto
+  const expectedSignature = `sha256=${crypto
     .createHmac('sha256', secret)
     .update(payload)
     .digest('hex')}`;
@@ -32,7 +32,7 @@ function verifyGitHubWebhook(_req, _res, _next) {
 }
 
 // GitHub webhook endpoint
-app.post(_'/github/webhook', _verifyGitHubWebhook, _(req, _res) => {
+app.post('/github/webhook', verifyGitHubWebhook, (req, res) => {
   const { action, repository, _sender } = req.body;
   
   console.log(`GitHub webhook received: ${action} on ${repository?.full_name}`);
@@ -56,7 +56,7 @@ app.post(_'/github/webhook', _verifyGitHubWebhook, _(req, _res) => {
 });
 
 // Slack webhook endpoint
-app.post(_'/slack/webhook', _(req, _res) => {
+app.post('/slack/webhook', (req, res) => {
   const { type, event } = req.body;
   
   console.log(`Slack webhook received: ${type}`);
@@ -76,7 +76,7 @@ app.post(_'/slack/webhook', _(req, _res) => {
 });
 
 // Slack slash command endpoint
-app.post(_'/slack/commands', _(req, _res) => {
+app.post('/slack/commands', (req, res) => {
   const { command, text, user_id, _channel_id } = req.body;
   
   console.log(`Slack command received: ${command} from ${user_id}`);
@@ -104,7 +104,7 @@ app.post(_'/slack/commands', _(req, _res) => {
 });
 
 // Event handlers
-function handlePushEvent(_data) {
+function handlePushEvent(data) {
   const { ref, commits, repository } = data;
   console.log(`Push to ${ref} in ${repository.full_name}`);
   
@@ -114,12 +114,12 @@ function handlePushEvent(_data) {
   }
 }
 
-function handlePullRequestEvent(_data) {
+function handlePullRequestEvent(data) {
   const { action, pull_request, repository } = data;
   console.log(`PR ${action}: ${pull_request.title} in ${repository.full_name}`);
 }
 
-function handleIssuesEvent(_data) {
+function handleIssuesEvent(data) {
   const { action, issue, repository } = data;
   console.log(`Issue ${action}: ${issue.title} in ${repository.full_name}`);
 }
@@ -138,7 +138,7 @@ function handleSlackEvent(event) {
 }
 
 // Health check endpoint
-app.get(_'/health', _(req, _res) => {
+app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -152,7 +152,7 @@ app.get(_'/health', _(req, _res) => {
 });
 
 // Start server
-app.listen(_PORT, _() => {
+app.listen(PORT, () => {
   console.log(`🚀 GitHub Webhook Handler running on port ${PORT}`);
   console.log(`📡 GitHub webhook: http://localhost:${PORT}/github/webhook`);
   console.log(`📡 Slack webhook: http://localhost:${PORT}/slack/webhook`);
