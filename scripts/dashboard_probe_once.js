@@ -5,7 +5,7 @@ const url = process.env.DASHBOARD_URL;
 const outDir = 'summaries';
 const out = `${outDir}/dashboard-probe-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
 
-(async () => {
+(() => {
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   if (!url) {
     fs.writeFileSync(out, JSON.stringify({ ok: false, reason: 'skipped:no-url', ts: new Date().toISOString() }, null, 2));

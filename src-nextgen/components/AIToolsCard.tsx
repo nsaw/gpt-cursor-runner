@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { useSlotMode } from "../state/slotMode";
-declare const console: any;
+declare const console: unknown;
 
 export const AIToolsCard = () => {
   const [slotMode] = useSlotMode();

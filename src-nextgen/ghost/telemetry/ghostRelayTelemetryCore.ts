@@ -10,7 +10,7 @@ const telemetryLogPath =
 const telemetryStatePath =
   "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/relay-telemetry-state.json";
 const configPath =
-  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-telemetry-config.json";
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/relay-telemetry-(config??{}).json";
 const logDir = path.dirname(telemetryLogPath);
 
 // Ensure directories exist
@@ -50,7 +50,7 @@ interface RelayTelemetryEvent {
   component: string;
   requestId?: string;
   correlationId?: string;
-  data: any;
+  data: unknown;
   severity: "info" | "warning" | "error" | "critical";
   processingTime?: number;
   error?: string;
@@ -350,7 +350,7 @@ class GhostRelayTelemetryCore {
     eventType: RelayTelemetryEvent["eventType"],
     message: string,
     severity: RelayTelemetryEvent["severity"],
-    data: any = {},
+    data: unknown = {},
     requestId?: string,
     correlationId?: string,
   ): void {
@@ -385,7 +385,7 @@ class GhostRelayTelemetryCore {
     fs.appendFileSync(telemetryLogPath, JSON.stringify(logEntry) + "\n");
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (typeof data === "string") {
       return data
         .replace(
@@ -396,7 +396,7 @@ class GhostRelayTelemetryCore {
         .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
     }
     if (typeof data === "object" && data !== null) {
-      const sanitized: any = {};
+      const sanitized: unknown = {};
       for (const [key, value] of Object.entries(data)) {
         if (
           this.config.security.maskSensitiveData &&
@@ -469,7 +469,7 @@ class GhostRelayTelemetryCore {
     );
   }
 
-  public traceRequestStage(requestId: string, stage: string, data?: any): void {
+  public traceRequestStage(requestId: string, stage: string, data?: unknown): void {
     if (!this.config.tracing.enabled) return;
 
     const trace = this.state.requestTraces.find(

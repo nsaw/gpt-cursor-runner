@@ -128,7 +128,7 @@ function findJsFiles(dir, files = []) {
 }
 
 // Main execution
-async function main() {
+function main() {
   try {
     const scriptDir = __dirname;
     const jsFiles = findJsFiles(scriptDir);

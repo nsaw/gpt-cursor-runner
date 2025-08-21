@@ -149,7 +149,7 @@ interface HealthCheckResult {
   success: boolean;
   responseTime: number;
   error?: string;
-  metrics?: any;
+  metrics?: unknown;
   timestamp: string;
 }
 
@@ -367,7 +367,7 @@ class HealthCheckAggregator {
 
   private calculateFailureImpact(
     componentId: string,
-    allComponents: any[],
+    allComponents: unknown[],
   ): string[] {
     const impact: string[] = [];
     const component = allComponents.find((c) => c.id === componentId);
@@ -436,7 +436,7 @@ class HealthCheckAggregator {
     }
   }
 
-  private parseProcessMetrics(psOutput: string): any {
+  private parseProcessMetrics(psOutput: string): unknown {
     try {
       const parts = psOutput.trim().split(/\s+/);
       if (parts.length >= 11) {

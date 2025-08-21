@@ -12,7 +12,7 @@ const crypto = require('crypto');
 
 // Unified logging configuration
 const ROOT_LOGS_DIR = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/';
-const _________PATCH_EVENTS_LOG = path.join(ROOT_LOGS_DIR, 'patch-events.log');
+const __________PATCH_EVENTS_LOG = path.join(ROOT_LOGS_DIR, 'patch-events.log');
 const UNIFIED_MONITOR_LOG = path.join(ROOT_LOGS_DIR, 'unified-monitor.log');
 const UNIFIED_MONITOR_STATUS_FILE = path.join(
   ROOT_LOGS_DIR,

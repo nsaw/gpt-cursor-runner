@@ -34,7 +34,7 @@ interface ApiRequest {
   path: string;
   query: { [key: string]: string };
   headers: { [key: string]: string };
-  body?: any;
+  body?: unknown;
   clientIp: string;
   userAgent: string;
   responseTime?: number;
@@ -44,7 +44,7 @@ interface ApiRequest {
 
 interface ApiResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
   timestamp: string;
@@ -118,7 +118,7 @@ interface ApiState {
 class GhostTelemetryApi {
   private config!: ApiConfig;
   private state!: ApiState;
-  private server: any;
+  private server: unknown;
   private isRunning = false;
   private startTime: Date;
   private requestCount = 0;
@@ -229,7 +229,7 @@ class GhostTelemetryApi {
     };
   }
 
-  private logEvent(message: string, data?: any): void {
+  private logEvent(message: string, data?: unknown): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
       component: "telemetry-api",
@@ -408,7 +408,7 @@ class GhostTelemetryApi {
 
       const data = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
       const metricData = data.aggregatedMetrics.filter(
-        (m: any) => m.name === metricName,
+        (m: unknown) => m.name === metricName,
       );
       const limit = parseInt(req.query.limit || "100");
 
@@ -740,7 +740,7 @@ class GhostTelemetryApi {
     const url = new URL(req.url || "", `http://${req.headers.host}`);
     const clientIp = req.socket.remoteAddress || "unknown";
 
-    let body: any = null;
+    let body: unknown = null;
     if (req.method === "POST" || req.method === "PUT") {
       const chunks: Buffer[] = [];
       for await (const chunk of req) {
@@ -891,7 +891,7 @@ class GhostTelemetryApi {
   private sendResponse(
     res: ServerResponse,
     statusCode: number,
-    data: any,
+    data: unknown,
   ): void {
     res.writeHead(statusCode, {
       "Content-Type": "application/json",
@@ -965,7 +965,7 @@ class GhostTelemetryApi {
     return [...this.state.endpoints];
   }
 
-  public getStats(): any {
+  public getStats(): unknown {
     return { ...this.state.stats, uptime: this.getUptime() };
   }
 

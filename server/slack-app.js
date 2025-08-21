@@ -26,7 +26,7 @@ app.event("app_mention", async ({ event, say }) => {
 });
 
 // Handle messages
-app.event("message", async ({ event, say }) => {
+app.event("message", ({ event, say }) => {
   // Only respond to messages in channels the bot is in
   if (event.channel_type === "channel" && !event.bot_id) {
     // You can add message handling logic here

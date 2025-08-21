@@ -36,7 +36,7 @@ export const ErrorWatcherPanel: React.FC<ErrorWatcherPanelProps> = ({
   autoDismissAlerts = true,
   alertTimeout = 30000,
 }) => {
-  const { data: daemonData, error: daemonError } = useDaemonHealth({
+  const { data: daemonData } = useDaemonHealth({
     pollingInterval: refreshInterval,
   });
   const { data: orchestratorData, error: orchestratorError } =

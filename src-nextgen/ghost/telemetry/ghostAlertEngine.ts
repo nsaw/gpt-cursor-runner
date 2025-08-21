@@ -94,7 +94,7 @@ interface AlertEvent {
   severity: "info" | "warning" | "error" | "critical";
   status: "active" | "acknowledged" | "resolved" | "escalated";
   message: string;
-  data: any;
+  data: unknown;
   acknowledgedBy?: string;
   acknowledgedAt?: string;
   resolvedBy?: string;
@@ -111,14 +111,14 @@ interface AlertActionResult {
   timestamp: string;
   error?: string;
   retryCount: number;
-  response?: any;
+  response?: unknown;
 }
 
 interface NotificationChannel {
   id: string;
   name: string;
   type: "slack" | "email" | "webhook" | "sms" | "pagerduty";
-  config: any;
+  config: unknown;
   enabled: boolean;
   rateLimit: number; // messages per minute
   lastUsed?: string;
@@ -650,7 +650,7 @@ class GhostAlertEngine {
     eventType: string,
     message: string,
     severity: string = "info",
-    data?: any,
+    data?: unknown,
   ): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -753,7 +753,7 @@ class GhostAlertEngine {
         const now = new Date();
         const cutoffTime = new Date(now.getTime() - duration * 1000);
 
-        return data.aggregatedMetrics.filter((m: any) => {
+        return data.aggregatedMetrics.filter((m: unknown) => {
           return m.name === metricName && new Date(m.timestamp) >= cutoffTime;
         });
       }
@@ -769,7 +769,7 @@ class GhostAlertEngine {
     }
   }
 
-  private aggregateMetricData(data: any[], aggregation: string): number {
+  private aggregateMetricData(data: unknown[], aggregation: string): number {
     if (data.length === 0) return 0;
 
     const values = data.map((d) => d.value);
@@ -813,7 +813,7 @@ class GhostAlertEngine {
     }
   }
 
-  private async triggerAlert(rule: AlertRule, data: any): Promise<void> {
+  private async triggerAlert(rule: AlertRule, data: unknown): Promise<void> {
     try {
       const alertEvent: AlertEvent = {
         id: crypto.randomUUID(),
@@ -867,7 +867,7 @@ class GhostAlertEngine {
     }
   }
 
-  private formatAlertMessage(rule: AlertRule, data: any): string {
+  private formatAlertMessage(rule: AlertRule, data: unknown): string {
     let message = rule.description;
 
     // Replace template variables

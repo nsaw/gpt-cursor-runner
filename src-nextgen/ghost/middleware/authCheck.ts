@@ -106,7 +106,7 @@ class AuthCheckMiddleware {
     };
   }
 
-  private log(message: string, data?: any): void {
+  private log(message: string, data?: unknown): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
       component: "auth-middleware",
@@ -215,7 +215,7 @@ class AuthCheckMiddleware {
     return true;
   }
 
-  public async authenticate(req: any): Promise<AuthResult> {
+  public async authenticate(req: unknown): Promise<AuthResult> {
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
     const clientIp = req.socket?.remoteAddress || "unknown";
@@ -303,7 +303,7 @@ class AuthCheckMiddleware {
     }
   }
 
-  public getAuthStats(): any {
+  public getAuthStats(): unknown {
     const total = this.requestHistory.length;
     const authenticated = this.requestHistory.filter(
       (r) => r.authenticated,
@@ -345,10 +345,10 @@ class AuthCheckMiddleware {
 }
 
 // Export middleware function
-export function authCheck(): (req: any, res: any, next: any) => Promise<void> {
+export function authCheck(): (req: unknown, res: unknown, next: unknown) => Promise<void> {
   const authMiddleware = new AuthCheckMiddleware();
 
-  return async (req: any, res: any, next: any) => {
+  return async (req: unknown, res: unknown, next: unknown) => {
     try {
       const authResult = await authMiddleware.authenticate(req);
 

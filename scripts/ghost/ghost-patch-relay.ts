@@ -1,4 +1,4 @@
-declare const console: any;
+declare const console: unknown;
 // Add dual-write logic to mirror instruction and summary into .cursor-cache
 import fs from 'fs-extra';
 import path from 'path';

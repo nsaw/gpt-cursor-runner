@@ -22,7 +22,7 @@ const { concatenateFilename } = require('../scripts/filename-concatenator');
 function safeLog(message) {
   try {
     console.log(message);
-  } catch (_error) {
+  } catch (error) {
     if (error.code === 'EPIPE') {
       // Log EPIPE suppression to file instead of stdout
       try {
@@ -30,7 +30,7 @@ function safeLog(message) {
           '/Users/sawyer/gitSync/gpt-cursor-runner/logs/dual-monitor.log',
           `[STREAM GUARD] EPIPE suppressed: ${new Date().toISOString()}\n`,
         );
-      } catch (logError) {
+      } catch {
         // If even file logging fails, silently ignore
       }
     } else {
@@ -40,7 +40,7 @@ function safeLog(message) {
           '/Users/sawyer/gitSync/gpt-cursor-runner/logs/dual-monitor.log',
           `[STREAM GUARD] Console error: ${error.message} - ${new Date().toISOString()}\n`,
         );
-      } catch (logError) {
+      } catch {
         // Silent fallback
       }
     }

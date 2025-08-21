@@ -10,7 +10,7 @@ import { emitMonitorStatus } from "./relayCore";
 import { startBootstrapDaemon } from "./bootstrapDaemon";
 import { startDiffMonitor } from "./diffMonitor";
 
-export async function startGhostShell() {
+export function startGhostShell() {
   runExecutor();
   startBridge();
   watchSummaries();

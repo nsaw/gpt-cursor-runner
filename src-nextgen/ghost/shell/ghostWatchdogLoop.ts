@@ -3,7 +3,7 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: any;
+declare const console: unknown;
 
 const execAsync = promisify(exec);
 const sentinelLogPath =
@@ -129,7 +129,7 @@ async function checkForFailedDaemons(): Promise<void> {
   }
 }
 
-export async function startGhostWatchdogLoop(): Promise<void> {
+export function startGhostWatchdogLoop(): Promise<void> {
   console.log("[watchdog] Starting daemon restart monitoring...");
 
   // Check for failed daemons every 30 seconds

@@ -21,7 +21,7 @@ function safe(name) {
   return name.replace(/[^\w./-]/g, '_');
 }
 
-async function main() {
+function main() {
   writeLog('=== VALIDATION: Ghost Bridge/Monitor start ===');
   let failures = 0;
 

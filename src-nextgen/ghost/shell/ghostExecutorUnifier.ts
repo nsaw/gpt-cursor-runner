@@ -3,7 +3,7 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: any;
+declare const console: unknown;
 
 const execAsync = promisify(exec);
 const executorLogPath =
@@ -48,7 +48,7 @@ const coordinationState: CoordinationState = {
 const maxConsecutiveErrors = 5;
 const coordinationInterval = 10000; // 10 seconds
 
-async function checkSentinelHealth(): Promise<boolean> {
+function checkSentinelHealth(): Promise<boolean> {
   try {
     if (!fs.existsSync(sentinelLogPath)) {
       return false;
@@ -75,7 +75,7 @@ async function checkSentinelHealth(): Promise<boolean> {
   }
 }
 
-async function checkWatchdogHealth(): Promise<boolean> {
+function checkWatchdogHealth(): Promise<boolean> {
   try {
     if (!fs.existsSync(watchdogLogPath)) {
       return true; // Watchdog might not have restarted anything yet
@@ -115,7 +115,7 @@ async function getDaemonCount(): Promise<number> {
   }
 }
 
-async function loadNextPatch(): Promise<any> {
+function loadNextPatch(): Promise<any> {
   try {
     const patchDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
     const files = fs.readdirSync(patchDir).filter((f) => f.endsWith(".json"));
@@ -142,7 +142,7 @@ async function loadNextPatch(): Promise<any> {
   }
 }
 
-async function processPatch(patch: any): Promise<boolean> {
+async function processPatch(patch: unknown): Promise<boolean> {
   try {
     console.log(
       `[executor-unifier] Processing patch: ${patch?.blockId || "unknown"}`,
@@ -173,7 +173,7 @@ async function processPatch(patch: any): Promise<boolean> {
   }
 }
 
-async function logExecutorStatus(status: ExecutorStatus): Promise<void> {
+function logExecutorStatus(status: ExecutorStatus): Promise<void> {
   const logEntry = `[${status.timestamp}] ${status.phase.toUpperCase()} | Patch: ${status.currentPatch || "none"} | Sentinel: ${status.sentinelHealth ? "🟢" : "🔴"} | Watchdog: ${status.watchdogHealth ? "🟢" : "🔴"} | Daemons: ${status.daemonCount}${status.error ? ` | Error: ${status.error}` : ""}\n`;
 
   try {

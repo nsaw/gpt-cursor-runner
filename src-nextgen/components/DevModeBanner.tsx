@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { View, Text } from "react-native";
-declare const console: any;
+declare const console: unknown;
 
 export default function DevModeBanner() {
   useEffect(() => console.log("Dev Mode"), []);

@@ -28,7 +28,7 @@ interface GptRequest {
   id: string;
   timestamp: string;
   command: string;
-  context: any;
+  context: unknown;
   priority: "low" | "medium" | "high" | "critical";
   timeout: number;
   maxRetries: number;
@@ -449,7 +449,7 @@ class GhostGptRelayCore {
 
   public async sendCommand(
     command: string,
-    context: any = {},
+    context: unknown = {},
     priority: "low" | "medium" | "high" | "critical" = "medium",
     timeout: number = this.config.safety.timeoutMs,
     maxRetries: number = this.config.safety.maxRetries,

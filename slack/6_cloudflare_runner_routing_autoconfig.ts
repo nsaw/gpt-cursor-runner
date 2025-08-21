@@ -2,7 +2,7 @@
 // FILENAME: tasks/6_cloudflare_runner_routing_autoconfig.ts
 // PURPOSE: Configures GPT Cursor Runner to use Cloudflare tunnel hostname based on dev/prod environment. Adds fallback page, port detection, and logs.
 
-export default async function configureCloudflareRunnerRouting() {
+export default function configureCloudflareRunnerRouting() {
   const fs = require("fs");
   const path = require("path");
   const execSync = require("child_process").execSync;
@@ -20,7 +20,7 @@ export default async function configureCloudflareRunnerRouting() {
   const runnerEnvPath = path.join(__dirname, "../../.env");
 
   // 1. Add public runner URL to runner.state.json
-  let state: any = {};
+  let state: unknown = {};
   if (fs.existsSync(statePath)) {
     state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   }

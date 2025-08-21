@@ -52,7 +52,7 @@ interface LoopEvent {
   component: string;
   loopId: string;
   correlationId?: string;
-  data: any;
+  data: unknown;
   severity: "info" | "warning" | "error" | "critical";
   processingTime?: number;
   error?: string;
@@ -75,7 +75,7 @@ interface LoopCycle {
     duration?: number;
     status: "pending" | "running" | "completed" | "failed";
     error?: string;
-    data?: any;
+    data?: unknown;
   }[];
   daemonStatus: {
     name: string;
@@ -161,7 +161,7 @@ interface LoopAuditorState {
     type: string;
     severity: "low" | "medium" | "high" | "critical";
     description: string;
-    data: any;
+    data: unknown;
     resolved: boolean;
   }[];
   metrics: {
@@ -311,7 +311,7 @@ class GhostLoopAuditor {
     eventType: LoopEvent["eventType"],
     message: string,
     severity: LoopEvent["severity"],
-    data: any = {},
+    data: unknown = {},
     loopId?: string,
     correlationId?: string,
   ): void {
@@ -346,7 +346,7 @@ class GhostLoopAuditor {
     fs.appendFileSync(auditorLogPath, JSON.stringify(logEntry) + "\n");
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (typeof data === "string") {
       return data
         .replace(
@@ -357,7 +357,7 @@ class GhostLoopAuditor {
         .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
     }
     if (typeof data === "object" && data !== null) {
-      const sanitized: any = {};
+      const sanitized: unknown = {};
       for (const [key, value] of Object.entries(data)) {
         if (
           this.config.security.sanitizeData &&
@@ -430,7 +430,7 @@ class GhostLoopAuditor {
     loopId: string,
     stage: string,
     component: string,
-    data?: any,
+    data?: unknown,
   ): void {
     if (!this.config.auditing.enabled) return;
 

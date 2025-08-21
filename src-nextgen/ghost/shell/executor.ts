@@ -3,7 +3,7 @@ import { verifyPatchRoles } from "./roleVerifier";
 import fs from "fs";
 import path from "path";
 
-function loadNextPatch(): any {
+function loadNextPatch(): unknown {
   const patchDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
   try {
     const files = fs.readdirSync(patchDir).filter((f) => f.endsWith(".json"));
@@ -18,12 +18,12 @@ function loadNextPatch(): any {
   }
 }
 
-function applyPatch(patch: any): void {
+function applyPatch(patch: unknown): void {
   console.log(`[Executor] Applying patch: ${patch?.blockId || "unknown"}`);
   // Implementation would go here
 }
 
-export async function runExecutor() {
+export function runExecutor() {
   console.log("[Executor] Starting patch executor...");
   const patch = loadNextPatch();
   if (!patch) {

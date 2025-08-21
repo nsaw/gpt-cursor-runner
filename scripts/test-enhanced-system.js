@@ -7,7 +7,7 @@
  */
 
 const fs = require('fs/promises');
-const _________path = require('path');
+const __________path = require('path');
 
 class EnhancedSystemTester {
   constructor() {
@@ -304,7 +304,7 @@ class EnhancedSystemTester {
       };
 
       const executorPatch = converter.convertWebhookToExecutor(webhookPatch);
-      const _________unifiedPatch = converter.convertToUnified(webhookPatch, 'webhook');
+      const __________unifiedPatch = converter.convertToUnified(webhookPatch, 'webhook');
       const backToWebhook = converter.convertExecutorToWebhook(executorPatch);
 
       this.assert(backToWebhook.id === 'integration-test', 'Round-trip conversion preserves ID');

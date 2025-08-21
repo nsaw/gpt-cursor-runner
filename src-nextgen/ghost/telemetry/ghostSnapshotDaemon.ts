@@ -54,7 +54,7 @@ interface SnapshotEvent {
     | "anomaly_error"
     | "cleanup_error";
   component: string;
-  data: any;
+  data: unknown;
   severity: "info" | "warning" | "error" | "critical";
   message: string;
 }
@@ -81,15 +81,15 @@ interface SystemSnapshot {
     lastCheck: string;
   }[];
   telemetryData: {
-    dashboardState: any;
-    relayTelemetry: any;
-    heartbeatStatus: any;
-    loopAuditor: any;
+    dashboardState: unknown;
+    relayTelemetry: unknown;
+    heartbeatStatus: unknown;
+    loopAuditor: unknown;
   };
   patchInfo: {
     lastPatch: string;
-    patchQueue: any;
-    patchHistory: any[];
+    patchQueue: unknown;
+    patchHistory: unknown[];
   };
   systemMetrics: {
     cpu: {
@@ -299,7 +299,7 @@ class GhostSnapshotDaemon {
     eventType: SnapshotEvent["eventType"],
     message: string,
     severity: SnapshotEvent["severity"],
-    data: any = {},
+    data: unknown = {},
   ): void {
     if (!this.config.enabled) return;
 
@@ -330,7 +330,7 @@ class GhostSnapshotDaemon {
     fs.appendFileSync(snapshotLogPath, JSON.stringify(logEntry) + "\n");
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (typeof data === "string") {
       return data
         .replace(
@@ -341,7 +341,7 @@ class GhostSnapshotDaemon {
         .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
     }
     if (typeof data === "object" && data !== null) {
-      const sanitized: any = {};
+      const sanitized: unknown = {};
       for (const [key, value] of Object.entries(data)) {
         if (
           this.config.security.sanitizeData &&
@@ -552,7 +552,7 @@ class GhostSnapshotDaemon {
       const completedDir = path.join(patchesDir, ".completed");
 
       let lastPatch = "none";
-      let patchHistory: any[] = [];
+      let patchHistory: unknown[] = [];
 
       if (fs.existsSync(completedDir)) {
         const completedPatches = fs

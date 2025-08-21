@@ -1,4 +1,4 @@
-module.exports = async function handleWhoami(_req, _res) {
+module.exports = function handleWhoami(_req, _res) {
   const { _user_name, _user_id, _team_id } = req.body;
   console.log("⚡️ /whoami triggered by:", user_name);
 

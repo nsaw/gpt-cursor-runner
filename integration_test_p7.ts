@@ -25,7 +25,7 @@ interface TestResult {
   status: 'PASS' | 'FAIL';
   message: string;
   duration: number;
-  details?: any;
+  details?: unknown;
 }
 
 class P7IntegrationTestSuite {
@@ -134,7 +134,6 @@ class P7IntegrationTestSuite {
       if (!config.validation.enabled) return false;
 
               // Test schema validation
-        const _testData = { testProperty: 'test-value', testNumber: 50 };
         const validation = await engine.validateConfiguration(this.testConfigPath, 'test-schema');
       
       return validation.success;
@@ -167,7 +166,7 @@ class P7IntegrationTestSuite {
   }
 
   async testHealthCheckAggregator(): Promise<TestResult> {
-    return this.runTest('Health Check Aggregator', async () => {
+    return this.runTest('Health Check Aggregator', () => {
       const aggregator = new HealthCheckAggregator();
       
       // Test system health retrieval
@@ -177,7 +176,7 @@ class P7IntegrationTestSuite {
   }
 
   async testAutonomousDecisionEngine(): Promise<TestResult> {
-    return this.runTest('Autonomous Decision Engine', async () => {
+    return this.runTest('Autonomous Decision Engine', () => {
       const engine = new AutonomousDecisionEngine();
       
       // Test system state retrieval
@@ -187,7 +186,7 @@ class P7IntegrationTestSuite {
   }
 
   async testGhostGptRelayCore(): Promise<TestResult> {
-    return this.runTest('Ghost GPT Relay Core', async () => {
+    return this.runTest('Ghost GPT Relay Core', () => {
       const relay = new GhostGptRelayCore();
       
       // Test configuration loading
@@ -197,7 +196,7 @@ class P7IntegrationTestSuite {
   }
 
   async testGhostAutopilotHealer(): Promise<TestResult> {
-    return this.runTest('Ghost Autopilot Healer', async () => {
+    return this.runTest('Ghost Autopilot Healer', () => {
       const healer = new GhostAutopilotHealer();
       
       // Test configuration loading
@@ -207,7 +206,7 @@ class P7IntegrationTestSuite {
   }
 
   async testSchemaValidation(): Promise<TestResult> {
-    return this.runTest('Schema Validation', async () => {
+    return this.runTest('Schema Validation', () => {
       // Test GPT Relay Input validation
       const validGptInput = {
         command: 'test-command',
@@ -245,12 +244,11 @@ class P7IntegrationTestSuite {
   }
 
   async testComponentIntegration(): Promise<TestResult> {
-    return this.runTest('Component Integration', async () => {
+    return this.runTest('Component Integration', () => {
       // Test that all components can be instantiated together
       const validationEngine = new ConfigurationValidationEngine();
       const messageQueue = new MessageQueueSystem();
       const healthAggregator = new HealthCheckAggregator();
-              const _decisionEngine = new AutonomousDecisionEngine();
       const relayCore = new GhostGptRelayCore();
       const autopilotHealer = new GhostAutopilotHealer();
 

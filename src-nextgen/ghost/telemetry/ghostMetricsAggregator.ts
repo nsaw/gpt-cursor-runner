@@ -51,7 +51,7 @@ interface AggregatedMetric {
   unit: string;
   source: string;
   tags: { [key: string]: string };
-  metadata: any;
+  metadata: unknown;
 }
 
 interface MetricTrend {
@@ -352,7 +352,7 @@ class GhostMetricsAggregator {
     eventType: string,
     message: string,
     severity: string = "info",
-    data?: any,
+    data?: unknown,
   ): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -412,7 +412,7 @@ class GhostMetricsAggregator {
   }
 
   private extractDashboardMetrics(
-    data: any,
+    data: unknown,
     sourceId: string,
   ): AggregatedMetric[] {
     const metrics: AggregatedMetric[] = [];
@@ -468,7 +468,7 @@ class GhostMetricsAggregator {
 
     if (data.daemonHealth) {
       const healthyDaemons = data.daemonHealth.filter(
-        (d: any) => d.status === "running",
+        (d: unknown) => d.status === "running",
       ).length;
       const totalDaemons = data.daemonHealth.length;
 
@@ -488,7 +488,7 @@ class GhostMetricsAggregator {
     return metrics;
   }
 
-  private extractRelayMetrics(data: any, sourceId: string): AggregatedMetric[] {
+  private extractRelayMetrics(data: unknown, sourceId: string): AggregatedMetric[] {
     const metrics: AggregatedMetric[] = [];
     const timestamp = new Date().toISOString();
 
@@ -539,7 +539,7 @@ class GhostMetricsAggregator {
   }
 
   private extractHeartbeatMetrics(
-    data: any,
+    data: unknown,
     sourceId: string,
   ): AggregatedMetric[] {
     const metrics: AggregatedMetric[] = [];
@@ -593,7 +593,7 @@ class GhostMetricsAggregator {
   }
 
   private extractLoopAuditorMetrics(
-    data: any,
+    data: unknown,
     sourceId: string,
   ): AggregatedMetric[] {
     const metrics: AggregatedMetric[] = [];
@@ -606,7 +606,7 @@ class GhostMetricsAggregator {
   }
 
   private extractSnapshotMetrics(
-    data: any,
+    data: unknown,
     sourceId: string,
   ): AggregatedMetric[] {
     const metrics: AggregatedMetric[] = [];

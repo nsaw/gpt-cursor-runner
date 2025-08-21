@@ -33,7 +33,7 @@ function verifyGitHubWebhook(req, res, next) {
 
 // GitHub webhook endpoint
 app.post('/github/webhook', verifyGitHubWebhook, (req, res) => {
-  const { action, repository, _sender } = req.body;
+  const { action, repository } = req.body;
   
   console.log(`GitHub webhook received: ${action} on ${repository?.full_name}`);
   
@@ -77,7 +77,7 @@ app.post('/slack/webhook', (req, res) => {
 
 // Slack slash command endpoint
 app.post('/slack/commands', (req, res) => {
-  const { command, text, user_id, _channel_id } = req.body;
+  const { command, text, user_id } = req.body;
   
   console.log(`Slack command received: ${command} from ${user_id}`);
   

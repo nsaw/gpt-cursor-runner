@@ -3,7 +3,7 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: any;
+declare const console: unknown;
 
 const execAsync = promisify(exec);
 const logPath =

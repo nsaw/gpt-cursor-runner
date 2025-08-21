@@ -854,7 +854,7 @@ class GhostTelemetryDashboard {
     }
   }
 
-  private logEvent(message: string, data?: any): void {
+  private logEvent(message: string, data?: unknown): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
       component: "telemetry-dashboard",

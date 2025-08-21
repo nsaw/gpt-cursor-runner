@@ -18,7 +18,7 @@ interface TestResult {
   responseTime: number;
   statusCode: number;
   error?: string;
-  data?: any;
+  data?: unknown;
   timestamp: string;
 }
 
@@ -43,7 +43,7 @@ class TelemetryEndpointTester {
     this.baseUrl = `http://localhost:${port}`;
   }
 
-  private log(message: string, data?: any): void {
+  private log(message: string, data?: unknown): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
       message,
@@ -55,7 +55,7 @@ class TelemetryEndpointTester {
   private async makeRequest(
     endpoint: string,
     method: string = "GET",
-    body?: any,
+    body?: unknown,
   ): Promise<TestResult> {
     const startTime = Date.now();
     const url = `${this.baseUrl}${endpoint}`;
@@ -329,7 +329,7 @@ class TelemetryEndpointTester {
     this.log("OVERALL RESULTS:", overall);
   }
 
-  public getResults(): any {
+  public getResults(): unknown {
     return {
       testSuites: this.testResults,
       resultsFile: testResultsPath,

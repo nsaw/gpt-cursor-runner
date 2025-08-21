@@ -35,7 +35,7 @@ interface QueueMessage {
   source: string;
   destination: string;
   type: "status" | "command" | "response" | "error" | "heartbeat" | "data";
-  payload: any;
+  payload: unknown;
   headers: {
     [key: string]: string;
   };
@@ -226,7 +226,7 @@ class MessageQueueSystem {
         id: "status-processor",
         name: "Status Message Processor",
         pattern: /^status$/,
-        handler: async (message: QueueMessage) => {
+        handler: (message: QueueMessage) => {
           console.log(
             `[MessageQueueSystem] Processing status message: ${message.id}`,
           );
@@ -239,7 +239,7 @@ class MessageQueueSystem {
         id: "command-processor",
         name: "Command Message Processor",
         pattern: /^command$/,
-        handler: async (message: QueueMessage) => {
+        handler: (message: QueueMessage) => {
           console.log(
             `[MessageQueueSystem] Processing command message: ${message.id}`,
           );
@@ -252,7 +252,7 @@ class MessageQueueSystem {
         id: "response-processor",
         name: "Response Message Processor",
         pattern: /^response$/,
-        handler: async (message: QueueMessage) => {
+        handler: (message: QueueMessage) => {
           console.log(
             `[MessageQueueSystem] Processing response message: ${message.id}`,
           );
@@ -265,7 +265,7 @@ class MessageQueueSystem {
         id: "error-processor",
         name: "Error Message Processor",
         pattern: /^error$/,
-        handler: async (message: QueueMessage) => {
+        handler: (message: QueueMessage) => {
           console.log(
             `[MessageQueueSystem] Processing error message: ${message.id}`,
           );
@@ -278,7 +278,7 @@ class MessageQueueSystem {
         id: "heartbeat-processor",
         name: "Heartbeat Message Processor",
         pattern: /^heartbeat$/,
-        handler: async (message: QueueMessage) => {
+        handler: (message: QueueMessage) => {
           console.log(
             `[MessageQueueSystem] Processing heartbeat message: ${message.id}`,
           );

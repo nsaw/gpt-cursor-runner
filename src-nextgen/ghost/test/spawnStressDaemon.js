@@ -132,7 +132,7 @@ class StressDaemon {
       await this.createDummyPatch(patchId);
 
       // Execute patch with slight delay to simulate real-world conditions
-      const _executePromise = new Promise(async (resolve) => {
+      const _executePromise = new Promise((resolve) => {
         setTimeout(async () => {
           await this.executePatch(patchId);
           resolve();

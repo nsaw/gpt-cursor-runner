@@ -5,7 +5,7 @@ import { promisify } from "util";
 import http from "http";
 import https from "https";
 
-declare const console: any;
+declare const console: unknown;
 
 const execAsync = promisify(exec);
 const selfCheckLogPath =
@@ -23,7 +23,7 @@ interface HealthCheckResult {
   status: "healthy" | "warning" | "critical" | "unknown";
   responseTime?: number;
   error?: string;
-  details?: any;
+  details?: unknown;
 }
 
 interface SystemHealth {
@@ -448,7 +448,7 @@ async function runHealthChecks(): Promise<SystemHealth> {
   };
 }
 
-async function logHealthStatus(health: SystemHealth): Promise<void> {
+function logHealthStatus(health: SystemHealth): Promise<void> {
   const statusEmoji =
     health.overallStatus === "healthy"
       ? "🟢"

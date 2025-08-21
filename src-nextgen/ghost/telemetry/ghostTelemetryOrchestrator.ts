@@ -54,12 +54,12 @@ interface OrchestratorEvent {
   componentName: string;
   severity: "info" | "warning" | "error" | "critical";
   message: string;
-  data: any;
+  data: unknown;
 }
 
 interface OrchestratorState {
   timestamp: string;
-  components: any[];
+  components: unknown[];
   events: OrchestratorEvent[];
   systemHealth: SystemHealth;
   startupSequence: string[];
@@ -212,7 +212,7 @@ class GhostTelemetryOrchestrator {
     severity: OrchestratorEvent["severity"],
     componentId: string = "orchestrator",
     componentName: string = "Telemetry Orchestrator",
-    data: any = {},
+    data: unknown = {},
   ): void {
     const event: OrchestratorEvent = {
       id: crypto.randomUUID(),

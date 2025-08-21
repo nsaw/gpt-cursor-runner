@@ -1,7 +1,7 @@
 // GHOST Relay Core — Phase 4 Signal Bus
 import http from "http";
 
-function post(path: string, data: any) {
+function post(path: string, data: unknown) {
   const json = JSON.stringify(data);
   const req = http.request({
     method: "POST",

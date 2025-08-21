@@ -3,7 +3,7 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: any;
+declare const console: unknown;
 
 const execAsync = promisify(exec);
 const validationLogPath =
@@ -19,7 +19,7 @@ interface ValidationResult {
   component: string;
   status: "PASS" | "FAIL" | "WARNING";
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 interface Phase5CompletionStatus {
@@ -58,7 +58,7 @@ const requiredTags = [
   "patch-v3.5.5(P5.05.00)_ghost-lifecycle-governor",
 ];
 
-async function validateFileExistence(
+function validateFileExistence(
   fileName: string,
 ): Promise<ValidationResult> {
   const filePath = `/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell/${fileName}`;
@@ -89,7 +89,7 @@ async function validateFileExistence(
   }
 }
 
-async function validateLogFile(logName: string): Promise<ValidationResult> {
+function validateLogFile(logName: string): Promise<ValidationResult> {
   const logPath = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/${logName}`;
 
   try {
@@ -166,7 +166,7 @@ async function validateTypeScriptCompilation(): Promise<ValidationResult> {
   }
 }
 
-async function validateNonBlockingPatterns(): Promise<ValidationResult> {
+function validateNonBlockingPatterns(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -214,7 +214,7 @@ async function validateNonBlockingPatterns(): Promise<ValidationResult> {
   }
 }
 
-async function validateAbsolutePaths(): Promise<ValidationResult> {
+function validateAbsolutePaths(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -262,7 +262,7 @@ async function validateAbsolutePaths(): Promise<ValidationResult> {
   }
 }
 
-async function validateErrorHandling(): Promise<ValidationResult> {
+function validateErrorHandling(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -366,7 +366,7 @@ async function runPhase5Validation(): Promise<Phase5CompletionStatus> {
   };
 }
 
-async function logValidationStatus(
+function logValidationStatus(
   status: Phase5CompletionStatus,
 ): Promise<void> {
   const statusEmoji =
@@ -399,7 +399,7 @@ export async function validatePhase5Completion(): Promise<Phase5CompletionStatus
   return status;
 }
 
-export async function createPhase5Backup(): Promise<boolean> {
+export function createPhase5Backup(): Promise<boolean> {
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const backupDir = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/backups/phase5-completion-${timestamp}`;

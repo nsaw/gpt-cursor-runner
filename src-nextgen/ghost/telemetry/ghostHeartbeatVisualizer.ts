@@ -55,7 +55,7 @@ interface HeartbeatEvent {
     | "config_update"
     | "system_maintenance";
   component: string;
-  data: any;
+  data: unknown;
   severity: "info" | "warning" | "error" | "critical";
   message: string;
 }
@@ -281,7 +281,7 @@ class GhostHeartbeatVisualizer {
     eventType: HeartbeatEvent["eventType"],
     message: string,
     severity: HeartbeatEvent["severity"],
-    data: any = {},
+    data: unknown = {},
   ): void {
     if (!this.config.enabled) return;
 
@@ -312,7 +312,7 @@ class GhostHeartbeatVisualizer {
     fs.appendFileSync(heartbeatLogPath, JSON.stringify(logEntry) + "\n");
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (typeof data === "string") {
       return data
         .replace(
@@ -326,7 +326,7 @@ class GhostHeartbeatVisualizer {
         );
     }
     if (typeof data === "object" && data !== null) {
-      const sanitized: any = {};
+      const sanitized: unknown = {};
       for (const [key, value] of Object.entries(data)) {
         if (
           this.config.security.sanitizeData &&
