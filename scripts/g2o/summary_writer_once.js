@@ -5,7 +5,10 @@ const path = require('path');
 
 function writeSummary(patchId, content) {
   try {
-    const summaryPath = path.join('/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries', `summary-${patchId}.md`);
+    const summaryPath = path.join(
+      '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries',
+      `summary-${patchId}.md`,
+    );
     fs.writeFileSync(summaryPath, content);
     console.log('SUMMARY_WRITTEN');
     return true;
@@ -18,12 +21,12 @@ function writeSummary(patchId, content) {
 function main() {
   const patchId = process.argv[2];
   const content = process.argv[3] || '# Summary\n\nNo content provided.';
-  
+
   if (!patchId) {
     console.error('NO_PATCH_ID');
     return 1;
   }
-  
+
   const success = writeSummary(patchId, content);
   return success ? 0 : 1;
 }

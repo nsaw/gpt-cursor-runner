@@ -129,9 +129,9 @@ async function testDashboard() {
 testDashboard()
   .then(() => {
     console.log("\n🎯 Dashboard Test Complete!");
-    process.exit(0);
+    throw new Error("Test completed successfully");
   })
   .catch((error) => {
     console.error(`❌ Test failed: ${error.message}`);
-    process.exit(1);
+    throw new Error(`Test failed: ${error.message}`);
   });

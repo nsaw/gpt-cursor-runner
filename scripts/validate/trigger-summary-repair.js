@@ -10,11 +10,11 @@ class SummaryRepairTrigger {
     try {
       // Check if summary directory exists
       await fs.access(this.summaryDir);
-      
+
       // Create a trigger file
       const triggerFile = path.join(this.summaryDir, '.repair-trigger');
       await fs.writeFile(triggerFile, new Date().toISOString());
-      
+
       console.log('Summary repair triggered');
       return { success: true };
     } catch (error) {

@@ -50,7 +50,7 @@ function restoreFromFailed(base) {
   const src = p.join(FAILED, base);
   if (!fs.existsSync(src)) return false;
   fs.mkdirSync(P1, { recursive: true });
-  fs.writeFileSync(p.join(P1, `${base  }.hold`), fs.readFileSync(src));
+  fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(src));
   fs.unlinkSync(src);
   return true;
 }
@@ -65,7 +65,7 @@ function candidate() {
     }
     if (
       fs.existsSync(p.join(P1, base)) ||
-      fs.existsSync(p.join(P1, `${base  }.hold`))
+      fs.existsSync(p.join(P1, `${base}.hold`))
     )
       return base;
   }
@@ -85,7 +85,7 @@ function execCompat(abs) {
 function main() {
   let iterations = 0;
   const MAX_ITERATIONS = 1000; // Prevent infinite loops
-  
+
   while (iterations < MAX_ITERATIONS) {
     iterations++;
     const base = candidate();
@@ -93,13 +93,13 @@ function main() {
       log('NO_CANDIDATE');
       return 0;
     }
-    const abs = fs.existsSync(p.join(P1, `${base  }.hold`))
-      ? p.join(P1, `${base  }.hold`)
+    const abs = fs.existsSync(p.join(P1, `${base}.hold`))
+      ? p.join(P1, `${base}.hold`)
       : fs.existsSync(p.join(P1, base))
         ? p.join(P1, base)
         : null;
     if (!abs) {
-      log(`ERR_NO_SOURCE:${  base}`);
+      log(`ERR_NO_SOURCE:${base}`);
       return 2;
     }
 
@@ -124,7 +124,7 @@ function main() {
       const f = p.join(FAILED, base);
       if (fs.existsSync(f)) {
         fs.mkdirSync(P1, { recursive: true });
-        fs.writeFileSync(p.join(P1, `${base  }.hold`), fs.readFileSync(f));
+        fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(f));
         fs.unlinkSync(f);
       }
     }
@@ -156,7 +156,7 @@ function main() {
       const f = p.join(FAILED, base);
       if (fs.existsSync(f)) {
         fs.mkdirSync(P1, { recursive: true });
-        fs.writeFileSync(p.join(P1, `${base  }.hold`), fs.readFileSync(f));
+        fs.writeFileSync(p.join(P1, `${base}.hold`), fs.readFileSync(f));
         fs.unlinkSync(f);
       }
       log(`RETRY_MANUAL:${base}:attempt=${a}`);
@@ -179,7 +179,7 @@ function main() {
     }
     // loop to next candidate
   }
-  
+
   log('MAX_ITERATIONS_REACHED');
   return 1;
 }

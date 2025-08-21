@@ -8,11 +8,11 @@ function getLogFile(pidFilePath, component) {
       console.log('');
       process.exit(0);
     }
-        
+
     const pids = JSON.parse(fs.readFileSync(pidFilePath, 'utf8'));
     const logFile = pids[component]?.log_file || '';
     console.log(logFile);
-        
+
     process.exit(0);
   } catch (error) {
     console.error(`LOG_FILE_GET_ERROR:${error.message}`);

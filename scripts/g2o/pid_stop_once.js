@@ -8,7 +8,7 @@ function stopPids(pidFilePath) {
       console.log('No PID file found');
       process.exit(0);
     }
-        
+
     const pids = JSON.parse(fs.readFileSync(pidFilePath, 'utf8'));
     Object.entries(pids).forEach(([name, info]) => {
       try {
@@ -18,7 +18,7 @@ function stopPids(pidFilePath) {
         console.log(`Failed to stop ${name}: ${e.message}`);
       }
     });
-        
+
     process.exit(0);
   } catch (error) {
     console.error(`PID_STOP_ERROR:${error.message}`);

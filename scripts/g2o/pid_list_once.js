@@ -8,12 +8,12 @@ function listPids(pidFilePath) {
       console.log('No PID file found');
       process.exit(0);
     }
-        
+
     const pids = JSON.parse(fs.readFileSync(pidFilePath, 'utf8'));
     Object.entries(pids).forEach(([name, info]) => {
       console.log(`  ${name}: PID ${info.pid} (started: ${info.started})`);
     });
-        
+
     process.exit(0);
   } catch (error) {
     console.error(`PID_LIST_ERROR:${error.message}`);

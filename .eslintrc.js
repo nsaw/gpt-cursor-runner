@@ -32,8 +32,8 @@ module.exports = {
     "no-constant-condition": "warn",
   },
   ignorePatterns: [
-    "dist/", 
-    "node_modules/", 
+    "dist/",
+    "node_modules/",
     "*.min.js",
     "_gpt5intake/",
     "_backups/",
@@ -42,7 +42,7 @@ module.exports = {
     "**/node_modules/**",
     "**/_gpt5intake/**",
     "**/_backups/**",
-    "**/.cursor-cache/**"
+    "**/.cursor-cache/**",
   ],
   overrides: [
     {

@@ -37,8 +37,8 @@ interface DashboardState {
     [key: string]: {
       status: "healthy" | "warning" | "error" | "offline";
       lastUpdate: string;
-      metrics: any;
-      alerts: any[];
+      metrics: unknown;
+      alerts: unknown[];
     };
   };
   systemHealth: {
@@ -47,10 +47,10 @@ interface DashboardState {
     uptime: number;
   };
   telemetryData: {
-    logs: any[];
-    metrics: any;
-    alerts: any[];
-    events: any[];
+    logs: unknown[];
+    metrics: unknown;
+    alerts: unknown[];
+    events: unknown[];
   };
   lastUpdate: string;
 }
@@ -61,7 +61,7 @@ interface DashboardPanel {
   type: "metrics" | "alerts" | "logs" | "health" | "events";
   component: string;
   refreshInterval: number;
-  data: any;
+  data: unknown;
   lastUpdate: string;
 }
 
@@ -243,7 +243,7 @@ class MonitorDashboard {
     ];
   }
 
-  private async fetchTelemetryData(endpoint: string): Promise<any> {
+  private async fetchTelemetryData(endpoint: string): Promise<unknown> {
     try {
       const _data = await fetchWithTimeout(
         `${this.config.telemetryApiUrl}${endpoint}`,
@@ -316,7 +316,7 @@ class MonitorDashboard {
             "/api/telemetry/alerts?status=active&limit=10",
           );
           if (_alertsData) {
-            panel.data = _alertsData.alerts || [];
+            panel.data = (_alertsData as any).alerts || [];
           }
           break;
 
@@ -326,7 +326,7 @@ class MonitorDashboard {
             "/api/telemetry/events?eventType=log&limit=20",
           );
           if (_logsData) {
-            panel.data = _logsData.events || [];
+            panel.data = (_logsData as any).events || [];
           }
           break;
 
@@ -336,7 +336,7 @@ class MonitorDashboard {
               "/api/telemetry/events?eventType=snapshot&limit=5",
             );
             if (_snapshotData) {
-              panel.data = _snapshotData.events || [];
+              panel.data = (_snapshotData as any).events || [];
             }
           }
           break;
@@ -398,11 +398,11 @@ class MonitorDashboard {
         return;
       }
 
-      let responseData: any;
+      let responseData: unknown;
 
       switch (_path) {
         case "/":
-        case "/dashboard":
+        case "/dashboard": {
           responseData = {
             dashboard: {
               title: "GHOST Telemetry Dashboard",
@@ -418,14 +418,16 @@ class MonitorDashboard {
             },
           };
           break;
+        }
 
-        case "/api/dashboard/panels":
+        case "/api/dashboard/panels": {
           responseData = {
             panels: this.panels,
           };
           break;
+        }
 
-        case "/api/dashboard/panel":
+        case "/api/dashboard/panel": {
           const _panelId = _url.searchParams.get("id");
           const _panel = this.panels.find((p) => p.id === _panelId);
           if (_panel) {
@@ -436,8 +438,9 @@ class MonitorDashboard {
             return;
           }
           break;
+        }
 
-        case "/api/dashboard/health":
+        case "/api/dashboard/health": {
           responseData = {
             status: "healthy",
             uptime: this.getUptime(),
@@ -446,8 +449,9 @@ class MonitorDashboard {
             systemHealth: this.state.systemHealth,
           };
           break;
+        }
 
-        case "/api/dashboard/refresh":
+        case "/api/dashboard/refresh": {
           await this.updateAllPanels();
           responseData = {
             status: "refreshed",
@@ -455,12 +459,14 @@ class MonitorDashboard {
             panelsUpdated: this.panels.length,
           };
           break;
+        }
 
-        case "/api/dashboard/config":
+        case "/api/dashboard/config": {
           responseData = {
             config: this.config,
           };
           break;
+        }
 
         default:
           res.writeHead(404, { "Content-Type": "application/json" });
@@ -489,7 +495,7 @@ class MonitorDashboard {
     }
   }
 
-  private log(message: string, data?: any): void {
+  private log(message: string, data?: unknown): void {
     const _logEntry = {
       timestamp: new Date().toISOString(),
       component: "monitor-dashboard",
@@ -507,7 +513,7 @@ class MonitorDashboard {
   public async start(): Promise<void> {
     if (this.isRunning) return;
 
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       this.server = createServer(this.handleRequest.bind(this));
 
       this.server.listen(this.config.port, this.config.host, () => {
@@ -535,7 +541,7 @@ class MonitorDashboard {
   public async stop(): Promise<void> {
     if (!this.isRunning) return;
 
-    return new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       this.server.close(() => {
         this.isRunning = false;
         this.log("dashboard_stopped", "Dashboard stopped");
@@ -608,7 +614,7 @@ async function fetchWithTimeout(resource: string, options = {}, ms = 5000) {
 // Enhanced telemetry data fetching with fallbacks
 export async function fetchTelemetryWithFallback(
   endpoint: string,
-  fallback: any = null,
+  fallback: unknown = null,
   timeoutMs = 5000,
 ) {
   try {

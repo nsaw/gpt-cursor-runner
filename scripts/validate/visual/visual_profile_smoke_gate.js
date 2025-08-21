@@ -6,12 +6,12 @@ function validateVisualProfile(profilePath) {
   try {
     const content = fs.readFileSync(profilePath, 'utf8');
     const profile = JSON.parse(content);
-    
+
     // Basic validation
     if (!profile.name || !profile.version) {
       return { valid: false, error: 'Missing required fields' };
     }
-    
+
     return { valid: true, profile };
   } catch (error) {
     return { valid: false, error: error.message };
@@ -20,14 +20,14 @@ function validateVisualProfile(profilePath) {
 
 function main() {
   const profilePath = process.argv[2];
-  
+
   if (!profilePath) {
     console.error('NO_PROFILE_PATH');
     return 1;
   }
-  
+
   const result = validateVisualProfile(profilePath);
-  
+
   if (result.valid) {
     console.log('PROFILE_VALID');
     return 0;

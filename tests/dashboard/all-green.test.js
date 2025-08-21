@@ -14,7 +14,7 @@ test("Dashboard must be all green", async ({ page }) => {
     els.map((e) => e.className),
   );
   // Fail on any non-green
-  statuses.forEach((cls, idx) => {
+  statuses.forEach((cls, _idx) => {
     expect(cls).toContain("status-ok");
   });
 });

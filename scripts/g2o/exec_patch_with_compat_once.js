@@ -9,16 +9,16 @@ function execPatchWithCompatOnce(patchPath) {
       console.error(`PATCH_NOT_FOUND:${patchPath}`);
       process.exit(1);
     }
-        
+
     const patchContent = fs.readFileSync(patchPath, 'utf8');
     const patch = JSON.parse(patchContent);
-        
+
     console.log(`EXECUTING_PATCH:${patch.id || 'unknown'}`);
-        
+
     // For now, just validate the patch exists and is valid JSON
     // In a full implementation, this would execute the patch steps
     // with compatibility transforms for legacy patterns
-        
+
     console.log(`PATCH_EXECUTED:${patch.id || 'unknown'}`);
     process.exit(0);
   } catch (error) {

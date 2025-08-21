@@ -216,26 +216,26 @@ settings:
 function updateManifest() {
   try {
     console.log('🔧 Updating Slack app manifest...');
-    
+
     const manifest = generateManifest();
     const manifestPath = path.join(process.cwd(), 'slack-manifest.yaml');
-    
+
     // Write manifest to file
     fs.writeFileSync(manifestPath, manifest, 'utf8');
     console.log('✅ Manifest written to:', manifestPath);
-    
+
     // Update app using Slack CLI
     const command = `slack apps manifest update --app-id ${SLACK_APP_ID} --manifest-file ${manifestPath}`;
     console.log('🚀 Executing:', command);
-    
+
     const result = execSync(command, { encoding: 'utf8' });
     console.log('✅ Manifest updated successfully');
     console.log('📋 Result:', result);
-    
+
     // Clean up manifest file
     fs.unlinkSync(manifestPath);
     console.log('🧹 Cleaned up temporary manifest file');
-    
+
     return true;
   } catch (error) {
     console.error('❌ Failed to update manifest:', error.message);
@@ -247,7 +247,7 @@ function updateManifest() {
 if (require.main === module) {
   console.log('🚀 Starting Slack manifest update...');
   const success = updateManifest();
-  
+
   if (success) {
     console.log('✅ Slack manifest update completed successfully');
     process.exit(0);

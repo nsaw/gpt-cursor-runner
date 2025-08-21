@@ -12,7 +12,7 @@ export const SlotGrid = () => {
   const slots = slotTypes.reduce((acc, type) => {
     const injected = injectSlot(type, slotMode);
     const hydrated = hydrateSlot(injected);
-    acc[type] = hydrated;
+    acc[type] = hydrated as React.ReactNode;
     return acc;
   }, {} as Record<string, React.ReactNode>);
 

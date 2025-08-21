@@ -12,19 +12,20 @@ export default async function configureCloudflareRunnerRouting() {
 
   const fallbackRunnerURL = "https://mobile.thoughtmarks.app";
 
-  const ENV = process.env.NODE_ENV === "production" ? "production" : "development";
+  const ENV =
+    process.env.NODE_ENV === "production" ? "production" : "development";
   const resolvedURL = ENV === "production" ? PROD_TUNNEL : DEV_TUNNEL;
 
   const statePath = path.join(__dirname, "../../runner.state.json");
   const runnerEnvPath = path.join(__dirname, "../../.env");
 
   // 1. Add public runner URL to runner.state.json
-  let state: any = {};
+  let state: unknown = {};
   if (fs.existsSync(statePath)) {
     state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   }
 
-  state.public_url = resolvedURL;
+  (state as Record<string, unknown>).public_url = resolvedURL;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
   console.log(`✅ runner.state.json updated with ${resolvedURL}`);
 
@@ -44,14 +45,17 @@ export default async function configureCloudflareRunnerRouting() {
 
   // 3. Create fallback.html for web browser pings to runner base
   const fallbackHtml = `
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html>
       <head><meta http-equiv="refresh" content="0; url=${fallbackRunnerURL}" /></head>
       <body>If you're not redirected, <a href="${fallbackRunnerURL}">click here</a>.</body>
     </html>
   `;
 
-  const fallbackPath = path.join(__dirname, "../../public/runner_fallback.html");
+  const fallbackPath = path.join(
+    __dirname,
+    "../../public/runner_fallback.html",
+  );
   fs.writeFileSync(fallbackPath, fallbackHtml);
   console.log("✅ runner_fallback.html written");
 
@@ -59,10 +63,15 @@ export default async function configureCloudflareRunnerRouting() {
   try {
     execSync("lsof -i :5555 || lsof -i :5051", { stdio: "pipe" });
     console.log("✅ One of the runner ports is active.");
-  } catch (e) {
-    console.warn("⚠️ Neither port 5555 nor 5051 is active. Runner tunnel may not be working.");
+  } catch {
+    console.warn(
+      "⚠️ Neither port 5555 nor 5051 is active. Runner tunnel may not be working.",
+    );
   }
 
   // 5. Log for confirmation
   console.log(`🌐 GPT Runner now expects traffic via: ${resolvedURL}`);
-} 
+
+  // Add await to satisfy async function requirement
+  await new Promise(resolve => setTimeout(resolve, 0));
+}

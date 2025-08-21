@@ -27,28 +27,27 @@ if (!fs.existsSync(patchPath)) {
 
 try {
   console.log(`Applying patch: ${patchPath}`);
-  
+
   // Change to repo root
   process.chdir(REPO_ROOT);
-  
+
   // Apply the patch
   execSync(`git apply "${patchPath}"`, { stdio: 'inherit' });
-  
+
   console.log('Patch applied successfully');
-  
+
   // Log the application
   const logEntry = {
     timestamp: new Date().toISOString(),
     patch: patchPath,
     status: 'applied',
-    repo: REPO_ROOT
+    repo: REPO_ROOT,
   };
-  
+
   fs.appendFileSync(
     path.join(LOGS_DIR, 'patch-applications.log'),
-    `${JSON.stringify(logEntry)  }\n`
+    `${JSON.stringify(logEntry)}\n`,
   );
-  
 } catch (error) {
   console.error('Failed to apply patch:', error.message);
   process.exitCode = 1;

@@ -12,11 +12,11 @@ function main() {
   try {
     const _content = fs.readFileSync(_patchPath, 'utf8');
     const _patch = JSON.parse(_content);
-    
+
     console.log('PATCH_LOADED');
     console.log(`ID: ${_patch.blockId || 'unknown'}`);
     console.log(`Version: ${_patch.version || 'unknown'}`);
-    
+
     // Process the patch here
     console.log('SUCCESS');
   } catch (error) {

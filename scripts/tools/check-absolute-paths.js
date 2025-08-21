@@ -40,9 +40,9 @@ for (const file of files) {
     const j = JSON.parse(fs.readFileSync(file, 'utf8'));
     const bad = [];
     const abs = (v) => typeof v === 'string' && v.startsWith('/');
-    
+
     if (j.summaryFile && !abs(j.summaryFile)) bad.push('summaryFile');
-    
+
     if (Array.isArray(j.targets)) {
       j.targets.forEach((t, i) => {
         if (t.repoRoot && !abs(t.repoRoot)) bad.push(`targets[${i}].repoRoot`);
@@ -58,7 +58,7 @@ for (const file of files) {
         });
       });
     }
-    
+
     if (bad.length) {
       problems.push(`${file}: ${bad.join(', ')}`);
     }

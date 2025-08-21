@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-declare const console: any;
+declare const console: Console;
 
 export type SlotMode = "mock" | "live";
 

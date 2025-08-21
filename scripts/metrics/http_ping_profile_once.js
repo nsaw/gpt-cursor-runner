@@ -6,11 +6,11 @@ function pingUrl(url) {
     const req = https.get(url, (res) => {
       resolve({ status: res.statusCode, ok: res.statusCode < 400 });
     });
-    
+
     req.on('error', () => {
       resolve({ status: 0, ok: false });
     });
-    
+
     req.setTimeout(5000, () => {
       req.destroy();
       resolve({ status: 0, ok: false });
@@ -20,7 +20,7 @@ function pingUrl(url) {
 
 async function main() {
   const url = process.argv[2] || 'https://httpbin.org/status/200';
-  
+
   try {
     const result = await pingUrl(url);
     console.log(`PING_RESULT: ${result.ok ? 'OK' : 'FAIL'} (${result.status})`);

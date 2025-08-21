@@ -19,8 +19,9 @@ class FullValidator {
 
     try {
       // Validate command patterns
-      results.commandValidation = await this.commandValidator.validateDirectory(projectRoot);
-      
+      results.commandValidation =
+        await this.commandValidator.validateDirectory(projectRoot);
+
       // Update summary
       results.summary = {
         total: results.commandValidation.total,

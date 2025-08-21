@@ -1,5 +1,4 @@
 const https = require("https");
-const fs = require("fs");
 
 async function validateDashboard() {
   console.log("🔍 Validating dashboard health...");
@@ -91,5 +90,7 @@ function makeRequest(url) {
 
 // Run validation
 validateDashboard().then((success) => {
-  process.exit(success ? 0 : 1);
+  if (!success) {
+    throw new Error("Dashboard validation failed");
+  }
 });

@@ -11,7 +11,7 @@ function statFileOnce(filePath, minBytes = 0) {
     }
 
     const stats = fs.statSync(filePath);
-        
+
     if (stats.size < minBytes) {
       console.error(`FILE_TOO_SMALL:${filePath}:${stats.size} < ${minBytes}`);
       process.exit(1); // eslint-disable-line no-process-exit
@@ -28,7 +28,9 @@ function statFileOnce(filePath, minBytes = 0) {
 // Parse command line arguments
 const args = process.argv.slice(2);
 if (args.length < 1) {
-  console.error('Usage: node stat_file_once.js <filepath> [--min-bytes <size>]');
+  console.error(
+    'Usage: node stat_file_once.js <filepath> [--min-bytes <size>]',
+  );
   process.exit(1); // eslint-disable-line no-process-exit
 }
 

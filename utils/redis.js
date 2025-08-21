@@ -1,4 +1,4 @@
-const _Redis = require('ioredis');
+const _Redis = require("ioredis");
 
 class RedisManager {
   constructor() {
@@ -8,37 +8,37 @@ class RedisManager {
 
   async connect() {
     try {
-      this.client = new Redis({
-        host: '127.0.0.1',
+      this.client = new _Redis({
+        host: "127.0.0.1",
         port: 6379,
         retryDelayOnFailover: 100,
         maxRetriesPerRequest: 3,
         lazyConnect: true
       });
 
-      this.client.on(_'connect', _() => {
-        console.log('[REDIS] Connected to Redis server');
+      this.client.on("connect", () => {
+        console.log("[REDIS] Connected to Redis server");
         this.connected = true;
       });
 
-      this.client.on(_'error', _(error) => {
-        console.error('[REDIS] Connection error:', error);
+      this.client.on("error", (error) => {
+        console.error("[REDIS] Connection error:", error);
         this.connected = false;
       });
 
-      this.client.on(_'close', _() => {
-        console.log('[REDIS] Connection closed');
+      this.client.on("close", () => {
+        console.log("[REDIS] Connection closed");
         this.connected = false;
       });
 
       await this.client.connect();
-      
+
       // Test connection
       await this.client.ping();
-      
+
       return true;
-    } catch (_error) {
-      console.error('[REDIS] Failed to connect:', error);
+    } catch (error) {
+      console.error("[REDIS] Failed to connect:", error);
       return false;
     }
   }
@@ -52,11 +52,11 @@ class RedisManager {
 
   async set(key, value, ttl = null) {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
-    
+
     if (ttl) {
-      return await this.client.set(key, value, 'EX', ttl);
+      return await this.client.set(key, value, "EX", ttl);
     } else {
       return await this.client.set(key, value);
     }
@@ -64,35 +64,35 @@ class RedisManager {
 
   async get(key) {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
     return await this.client.get(key);
   }
 
   async del(key) {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
     return await this.client.del(key);
   }
 
   async exists(key) {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
     return await this.client.exists(key);
   }
 
   async keys(pattern) {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
     return await this.client.keys(pattern);
   }
 
   async ping() {
     if (!this.connected) {
-      throw new Error('Redis not connected');
+      throw new Error("Redis not connected");
     }
     return await this.client.ping();
   }
@@ -102,7 +102,7 @@ class RedisManager {
 const _redisManager = new RedisManager();
 
 // Export singleton instance
-module.exports = redisManager;
+module.exports = _redisManager;
 
 // Export class for testing
-module.exports.RedisManager = RedisManager; 
+module.exports.RedisManager = RedisManager;

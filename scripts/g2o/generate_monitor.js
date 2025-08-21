@@ -1,30 +1,32 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-unused-vars */
-(function(){
-  const fs=require('fs'), path=require('path');
-  const PUB='/Users/sawyer/gitSync/_GPTsync/public', META='/Users/sawyer/gitSync/_GPTsync/meta';
-  const out=path.join(PUB,'monitor.html');
-  
-  if(fs.existsSync(out)){ 
-    console.log('MONITOR_EXISTS'); 
-    return; 
+(function () {
+  const fs = require('fs'),
+    path = require('path');
+  const PUB = '/Users/sawyer/gitSync/_GPTsync/public',
+    META = '/Users/sawyer/gitSync/_GPTsync/meta';
+  const out = path.join(PUB, 'monitor.html');
+
+  if (fs.existsSync(out)) {
+    console.log('MONITOR_EXISTS');
+    return;
   }
-  
+
   const safe = (p) => {
-    try{ 
-      return JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8'))); 
-    }catch(_){ 
-      return '{}'; 
-    } 
+    try {
+      return JSON.stringify(JSON.parse(fs.readFileSync(p, 'utf8')));
+    } catch (_) {
+      return '{}';
+    }
   };
-  
-  const cc=safe(path.join(META,'queue_counters.json'));
-  const fa=safe(path.join(META,'failure_alerts.json'));
-  const fam=safe(path.join(META,'failure_alerts_main.json'));
-  const ds=safe(path.join(META,'dashboard_status.json'));
-  const ts=new Date().toISOString();
-  
-  const html=[
+
+  const cc = safe(path.join(META, 'queue_counters.json'));
+  const fa = safe(path.join(META, 'failure_alerts.json'));
+  const fam = safe(path.join(META, 'failure_alerts_main.json'));
+  const ds = safe(path.join(META, 'dashboard_status.json'));
+  const ts = new Date().toISOString();
+
+  const html = [
     '<!doctype html><html><head><meta charset="utf-8"><title>G2o Monitor (Static)</title>',
     '<meta name="viewport" content="width=device-width,initial-scale=1"><style>',
     ':root{--bg:#232529;--fg:#cfe7ff;--card:#1a1c22;--line:#445;--alert:#b00020}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--fg)}',
@@ -45,10 +47,10 @@
     'var bn=document.getElementById("g2o-banner"); bn.style.display=(b==="0"?"none":"block");',
     'if(c==="1"){ document.body.classList.add("compact"); }',
     'console.log("flags banner="+b+" compact="+c);})();</script>',
-    '</body></html>'
+    '</body></html>',
   ].join('');
-  
-  fs.mkdirSync(PUB,{recursive:true});
-  fs.writeFileSync(out,html);
+
+  fs.mkdirSync(PUB, { recursive: true });
+  fs.writeFileSync(out, html);
   console.log(`MONITOR_WROTE:${out}`);
 })();

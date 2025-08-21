@@ -7,10 +7,10 @@ function printSampleDiffs(reportPath, count = 5) {
       console.log(`No migrate-nb-report.json at ${reportPath}`);
       process.exit(0);
     }
-    
+
     const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
     const files = (report.files || []).slice(0, Number(count));
-    
+
     for (const f of files) {
       console.log(f);
     }

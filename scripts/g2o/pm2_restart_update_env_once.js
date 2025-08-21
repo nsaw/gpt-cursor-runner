@@ -5,7 +5,7 @@ const { execSync } = require('child_process');
 function restartPm2Services(onlyServices = null) {
   try {
     console.log('PM2_RESTART_STARTING');
-        
+
     if (onlyServices) {
       const services = onlyServices.split(',');
       for (const service of services) {
@@ -16,7 +16,7 @@ function restartPm2Services(onlyServices = null) {
       console.log('RESTARTING_ALL_SERVICES');
       execSync('pm2 restart all --update-env', { stdio: 'inherit' });
     }
-        
+
     console.log('PM2_RESTART_COMPLETE');
     process.exit(0);
   } catch (error) {

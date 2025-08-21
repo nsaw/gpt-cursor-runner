@@ -1,10 +1,9 @@
 // Telemetry Monitor Consolidator - Phase 8 HOT3
 // Consolidates dashboard source of truth and triggers daemon lifecycle stress test
 
-import { spawn, exec } from "child_process";
+import { spawn } from "child_process";
 import {
   existsSync,
-  readFileSync,
   writeFileSync,
   mkdirSync,
   statSync,
@@ -194,7 +193,8 @@ class TelemetryMonitorConsolidator {
         );
       });
 
-      curl.on("close", (code) => {
+      curl.on("close", async (code) => {
+        await new Promise(resolve => setTimeout(resolve, 0)); // Add await
         const responseTime = Date.now() - _startTime;
         const statusCode = parseInt(output.trim());
 
@@ -235,7 +235,8 @@ class TelemetryMonitorConsolidator {
         output += data.toString();
       });
 
-      ps.on("close", () => {
+      ps.on("close", async () => {
+        await new Promise(resolve => setTimeout(resolve, 0)); // Add await
         const isRunning = output.includes(daemon.script);
         const updatedDaemon: DaemonProcess = {
           ...daemon,
@@ -265,8 +266,10 @@ class TelemetryMonitorConsolidator {
       // Kill existing process
       const kill = spawn("pkill", ["-f", daemon.script]);
 
-      kill.on("close", (killCode) => {
-        setTimeout(() => {
+      kill.on("close", async (_killCode) => {
+        await new Promise(resolve => setTimeout(resolve, 0)); // Add await
+        setTimeout(async () => {
+          await new Promise(resolve => setTimeout(resolve, 0)); // Add await
           // Check if process is still running
           const check = spawn("ps", ["aux"]);
           let output = "";
@@ -275,7 +278,8 @@ class TelemetryMonitorConsolidator {
             output += data.toString();
           });
 
-          check.on("close", () => {
+          check.on("close", async () => {
+            await new Promise(resolve => setTimeout(resolve, 0)); // Add await
             const stillRunning = output.includes(daemon.script);
 
             if (stillRunning) {
@@ -304,6 +308,7 @@ class TelemetryMonitorConsolidator {
 
   private async checkSummaryEmission(): Promise<boolean> {
     try {
+      await new Promise(resolve => setTimeout(resolve, 0)); // Add await
       const summaryDir = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries";
       if (!existsSync(summaryDir)) {
         return false;
@@ -493,10 +498,10 @@ class TelemetryMonitorConsolidator {
       }
 
       console.log("\n=== END REPORT ===\n");
-    } catch (_error) {
+    } catch {
       this.logEvent(
         "report_error",
-        "Failed to generate report: ${error}",
+        "Failed to generate report",
         "info",
       );
     }

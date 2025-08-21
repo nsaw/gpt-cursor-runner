@@ -393,10 +393,7 @@ class GhostRelayTelemetryCore {
           "api_key: [REDACTED]",
         )
         .replace(/token["\s]*[:=]["\s]*[^"\s,}]+/gi, "token: [REDACTED]")
-        .replace(
-          /password["\s]*[:=]["\s]*[^"\s,}]+/gi,
-          "password: [REDACTED]",
-        );
+        .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
     }
     if (typeof data === "object" && data !== null) {
       const sanitized: any = {};
@@ -770,7 +767,7 @@ class GhostRelayTelemetryCore {
     }
 
     this.state.healthStatus.lastCheck = now.toISOString();
-    
+
     // Add await expression to satisfy require-await
     await Promise.resolve();
   }
@@ -860,7 +857,7 @@ class GhostRelayTelemetryCore {
         { error: String(error) },
       );
     }
-    
+
     // Add await expression to satisfy require-await
     await Promise.resolve();
   }
@@ -909,7 +906,7 @@ class GhostRelayTelemetryCore {
         { error: String(error) },
       );
     }
-    
+
     // Add await expression to satisfy require-await
     await Promise.resolve();
   }

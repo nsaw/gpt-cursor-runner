@@ -11,7 +11,7 @@ async function testProcessCheck() {
 
   for (const process of processes) {
     try {
-      const result = await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, _reject) => {
         exec(`pgrep -f "${process}"`, { timeout: 5000 }, (error, stdout) => {
           if (error) {
             resolve({ running: false, error: error.message });

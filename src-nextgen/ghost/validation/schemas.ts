@@ -401,7 +401,7 @@ export const SchemaRegistry = {
 // Type definitions for TypeScript integration
 export type GptRelayInput = {
   command: string;
-  context?: any;
+  context?: unknown;
   priority: "low" | "medium" | "high" | "critical";
   timeout: number;
   maxRetries: number;
@@ -439,7 +439,7 @@ export type PatchGeneratorPayload = {
     environment: "development" | "staging" | "production";
     version: string;
     logs?: string[];
-    metrics?: any;
+    metrics?: unknown;
   };
   constraints?: {
     maxPatchSize?: number;
@@ -456,7 +456,7 @@ export type FeedbackIngestion = {
     content: string;
     rating?: number;
     tags?: string[];
-    context?: any;
+    context?: unknown;
   };
   metadata: {
     timestamp: string;
@@ -472,7 +472,7 @@ export type MessageQueue = {
     id: string;
     type: "status" | "command" | "response" | "error" | "heartbeat" | "data";
     priority: "low" | "medium" | "high" | "critical";
-    payload: any;
+    payload: unknown;
     headers?: { [key: string]: string };
     ttl?: number;
     persistent: boolean;
@@ -483,104 +483,112 @@ export type MessageQueue = {
 export type HealthCheck = {
   component: string;
   checkType: "process" | "api" | "database" | "network" | "custom";
-  parameters?: any;
+  parameters?: unknown;
   timeout: number;
   expectedStatus?: "healthy" | "degraded" | "critical" | "failed";
 };
 
 // Schema validation functions
-export function validateGptRelayInput(data: any): data is GptRelayInput {
+export function validateGptRelayInput(data: unknown): data is GptRelayInput {
   const schema = SchemaRegistry["gpt-relay-input"];
   return validateAgainstSchema(data, schema);
 }
 
-export function validateCliCommand(data: any): data is CliCommand {
+export function validateCliCommand(data: unknown): data is CliCommand {
   const schema = SchemaRegistry["cli-command"];
   return validateAgainstSchema(data, schema);
 }
 
 export function validatePatchGeneratorPayload(
-  data: any,
+  data: unknown,
 ): data is PatchGeneratorPayload {
   const schema = SchemaRegistry["patch-generator-payload"];
   return validateAgainstSchema(data, schema);
 }
 
 export function validateFeedbackIngestion(
-  data: any,
+  data: unknown,
 ): data is FeedbackIngestion {
   const schema = SchemaRegistry["feedback-ingestion"];
   return validateAgainstSchema(data, schema);
 }
 
-export function validateMessageQueue(data: any): data is MessageQueue {
+export function validateMessageQueue(data: unknown): data is MessageQueue {
   const schema = SchemaRegistry["message-queue"];
   return validateAgainstSchema(data, schema);
 }
 
-export function validateHealthCheck(data: any): data is HealthCheck {
+export function validateHealthCheck(data: unknown): data is HealthCheck {
   const schema = SchemaRegistry["health-check"];
   return validateAgainstSchema(data, schema);
 }
 
 // Generic schema validation function
-function validateAgainstSchema(data: any, schema: any): boolean {
+function validateAgainstSchema(data: unknown, schema: unknown): boolean {
   // Basic validation implementation
   // In a real implementation, this would use a proper JSON schema validator
   if (!data || typeof data !== "object") return false;
 
   // Check required properties
-  if (schema.required) {
-    for (const required of schema.required) {
-      if (!(required in data)) return false;
+  if (schema && typeof schema === "object" && "required" in schema) {
+    const schemaObj = schema as { required?: string[] };
+    if (schemaObj.required) {
+      for (const required of schemaObj.required) {
+        if (!(required in (data as Record<string, unknown>))) return false;
+      }
     }
   }
 
   // Check properties
-  if (schema.properties) {
-    for (const [prop, propSchema] of Object.entries(schema.properties)) {
-      if (prop in data) {
-        const value = data[prop];
-        const schemaObj = propSchema as any;
+  if (schema && typeof schema === "object" && "properties" in schema) {
+    const schemaObj = schema as { properties?: Record<string, unknown> };
+    if (schemaObj.properties) {
+      for (const [prop, propSchema] of Object.entries(schemaObj.properties)) {
+        if (prop in (data as Record<string, unknown>)) {
+          const value = (data as Record<string, unknown>)[prop];
+          const schemaProp = propSchema as Record<string, unknown>;
 
-        // Type validation
-        if (schemaObj.type === "string" && typeof value !== "string")
-          return false;
-        if (schemaObj.type === "number" && typeof value !== "number")
-          return false;
-        if (schemaObj.type === "boolean" && typeof value !== "boolean")
-          return false;
-        if (schemaObj.type === "array" && !Array.isArray(value)) return false;
-        if (
-          schemaObj.type === "object" &&
-          (typeof value !== "object" || value === null)
-        )
-          return false;
+          // Type validation
+          if (schemaProp.type === "string" && typeof value !== "string")
+            return false;
+          if (schemaProp.type === "number" && typeof value !== "number")
+            return false;
+          if (schemaProp.type === "boolean" && typeof value !== "boolean")
+            return false;
+          if (schemaProp.type === "array" && !Array.isArray(value)) return false;
+          if (
+            schemaProp.type === "object" &&
+            (typeof value !== "object" || value === null)
+          )
+            return false;
 
-        // Enum validation
-        if (schemaObj.enum && !schemaObj.enum.includes(value)) return false;
+          // Enum validation
+          if (schemaProp.enum && Array.isArray(schemaProp.enum) && !schemaProp.enum.includes(value)) return false;
 
-        // Pattern validation
-        if (schemaObj.pattern && typeof value === "string") {
-          const regex = new RegExp(schemaObj.pattern);
-          if (!regex.test(value)) return false;
+          // Pattern validation
+          if (schemaProp.pattern && typeof value === "string") {
+            const regex = new RegExp(schemaProp.pattern as string);
+            if (!regex.test(value)) return false;
+          }
+
+          // Range validation
+          if (schemaProp.minimum !== undefined && typeof value === "number" && value < (schemaProp.minimum as number))
+            return false;
+          if (schemaProp.maximum !== undefined && typeof value === "number" && value > (schemaProp.maximum as number))
+            return false;
+          if (
+            schemaProp.minLength !== undefined &&
+            typeof value === "string" &&
+            value.length < (schemaProp.minLength as number)
+          )
+            return false;
+          if (
+            schemaProp.maxLength !== undefined &&
+            typeof value === "string" &&
+            value.length > (schemaProp.maxLength as number)
+          )
+            return false;
         }
-
-        // Range validation
-        if (schemaObj.minimum !== undefined && value < schemaObj.minimum)
-          return false;
-        if (schemaObj.maximum !== undefined && value > schemaObj.maximum)
-          return false;
-        if (
-          schemaObj.minLength !== undefined &&
-          value.length < schemaObj.minLength
-        )
-          return false;
-        if (
-          schemaObj.maxLength !== undefined &&
-          value.length > schemaObj.maxLength
-        )
-          return false;
       }
     }
   }

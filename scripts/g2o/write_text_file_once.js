@@ -10,10 +10,10 @@ function writeTextFileOnce(filePath, content) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-        
+
     // Write file
     fs.writeFileSync(filePath, content);
-        
+
     console.log(`TEXT_FILE_WRITTEN:${filePath}`);
     process.exit(0);
   } catch (error) {

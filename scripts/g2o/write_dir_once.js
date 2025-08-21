@@ -15,12 +15,12 @@ function writeDirectory(dirPath) {
 
 function main() {
   const dirPath = process.argv[2];
-  
+
   if (!dirPath) {
     console.error('NO_DIRECTORY_PATH');
     return 1;
   }
-  
+
   const success = writeDirectory(dirPath);
   return success ? 0 : 1;
 }

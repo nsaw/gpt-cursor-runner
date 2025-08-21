@@ -52,7 +52,10 @@ function validateSlackRequest(req, res, next) {
 
 module.exports = { validateSlackRequest };
 `;
-const middlewarePath = path.join(__dirname, "../server/middleware/validateSlackWebhook.js");
+const middlewarePath = path.join(
+  __dirname,
+  "../server/middleware/validateSlackWebhook.js",
+);
 fs.mkdirSync(path.dirname(middlewarePath), { recursive: true });
 fs.writeFileSync(middlewarePath, webhookValidator);
 console.log("✅ Slack webhook validator middleware added.");
@@ -71,6 +74,6 @@ const crontabInstall = `*/2 * * * * ${watchdogPath} >> logs/tunnel_watchdog.log 
 try {
   execSync(`(crontab -l 2>/dev/null; echo "${crontabInstall}") | crontab -`);
   console.log("✅ Watchdog crontab installed (runs every 2 min).");
-} catch (e) {
+} catch {
   console.warn("⚠️ Could not install crontab (may need manual setup).");
-} 
+}
