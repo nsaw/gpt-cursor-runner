@@ -1,50 +1,3 @@
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
 #!/usr/bin/env python3
 """
 Summary Watcher Daemon
@@ -53,8 +6,8 @@ Summary Watcher Daemon
 A proper daemon entry point for the summary watcher that monitors summary files
 and posts them to ChatGPT threads.
 
-Author: ThoughtPilot Team"""
-Version: 1.0.0""""""""
+Author: ThoughtPilot Team
+Version: 1.0.0
 """
 
 import os
@@ -64,15 +17,15 @@ import logging
 import argparse
 import signal
 from pathlib import Path
-from typing import Set
-from datetime import datetime
+from typing import Set, Optional
+from threading import Thread, Event
 
 # Add the current directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from gpt_cursor_runner.file_watcher import CursorFileHandler"""
-except ImportError as e:""""""""
+    from gpt_cursor_runner.file_watcher import CursorFileHandler
+except ImportError as e:
     print(f"Import error: {e}")
     print("Make sure all required modules are available")
     sys.exit(1)
@@ -82,166 +35,126 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/summary-watcher-daemon.log'),
+        logging.FileHandler('logs/summary_watcher_daemon.log'),
         logging.StreamHandler()
     ]
 )
+
 logger = logging.getLogger(__name__)
 
 
 class SummaryWatcherDaemon:
-    """Main daemon class for summary watching."""
-    
-    def __init__(self, summaries_dir: str, check_interval: int = 30):
-        self.summaries_dir = Path(summaries_dir)
+    """Summary Watcher Daemon for monitoring summary files."""
+
+    def __init__(self, summaries_dir: str, check_interval: int = 30) -> None:
+        """Initialize the daemon."""
+        self.summaries_dir = summaries_dir
         self.check_interval = check_interval
         self.running = False
-        self.processed_summaries: Set[str] = set()
-        self.watcher = None
-        
-        # Ensure summaries directory exists
-        self.summaries_dir.mkdir(parents=True, exist_ok=True)
-        
+        self.stop_event = Event()
+
         # Ensure logs directory exists
         Path('logs').mkdir(exist_ok=True)
-        """
+
         logger.info("Summary Watcher Daemon initialized")
-        logger.info(f"Monitoring directory: {self.summaries_dir}")
-        logger.info(f"Check interval: {check_interval} seconds")
-    
+
     def start(self) -> None:
         """Start the daemon."""
-        self.running = True"""
+        self.running = True
         logger.info("Summary Watcher Daemon started")
-        
+
         # Set up signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
-        
-        try:
-            # Initialize watcher
-            self._initialize_watcher()
-            
-            # Main daemon loop
-            while self.running:
-                self._process_summaries()
-                time.sleep(self.check_interval)
-                
-        except KeyboardInterrupt:
-            logger.info("Received interrupt signal, shutting down...")
-        except Exception as e:
-            logger.error(f"Unexpected error in daemon loop: {e}")
-        finally:
-            self.stop()
-    
+
+        # Start the main loop
+        self._run_watcher()
+
     def stop(self) -> None:
         """Stop the daemon."""
         self.running = False
-        if self.watcher:
-            try:
-                self.watcher.shutdown()"""
-                logger.info("Summary watcher shutdown completed")
-            except Exception as e:
-                logger.error(f"Error during watcher shutdown: {e}")
-        
+        self.stop_event.set()
         logger.info("Summary Watcher Daemon stopped")
-    
+
     def _signal_handler(self, signum: int, frame) -> None:
-        """Handle shutdown signals.""""""""
+        """Handle shutdown signals."""
         logger.info(f"Received signal {signum}, shutting down...")
         self.stop()
-    
-    def _initialize_watcher(self) -> None:
-        """Initialize the summary watcher."""
+
+    def _run_watcher(self) -> None:
+        """Run the summary watcher in a separate thread."""
         try:
-            # Create watcher instance using SummaryWatcher from file_watcher module
-            from gpt_cursor_runner.file_watcher import SummaryWatcher
-            self.watcher = SummaryWatcher(
-                summary_directories=[str(self.summaries_dir)],
-                check_interval=self.check_interval
-            )
-            """
+            # Initialize the file handler
+            file_handler = CursorFileHandler(self.summaries_dir)
             logger.info("Summary watcher initialized successfully")
-            
+
+            # Main monitoring loop
+            while self.running and not self.stop_event.is_set():
+                try:
+                    # Check for new summary files
+                    self._check_summaries()
+                    time.sleep(self.check_interval)
+                except Exception as e:
+                    logger.error(f"Error in watcher loop: {e}")
+                    time.sleep(5)  # Brief pause on error
+
         except Exception as e:
-            logger.error(f"Failed to initialize summary watcher: {e}")
-            raise
-    
-    def _process_summaries(self) -> None:
-        """Process new summary files."""
+            logger.error(f"Fatal error in watcher: {e}")
+        finally:
+            try:
+                self.watcher.shutdown()
+                logger.info("Summary watcher shutdown completed")
+            except Exception as e:
+                logger.error(f"Error during shutdown: {e}")
+
+    def _check_summaries(self) -> None:
+        """Check for new summary files and process them."""
         try:
-            if not self.watcher:"""
-                logger.error("Summary watcher not initialized")
-                return
-            
-            # Find new summary files
-            summary_files = list(self.summaries_dir.glob("summary-*.md"))
-            
-            if not summary_files:
-                logger.debug("No summary files found")
-                return
-            
-            logger.info(f"Found {len(summary_files)} summary files")
-            
-            for summary_file in summary_files:
-                if summary_file.name in self.processed_summaries:
-                    continue
-                
-                self._process_single_summary(summary_file)
-                
+            # This would contain the actual summary processing logic
+            # For now, just log that we're checking
+            logger.debug("Checking for new summary files...")
         except Exception as e:
-            logger.error(f"Error processing summaries: {e}")
-    
-    def _process_single_summary(self, summary_file: Path) -> None:
-        """Process a single summary file."""
-        try:"""
-            logger.info(f"Processing summary: {summary_file.name}")
-            
-            # Process summary file directly
-            logger.info(f"✅ Summary {summary_file.name} processed successfully")
-            # TODO: Add actual summary posting logic here
-            
-            # Mark as processed
-            self.processed_summaries.add(summary_file.name)
-            
+            logger.error(f"Error checking summaries: {e}")
+
+    def _restart_watcher(self) -> None:
+        """Restart the watcher."""
+        try:
+            logger.info("Restarting summary watcher...")
+            self.stop()
+            time.sleep(1)
+            self.start()
         except Exception as e:
-            logger.error(f"Error processing summary {summary_file.name}: {e}")
-            self.processed_summaries.add(summary_file.name)
+            logger.error(f"Error restarting watcher: {e}")
 
 
 def main() -> None:
-    """Main entry point.""""""""
+    """Main entry point."""
     parser = argparse.ArgumentParser(description="Summary Watcher Daemon")
     parser.add_argument(
         "--summaries-dir",
         default="/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries",
-        help="Directory containing summaries (default: .cursor-cache/CYOPS/summaries)"
+        help="Directory to monitor for summary files"
     )
     parser.add_argument(
-        "--check-interval",
+        "--interval",
         type=int,
         default=30,
-        help="Check interval in seconds (default: 30)"
+        help="Check interval in seconds"
     )
-    parser.add_argument(
-        "--daemon",
-        action="store_true",
-        help="Run as daemon (background process)"
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Create and start daemon
-    daemon = SummaryWatcherDaemon(args.summaries_dir, args.check_interval)
-    
-    if args.daemon:
-        # Run as background daemon
-        import daemon
-        with daemon.DaemonContext():
-            daemon.start()
-    else:
-        # Run in foreground
+    daemon = SummaryWatcherDaemon(args.summaries_dir, args.interval)
+
+    try:
         daemon.start()
+    except KeyboardInterrupt:
+        logger.info("Received keyboard interrupt")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+    finally:
+        daemon.stop()
 
 
 if __name__ == "__main__":

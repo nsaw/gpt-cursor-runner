@@ -1,79 +1,28 @@
 module.exports = {
   apps: [
-    // Core Daemons
+    // Core Services (Keep)
     {
-      name: "ghost-bridge",
-      script: "./scripts/ghost-bridge.js",
+      name: "dashboard",
+      script: "./dashboard/app.py",
+      interpreter: "python3",
       watch: false,
       env: {
+        PYTHONUNBUFFERED: "1",
         NODE_ENV: "production",
-        // GHOST_BRIDGE_PORT: 5052, // Removed - not in port truth, service not running
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
       max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-bridge-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-bridge-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-bridge-combined.log",
-      time: true,
-    },
-
-    {
-      name: "ghost-relay",
-      script: "./scripts/ghost/ghost-relay.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-        GHOST_RELAY_PORT: 3001,
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-relay-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-relay-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-relay-combined.log",
-      time: true,
-    },
-    {
-      name: "ghost-viewer",
-      script: "./scripts/ghost/ghost-viewer.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-viewer-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-viewer-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-viewer-combined.log",
-      time: true,
-    },
-    {
-      name: "ghost-runner",
-      script: "./scripts/core/ghost-runner.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-runner-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-runner-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-runner-combined.log",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
@@ -89,230 +38,187 @@ module.exports = {
         PYTHONUNBUFFERED: "1",
         PYTHONPATH: "/Users/sawyer/gitSync/gpt-cursor-runner",
         SLACK_SIGNING_SECRET: "aaaed6a9db711589c3d2c17a3495b0f3",
+        NODE_ENV: "production",
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
       max_memory_restart: "200M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-python-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-python-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/ghost-python-combined.log",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
-    // Documentation & Monitoring
+    // G2o Services
     {
-      name: "enhanced-doc-daemon",
-      script: "./scripts/daemons/enhanced-doc-daemon.js",
+      name: "g2o-executor",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/core/patch-executor-loop.js",
       watch: false,
       env: {
         NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "150M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/enhanced-doc-daemon-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/enhanced-doc-daemon-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/enhanced-doc-daemon-combined.log",
-      time: true,
-    },
-    {
-      name: "summary-monitor",
-      script: "./scripts/watchdogs/summary-watcher.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "150M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/summary-monitor-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/summary-monitor-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/summary-monitor-combined.log",
-      time: true,
-    },
-    {
-      name: "dual-monitor",
-      script: "./scripts/monitor/dual-monitor-server.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-        MONITOR_PORT: 3002,
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "150M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dual-monitor-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dual-monitor-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dual-monitor-combined.log",
-      time: true,
-    },
-
-    // Dashboard & UI
-    {
-      name: "flask-dashboard",
-      script: "./dashboard/app.py",
-      interpreter: "python3",
-      watch: false,
-      env: {
-        PYTHONUNBUFFERED: "1",
+        LOG_LEVEL: "info",
+        EXECUTOR_DRY_RUN: "0",
+        EXECUTOR_REQUIRE_SUMMARY: "1",
+        EXECUTOR_FAIL_IF_NO_SUMMARY: "1",
       },
       instances: 1,
       autorestart: true,
       max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/flask-dashboard-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/flask-dashboard-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/flask-dashboard-combined.log",
-      time: true,
-    },
-    {
-      name: "dashboard-uplink",
-      script: "./scripts/watchdogs/dashboard-uplink.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dashboard-uplink-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dashboard-uplink-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/dashboard-uplink-combined.log",
-      time: true,
-    },
-
-    // Telemetry & Metrics
-    {
-      name: "telemetry-api",
-      script: "./scripts/daemons/telemetry-api.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-        PORT: 8788,
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-api-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-api-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-api-combined.log",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
     {
-      name: "telemetry-orchestrator",
-      script: "./scripts/daemons/telemetry-orchestrator-daemon.js",
+      name: "g2o-queue-counters",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/queue_counters.js",
       watch: false,
       env: {
         NODE_ENV: "production",
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-orchestrator-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-orchestrator-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/telemetry-orchestrator-combined.log",
-      time: true,
-    },
-    {
-      name: "metrics-aggregator-daemon",
-      script: "./scripts/daemons/metrics-aggregator-daemon.js",
-      watch: false,
-      env: {
-        NODE_ENV: "production",
-      },
-      instances: 1,
-      autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/metrics-aggregator-daemon-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/metrics-aggregator-daemon-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/metrics-aggregator-daemon-combined.log",
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
-    // Archived: Cloudflared is managed via /Users/sawyer/.cloudflared; avoid PM2 duplication
     {
-      name: "alert-engine-daemon",
-      script: "./scripts/daemons/alert-engine-daemon.js",
+      name: "g2o-summary-gate",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ops/summary_auditor.js",
       watch: false,
       env: {
         NODE_ENV: "production",
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/alert-engine-daemon-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/alert-engine-daemon-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/alert-engine-daemon-combined.log",
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
-    // Patch Management
     {
-      name: "patch-executor",
-      script: "./scripts/core/patch-executor-loop.js",
+      name: "g2o-dashboard-probe",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/dashboard_probe.js",
       watch: false,
       env: {
         NODE_ENV: "production",
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/patch-executor-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/patch-executor-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/patch-executor-combined.log",
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
 
-    // AI & Decision Making
     {
-      name: "autonomous-decision-daemon",
-      script: "./scripts/daemons/autonomous-decision-daemon.js",
+      name: "g2o-handoff-watcher",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/handoff_close_the_loop.js",
       watch: false,
       env: {
         NODE_ENV: "production",
+        LOG_LEVEL: "info",
       },
       instances: 1,
       autorestart: true,
-      max_memory_restart: "100M",
-      error_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/autonomous-decision-daemon-error.log",
-      out_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/autonomous-decision-daemon-out.log",
-      log_file:
-        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs/autonomous-decision-daemon-combined.log",
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
+      time: true,
+    },
+
+    {
+      name: "g2o-completed-validate",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ops/completed_validator.js",
+      watch: false,
+      env: {
+        NODE_ENV: "production",
+        LOG_LEVEL: "info",
+      },
+      instances: 1,
+      autorestart: true,
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
+      time: true,
+    },
+
+    // Queue Assessment Service
+    {
+      name: "p0-queue-shape-assessor",
+      script: "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/queue/queue-shape-assessor.js",
+      watch: false,
+      env: {
+        NODE_ENV: "production",
+        LOG_LEVEL: "info",
+      },
+      instances: 1,
+      autorestart: true,
+      max_memory_restart: "50M",
+      exec_mode: "fork",
+      kill_timeout: 8000,
+      min_uptime: "30s",
+      max_restarts: 20,
+      restart_delay: 3000,
+      exp_backoff_restart_delay: 15000,
+      merge_logs: true,
+      out_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_out.log",
+      error_file: "/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/pm2_err.log",
       time: true,
     },
   ],

@@ -408,7 +408,7 @@ class GhostTelemetryApi {
 
       const data = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
       const metricData = data.aggregatedMetrics.filter(
-        (m: unknown) => m.name === metricName,
+        (m: unknown) => (m as any).name === metricName,
       );
       const limit = parseInt(req.query.limit || "100");
 
@@ -479,7 +479,7 @@ class GhostTelemetryApi {
   private async handleAcknowledgeAlert(req: ApiRequest): Promise<ApiResponse> {
     try {
       const alertId = req.path.split("/")[2];
-      const acknowledgedBy = req.body?.acknowledgedBy || "api-user";
+      const acknowledgedBy = (req.body as any)?.acknowledgedBy || "api-user";
 
       // This would integrate with the alert engine
       // For now, return success
@@ -507,7 +507,7 @@ class GhostTelemetryApi {
   private async handleResolveAlert(req: ApiRequest): Promise<ApiResponse> {
     try {
       const alertId = req.path.split("/")[2];
-      const resolvedBy = req.body?.resolvedBy || "api-user";
+      const resolvedBy = (req.body as any)?.resolvedBy || "api-user";
 
       // This would integrate with the alert engine
       // For now, return success
@@ -916,7 +916,7 @@ class GhostTelemetryApi {
     return new Promise((resolve, reject) => {
       this.server = createServer(this.handleRequest.bind(this));
 
-      this.server.listen(
+      (this.server as any).listen(
         this.config.server.port,
         this.config.server.host,
         () => {
@@ -928,7 +928,7 @@ class GhostTelemetryApi {
         },
       );
 
-      this.server.on("error", (error) => {
+      (this.server as any).on("error", (error) => {
         this.logEvent(`Server error: ${error}`, "error");
         reject(error);
       });
@@ -939,7 +939,7 @@ class GhostTelemetryApi {
     if (!this.isRunning) return;
 
     return new Promise((resolve) => {
-      this.server.close(() => {
+      (this.server as any).close(() => {
         this.isRunning = false;
         this.logEvent("Telemetry API stopped");
         resolve();

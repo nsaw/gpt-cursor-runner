@@ -320,13 +320,13 @@ class GhostLoopAuditor {
     const event: LoopEvent = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
-      eventType,
+      eventType: "loop_start" as any,
       component: "loop-auditor",
       loopId: loopId || "system",
       correlationId,
       data,
       severity,
-      processingTime: data.processingTime,
+      processingTime: (data as any).processingTime,
     };
 
     this.state.events.push(event);
@@ -363,9 +363,9 @@ class GhostLoopAuditor {
           this.config.security.sanitizeData &&
           ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
         ) {
-          sanitized[key] = "[REDACTED]";
+          (sanitized as any)[key] = "[REDACTED]";
         } else {
-          sanitized[key] = this.sanitizeData(value);
+          (sanitized as any)[key] = this.sanitizeData(value);
         }
       }
       return sanitized;

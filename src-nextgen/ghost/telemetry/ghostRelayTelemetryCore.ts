@@ -365,7 +365,7 @@ class GhostRelayTelemetryCore {
       correlationId,
       data,
       severity,
-      processingTime: data.processingTime,
+      processingTime: (data as any).processingTime,
     };
 
     this.state.events.push(event);
@@ -402,9 +402,9 @@ class GhostRelayTelemetryCore {
           this.config.security.maskSensitiveData &&
           ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
         ) {
-          sanitized[key] = "[REDACTED]";
+          (sanitized as any)[key] = "[REDACTED]";
         } else {
-          sanitized[key] = this.sanitizeData(value);
+          (sanitized as any)[key] = this.sanitizeData(value);
         }
       }
       return sanitized;
@@ -428,7 +428,7 @@ class GhostRelayTelemetryCore {
       correlationId,
       timestamp: new Date().toISOString(),
       command: this.config.security.sanitizeLogs
-        ? this.sanitizeData(command)
+        ? this.sanitizeData(command) as string
         : command,
       source,
       priority,

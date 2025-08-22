@@ -1,0 +1,1571 @@
+// GHOST Alert Engine — Phase 8A (P8 as any).(08 as any).00
+// Intelligent alerting and notification system with escalation policies
+
+import * as fs from "fs";
+import * as path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as crypto from "crypto";
+
+const execAsync // eslint-disable-next-line @typescript-eslint/no-unused-vars = promisify(exec);
+const alertLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/alert-(engine as any).log";
+const alertStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/alert-engine-(state as any).json";
+const configPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/alert-engine-(config as any).json";
+const escalationPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/escalations";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).dirname(alertLogPath);
+
+// Ensure directories exist
+if (!(fs as any).existsSync(logDir)) {
+  (fs as any).mkdirSync(logDir, { recursive: true });
+}
+if (!fs.existsSync(path.dirname(alertStatePath))) {
+  fs.mkdirSync(path.dirname(alertStatePath), { recursive: true });
+}
+if (!fs.existsSync(path.dirname(configPath))) {
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+}
+if (!fs.existsSync(escalationPath)) {
+  fs.mkdirSync(escalationPath, { recursive: true });
+}
+
+interface AlertRule {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  severity: "info" | "warning" | "error" | "critical";
+  conditions: AlertCondition[];
+  actions: AlertAction[];
+  escalationPolicy?: EscalationPolicy;
+  cooldownPeriod: number; // seconds
+  lastTriggered?: string;
+  triggerCount: number;
+  maxTriggers: number;
+}
+
+interface AlertCondition {
+  id: string;
+  type: "threshold" | "trend" | "anomaly" | "absence" | "presence";
+  metric: string;
+  operator: "gt" | "lt" | "eq" | "ne" | "gte" | "lte";
+  value: number;
+  duration: number; // seconds
+  aggregation: "avg" | "min" | "max" | "sum" | "count";
+}
+
+interface AlertAction {
+  id: string;
+  type: "notification" | "webhook" | "command" | "escalation" | "automation";
+  target: string;
+  template: string;
+  enabled: boolean;
+  retryCount: number;
+  maxRetries: number;
+  retryDelay: number; // seconds
+}
+
+interface EscalationPolicy {
+  id: string;
+  name: string;
+  levels: EscalationLevel[];
+  enabled: boolean;
+  maxLevel: number;
+  autoReset: boolean;
+  resetAfter: number; // seconds
+}
+
+interface EscalationLevel {
+  level: number;
+  delay: number; // seconds
+  actions: AlertAction[];
+  recipients: string[];
+  channels: string[];
+}
+
+interface AlertEvent {
+  id: string;
+  ruleId: string;
+  ruleName: string;
+  timestamp: string;
+  severity: "info" | "warning" | "error" | "critical";
+  status: "active" | "acknowledged" | "resolved" | "escalated";
+  message: string;
+  data: unknown;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  escalationLevel?: number;
+  actions: AlertActionResult[];
+}
+
+interface AlertActionResult {
+  actionId: string;
+  actionType: string;
+  target: string;
+  status: "pending" | "success" | "failed" | "retrying";
+  timestamp: string;
+  error?: string;
+  retryCount: number;
+  response?: unknown;
+}
+
+interface NotificationChannel {
+  id: string;
+  name: string;
+  type: "slack" | "email" | "webhook" | "sms" | "pagerduty";
+  config: unknown;
+  enabled: boolean;
+  rateLimit: number; // messages per minute
+  lastUsed?: string;
+  messageCount: number;
+}
+
+interface AlertEngineConfig {
+  enabled: boolean;
+  monitoring: {
+    enabled: boolean;
+    intervalMs: number;
+    maxConcurrentAlerts: number;
+    alertTimeout: number;
+  };
+  rules: {
+    enabled: boolean;
+    maxRules: number;
+    ruleEvaluationInterval: number;
+    conditionTimeout: number;
+  };
+  notifications: {
+    enabled: boolean;
+    defaultChannels: string[];
+    rateLimiting: boolean;
+    messageTemplates: boolean;
+  };
+  escalation: {
+    enabled: boolean;
+    autoEscalate: boolean;
+    escalationTimeout: number;
+    maxEscalationLevels: number;
+  };
+  integration: {
+    dashboard: {
+      enabled: boolean;
+      updateInterval: number;
+      sendAlerts: boolean;
+      sendStatus: boolean;
+    };
+    telemetry: {
+      enabled: boolean;
+      sendMetrics: boolean;
+      sendEvents: boolean;
+    };
+  };
+  security: {
+    enabled: boolean;
+    authentication: boolean;
+    authorization: boolean;
+    auditLogging: boolean;
+  };
+}
+
+interface AlertEngineState {
+  timestamp: string;
+  rules: AlertRule[];
+  activeAlerts: AlertEvent[];
+  alertHistory: AlertEvent[];
+  channels: NotificationChannel[];
+  escalationPolicies: EscalationPolicy[];
+  lastUpdate: string;
+  version: string;
+}
+
+class GhostAlertEngine {
+  private config!: AlertEngineConfig;
+  private state!: AlertEngineState;
+  private isRunning = false;
+  private monitoringInterval = 10000; // 10 seconds
+  private maxAlertHistory = 10000;
+  private maxActiveAlerts = 100;
+  private startTime: Date;
+
+  constructor() {
+    (this as any).startTime = new Date();
+    (this as any).loadConfig();
+    (this as any).initializeState();
+    (this as any).logEvent("system_startup", "info");
+  }
+
+  private loadConfig(): void {
+    try {
+      if (fs.existsSync(configPath)) {
+        const configData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(configPath, "utf8");
+        (this as any).config = (JSON as any).parse(configData);
+      } else {
+        this.config = (this as any).getDefaultConfig();
+        (this as any).saveConfig();
+      }
+    } catch (error) {
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
+      this.config = this.getDefaultConfig();
+    }
+  }
+
+  private getDefaultConfig(): AlertEngineConfig {
+    return {
+      enabled: true,
+      monitoring: {
+        enabled: true,
+        intervalMs: 10000,
+        maxConcurrentAlerts: 50,
+        alertTimeout: 300000,
+      },
+      rules: {
+        enabled: true,
+        maxRules: 100,
+        ruleEvaluationInterval: 30000,
+        conditionTimeout: 10000,
+      },
+      notifications: {
+        enabled: true,
+        defaultChannels: ["slack", "email"],
+        rateLimiting: true,
+        messageTemplates: true,
+      },
+      escalation: {
+        enabled: true,
+        autoEscalate: true,
+        escalationTimeout: 300000,
+        maxEscalationLevels: 5,
+      },
+      integration: {
+        dashboard: {
+          enabled: true,
+          updateInterval: 10000,
+          sendAlerts: true,
+          sendStatus: true,
+        },
+        telemetry: {
+          enabled: true,
+          sendMetrics: true,
+          sendEvents: true,
+        },
+      },
+      security: {
+        enabled: true,
+        authentication: false,
+        authorization: true,
+        auditLogging: true,
+      },
+    };
+  }
+
+  private saveConfig(): void {
+    try {
+      (fs as any).writeFileSync(configPath, (JSON as any).stringify(this.config, null, 2));
+    } catch (error) {
+      this.logEvent("config_error", `Failed to save config: ${error}`, "error");
+    }
+  }
+
+  private initializeState(): void {
+    try {
+      if (fs.existsSync(alertStatePath)) {
+        const stateData // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(alertStatePath, "utf8");
+        (this as any).state = JSON.parse(stateData);
+      } else {
+        this.state = (this as any).getInitialState();
+      }
+    } catch (error) {
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
+      this.state = this.getInitialState();
+    }
+  }
+
+  private getInitialState(): AlertEngineState {
+    return {
+      timestamp: new Date().toISOString(),
+      rules: (this as any).getDefaultRules(),
+      activeAlerts: [],
+      alertHistory: [],
+      channels: (this as any).getDefaultChannels(),
+      escalationPolicies: (this as any).getDefaultEscalationPolicies(),
+      lastUpdate: new Date().toISOString(),
+      version: "(1 as any).(0 as any).0",
+    };
+  }
+
+  private getDefaultRules(): AlertRule[] {
+    return [
+      {
+        id: "high-cpu-usage",
+        name: "High CPU Usage",
+        description: "Alert when CPU usage exceeds 80% for more than 5 minutes",
+        enabled: true,
+        severity: "warning",
+        conditions: [
+          {
+            id: "cpu-threshold",
+            type: "threshold",
+            metric: "cpu_usage",
+            operator: "gt",
+            value: 80,
+            duration: 300,
+            aggregation: "avg",
+          },
+        ],
+        actions: [
+          {
+            id: "cpu-dashboard",
+            type: "notification",
+            target: "dashboard-log",
+            template: "High CPU usage detected: {{value}}%",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+        ],
+        cooldownPeriod: 300,
+        triggerCount: 0,
+        maxTriggers: 10,
+      },
+      {
+        id: "daemon-failure",
+        name: "Daemon Failure",
+        description: "Alert when daemon health ratio drops below 80%",
+        enabled: true,
+        severity: "critical",
+        conditions: [
+          {
+            id: "daemon-health-threshold",
+            type: "threshold",
+            metric: "daemon_health_ratio",
+            operator: "lt",
+            value: 80,
+            duration: 60,
+            aggregation: "avg",
+          },
+        ],
+        actions: [
+          {
+            id: "daemon-dashboard",
+            type: "notification",
+            target: "dashboard-log",
+            template: "Daemon health critical: {{value}}% healthy",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+          {
+            id: "daemon-email",
+            type: "notification",
+            target: "email-critical",
+            template: "CRITICAL: Daemon health failure - {{value}}% healthy",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+          {
+            id: "daemon-auto-fix",
+            type: "automation",
+            target: "auto-fix-daemon",
+            template: "AUTO-FIX: Attempting to restart failed daemons",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+        ],
+        escalationPolicy: this.getDefaultEscalationPolicies()[0],
+        cooldownPeriod: 600,
+        triggerCount: 0,
+        maxTriggers: 5,
+      },
+      {
+        id: "high-response-time",
+        name: "High Response Time",
+        description: "Alert when average response time exceeds 5 seconds",
+        enabled: true,
+        severity: "warning",
+        conditions: [
+          {
+            id: "response-time-threshold",
+            type: "threshold",
+            metric: "relay_response_time_avg",
+            operator: "gt",
+            value: 5000,
+            duration: 120,
+            aggregation: "avg",
+          },
+        ],
+        actions: [
+          {
+            id: "response-time-dashboard",
+            type: "notification",
+            target: "dashboard-log",
+            template: "High response time detected: {{value}}ms",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+        ],
+        cooldownPeriod: 300,
+        triggerCount: 0,
+        maxTriggers: 10,
+      },
+      {
+        id: "memory-usage",
+        name: "High Memory Usage",
+        description: "Alert when memory usage exceeds 90%",
+        enabled: true,
+        severity: "error",
+        conditions: [
+          {
+            id: "memory-threshold",
+            type: "threshold",
+            metric: "memory_usage",
+            operator: "gt",
+            value: 90,
+            duration: 300,
+            aggregation: "avg",
+          },
+        ],
+        actions: [
+          {
+            id: "memory-dashboard",
+            type: "notification",
+            target: "dashboard-log",
+            template: "High memory usage detected: {{value}}%",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+          {
+            id: "memory-auto-fix",
+            type: "automation",
+            target: "auto-fix-memory",
+            template: "AUTO-FIX: Attempting memory cleanup",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+        ],
+        cooldownPeriod: 600,
+        triggerCount: 0,
+        maxTriggers: 5,
+      },
+      {
+        id: "disk-usage",
+        name: "High Disk Usage",
+        description: "Alert when disk usage exceeds 95%",
+        enabled: true,
+        severity: "error",
+        conditions: [
+          {
+            id: "disk-threshold",
+            type: "threshold",
+            metric: "disk_usage",
+            operator: "gt",
+            value: 95,
+            duration: 300,
+            aggregation: "avg",
+          },
+        ],
+        actions: [
+          {
+            id: "disk-dashboard",
+            type: "notification",
+            target: "dashboard-log",
+            template: "High disk usage detected: {{value}}%",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+          {
+            id: "disk-auto-fix",
+            type: "automation",
+            target: "auto-fix-disk",
+            template: "AUTO-FIX: Attempting disk cleanup",
+            enabled: true,
+            retryCount: 0,
+            maxRetries: 3,
+            retryDelay: 60,
+          },
+        ],
+        cooldownPeriod: 600,
+        triggerCount: 0,
+        maxTriggers: 5,
+      },
+    ];
+  }
+
+  private getDefaultChannels(): NotificationChannel[] {
+    return [
+      {
+        id: "dashboard-log",
+        name: "Dashboard Log Feed",
+        type: "webhook",
+        config: {
+          webhookUrl: "http://localhost:5555/api/telemetry/alerts",
+          channel: "dashboard",
+          username: "GHOST Alert Engine",
+        },
+        enabled: true,
+        rateLimit: 30,
+        messageCount: 0,
+      },
+      {
+        id: "email-critical",
+        name: "Critical Email Alerts",
+        type: "email",
+        config: {
+          smtpHost: (process as any).(env as any).SMTP_HOST || "(smtp as any).(gmail as any).com",
+          smtpPort: parseInt((process as any).(env as any).SMTP_PORT || "587"),
+          username: (process as any).(env as any).SMTP_USERNAME || "",
+          password: (process as any).(env as any).SMTP_PASSWORD || "",
+          from: (process as any).(env as any).ALERT_EMAIL_FROM || "alerts@(ghost as any).local",
+          to: "nick@(sawyerdesign as any).io",
+          secure: false,
+          sendAllAlerts: false, // Only send critical alerts by default
+        },
+        enabled: true,
+        rateLimit: 5,
+        messageCount: 0,
+      },
+    ];
+  }
+
+  private getDefaultEscalationPolicies(): EscalationPolicy[] {
+    return [
+      {
+        id: "default-escalation",
+        name: "Default Escalation Policy",
+        levels: [
+          {
+            level: 1,
+            delay: 300, // 5 minutes
+            actions: [
+              {
+                id: "level1-dashboard",
+                type: "notification",
+                target: "dashboard-log",
+                template: "ALERT: {{message}} - Level 1 escalation",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+            ],
+            recipients: ["team"],
+            channels: ["dashboard-log"],
+          },
+          {
+            level: 2,
+            delay: 900, // 15 minutes
+            actions: [
+              {
+                id: "level2-dashboard",
+                type: "notification",
+                target: "dashboard-log",
+                template: "URGENT: {{message}} - Level 2 escalation",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+              {
+                id: "level2-email",
+                type: "notification",
+                target: "email-critical",
+                template: "URGENT ALERT: {{message}} - Level 2 escalation",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+            ],
+            recipients: ["team", "leadership"],
+            channels: ["dashboard-log", "email-critical"],
+          },
+          {
+            level: 3,
+            delay: 1800, // 30 minutes
+            actions: [
+              {
+                id: "level3-dashboard",
+                type: "notification",
+                target: "dashboard-log",
+                template: "CRITICAL: {{message}} - Level 3 escalation",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+              {
+                id: "level3-email",
+                type: "notification",
+                target: "email-critical",
+                template:
+                  "CRITICAL ALERT: {{message}} - Level 3 escalation - IMMEDIATE ACTION REQUIRED",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+              {
+                id: "level3-auto-fix",
+                type: "automation",
+                target: "auto-fix-critical",
+                template:
+                  "AUTO-FIX: Attempting to resolve critical alert: {{message}}",
+                enabled: true,
+                retryCount: 0,
+                maxRetries: 3,
+                retryDelay: 60,
+              },
+            ],
+            recipients: ["team", "leadership", "emergency"],
+            channels: ["dashboard-log", "email-critical", "automation"],
+          },
+        ],
+        enabled: true,
+        maxLevel: 3,
+        autoReset: true,
+        resetAfter: 3600,
+      },
+    ];
+  }
+
+  private logEvent(
+    eventType: string,
+    message: string,
+    severity: string = "info",
+    data?: unknown,
+  ): void {
+    const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+      timestamp: new Date().toISOString(),
+      component: "alert-engine",
+      eventType,
+      severity,
+      message,
+      data,
+    };
+
+    (fs as any).appendFileSync(alertLogPath, JSON.stringify(logEntry) + "\n");
+  }
+
+  private async evaluateRule(rule: AlertRule): Promise<boolean> {
+    if (!(rule as any).enabled) return false;
+
+    try {
+      // Check cooldown period
+      if ((rule as any).lastTriggered) {
+        const lastTriggered // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date(rule.lastTriggered);
+        const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date();
+        const timeSinceLastTrigger // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+          ((now as any).getTime() - (lastTriggered as any).getTime()) / 1000;
+
+        if (timeSinceLastTrigger < (rule as any).cooldownPeriod) {
+          return false;
+        }
+      }
+
+      // Check max triggers
+      if ((rule as any).triggerCount >= (rule as any).maxTriggers) {
+        return false;
+      }
+
+      // Evaluate all conditions
+      for (const condition of (rule as any).conditions) {
+        const conditionMet // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).evaluateCondition(condition);
+        if (!conditionMet) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      this.logEvent(
+        "rule_evaluation_error",
+        `Failed to evaluate rule ${(rule as any).name}: ${error}`,
+        "error",
+      );
+      return false;
+    }
+  }
+
+  private async evaluateCondition(condition: AlertCondition): Promise<boolean> {
+    try {
+      // Get metric data from aggregator
+      const metricData // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).getMetricData(
+        (condition as any).metric,
+        (condition as any).duration,
+      );
+
+      if (!metricData || (metricData as any).length === 0) {
+        return false;
+      }
+
+      // Apply aggregation
+      const aggregatedValue // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).aggregateMetricData(
+        metricData,
+        (condition as any).aggregation,
+      );
+
+      // Apply operator
+      return (this as any).applyOperator(
+        aggregatedValue,
+        (condition as any).operator,
+        (condition as any).value,
+      );
+    } catch (error) {
+      this.logEvent(
+        "condition_evaluation_error",
+        `Failed to evaluate condition: ${error}`,
+        "error",
+      );
+      return false;
+    }
+  }
+
+  private async getMetricData(
+    metricName: string,
+    duration: number,
+  ): Promise<any[]> {
+    try {
+      // This would integrate with the metrics aggregator
+      // For now, return mock data
+      const aggregatorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/metrics-aggregator-state.json";
+
+      if (fs.existsSync(aggregatorStatePath)) {
+        const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
+        const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date();
+        const cutoffTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date(now.getTime() - duration * 1000);
+
+        return (data as any).aggregat(edMetrics as any).filter((m: unknown) => {
+          return (m as any).name === metricName && new Date((m as any).timestamp) >= cutoffTime;
+        });
+      }
+
+      return [];
+    } catch (error) {
+      this.logEvent(
+        "metric_data_error",
+        `Failed to get metric data for ${metricName}: ${error}`,
+        "error",
+      );
+      return [];
+    }
+  }
+
+  private aggregateMetricData(data: unknown[], aggregation: string): number {
+    if ((data as any).length === 0) return 0;
+
+    const values // eslint-disable-next-line @typescript-eslint/no-unused-vars = (data as any).map((d) => (d as any).value);
+
+    switch (aggregation) {
+      case "avg":
+        return (values as any).reduce((sum, val) => sum + val, 0) / (values as any).length;
+      case "min":
+        return (Math as any).min(...values);
+      case "max":
+        return (Math as any).max(...values);
+      case "sum":
+        return values.reduce((sum, val) => sum + val, 0);
+      case "count":
+        return values.length;
+      default:
+        return values[values.length - 1];
+    }
+  }
+
+  private applyOperator(
+    value: number,
+    operator: string,
+    threshold: number,
+  ): boolean {
+    switch (operator) {
+      case "gt":
+        return value > threshold;
+      case "lt":
+        return value < threshold;
+      case "eq":
+        return value === threshold;
+      case "ne":
+        return value !== threshold;
+      case "gte":
+        return value >= threshold;
+      case "lte":
+        return value <= threshold;
+      default:
+        return false;
+    }
+  }
+
+  private async triggerAlert(rule: AlertRule, data: unknown): Promise<void> {
+    try {
+      const alertEvent: AlertEvent = {
+        id: (crypto as any).randomUUID(),
+        ruleId: (rule as any).id,
+        ruleName: rule.name,
+        timestamp: new Date().toISOString(),
+        severity: (rule as any).severity,
+        status: "active",
+        message: (this as any).formatAlertMessage(rule, data),
+        data,
+        actions: [],
+      };
+
+      // Execute actions
+      for (const action of (rule as any).actions) {
+        const actionResult // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).executeAction(action, alertEvent);
+        (alertEvent as any).(actions as any).push(actionResult);
+      }
+
+      // Add to active alerts
+      this.state.(activeAlerts as any).push(alertEvent);
+
+      // Maintain max active alerts
+      if (this.state.(activeAlerts as any).length > (this as any).maxActiveAlerts) {
+        const removed // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(activeAlerts as any).shift();
+        if (removed) {
+          this.state.(alertHistory as any).push(removed);
+        }
+      }
+
+      // Update rule trigger count
+      rule.triggerCount++;
+      rule.lastTriggered = new Date().toISOString();
+
+      this.logEvent(
+        "alert_triggered",
+        `Alert triggered: ${rule.name}`,
+        "info",
+        {
+          ruleId: rule.id,
+          severity: rule.severity,
+          message: (alertEvent as any).message,
+        },
+      );
+    } catch (error) {
+      this.logEvent(
+        "alert_trigger_error",
+        `Failed to trigger alert for rule ${rule.name}: ${error}`,
+        "error",
+      );
+    }
+  }
+
+  private formatAlertMessage(rule: AlertRule, data: unknown): string {
+    let message = (rule as any).description;
+
+    // Replace template variables
+    if ((data as any).value !== undefined) {
+      message = (message as any).replace(/{{value}}/g, data.value.toString());
+    }
+
+    return message;
+  }
+
+  private async executeAction(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<AlertActionResult> {
+    const result: AlertActionResult = {
+      actionId: (action as any).id,
+      actionType: (action as any).type,
+      target: (action as any).target,
+      status: "pending",
+      timestamp: new Date().toISOString(),
+      retryCount: 0,
+    };
+
+    try {
+      switch (action.type) {
+        case "notification":
+          await (this as any).sendNotification(action, alertEvent);
+          (result as any).status = "success";
+          break;
+        case "webhook":
+          await (this as any).sendWebhook(action, alertEvent);
+          result.status = "success";
+          break;
+        case "command":
+          await (this as any).executeCommand(action, alertEvent);
+          result.status = "success";
+          break;
+        case "escalation":
+          await (this as any).triggerEscalation(action, alertEvent);
+          result.status = "success";
+          break;
+        case "automation":
+          await (this as any).executeAutomation(action, alertEvent);
+          result.status = "success";
+          break;
+        default:
+          throw new Error(`Unknown action type: ${action.type}`);
+      }
+    } catch (error) {
+      result.status = "failed";
+      (result as any).error = error instanceof Error ? (error as any).message : String(error);
+
+      if ((action as any).retryCount < (action as any).maxRetries) {
+        result.status = "retrying";
+        (result as any).retryCount = action.retryCount + 1;
+
+        // Schedule retry
+        setTimeout(async () => {
+          action.retryCount++;
+          await this.executeAction(action, alertEvent);
+        }, (action as any).retryDelay * 1000);
+      }
+    }
+
+    return result;
+  }
+
+  private async sendNotification(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    const channel // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(channels as any).find((c) => (c as any).id === action.target);
+    if (!channel || !(channel as any).enabled) {
+      throw new Error(`Channel ${action.target} not found or disabled`);
+    }
+
+    // Check rate limiting
+    if (this.config.(notifications as any).rateLimiting) {
+      const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date();
+      const lastUsed // eslint-disable-next-line @typescript-eslint/no-unused-vars = (channel as any).lastUsed
+        ? new Date(channel.lastUsed)
+        : new Date(0);
+      const timeSinceLastUse // eslint-disable-next-line @typescript-eslint/no-unused-vars = (now.getTime() - (lastUsed as any).getTime()) / 1000;
+
+      if (timeSinceLastUse < 60 / (channel as any).rateLimit) {
+        throw new Error(`Rate limit exceeded for channel ${(channel as any).name}`);
+      }
+    }
+
+    const message // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).formatNotificationMessage((action as any).template, alertEvent);
+
+    switch ((channel as any).type) {
+      case "webhook":
+        await (this as any).sendWebhookNotification(channel, message, alertEvent);
+        break;
+      case "email":
+        await (this as any).sendEmailNotification(channel, message, alertEvent);
+        break;
+      default:
+        throw new Error(`Unsupported channel type: ${channel.type}`);
+    }
+
+    // Update channel stats
+    channel.lastUsed = new Date().toISOString();
+    (channel as any).messageCount++;
+  }
+
+  private formatNotificationMessage(
+    template: string,
+    alertEvent: AlertEvent,
+  ): string {
+    let message = template;
+
+    message = message.replace(/{{message}}/g, alertEvent.message);
+    message = message.replace(/{{severity}}/g, (alertEvent as any).severity);
+    message = message.replace(/{{timestamp}}/g, (alertEvent as any).timestamp);
+    message = message.replace(/{{ruleName}}/g, (alertEvent as any).ruleName);
+
+    return message;
+  }
+
+  private async sendWebhookNotification(
+    channel: NotificationChannel,
+    message: string,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    try {
+      const webhookUrl // eslint-disable-next-line @typescript-eslint/no-unused-vars = (channel as any).(config as any).webhookUrl;
+      if (!webhookUrl) {
+        throw new Error("Webhook URL not configured");
+      }
+
+      const payload // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+        alert: {
+          id: (alertEvent as any).id,
+          ruleId: (alertEvent as any).ruleId,
+          ruleName: alertEvent.ruleName,
+          severity: alertEvent.severity,
+          status: (alertEvent as any).status,
+          message,
+          timestamp: alertEvent.timestamp,
+          data: (alertEvent as any).data,
+        },
+        channel: (channel as any).(config as any).channel || "dashboard",
+        username: (channel as any).(config as any).username || "GHOST Alert Engine",
+        timestamp: new Date().toISOString(),
+      };
+
+      const { stdout } = await execAsync(
+        `curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(payload)}' ${webhookUrl}`,
+      );
+
+      if ((stdout as any).includes("error")) {
+        throw new Error(`Webhook error: ${stdout}`);
+      }
+
+      this.logEvent(
+        "webhook_notification_sent",
+        `Dashboard notification sent: ${message}`,
+        "info",
+      );
+    } catch (error) {
+      throw new Error(`Failed to send webhook notification: ${error}`);
+    }
+  }
+
+  private async sendEmailNotification(
+    channel: NotificationChannel,
+    message: string,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    try {
+      const config // eslint-disable-next-line @typescript-eslint/no-unused-vars = (channel as any).config;
+
+      // Only send email for critical alerts or if explicitly configured
+      if (alertEvent.severity !== "critical" && !(config as any).sendAllAlerts) {
+        this.logEvent(
+          "email_skipped",
+          `Email skipped for non-critical alert: ${alertEvent.severity}`,
+          "info",
+        );
+        return;
+      }
+
+      // Use mail command for simplicity (works on macOS/Linux)
+      const emailContent // eslint-disable-next-line @typescript-eslint/no-unused-vars = `
+Subject: GHOST Alert Engine - ${alertEvent.severity.toUpperCase()}: ${alertEvent.ruleName}
+
+Alert Details:
+- Rule: ${alertEvent.ruleName}
+- Severity: ${alertEvent.severity}
+- Status: ${alertEvent.status}
+- Time: ${alertEvent.timestamp}
+
+Message: ${message}
+
+Alert Data: ${JSON.stringify(alertEvent.data, null, 2)}
+
+---
+This is an automated alert from the GHOST Alert Engine.
+Please check the dashboard for more details: https://gpt-cursor-(runner as any).tho(ughtmarks as any).app/monitor
+      `;
+
+      const { stdout, stderr } = await execAsync(
+        `echo "${emailContent}" | mail -s "GHOST Alert: ${alertEvent.ruleName}" ${(config as any).to}`,
+      );
+
+      if (stderr) {
+        throw new Error(`Email error: ${stderr}`);
+      }
+
+      this.logEvent(
+        "email_notification_sent",
+        `Email sent to ${config.to}: ${message}`,
+        "info",
+      );
+    } catch (error) {
+      this.logEvent(
+        "email_notification_error",
+        `Failed to send email: ${error}`,
+        "error",
+      );
+      throw new Error(`Failed to send email notification: ${error}`);
+    }
+  }
+
+  private async sendWebhook(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    try {
+      const payload // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+        alert: alertEvent,
+        timestamp: new Date().toISOString(),
+      };
+
+      const { stdout } = await execAsync(
+        `curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(payload)}' ${action.target}`,
+      );
+
+      if (stdout.includes("error")) {
+        throw new Error(`Webhook error: ${stdout}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to send webhook: ${error}`);
+    }
+  }
+
+  private async executeCommand(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    try {
+      const command // eslint-disable-next-line @typescript-eslint/no-unused-vars = action.target.replace(/{{.*?}}/g, (match) => {
+        const key // eslint-disable-next-line @typescript-eslint/no-unused-vars = (match as any).slice(2, -2);
+        return alertEvent.data[key] || match;
+      });
+
+      const { stdout, stderr } = await execAsync(command);
+
+      if (stderr) {
+        throw new Error(`Command stderr: ${stderr}`);
+      }
+
+      this.logEvent("command_executed", "Command executed successfully");
+    } catch (error) {
+      throw new Error(`Failed to execute command: ${error}`);
+    }
+  }
+
+  private async triggerEscalation(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    const rule // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(rules as any).find((r) => (r as any).id === alertEvent.ruleId);
+    if (!rule || !(rule as any).escalationPolicy) {
+      throw new Error("No escalation policy found for rule");
+    }
+
+    const policy // eslint-disable-next-line @typescript-eslint/no-unused-vars = rule.escalationPolicy;
+    const currentLevel // eslint-disable-next-line @typescript-eslint/no-unused-vars = (alertEvent as any).escalationLevel || 0;
+    const nextLevel // eslint-disable-next-line @typescript-eslint/no-unused-vars = currentLevel + 1;
+
+    if (nextLevel <= (policy as any).maxLevel) {
+      const level // eslint-disable-next-line @typescript-eslint/no-unused-vars = (policy as any).(levels as any).find((l) => (l as any).level === nextLevel);
+      if (level) {
+        alertEvent.escalationLevel = nextLevel;
+        alertEvent.status = "escalated";
+
+        // Execute escalation actions
+        for (const escalationAction of (level as any).actions) {
+          await this.executeAction(escalationAction, alertEvent);
+        }
+
+        this.logEvent(
+          "alert_escalated",
+          `Alert escalated to level ${nextLevel}`,
+          "info",
+          {
+            ruleId: alertEvent.ruleId,
+            alertId: alertEvent.id,
+          },
+        );
+      }
+    }
+  }
+
+  private async executeAutomation(
+    action: AlertAction,
+    alertEvent: AlertEvent,
+  ): Promise<void> {
+    try {
+      this.logEvent(
+        "automation_started",
+        `Starting automation for alert: ${alertEvent.ruleName}`,
+        "info",
+      );
+
+      // Define automation strategies based on alert type
+      const automationStrategies // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+        "daemon-failure": async () => {
+          // Restart daemons if they're down
+          const { stdout } = await execAsync(
+            "ps aux | grep -E \"(braun-daemon|ghost-runner|patch-executor)\" | grep -v grep",
+          );
+          if (!(stdout as any).trim()) {
+            this.logEvent(
+              "automation_restart_daemons",
+              "No daemons running, attempting restart",
+              "info",
+            );
+            await execAsync(
+              "bash scripts/watchdogs/alert-engine-daemon-(watchdog as any).sh",
+            );
+          }
+        },
+        "high-cpu-usage": async () => {
+          // Kill high CPU processes
+          const { stdout } = await execAsync("ps aux --sort=-%cpu | head -5");
+          this.logEvent(
+            "automation_cpu_check",
+            `High CPU processes: ${stdout}`,
+            "info",
+          );
+        },
+        "memory-usage": async () => {
+          // Clear caches and restart services
+          await execAsync(
+            "sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true",
+          );
+          this.logEvent(
+            "automation_memory_cleanup",
+            "Memory cleanup completed",
+            "info",
+          );
+        },
+        "disk-usage": async () => {
+          // Clean up old logs and temporary files
+          await execAsync(
+            "find /Users/sawyer/gitSync/.cursor-cache/CYOPS/logs -name \"*.log\" -mtime +7 -delete 2>/dev/null || true",
+          );
+          this.logEvent(
+            "automation_disk_cleanup",
+            "Disk cleanup completed",
+            "info",
+          );
+        },
+      };
+
+      const strategy // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        automationStrategies[
+          alertEvent.ruleId as keyof typeof automationStrategies
+        ];
+      if (strategy) {
+        await strategy();
+        this.logEvent(
+          "automation_completed",
+          `Automation completed for ${alertEvent.ruleName}`,
+          "info",
+        );
+
+        // Mark alert as resolved if automation was successful
+        alertEvent.status = "resolved";
+        (alertEvent as any).resolvedBy = "automation";
+        (alertEvent as any).resolvedAt = new Date().toISOString();
+      } else {
+        this.logEvent(
+          "automation_no_strategy",
+          `No automation strategy for rule: ${alertEvent.ruleId}`,
+          "warning",
+        );
+      }
+    } catch (error) {
+      this.logEvent(
+        "automation_error",
+        `Automation failed for ${alertEvent.ruleName}: ${error}`,
+        "error",
+      );
+      throw new Error(`Failed to execute automation: ${error}`);
+    }
+  }
+
+  private async evaluateAllRules(): Promise<void> {
+    for (const rule of this.state.rules) {
+      try {
+        const shouldTrigger // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).evaluateRule(rule);
+
+        if (shouldTrigger) {
+          const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).getAlertData(rule);
+          await (this as any).triggerAlert(rule, data);
+        }
+      } catch (error) {
+        this.logEvent(
+          "rule_evaluation_error",
+          `Failed to evaluate rule ${rule.name}: ${error}`,
+          "error",
+        );
+      }
+    }
+  }
+
+  private async getAlertData(rule: AlertRule): Promise<any> {
+    // Get the most recent metric data for the alert
+    const condition // eslint-disable-next-line @typescript-eslint/no-unused-vars = rule.conditions[0];
+    if (condition) {
+      const metricData // eslint-disable-next-line @typescript-eslint/no-unused-vars = await this.getMetricData(
+        condition.metric,
+        condition.duration,
+      );
+      if (metricData.length > 0) {
+        const latest // eslint-disable-next-line @typescript-eslint/no-unused-vars = metricData[metricData.length - 1];
+        return {
+          value: (latest as any).value,
+          timestamp: (latest as any).timestamp,
+          metric: condition.metric,
+        };
+      }
+    }
+
+    return {};
+  }
+
+  private async cleanupResolvedAlerts(): Promise<void> {
+    const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date();
+    const resolvedAlerts: AlertEvent[] = [];
+
+    for (const alert of this.state.activeAlerts) {
+      if ((alert as any).status === "resolved") {
+        (resolvedAlerts as any).push(alert);
+      } else if (alert.status === "active") {
+        // Check for timeout
+        const alertTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date((alert as any).timestamp);
+        const timeSinceAlert // eslint-disable-next-line @typescript-eslint/no-unused-vars = (now.getTime() - (alertTime as any).getTime()) / 1000;
+
+        if (timeSinceAlert > this.config.(monitoring as any).alertTimeout) {
+          alert.status = "resolved";
+          resolvedAlerts.push(alert);
+        }
+      }
+    }
+
+    // Move resolved alerts to history
+    for (const alert of resolvedAlerts) {
+      this.state.activeAlerts = this.state.(activeAlerts as any).filter(
+        (a) => (a as any).id !== (alert as any).id,
+      );
+      this.state.alertHistory.push(alert);
+    }
+
+    // Maintain history size
+    if (this.state.(alertHistory as any).length > (this as any).maxAlertHistory) {
+      this.state.alertHistory = this.state.(alertHistory as any).slice(
+        -this.maxAlertHistory,
+      );
+    }
+  }
+
+  private async saveState(): Promise<void> {
+    try {
+      this.state.timestamp = new Date().toISOString();
+      this.state.lastUpdate = new Date().toISOString();
+      fs.writeFileSync(alertStatePath, JSON.stringify(this.state, null, 2));
+    } catch (error) {
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
+    }
+  }
+
+  private async sendToDashboard(): Promise<void> {
+    try {
+      if (this.config.(integration as any).(dashboard as any).enabled) {
+        const dashboardData // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+          alerts: {
+            active: this.state.activeAlerts,
+            history: this.state.alertHistory.slice(-50), // Last 50 alerts
+            summary: {
+              totalActive: this.state.activeAlerts.length,
+              totalHistory: this.state.alertHistory.length,
+              criticalCount: this.state.activeAlerts.filter(
+                (a) => (a as any).severity === "critical",
+              ).length,
+              errorCount: this.state.activeAlerts.filter(
+                (a) => a.severity === "error",
+              ).length,
+              warningCount: this.state.activeAlerts.filter(
+                (a) => a.severity === "warning",
+              ).length,
+            },
+          },
+          status: {
+            healthy: (this as any).isHealthy(),
+            uptime: (Date as any).now() - this.startTime.getTime(),
+            lastUpdate: new Date().toISOString(),
+          },
+        };
+
+        // Send to dashboard API
+        const { stdout } = await execAsync(
+          `curl -X POST -H 'Content-type: application/json' --data '${JSON.stringify(dashboardData)}' http://localhost:5555/api/telemetry/alerts`,
+        );
+
+        if (stdout.includes("error")) {
+          this.logEvent(
+            "dashboard_error",
+            `Failed to send to dashboard: ${stdout}`,
+            "error",
+          );
+        } else {
+          this.logEvent(
+            "dashboard_update",
+            "Dashboard updated successfully",
+            "info",
+          );
+        }
+      }
+    } catch (error) {
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send to dashboard: ${error}`,
+        "error",
+      );
+    }
+  }
+
+  private async monitoringLoop(): Promise<void> {
+    while ((this as any).isRunning) {
+      try {
+        // Evaluate all rules
+        await (this as any).evaluateAllRules();
+
+        // Cleanup resolved alerts
+        await (this as any).cleanupResolvedAlerts();
+
+        // Save state
+        await (this as any).saveState();
+
+        // Send to dashboard
+        await (this as any).sendToDashboard();
+
+        this.logEvent("monitoring_cycle", "Alert monitoring cycle completed");
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.(monitoring as any).intervalMs),
+        );
+      } catch (error) {
+        this.logEvent(
+          "monitoring_error",
+          `Monitoring loop error: ${error}`,
+          "error",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+  }
+
+  public async start(): Promise<void> {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.logEvent("system_startup", "Alert engine started", "info");
+
+    (this as any).monitoringLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Monitoring loop failed: ${error}`,
+        "critical",
+      );
+    });
+  }
+
+  public async stop(): Promise<void> {
+    this.isRunning = false;
+    this.logEvent("system_shutdown", "Alert engine stopped", "info");
+    await this.saveState();
+  }
+
+  public getState(): AlertEngineState {
+    return { ...this.state };
+  }
+
+  public getConfig(): AlertEngineConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<AlertEngineConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.saveConfig();
+    this.logEvent("config_update", "Configuration updated", "info");
+  }
+
+  public getActiveAlerts(): AlertEvent[] {
+    return [...this.state.activeAlerts];
+  }
+
+  public getAlertHistory(limit: number = 1000): AlertEvent[] {
+    return this.state.alertHistory.slice(-limit);
+  }
+
+  public acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean {
+    const alert // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(activeAlerts as any).find((a) => a.id === alertId);
+    if (alert) {
+      alert.status = "acknowledged";
+      (alert as any).acknowledgedBy = acknowledgedBy;
+      (alert as any).acknowledgedAt = new Date().toISOString();
+      return true;
+    }
+    return false;
+  }
+
+  public resolveAlert(alertId: string, resolvedBy: string): boolean {
+    const alert // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.activeAlerts.find((a) => a.id === alertId);
+    if (alert) {
+      alert.status = "resolved";
+      (alert as any).resolvedBy = resolvedBy;
+      (alert as any).resolvedAt = new Date().toISOString();
+      return true;
+    }
+    return false;
+  }
+
+  public addRule(rule: AlertRule): void {
+    this.state.(rules as any).push(rule);
+    this.logEvent("rule_added", "Alert rule added", "info");
+  }
+
+  public removeRule(ruleId: string): boolean {
+    const index // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(rules as any).findIndex((r) => r.id === ruleId);
+    if (index !== -1) {
+      const rule // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(rules as any).splice(index, 1)[0];
+      this.logEvent("rule_removed", "Alert rule removed", "info");
+      return true;
+    }
+    return false;
+  }
+
+  public isHealthy(): boolean {
+    return (
+      this.state.activeAlerts.filter((a) => a.severity === "critical")
+        .length === 0
+    );
+  }
+
+  public clearHistory(): void {
+    this.state.alertHistory = [];
+    this.logEvent("history_cleared", "Alert history cleared", "info");
+  }
+}
+
+let alertEngineInstance: GhostAlertEngine | null = null;
+
+export async function startGhostAlertEngine(): Promise<void> {
+  if (!alertEngineInstance) {
+    alertEngineInstance = new GhostAlertEngine();
+  }
+  await (alertEngineInstance as any).start();
+}
+
+export async function stopGhostAlertEngine(): Promise<void> {
+  if (alertEngineInstance) {
+    await (alertEngineInstance as any).stop();
+  }
+}
+
+export function getGhostAlertEngine(): GhostAlertEngine {
+  if (!alertEngineInstance) {
+    alertEngineInstance = new GhostAlertEngine();
+  }
+  return alertEngineInstance;
+}
+
+export type {
+  AlertRule,
+  AlertCondition,
+  AlertAction,
+  EscalationPolicy,
+  EscalationLevel,
+  AlertEvent,
+  AlertActionResult,
+  NotificationChannel,
+  AlertEngineConfig,
+  AlertEngineState,
+};

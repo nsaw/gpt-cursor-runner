@@ -1,51 +1,7 @@
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
 #!/usr/bin/env python3
 """
-CYOPS Daemon for automatic patch processing."""
-Monitors patches directory and applies patches automatically.""""""""
+CYOPS Daemon for automatic patch processing.
+Monitors patches directory and applies patches automatically.
 """
 
 import os
@@ -54,235 +10,148 @@ import time
 import shutil
 import glob
 from datetime import datetime
-from typing import Dict, Any, Optional, List
-from gpt_cursor_runner.apply_patch import apply_patch
+from typing import Dict, Any, Optional, List, Set
 
-"""
-class CyopsDaemon:""""""""
+
+class CyopsDaemon:
     """CYOPS Daemon for automatic patch processing."""
 
-    def __init__(self, patches_dir: str, check_interval: int = 30):"""
+    def __init__(self, patches_dir: str, check_interval: int = 30) -> None:
         """Initialize the daemon."""
         self.patches_dir = patches_dir
         self.check_interval = check_interval
-        
-        # Set up directories"""
+
+        # Set up directories
         self.done_dir = os.path.join(patches_dir, ".completed")
         self.fail_dir = os.path.join(patches_dir, ".failed")
         self.skip_dir = os.path.join(patches_dir, ".skipped")
-        self.tests_dir = os.path.join(patches_dir, ".tests")
-        
-        # Create directories if they don't exist
-        for directory in [self.done_dir, self.fail_dir, self.skip_dir, self.tests_dir]:
+
+        # Ensure directories exist
+        for directory in [self.done_dir, self.fail_dir, self.skip_dir]:
             os.makedirs(directory, exist_ok=True)
-        
-        # Set up logging
-        self.log_file = os.path.join(patches_dir, "cyops_daemon.log")
-        
-        print("🚀 CYOPS Daemon initialized")
-        print("   📁 Patches directory: {}".format(patches_dir))
-        print("   ⏱️  Check interval: {} seconds".format(check_interval))
 
-    def run(self):
-        """Run the daemon loop.""""""""
-        print("🔄 Starting CYOPS Daemon...")
-        
+        # Track processed files
+        self.processed_files: Set[str] = set()
+
+    def load_patch(self, filepath: str) -> Optional[Dict[str, Any]]:
+        """Load a patch file and return its contents."""
         try:
-            while True:
-                self.process_patches()
-                time.sleep(self.check_interval)
-                
-        except KeyboardInterrupt:
-            print("\n🛑 CYOPS Daemon stopped by user")
-        except Exception as e:
-            print("❌ CYOPS Daemon error: {}".format(e))
-
-    def get_pending_patches(self) -> List[str]:
-        """Get list of pending patch files."""
-        # Get all JSON files in patches directory (excluding .json.stop files)"""
-        patch_files = glob.glob(os.path.join(self.patches_dir, "*.json"))
-
-        # Remove .json.stop files from patch list
-        patch_files = [f for f in patch_files if not f.endswith('.json.stop')]
-
-        # Filter out files that are already processed
-        pending_patches = []
-        for patch_file in patch_files:
-            filename = os.path.basename(patch_file)
-
-            # Skip if already in done, fail, skip, or tests directories
-            if (
-                os.path.exists(os.path.join(self.done_dir, filename))
-                or os.path.exists(os.path.join(self.fail_dir, filename))
-                or os.path.exists(os.path.join(self.skip_dir, filename))
-                or os.path.exists(os.path.join(self.tests_dir, filename))
-            ):
-                continue
-
-            pending_patches.append(patch_file)
-
-        return sorted(pending_patches)
-
-    def load_patch(self, patch_file: str) -> Optional[Dict[str, Any]]:
-        """Load patch data from file."""
-        try:
-            with open(patch_file, 'r') as f:
-                patch_data = json.load(f)
-            
-            # Add file path to patch data
-            patch_data['_file_path'] = patch_file
-            return patch_data
-        except Exception as e:"""
-            print("❌ Error loading patch {}: {}".format(patch_file, e))
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"Error loading patch {filepath}: {e}")
             return None
 
-    def process_patch(self, patch_file: str) -> bool:
+    def apply_patch(self, patch_data: Dict[str, Any], filepath: str) -> bool:
+        """Apply a patch using the patch application logic."""
+        try:
+            # Import here to avoid circular imports
+            from gpt_cursor_runner.patch_processor import process_patch
+            return process_patch(patch_data, filepath)
+        except ImportError:
+            print("Warning: patch_processor module not available")
+            return False
+        except Exception as e:
+            print(f"Error applying patch {filepath}: {e}")
+            return False
+
+    def move_file(self, src: str, dest_dir: str) -> None:
+        """Move a file to the specified directory."""
+        try:
+            filename = os.path.basename(src)
+            dest_path = os.path.join(dest_dir, filename)
+            shutil.move(src, dest_path)
+            print(f"Moved {filename} to {dest_dir}")
+        except Exception as e:
+            print(f"Error moving file {src}: {e}")
+
+    def process_patch_file(self, filepath: str) -> None:
         """Process a single patch file."""
-        filename = os.path.basename(patch_file)
-        patch_data = self.load_patch(patch_file)
-
-        if not patch_data:"""
-            print("❌ Failed to load patch: {}".format(filename))
-            self.move_patch(patch_file, self.fail_dir, "Failed to load patch data")
-            return False
-
-        patch_id = patch_data.get("id", "unknown")
-        target_file = patch_data.get("target_file", "")
-        description = patch_data.get("description", "No description")
-
-        print("\n🔧 Processing patch: {}".format(filename))
-        print("   🆔 ID: {}".format(patch_id))
-        print("   🎯 Target: {}".format(target_file))
-        print("   📝 Description: {}".format(description))
-
-        # First, validate the patch (dry run)
-        print("   🔍 Validating patch...")
-        validation_result = apply_patch(patch_data, dry_run=True)
-
-        if not validation_result["success"]:
-            print("   ❌ Patch validation failed: {}".format(
-                validation_result['message']
-            ))
-            self.move_patch(
-                patch_file,
-                self.fail_dir,
-                "Validation failed: {}".format(validation_result['message']),
-            )
-            return False
-
-        print("   ✅ Patch validation successful")
-
-        # Apply the patch (not dry run)
-        print("   🚀 Applying patch...")
-        apply_result = apply_patch(patch_data, dry_run=False)
-
-        if apply_result["success"] and apply_result.get("changes_made", False):
-            print("   ✅ Patch applied successfully")
-            self.move_patch(patch_file, self.done_dir, "Successfully applied")
-            return True
-        else:
-            print("   ⚠️ Patch application failed: {}".format(
-                apply_result['message']
-            ))
-            self.move_patch(
-                patch_file,
-                self.fail_dir,
-                "Application failed: {}".format(
-                    apply_result['message']
-                ),
-            )
-            return False
-
-    def move_patch(self, patch_file: str, target_dir: str, reason: str):
-        """Move patch file to target directory with reason."""
-        filename = os.path.basename(patch_file)
-        target_file = os.path.join(target_dir, filename)
-
-        try:
-            # Create a log entry for the move
-            log_entry = {"""
-                "timestamp": datetime.now().isoformat(),
-                "filename": filename,
-                "original_path": patch_file,
-                "target_path": target_file,
-                "reason": reason
-            }
-
-            # Write log entry
-            log_data = []
-            if os.path.exists(self.log_file):
-                try:
-                    with open(self.log_file, 'r') as f:
-                        log_data = json.load(f)
-                except Exception:
-                    log_data = []
-            
-            log_data.append(log_entry)
-            
-            with open(self.log_file, 'w') as f:
-                json.dump(log_data, f, indent=2)
-        except Exception as e:
-            print("⚠️ Could not write log entry: {}".format(e))
-
-        # Move the file
-        try:
-            shutil.move(patch_file, target_file)
-            print("   📁 Moved {} to {}".format(filename, os.path.basename(target_dir)))
-        except Exception as e:
-            print("❌ Error moving patch {}: {}".format(filename, e))
-
-    def process_patches(self):
-        """Process all pending patches."""
-        pending_patches = self.get_pending_patches()
-        
-        if not pending_patches:
+        if filepath in self.processed_files:
             return
-        """
-        print("\n📋 Found {} pending patches".format(len(pending_patches)))
-        
-        success_count = 0
-        failed_count = 0
-        
-        for patch_file in pending_patches:
-            if self.process_patch(patch_file):
-                success_count += 1
-            else:
-                failed_count += 1
-        
-        print("\n📊 Processing complete:")
-        print("   ✅ Successful: {}".format(success_count))
-        print("   ❌ Failed: {}".format(failed_count))
+
+        print(f"Processing patch: {os.path.basename(filepath)}")
+
+        # Load patch data
+        patch_data = self.load_patch(filepath)
+        if not patch_data:
+            self.move_file(filepath, self.fail_dir)
+            self.processed_files.add(filepath)
+            return
+
+        # Apply the patch
+        success = self.apply_patch(patch_data, filepath)
+
+        # Move file based on result
+        if success:
+            self.move_file(filepath, self.done_dir)
+        else:
+            self.move_file(filepath, self.fail_dir)
+
+        self.processed_files.add(filepath)
+
+    def scan_for_patches(self) -> List[str]:
+        """Scan for new patch files."""
+        pattern = os.path.join(self.patches_dir, "*.json")
+        patch_files = glob.glob(pattern)
+
+        # Filter out files in subdirectories
+        patch_files = [f for f in patch_files if os.path.dirname(f) == self.patches_dir]
+
+        # Filter out already processed files
+        new_files = [f for f in patch_files if f not in self.processed_files]
+
+        return new_files
+
+    def run(self) -> None:
+        """Main daemon loop."""
+        print(f"CYOPS Daemon started, monitoring: {self.patches_dir}")
+        print(f"Check interval: {self.check_interval} seconds")
+
+        try:
+            while True:
+                # Scan for new patches
+                new_patches = self.scan_for_patches()
+
+                if new_patches:
+                    print(f"Found {len(new_patches)} new patch(es)")
+                    for patch_file in new_patches:
+                        self.process_patch_file(patch_file)
+                else:
+                    print("No new patches found")
+
+                # Wait before next check
+                time.sleep(self.check_interval)
+
+        except KeyboardInterrupt:
+            print("\nCYOPS Daemon stopped by user")
+        except Exception as e:
+            print(f"CYOPS Daemon error: {e}")
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     import argparse
-    
-    parser = argparse.ArgumentParser("""
-        description="CYOPS Daemon for automatic patch processing"
-    )
-    parser.add_argument("--patches-dir", help="Patches directory path")
+
+    parser = argparse.ArgumentParser(description="CYOPS Daemon")
     parser.add_argument(
-        "--interval", 
-        type=int, 
-        default=30, 
+        "--patches-dir",
+        default="/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches",
+        help="Directory to monitor for patches"
+    )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=30,
         help="Check interval in seconds"
     )
-    parser.add_argument("--dry-run", action="store_true", help="Run in dry-run mode")
 
     args = parser.parse_args()
 
-    # Set up environment
-    patches_dir = (
-        args.patches_dir
-        or "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches"
-    )
-    os.environ["PATCHES_DIRECTORY"] = patches_dir
-
     # Create and run daemon
-    daemon = CyopsDaemon(patches_dir=patches_dir, check_interval=args.interval)
+    daemon = CyopsDaemon(args.patches_dir, args.interval)
     daemon.run()
 
 
 if __name__ == "__main__":
-    main()
+    main() 

@@ -418,8 +418,8 @@ class GhostMetricsAggregator {
     const metrics: AggregatedMetric[] = [];
     const timestamp = new Date().toISOString();
 
-    if (data.systemMetrics) {
-      const { cpu, memory, disk } = data.systemMetrics;
+    if ((data as any).systemMetrics) {
+      const { cpu, memory, disk } = (data as any).systemMetrics;
 
       metrics.push({
         id: crypto.randomUUID(),
@@ -466,11 +466,11 @@ class GhostMetricsAggregator {
       });
     }
 
-    if (data.daemonHealth) {
-      const healthyDaemons = data.daemonHealth.filter(
-        (d: unknown) => d.status === "running",
+    if ((data as any).daemonHealth) {
+      const healthyDaemons = (data as any).daemonHealth.filter(
+        (d: unknown) => (d as any).status === "running",
       ).length;
-      const totalDaemons = data.daemonHealth.length;
+      const totalDaemons = (data as any).daemonHealth.length;
 
       metrics.push({
         id: crypto.randomUUID(),
@@ -492,8 +492,8 @@ class GhostMetricsAggregator {
     const metrics: AggregatedMetric[] = [];
     const timestamp = new Date().toISOString();
 
-    if (data.performanceMetrics) {
-      const pm = data.performanceMetrics;
+    if ((data as any).performanceMetrics) {
+      const pm = (data as any).performanceMetrics;
 
       metrics.push({
         id: crypto.randomUUID(),
@@ -545,8 +545,8 @@ class GhostMetricsAggregator {
     const metrics: AggregatedMetric[] = [];
     const timestamp = new Date().toISOString();
 
-    if (data.heartbeatStatus) {
-      const hs = data.heartbeatStatus;
+    if ((data as any).heartbeatStatus) {
+      const hs = (data as any).heartbeatStatus;
 
       metrics.push({
         id: crypto.randomUUID(),

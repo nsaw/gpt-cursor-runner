@@ -4,8 +4,8 @@ import { emitPatchComplete } from "./relayCore";
 const allowedRoles = ["GPT", "GPT2", "GHOST", "COACH"];
 
 export function verifyPatchRoles(patch: unknown): boolean {
-  const role = patch?.git?.commit?.toUpperCase() || "";
-  const tag = patch?.tag?.toUpperCase() || "";
+  const role = (patch as any)?.git?.commit?.toUpperCase() || "";
+  const tag = (patch as any)?.tag?.toUpperCase() || "";
   const match = allowedRoles.some((r) => role.includes(r) || tag.includes(r));
   if (!match) {
     console.error("[RoleVerifier] ❌ PATCH BLOCKED — unauthorized role");

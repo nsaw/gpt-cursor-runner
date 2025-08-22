@@ -287,30 +287,30 @@ class GhostTelemetryOrchestrator {
 
           // Update component status
           const component = this.state.components.find(
-            (c) => c.id === process.componentId,
+            (c) => (c as any).id === process.componentId,
           );
           if (component) {
             if (isRunning) {
-              component.status = "running";
-              component.health = "healthy";
-              component.lastHeartbeat = new Date().toISOString();
-              component.errorCount = 0;
+              (component as any).status = "running";
+              (component as any).health = "healthy";
+              (component as any).lastHeartbeat = new Date().toISOString();
+              (component as any).errorCount = 0;
               healthyCount++;
             } else {
-              component.status = "error";
-              component.health = "critical";
-              component.errorCount++;
+              (component as any).status = "error";
+              (component as any).health = "critical";
+              (component as any).errorCount++;
             }
           }
         } catch (error) {
           // Process not found - mark component as critical
           const component = this.state.components.find(
-            (c) => c.id === process.componentId,
+            (c) => (c as any).id === process.componentId,
           );
           if (component) {
-            component.status = "error";
-            component.health = "critical";
-            component.errorCount++;
+            (component as any).status = "error";
+            (component as any).health = "critical";
+            (component as any).errorCount++;
           }
         }
       }
@@ -328,16 +328,16 @@ class GhostTelemetryOrchestrator {
       // Calculate component health from actual component data
       const totalComponents = this.state.components.length;
       const healthyComponents = this.state.components.filter(
-        (c) => c.health === "healthy",
+        (c) => (c as any).health === "healthy",
       ).length;
       const degradedComponents = this.state.components.filter(
-        (c) => c.health === "degraded",
+        (c) => (c as any).health === "degraded",
       ).length;
       const unhealthyComponents = this.state.components.filter(
-        (c) => c.health === "unhealthy",
+        (c) => (c as any).health === "unhealthy",
       ).length;
       const criticalComponents = this.state.components.filter(
-        (c) => c.health === "critical",
+        (c) => (c as any).health === "critical",
       ).length;
 
       // Update system health

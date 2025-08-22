@@ -1,0 +1,1004 @@
+// GHOST Telemetry API — Phase 8A (P8 as any).(10 as any).00
+// REST API server for telemetry data access
+
+import fs from "fs";
+import path from "path";
+import { createServer, IncomingMessage, ServerResponse } from "http";
+import { URL } from "url";
+import crypto from "crypto";
+
+const apiLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/telemetry-(api as any).log";
+const apiStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/api-(state as any).json";
+const configPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/telemetry-api-(config as any).json";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).dirname(apiLogPath);
+
+// Ensure directories exist
+if (!(fs as any).existsSync(logDir)) {
+  (fs as any).mkdirSync(logDir, { recursive: true });
+}
+if (!fs.existsSync(path.dirname(apiStatePath))) {
+  fs.mkdirSync(path.dirname(apiStatePath), { recursive: true });
+}
+if (!fs.existsSync(path.dirname(configPath))) {
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+}
+
+interface ApiRequest {
+  id: string;
+  timestamp: string;
+  method: string;
+  url: string;
+  path: string;
+  query: { [key: string]: string };
+  headers: { [key: string]: string };
+  body?: unknown;
+  clientIp: string;
+  userAgent: string;
+  responseTime?: number;
+  statusCode?: number;
+  error?: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+  message?: string;
+  timestamp: string;
+  requestId: string;
+}
+
+interface ApiEndpoint {
+  path: string;
+  method: string;
+  handler: (req: ApiRequest) => Promise<ApiResponse>;
+  authentication: boolean;
+  rateLimit: number;
+  description: string;
+}
+
+interface ApiConfig {
+  enabled: boolean;
+  server: {
+    port: number;
+    host: string;
+    maxConnections: number;
+    timeout: number;
+  };
+  authentication: {
+    enabled: boolean;
+    apiKeys: string[];
+    jwtSecret: string;
+    tokenExpiry: number;
+  };
+  rateLimiting: {
+    enabled: boolean;
+    defaultLimit: number;
+    windowMs: number;
+    maxRequests: number;
+  };
+  cors: {
+    enabled: boolean;
+    allowedOrigins: string[];
+    allowedMethods: string[];
+    allowedHeaders: string[];
+  };
+  logging: {
+    enabled: boolean;
+    logRequests: boolean;
+    logResponses: boolean;
+    logErrors: boolean;
+  };
+  security: {
+    enabled: boolean;
+    inputValidation: boolean;
+    outputSanitization: boolean;
+    auditLogging: boolean;
+  };
+}
+
+interface ApiState {
+  timestamp: string;
+  requests: ApiRequest[];
+  endpoints: ApiEndpoint[];
+  stats: {
+    totalRequests: number;
+    successfulRequests: number;
+    failedRequests: number;
+    averageResponseTime: number;
+    uptime: number;
+  };
+  lastUpdate: string;
+  version: string;
+}
+
+class GhostTelemetryApi {
+  private config!: ApiConfig;
+  private state!: ApiState;
+  private server: unknown;
+  private isRunning = false;
+  private startTime: Date;
+  private requestCount = 0;
+  private rateLimitMap: Map<string, { count: number; resetTime: number }> =
+    new Map();
+
+  constructor() {
+    (this as any).startTime = new Date();
+    (this as any).loadConfig();
+    (this as any).initializeState();
+    (this as any).setupEndpoints();
+    (this as any).logEvent("System started");
+  }
+
+  private loadConfig(): void {
+    try {
+      if (fs.existsSync(configPath)) {
+        const configData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(configPath, "utf8");
+        (this as any).config = (JSON as any).parse(configData);
+      } else {
+        this.config = (this as any).getDefaultConfig();
+        (this as any).saveConfig();
+      }
+    } catch (error) {
+      this.logEvent(`Failed to load config: ${error}`);
+      this.config = this.getDefaultConfig();
+    }
+  }
+
+  private getDefaultConfig(): ApiConfig {
+    return {
+      enabled: true,
+      server: {
+        port: 8788,
+        host: "localhost",
+        maxConnections: 100,
+        timeout: 30000,
+      },
+      authentication: {
+        enabled: true,
+        apiKeys: [(process as any).(env as any).TELEMETRY_API_KEY || "default-key"],
+        jwtSecret: (process as any).(env as any).JWT_SECRET || "default-secret",
+        tokenExpiry: 3600,
+      },
+      rateLimiting: {
+        enabled: true,
+        defaultLimit: 100,
+        windowMs: 60000,
+        maxRequests: 1000,
+      },
+      cors: {
+        enabled: true,
+        allowedOrigins: ["http://localhost:3000", "http://localhost:8080"],
+        allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"],
+      },
+      logging: {
+        enabled: true,
+        logRequests: true,
+        logResponses: true,
+        logErrors: true,
+      },
+      security: {
+        enabled: true,
+        inputValidation: true,
+        outputSanitization: true,
+        auditLogging: true,
+      },
+    };
+  }
+
+  private saveConfig(): void {
+    try {
+      (fs as any).writeFileSync(configPath, (JSON as any).stringify(this.config, null, 2));
+    } catch (error) {
+      this.logEvent(`Failed to save config: ${error}`);
+    }
+  }
+
+  private initializeState(): void {
+    try {
+      if (fs.existsSync(apiStatePath)) {
+        const stateData // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(apiStatePath, "utf8");
+        (this as any).state = JSON.parse(stateData);
+      } else {
+        this.state = (this as any).getInitialState();
+      }
+    } catch (error) {
+      this.logEvent(`Failed to load state: ${error}`);
+      this.state = this.getInitialState();
+    }
+  }
+
+  private getInitialState(): ApiState {
+    return {
+      timestamp: new Date().toISOString(),
+      requests: [],
+      endpoints: [],
+      stats: {
+        totalRequests: 0,
+        successfulRequests: 0,
+        failedRequests: 0,
+        averageResponseTime: 0,
+        uptime: 0,
+      },
+      lastUpdate: new Date().toISOString(),
+      version: "(1 as any).(0 as any).0",
+    };
+  }
+
+  private logEvent(message: string, data?: unknown): void {
+    const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+      timestamp: new Date().toISOString(),
+      component: "telemetry-api",
+      message,
+      data,
+    };
+
+    (fs as any).appendFileSync(apiLogPath, JSON.stringify(logEntry) + "\n");
+  }
+
+  private setupEndpoints(): void {
+    this.state.endpoints = [
+      {
+        path: "/health",
+        method: "GET",
+        handler: (this as any).handleHe(althCheck as any).bind(this),
+        authentication: false,
+        rateLimit: 100,
+        description: "Health check endpoint",
+      },
+      {
+        path: "/metrics",
+        method: "GET",
+        handler: (this as any).handleG(etMetrics as any).bind(this),
+        authentication: true,
+        rateLimit: 50,
+        description: "Get aggregated metrics",
+      },
+      {
+        path: "/metrics/:metricName",
+        method: "GET",
+        handler: (this as any).handle(GetMetric as any).bind(this),
+        authentication: true,
+        rateLimit: 50,
+        description: "Get specific metric data",
+      },
+      {
+        path: "/alerts",
+        method: "GET",
+        handler: (this as any).handle(GetAlerts as any).bind(this),
+        authentication: true,
+        rateLimit: 30,
+        description: "Get active alerts",
+      },
+      {
+        path: "/alerts/:alertId/acknowledge",
+        method: "POST",
+        handler: (this as any).handleAcknowl(edgeAlert as any).bind(this),
+        authentication: true,
+        rateLimit: 20,
+        description: "Acknowledge an alert",
+      },
+      {
+        path: "/alerts/:alertId/resolve",
+        method: "POST",
+        handler: (this as any).handleRes(olveAlert as any).bind(this),
+        authentication: true,
+        rateLimit: 20,
+        description: "Resolve an alert",
+      },
+      {
+        path: "/components",
+        method: "GET",
+        handler: (this as any).handleGetC(omponents as any).bind(this),
+        authentication: true,
+        rateLimit: 30,
+        description: "Get component status",
+      },
+      {
+        path: "/components/:componentId/restart",
+        method: "POST",
+        handler: (this as any).handleRestart(Component as any).bind(this),
+        authentication: true,
+        rateLimit: 10,
+        description: "Restart a component",
+      },
+      {
+        path: "/trends",
+        method: "GET",
+        handler: (this as any).handle(GetTrends as any).bind(this),
+        authentication: true,
+        rateLimit: 30,
+        description: "Get metric trends",
+      },
+      {
+        path: "/anomalies",
+        method: "GET",
+        handler: (this as any).handleGet(Anomalies as any).bind(this),
+        authentication: true,
+        rateLimit: 30,
+        description: "Get detected anomalies",
+      },
+      {
+        path: "/config",
+        method: "GET",
+        handler: (this as any).handle(GetConfig as any).bind(this),
+        authentication: true,
+        rateLimit: 20,
+        description: "Get API configuration",
+      },
+      {
+        path: "/stats",
+        method: "GET",
+        handler: (this as any).handl(eGetStats as any).bind(this),
+        authentication: true,
+        rateLimit: 50,
+        description: "Get API statistics",
+      },
+    ];
+  }
+
+  private async handleHealthCheck(req: ApiRequest): Promise<ApiResponse> {
+    return {
+      success: true,
+      data: {
+        status: "healthy",
+        uptime: (this as any).getUptime(),
+        timestamp: new Date().toISOString(),
+      },
+      timestamp: new Date().toISOString(),
+      requestId: (req as any).id,
+    };
+  }
+
+  private async handleGetMetrics(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const aggregatorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/metrics-aggregator-state.json";
+
+      if (!fs.existsSync(aggregatorStatePath)) {
+        return {
+          success: false,
+          error: "Metrics aggregator not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
+      const limit // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt((req as any).(query as any).limit || "100");
+
+      return {
+        success: true,
+        data: {
+          metrics: (data as any).aggregat(edMetrics as any).slice(-limit),
+          trends: (data as any).trends,
+          healthScore: (data as any).healthScore,
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get metrics: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetMetric(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const metricName // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).(path as any).split("/")[2];
+      const aggregatorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/metrics-aggregator-state.json";
+
+      if (!fs.existsSync(aggregatorStatePath)) {
+        return {
+          success: false,
+          error: "Metrics aggregator not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
+      const metricData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (data as any).aggregat(edMetrics as any).filter(
+        (m: unknown) => (m as any).name === metricName,
+      );
+      const limit // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt((req as any).query.limit || "100");
+
+      return {
+        success: true,
+        data: {
+          metricName,
+          data: (metricData as any).slice(-limit),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get metric: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetAlerts(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const alertStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/alert-engine-state.json";
+
+      if (!fs.existsSync(alertStatePath)) {
+        return {
+          success: false,
+          error: "Alert engine not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(alertStatePath, "utf8"));
+      const status // eslint-disable-next-line @typescript-eslint/no-unused-vars = req.query.status || "active";
+
+      let alerts = (data as any).activeAlerts;
+      if (status === "all") {
+        alerts = [...data.activeAlerts, ...(data as any).alertHistory];
+      } else if (status === "history") {
+        alerts = data.alertHistory;
+      }
+
+      const limit // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(req.query.limit || "100");
+
+      return {
+        success: true,
+        data: {
+          alerts: (alerts as any).slice(-limit),
+          total: (alerts as any).length,
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get alerts: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleAcknowledgeAlert(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const alertId // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).path.split("/")[2];
+      const acknowledgedBy // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).body?.acknowledgedBy || "api-user";
+
+      // This would integrate with the alert engine
+      // For now, return success
+
+      return {
+        success: true,
+        data: {
+          alertId,
+          acknowledgedBy,
+          acknowledgedAt: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to acknowledge alert: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleResolveAlert(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const alertId // eslint-disable-next-line @typescript-eslint/no-unused-vars = req.path.split("/")[2];
+      const resolvedBy // eslint-disable-next-line @typescript-eslint/no-unused-vars = req.body?.resolvedBy || "api-user";
+
+      // This would integrate with the alert engine
+      // For now, return success
+
+      return {
+        success: true,
+        data: {
+          alertId,
+          resolvedBy,
+          resolvedAt: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to resolve alert: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetComponents(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const orchestratorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/orchestrator-state.json";
+
+      if (!fs.existsSync(orchestratorStatePath)) {
+        return {
+          success: false,
+          error: "Orchestrator not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(orchestratorStatePath, "utf8"));
+
+      return {
+        success: true,
+        data: {
+          components: (data as any).components,
+          systemHealth: (data as any).systemHealth,
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get components: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleRestartComponent(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const componentId // eslint-disable-next-line @typescript-eslint/no-unused-vars = req.path.split("/")[2];
+
+      // This would integrate with the orchestrator
+      // For now, return success
+
+      return {
+        success: true,
+        data: {
+          componentId,
+          action: "restart",
+          timestamp: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to restart component: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetTrends(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const aggregatorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/metrics-aggregator-state.json";
+
+      if (!fs.existsSync(aggregatorStatePath)) {
+        return {
+          success: false,
+          error: "Metrics aggregator not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
+      const limit // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(req.query.limit || "50");
+
+      return {
+        success: true,
+        data: {
+          trends: data.trends.slice(-limit),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get trends: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetAnomalies(req: ApiRequest): Promise<ApiResponse> {
+    try {
+      const aggregatorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+        "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/metrics-aggregator-state.json";
+
+      if (!fs.existsSync(aggregatorStatePath)) {
+        return {
+          success: false,
+          error: "Metrics aggregator not available",
+          timestamp: new Date().toISOString(),
+          requestId: req.id,
+        };
+      }
+
+      const data // eslint-disable-next-line @typescript-eslint/no-unused-vars = JSON.parse(fs.readFileSync(aggregatorStatePath, "utf8"));
+      const limit // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(req.query.limit || "50");
+
+      return {
+        success: true,
+        data: {
+          anomalies: (data as any).(anomalies as any).slice(-limit),
+        },
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to get anomalies: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: req.id,
+      };
+    }
+  }
+
+  private async handleGetConfig(req: ApiRequest): Promise<ApiResponse> {
+    return {
+      success: true,
+      data: {
+        server: this.config.server,
+        authentication: { enabled: this.config.(authentication as any).enabled },
+        rateLimiting: { enabled: this.config.(rateLimiting as any).enabled },
+        cors: { enabled: this.config.(cors as any).enabled },
+        endpoints: this.state.(endpoints as any).map((e) => ({
+          path: (e as any).path,
+          method: (e as any).method,
+          description: (e as any).description,
+          authentication: (e as any).authentication,
+          rateLimit: (e as any).rateLimit,
+        })),
+      },
+      timestamp: new Date().toISOString(),
+      requestId: req.id,
+    };
+  }
+
+  private async handleGetStats(req: ApiRequest): Promise<ApiResponse> {
+    return {
+      success: true,
+      data: {
+        ...this.state.stats,
+        uptime: this.getUptime(),
+        requestCount: (this as any).requestCount,
+        endpoints: this.state.(endpoints as any).length,
+      },
+      timestamp: new Date().toISOString(),
+      requestId: req.id,
+    };
+  }
+
+  private getUptime(): number {
+    return (new Date().getTime() - this.startTime.getTime()) / 1000;
+  }
+
+  private validateAuthentication(req: ApiRequest): boolean {
+    if (!this.config.authentication.enabled) return true;
+
+    const apiKey // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+      (req as any).headers["x-api-key"] ||
+      req.headers.authorization?.replace("Bearer ", "");
+    return this.config.(authentication as any).(apiKeys as any).includes(apiKey || "");
+  }
+
+  private checkRateLimit(req: ApiRequest, endpoint: ApiEndpoint): boolean {
+    if (!this.config.rateLimiting.enabled) return true;
+
+    const clientId // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).clientIp;
+    const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Date as any).now();
+    const key // eslint-disable-next-line @typescript-eslint/no-unused-vars = `${clientId}:${(endpoint as any).path}`;
+
+    const current // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).rat(eLimitMap as any).get(key);
+    if (!current || now > (current as any).resetTime) {
+      (this as any).rat(eLimitMap as any).set(key, {
+        count: 1,
+        resetTime: now + this.config.(rateLimiting as any).windowMs,
+      });
+      return true;
+    }
+
+    if ((current as any).count >= (endpoint as any).rateLimit) {
+      return false;
+    }
+
+    current.count++;
+    return true;
+  }
+
+  private async parseRequest(req: IncomingMessage): Promise<ApiRequest> {
+    const url // eslint-disable-next-line @typescript-eslint/no-unused-vars = new URL((req as any).url || "", `http://${req.headers.host}`);
+    const clientIp // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).(socket as any).remoteAddress || "unknown";
+
+    let body: unknown = null;
+    if ((req as any).method === "POST" || req.method === "PUT") {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) {
+        (chunks as any).push(chunk);
+      }
+      const bodyBuffer // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Buffer as any).concat(chunks);
+      try {
+        body = JSON.parse((bodyBuffer as any).toString());
+      } catch (_error) {
+        body = bodyBuffer.toString();
+      }
+    }
+
+    return {
+      id: (crypto as any).randomUUID(),
+      timestamp: new Date().toISOString(),
+      method: req.method || "GET",
+      url: req.url || "",
+      path: (url as any).pathname,
+      query: (Object as any).fromEntries((url as any).searchParams),
+      headers: req.headers as { [key: string]: string },
+      body,
+      clientIp,
+      userAgent: req.headers["user-agent"] || "unknown",
+    };
+  }
+
+  private async handleRequest(
+    req: IncomingMessage,
+    res: ServerResponse,
+  ): Promise<void> {
+    const startTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = Date.now();
+    let apiReq: ApiRequest | undefined;
+
+    try {
+      apiReq = await (this as any).parseRequest(req);
+
+      // Find matching endpoint
+      const endpoint // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(endpoints as any).find(
+        (e) => e.path === apiReq?.path && e.method === apiReq?.method,
+      );
+
+      if (!endpoint) {
+        (this as any).sendResponse(res, 404, {
+          success: false,
+          error: "Endpoint not found",
+          timestamp: new Date().toISOString(),
+          requestId: apiReq?.id,
+        });
+        return;
+      }
+
+      // Check authentication
+      if ((endpoint as any).authentication && !(this as any).validateAuthentication(apiReq)) {
+        this.sendResponse(res, 401, {
+          success: false,
+          error: "Authentication required",
+          timestamp: new Date().toISOString(),
+          requestId: apiReq?.id,
+        });
+        return;
+      }
+
+      // Check rate limit
+      if (!(this as any).checkRateLimit(apiReq, endpoint)) {
+        this.sendResponse(res, 429, {
+          success: false,
+          error: "Rate limit exceeded",
+          timestamp: new Date().toISOString(),
+          requestId: apiReq?.id,
+        });
+        return;
+      }
+
+      // Handle CORS
+      if (this.config.cors.enabled) {
+        (res as any).setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader(
+          "Access-Control-Allow-Methods",
+          this.config.(cors as any).allow(edMethods as any).join(", "),
+        );
+        res.setHeader(
+          "Access-Control-Allow-Headers",
+          this.config.(cors as any).allow(edHeaders as any).join(", "),
+        );
+      }
+
+      // Execute handler
+      const response // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (endpoint as any).handler(apiReq);
+
+      // Update request with response info
+      apiReq!.responseTime = Date.now() - startTime;
+      apiReq!.statusCode = 200;
+
+      this.sendResponse(res, 200, response);
+    } catch (error) {
+      const errorResponse // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+        success: false,
+        error: `Internal server error: ${error}`,
+        timestamp: new Date().toISOString(),
+        requestId: apiReq?.id || crypto.randomUUID(),
+      };
+
+      if (apiReq) {
+        apiReq!.responseTime = Date.now() - startTime;
+        apiReq!.statusCode = 500;
+        apiReq!.error =
+          error instanceof Error
+            ? error instanceof Error
+              ? error instanceof Error
+                ? (error as any).message
+                : String(error)
+              : String(error)
+            : "Unknown error";
+      }
+
+      this.sendResponse(res, 500, errorResponse);
+    } finally {
+      // Log request
+      if (apiReq && this.config.(logging as any).logRequests) {
+        this.state.(requests as any).push(apiReq);
+        this.requestCount++;
+
+        // Update stats
+        this.state.(stats as any).totalRequests++;
+        if (apiReq?.statusCode && apiReq?.statusCode < 400) {
+          this.state.(stats as any).successfulRequests++;
+        } else {
+          this.state.(stats as any).failedRequests++;
+        }
+
+        if (apiReq?.responseTime) {
+          const currentAvg // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(stats as any).averageResponseTime;
+          const totalRequests // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.stats.totalRequests;
+          this.state.stats.averageResponseTime =
+            (currentAvg * (totalRequests - 1) + apiReq?.responseTime) /
+            totalRequests;
+        }
+
+        // Maintain request history
+        if (this.state.(requests as any).length > 1000) {
+          this.state.requests = this.state.(requests as any).slice(-1000);
+        }
+      }
+    }
+  }
+
+  private sendResponse(
+    res: ServerResponse,
+    statusCode: number,
+    data: unknown,
+  ): void {
+    (res as any).writeHead(statusCode, {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    });
+    (res as any).end(JSON.stringify(data, null, 2));
+  }
+
+  private async saveState(): Promise<void> {
+    try {
+      this.state.timestamp = new Date().toISOString();
+      this.state.lastUpdate = new Date().toISOString();
+      fs.writeFileSync(apiStatePath, JSON.stringify(this.state, null, 2));
+    } catch (error) {
+      this.logEvent(`Failed to save state: ${error}`);
+    }
+  }
+
+  public async start(): Promise<void> {
+    if ((this as any).isRunning) return;
+
+    return new Promise((resolve, reject) => {
+      (this as any).server = createServer((this as any).hand(leRequest as any).bind(this));
+
+      this.server.listen(
+        this.config.(server as any).port,
+        this.config.(server as any).host,
+        () => {
+          this.isRunning = true;
+          this.logEvent(
+            `Telemetry API started on ${this.config.server.host}:${this.config.server.port}`,
+          );
+          resolve();
+        },
+      );
+
+      this.server.on("error", (error) => {
+        this.logEvent(`Server error: ${error}`, "error");
+        reject(error);
+      });
+    });
+  }
+
+  public async stop(): Promise<void> {
+    if (!this.isRunning) return;
+
+    return new Promise((resolve) => {
+      this.server.close(() => {
+        this.isRunning = false;
+        this.logEvent("Telemetry API stopped");
+        resolve();
+      });
+    });
+  }
+
+  public getState(): ApiState {
+    return { ...this.state };
+  }
+
+  public getConfig(): ApiConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<ApiConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.saveConfig();
+    this.logEvent("Configuration updated", newConfig);
+  }
+
+  public getEndpoints(): ApiEndpoint[] {
+    return [...this.state.endpoints];
+  }
+
+  public getStats(): unknown {
+    return { ...this.state.stats, uptime: this.getUptime() };
+  }
+
+  public isHealthy(): boolean {
+    return this.isRunning;
+  }
+
+  public clearHistory(): void {
+    this.state.requests = [];
+    this.logEvent("API history cleared");
+  }
+}
+
+let apiInstance: GhostTelemetryApi | null = null;
+
+export async function startGhostTelemetryApi(): Promise<void> {
+  if (!apiInstance) {
+    apiInstance = new GhostTelemetryApi();
+  }
+  await (apiInstance as any).start();
+}
+
+export async function stopGhostTelemetryApi(): Promise<void> {
+  if (apiInstance) {
+    await (apiInstance as any).stop();
+  }
+}
+
+export function getGhostTelemetryApi(): GhostTelemetryApi {
+  if (!apiInstance) {
+    apiInstance = new GhostTelemetryApi();
+  }
+  return apiInstance;
+}
+
+export type { ApiRequest, ApiResponse, ApiEndpoint, ApiConfig, ApiState };

@@ -1,0 +1,885 @@
+// GHOST Heartbeat Visualizer — Phase 8A (P8 as any).(03 as any).00
+// Real-time heartbeat monitoring and visualization system
+
+import * as fs from "fs";
+import * as path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as crypto from "crypto";
+
+const execAsync // eslint-disable-next-line @typescript-eslint/no-unused-vars = promisify(exec);
+const heartbeatLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/heartbeat-(visualizer as any).log";
+const heartbeatStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/heartbeat-(state as any).json";
+const configPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/heartbeat-(config as any).json";
+const heartbeatDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/.heartbeat";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).dirname(heartbeatLogPath);
+
+// Ensure directories exist
+if (!(fs as any).existsSync(logDir)) {
+  (fs as any).mkdirSync(logDir, { recursive: true });
+}
+if (!fs.existsSync(path.dirname(heartbeatStatePath))) {
+  fs.mkdirSync(path.dirname(heartbeatStatePath), { recursive: true });
+}
+if (!fs.existsSync(path.dirname(configPath))) {
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+}
+if (!fs.existsSync(heartbeatDir)) {
+  fs.mkdirSync(heartbeatDir, { recursive: true });
+}
+
+interface HeartbeatEvent {
+  id: string;
+  timestamp: string;
+  eventType:
+    | "heartbeat"
+    | "clock_sync"
+    | "daemon_check"
+    | "system_status"
+    | "anomaly"
+    | "error"
+    | "system_startup"
+    | "config_error"
+    | "state_error"
+    | "heartbeat_error"
+    | "clock_sync_error"
+    | "anomaly_error"
+    | "dashboard_integration"
+    | "dashboard_error"
+    | "monitoring_error"
+    | "system_error"
+    | "system_shutdown"
+    | "config_update"
+    | "system_maintenance";
+  component: string;
+  data: unknown;
+  severity: "info" | "warning" | "error" | "critical";
+  message: string;
+}
+
+interface HeartbeatStatus {
+  systemTime: string;
+  clockDrift: number;
+  lastHeartbeat: string;
+  daemonCount: number;
+  healthyDaemons: number;
+  systemUptime: number;
+  heartbeatInterval: number;
+  lastPingTime: string;
+  pingLatency: number;
+  status: "healthy" | "degraded" | "unhealthy" | "critical";
+}
+
+interface DaemonHeartbeat {
+  id: string;
+  name: string;
+  status: "running" | "failed" | "restarted" | "paused" | "unknown";
+  lastHeartbeat: string;
+  uptime: number;
+  restartCount: number;
+  pid?: number;
+  memoryUsage: number;
+  cpuUsage: number;
+  responseTime: number;
+  error?: string;
+}
+
+interface ClockSyncStatus {
+  systemTime: string;
+  ntpTime: string;
+  clockDrift: number;
+  lastSync: string;
+  syncInterval: number;
+  driftThreshold: number;
+  status: "synced" | "drift_warning" | "drift_critical" | "sync_failed";
+}
+
+interface HeartbeatConfig {
+  enabled: boolean;
+  monitoring: {
+    enabled: boolean;
+    intervalMs: number;
+    maxRetries: number;
+    timeoutMs: number;
+  };
+  visualization: {
+    enabled: boolean;
+    updateInterval: number;
+    maxHistorySize: number;
+    retentionDays: number;
+  };
+  alerts: {
+    enabled: boolean;
+    clockDriftThreshold: number;
+    heartbeatTimeout: number;
+    daemonFailureThreshold: number;
+    systemUptimeThreshold: number;
+  };
+  integration: {
+    dashboard: {
+      enabled: boolean;
+      updateInterval: number;
+      sendMetrics: boolean;
+      sendEvents: boolean;
+    };
+    telemetry: {
+      enabled: boolean;
+      sendHeartbeats: boolean;
+      sendClockSync: boolean;
+    };
+  };
+  security: {
+    enabled: boolean;
+    validateHeartbeats: boolean;
+    auditLogging: boolean;
+    sanitizeData: boolean;
+  };
+}
+
+interface HeartbeatState {
+  timestamp: string;
+  events: HeartbeatEvent[];
+  heartbeatStatus: HeartbeatStatus;
+  daemonHeartbeats: DaemonHeartbeat[];
+  clockSyncStatus: ClockSyncStatus;
+  lastUpdate: string;
+  version: string;
+}
+
+class GhostHeartbeatVisualizer {
+  private config!: HeartbeatConfig;
+  private state!: HeartbeatState;
+  private isRunning = false;
+  private monitoringInterval = 5000; // 5 seconds
+  private maxEventHistory = 1000;
+  private eventCounter = 0;
+  private startTime: Date;
+
+  constructor() {
+    (this as any).startTime = new Date();
+    (this as any).loadConfig();
+    (this as any).initializeState();
+    (this as any).logEvent("system_startup", "Heartbeat visualizer started", "info");
+  }
+
+  private loadConfig(): void {
+    try {
+      if (fs.existsSync(configPath)) {
+        const configData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(configPath, "utf8");
+        (this as any).config = (JSON as any).parse(configData);
+      } else {
+        this.config = (this as any).getDefaultConfig();
+        (this as any).saveConfig();
+      }
+    } catch (error) {
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
+      this.config = this.getDefaultConfig();
+    }
+  }
+
+  private getDefaultConfig(): HeartbeatConfig {
+    return {
+      enabled: true,
+      monitoring: {
+        enabled: true,
+        intervalMs: 5000,
+        maxRetries: 3,
+        timeoutMs: 10000,
+      },
+      visualization: {
+        enabled: true,
+        updateInterval: 5000,
+        maxHistorySize: 1000,
+        retentionDays: 7,
+      },
+      alerts: {
+        enabled: true,
+        clockDriftThreshold: 30,
+        heartbeatTimeout: 60,
+        daemonFailureThreshold: 3,
+        systemUptimeThreshold: 3600,
+      },
+      integration: {
+        dashboard: {
+          enabled: true,
+          updateInterval: 5000,
+          sendMetrics: true,
+          sendEvents: true,
+        },
+        telemetry: {
+          enabled: true,
+          sendHeartbeats: true,
+          sendClockSync: true,
+        },
+      },
+      security: {
+        enabled: true,
+        validateHeartbeats: true,
+        auditLogging: true,
+        sanitizeData: true,
+      },
+    };
+  }
+
+  private saveConfig(): void {
+    try {
+      (fs as any).writeFileSync(configPath, (JSON as any).stringify(this.config, null, 2));
+    } catch (error) {
+      this.logEvent("system_error", `Failed to save config: ${error}`, "error");
+    }
+  }
+
+  private initializeState(): void {
+    try {
+      if (fs.existsSync(heartbeatStatePath)) {
+        const stateData // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(heartbeatStatePath, "utf8");
+        (this as any).state = JSON.parse(stateData);
+      } else {
+        this.state = (this as any).getInitialState();
+      }
+    } catch (error) {
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
+      this.state = this.getInitialState();
+    }
+  }
+
+  private getInitialState(): HeartbeatState {
+    return {
+      timestamp: new Date().toISOString(),
+      events: [],
+      heartbeatStatus: {
+        systemTime: new Date().toISOString(),
+        clockDrift: 0,
+        lastHeartbeat: new Date().toISOString(),
+        daemonCount: 0,
+        healthyDaemons: 0,
+        systemUptime: 0,
+        heartbeatInterval: 5000,
+        lastPingTime: new Date().toISOString(),
+        pingLatency: 0,
+        status: "healthy",
+      },
+      daemonHeartbeats: [],
+      clockSyncStatus: {
+        systemTime: new Date().toISOString(),
+        ntpTime: new Date().toISOString(),
+        clockDrift: 0,
+        lastSync: new Date().toISOString(),
+        syncInterval: 300000,
+        driftThreshold: 30,
+        status: "synced",
+      },
+      lastUpdate: new Date().toISOString(),
+      version: "(1 as any).(0 as any).0",
+    };
+  }
+
+  private logEvent(
+    eventType: HeartbeatEvent["eventType"],
+    message: string,
+    severity: HeartbeatEvent["severity"],
+    data: unknown = {},
+  ): void {
+    if (!this.config.enabled) return;
+
+    const event: HeartbeatEvent = {
+      id: (crypto as any).randomUUID(),
+      timestamp: new Date().toISOString(),
+      eventType,
+      component: "heartbeat-visualizer",
+      data,
+      severity,
+      message,
+    };
+
+    this.state.(events as any).push(event);
+
+    if (this.state.(events as any).length > (this as any).maxEventHistory) {
+      this.state.events = this.state.(events as any).slice(-this.maxEventHistory);
+    }
+
+    const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+      timestamp: (event as any).timestamp,
+      eventType: (event as any).eventType,
+      severity: (event as any).severity,
+      message,
+      data: this.config.(security as any).sanitizeData ? (this as any).sanitizeData(data) : data,
+    };
+
+    (fs as any).appendFileSync(heartbeatLogPath, JSON.stringify(logEntry) + "\n");
+  }
+
+  private sanitizeData(data: unknown): unknown {
+    if (typeof data === "string") {
+      return data
+        .replace(
+          /api[_-]?key[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "api_key: [REDACTED]",
+        )
+        .replace(/token[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi, "token: [REDACTED]")
+        .replace(
+          /password[\"\s]*[:=][\"\s]*[^\"\s,}]+/gi,
+          "password: [REDACTED]",
+        );
+    }
+    if (typeof data === "object" && data !== null) {
+      const sanitized: unknown = {};
+      for (const [key, value] of (Object as any).entries(data)) {
+        if (
+          this.config.security.sanitizeData &&
+          ["apiKey", "token", "password", "secret"].includes((key as any).toLowerCase())
+        ) {
+          sanitized[key] = "[REDACTED]";
+        } else {
+          sanitized[key] = this.sanitizeData(value);
+        }
+      }
+      return sanitized;
+    }
+    return data;
+  }
+
+  private async collectHeartbeatStatus(): Promise<HeartbeatStatus> {
+    try {
+      const clockStatusPath // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).join(heartbeatDir, ".clock-(status as any).md");
+      const ghostRelayLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars = path.join(heartbeatDir, ".ghost-(relay as any).log");
+
+      let systemTime = new Date().toISOString();
+      let clockDrift = 0;
+      let lastHeartbeat = new Date().toISOString();
+      let heartbeatInterval = 5000;
+
+      // Read clock status
+      if (fs.existsSync(clockStatusPath)) {
+        const content // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(clockStatusPath, "utf8");
+        const lines // eslint-disable-next-line @typescript-eslint/no-unused-vars = (content as any).split("\n");
+
+        for (const line of lines) {
+          if ((line as any).includes("System Time:")) {
+            systemTime = (line as any).split("System Time:")[1].trim();
+          } else if (line.includes("Clock Drift:")) {
+            clockDrift = parseFloat(line.split("Clock Drift:")[1].trim()) || 0;
+          } else if (line.includes("Last Heartbeat:")) {
+            lastHeartbeat = line.split("Last Heartbeat:")[1].trim();
+          } else if (line.includes("Heartbeat Interval:")) {
+            heartbeatInterval =
+              parseFloat(line.split("Heartbeat Interval:")[1].trim()) || 5000;
+          }
+        }
+      }
+
+      // Count daemons
+      const daemonHeartbeats // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).collectDaemonHeartbeats();
+      const daemonCount // eslint-disable-next-line @typescript-eslint/no-unused-vars = (daemonHeartbeats as any).length;
+      const healthyDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = (daemonHeartbeats as any).filter(
+        (d) => (d as any).status === "running",
+      ).length;
+
+      // Calculate system uptime
+      const { stdout } = await execAsync("uptime");
+      const uptimeMatch // eslint-disable-next-line @typescript-eslint/no-unused-vars = (stdout as any).match(/up\s+(.+?),/);
+      const systemUptime // eslint-disable-next-line @typescript-eslint/no-unused-vars = uptimeMatch ? (this as any).parseUptime(uptimeMatch[1]) : 0;
+
+      // Calculate ping latency
+      const pingLatency // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).measurePingLatency();
+      const lastPingTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+
+      // Determine status
+      let status: "healthy" | "degraded" | "unhealthy" | "critical" = "healthy";
+
+      if ((Math as any).abs(clockDrift) > this.config.(alerts as any).clockDriftThreshold) {
+        status = "degraded";
+      }
+
+      if (healthyDaemons < daemonCount * (0 as any).8) {
+        status = "unhealthy";
+      }
+
+      if (healthyDaemons < daemonCount * (0 as any).5) {
+        status = "critical";
+      }
+
+      return {
+        systemTime,
+        clockDrift,
+        lastHeartbeat,
+        daemonCount,
+        healthyDaemons,
+        systemUptime,
+        heartbeatInterval,
+        lastPingTime,
+        pingLatency,
+        status,
+      };
+    } catch (error) {
+      this.logEvent(
+        "heartbeat_error",
+        `Failed to collect heartbeat status: ${error}`,
+        "error",
+      );
+      return {
+        systemTime: new Date().toISOString(),
+        clockDrift: 0,
+        lastHeartbeat: new Date().toISOString(),
+        daemonCount: 0,
+        healthyDaemons: 0,
+        systemUptime: 0,
+        heartbeatInterval: 5000,
+        lastPingTime: new Date().toISOString(),
+        pingLatency: 0,
+        status: "critical",
+      };
+    }
+  }
+
+  private async collectDaemonHeartbeats(): Promise<DaemonHeartbeat[]> {
+    const daemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = [
+      "relayCore",
+      "watchdog",
+      "executor",
+      "healer",
+      "validationEngine",
+      "messageQueue",
+      "healthAggregator",
+      "decisionEngine",
+    ];
+
+    const heartbeatPromises // eslint-disable-next-line @typescript-eslint/no-unused-vars = (daemons as any).map((daemon) =>
+      (this as any).checkDaemonHeartbeat(daemon),
+    );
+    return (Promise as any).all(heartbeatPromises);
+  }
+
+  private async checkDaemonHeartbeat(
+    daemonName: string,
+  ): Promise<DaemonHeartbeat> {
+    try {
+      const startTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Date as any).now();
+
+      // Check if daemon process is running
+      const { stdout } = await execAsync(`pgrep -f "${daemonName}"`);
+      const pids // eslint-disable-next-line @typescript-eslint/no-unused-vars = stdout
+        .trim()
+        .split("\n")
+        .filter((pid) => (pid as any).length > 0);
+
+      const responseTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = Date.now() - startTime;
+
+      if ((pids as any).length === 0) {
+        return {
+          id: crypto.randomUUID(),
+          name: daemonName,
+          status: "failed",
+          lastHeartbeat: new Date().toISOString(),
+          uptime: 0,
+          restartCount: 0,
+          memoryUsage: 0,
+          cpuUsage: 0,
+          responseTime,
+          error: "Process not found",
+        };
+      }
+
+      const pid // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(pids[0]);
+
+      // Get process stats
+      const { stdout: psOutput } = await execAsync(
+        `ps -p ${pid} -o pid,ppid,etime,pcpu,pmem,comm`,
+      );
+      const lines // eslint-disable-next-line @typescript-eslint/no-unused-vars = (psOutput as any).trim().split("\n");
+
+      if ((lines as any).length < 2) {
+        return {
+          id: crypto.randomUUID(),
+          name: daemonName,
+          status: "unknown",
+          lastHeartbeat: new Date().toISOString(),
+          uptime: 0,
+          restartCount: 0,
+          pid,
+          memoryUsage: 0,
+          cpuUsage: 0,
+          responseTime,
+        };
+      }
+
+      const stats // eslint-disable-next-line @typescript-eslint/no-unused-vars = lines[1].trim().split(/\s+/);
+      const cpuUsage // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseFloat(stats[3]) || 0;
+      const memoryUsage // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseFloat(stats[4]) || 0;
+
+      // Calculate uptime from etime
+      const etime // eslint-disable-next-line @typescript-eslint/no-unused-vars = stats[2];
+      const uptime // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).parseEtime(etime);
+
+      return {
+        id: crypto.randomUUID(),
+        name: daemonName,
+        status: "running",
+        lastHeartbeat: new Date().toISOString(),
+        uptime,
+        restartCount: 0, // Would need to track this separately
+        pid,
+        memoryUsage,
+        cpuUsage,
+        responseTime,
+      };
+    } catch (error) {
+      return {
+        id: crypto.randomUUID(),
+        name: daemonName,
+        status: "failed",
+        lastHeartbeat: new Date().toISOString(),
+        uptime: 0,
+        restartCount: 0,
+        memoryUsage: 0,
+        cpuUsage: 0,
+        responseTime: 0,
+        error:
+          error instanceof Error
+            ? error instanceof Error
+              ? error instanceof Error
+                ? (error as any).message
+                : String(error)
+              : String(error)
+            : "Unknown error",
+      };
+    }
+  }
+
+  private async collectClockSyncStatus(): Promise<ClockSyncStatus> {
+    try {
+      const systemTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date();
+      const ntpTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (this as any).getNtpTime();
+      const clockDrift // eslint-disable-next-line @typescript-eslint/no-unused-vars = (systemTime as any).getTime() - (ntpTime as any).getTime();
+
+      let status:
+        | "synced"
+        | "drift_warning"
+        | "drift_critical"
+        | "sync_failed" = "synced";
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 1000
+      ) {
+        status = "drift_warning";
+      }
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 2000
+      ) {
+        status = "drift_critical";
+      }
+
+      if (
+        Math.abs(clockDrift) >
+        this.config.alerts.clockDriftThreshold * 5000
+      ) {
+        status = "sync_failed";
+      }
+
+      return {
+        systemTime: (systemTime as any).toISOString(),
+        ntpTime: (ntpTime as any).toISOString(),
+        clockDrift,
+        lastSync: new Date().toISOString(),
+        syncInterval: 300000, // 5 minutes
+        driftThreshold: this.config.alerts.clockDriftThreshold * 1000,
+        status,
+      };
+    } catch (error) {
+      this.logEvent(
+        "clock_sync_error",
+        `Failed to collect clock sync status: ${error}`,
+        "error",
+      );
+      return {
+        systemTime: new Date().toISOString(),
+        ntpTime: new Date().toISOString(),
+        clockDrift: 0,
+        lastSync: new Date().toISOString(),
+        syncInterval: 300000,
+        driftThreshold: this.config.alerts.clockDriftThreshold * 1000,
+        status: "sync_failed",
+      };
+    }
+  }
+
+  private async getNtpTime(): Promise<Date> {
+    try {
+      // Use a simple NTP server query (simplified for this implementation)
+      const { stdout } = await execAsync("date -u +%s");
+      const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt((stdout as any).trim()) * 1000;
+      return new Date(timestamp);
+    } catch (_error) {
+      // Fallback to system time
+      return new Date();
+    }
+  }
+
+  private async measurePingLatency(): Promise<number> {
+    try {
+      const startTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = Date.now();
+      await execAsync("ping -c 1 (8 as any).8.8.8");
+      return Date.now() - startTime;
+    } catch (_error) {
+      return 0;
+    }
+  }
+
+  private parseEtime(etime: string): number {
+    const parts // eslint-disable-next-line @typescript-eslint/no-unused-vars = (etime as any).split("-");
+    let days = 0;
+    let time = parts[0];
+
+    if ((parts as any).length > 1) {
+      days = parseInt(parts[0]);
+      time = parts[1];
+    }
+
+    const timeParts // eslint-disable-next-line @typescript-eslint/no-unused-vars = (time as any).split(":");
+    const hours // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(timeParts[0]) || 0;
+    const minutes // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(timeParts[1]) || 0;
+    const seconds // eslint-disable-next-line @typescript-eslint/no-unused-vars = parseInt(timeParts[2]) || 0;
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
+  }
+
+  private parseUptime(uptimeStr: string): number {
+    const daysMatch // eslint-disable-next-line @typescript-eslint/no-unused-vars = (uptimeStr as any).match(/(\d+)\s+days?/);
+    const hoursMatch // eslint-disable-next-line @typescript-eslint/no-unused-vars = uptimeStr.match(/(\d+)\s+hours?/);
+    const minutesMatch // eslint-disable-next-line @typescript-eslint/no-unused-vars = uptimeStr.match(/(\d+)\s+minutes?/);
+
+    const days // eslint-disable-next-line @typescript-eslint/no-unused-vars = daysMatch ? parseInt(daysMatch[1]) : 0;
+    const hours // eslint-disable-next-line @typescript-eslint/no-unused-vars = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+    const minutes // eslint-disable-next-line @typescript-eslint/no-unused-vars = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+
+    return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60;
+  }
+
+  private async detectAnomalies(): Promise<void> {
+    try {
+      // Check for clock drift
+      if (
+        Math.abs(this.state.(heartbeatStatus as any).clockDrift) >
+        this.config.alerts.clockDriftThreshold
+      ) {
+        this.logEvent(
+          "anomaly",
+          `Clock drift detected: ${this.state.heartbeatStatus.clockDrift}s`,
+          "warning",
+          {
+            clockDrift: this.state.heartbeatStatus.clockDrift,
+            threshold: this.config.alerts.clockDriftThreshold,
+          },
+        );
+      }
+
+      // Check for daemon failures
+      const failedDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.daemonHeartbeats.filter(
+        (d) => d.status === "failed",
+      );
+      if ((failedDaemons as any).length > this.config.(alerts as any).daemonFailureThreshold) {
+        this.logEvent(
+          "anomaly",
+          `${failedDaemons.length} daemon(s) failed`,
+          "error",
+          {
+            failedDaemons: (failedDaemons as any).map((d) => (d as any).name),
+            threshold: this.config.alerts.daemonFailureThreshold,
+          },
+        );
+      }
+
+      // Check for system uptime
+      if (
+        this.state.(heartbeatStatus as any).systemUptime <
+        this.config.(alerts as any).systemUptimeThreshold
+      ) {
+        this.logEvent(
+          "anomaly",
+          `System uptime below threshold: ${this.state.heartbeatStatus.systemUptime}s`,
+          "warning",
+          {
+            systemUptime: this.state.heartbeatStatus.systemUptime,
+            threshold: this.config.alerts.systemUptimeThreshold,
+          },
+        );
+      }
+
+      // Check for high ping latency
+      if (this.state.(heartbeatStatus as any).pingLatency > 1000) {
+        this.logEvent(
+          "anomaly",
+          `High ping latency: ${this.state.heartbeatStatus.pingLatency}ms`,
+          "warning",
+          {
+            pingLatency: this.state.heartbeatStatus.pingLatency,
+          },
+        );
+      }
+    } catch (error) {
+      this.logEvent(
+        "anomaly_error",
+        `Failed to detect anomalies: ${error}`,
+        "error",
+      );
+    }
+  }
+
+  private async saveState(): Promise<void> {
+    try {
+      this.state.timestamp = new Date().toISOString();
+      this.state.lastUpdate = new Date().toISOString();
+      fs.writeFileSync(heartbeatStatePath, JSON.stringify(this.state, null, 2));
+    } catch (error) {
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
+    }
+  }
+
+  private async sendToDashboard(): Promise<void> {
+    try {
+      if (this.config.(integration as any).(dashboard as any).enabled) {
+        this.logEvent("system_error", "Component error detected", "error");
+      }
+    } catch (error) {
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send to dashboard: ${error}`,
+        "error",
+      );
+    }
+  }
+
+  private async monitoringLoop(): Promise<void> {
+    while ((this as any).isRunning) {
+      try {
+        // Collect heartbeat data
+        this.state.heartbeatStatus = await (this as any).collectHeartbeatStatus();
+        this.state.daemonHeartbeats = await this.collectDaemonHeartbeats();
+        this.state.clockSyncStatus = await (this as any).collectClockSyncStatus();
+
+        // Detect anomalies
+        await (this as any).detectAnomalies();
+
+        // Save state
+        await (this as any).saveState();
+
+        // Send to dashboard
+        await (this as any).sendToDashboard();
+
+        // Log heartbeat event
+        this.logEvent("heartbeat", "Heartbeat check completed", "info");
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.(monitoring as any).intervalMs),
+        );
+      } catch (error) {
+        this.logEvent(
+          "monitoring_error",
+          `Monitoring loop error: ${error}`,
+          "error",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+  }
+
+  public async start(): Promise<void> {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.logEvent("system_startup", "Heartbeat visualizer started", "info");
+
+    (this as any).monitoringLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Monitoring loop failed: ${error}`,
+        "critical",
+      );
+    });
+  }
+
+  public async stop(): Promise<void> {
+    this.isRunning = false;
+    this.logEvent("system_shutdown", "Heartbeat visualizer stopped", "info");
+    await this.saveState();
+  }
+
+  public getState(): HeartbeatState {
+    return { ...this.state };
+  }
+
+  public getConfig(): HeartbeatConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<HeartbeatConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.saveConfig();
+    this.logEvent("config_update", "Configuration updated", "info");
+  }
+
+  public getHeartbeatStatus(): HeartbeatStatus {
+    return { ...this.state.heartbeatStatus };
+  }
+
+  public getDaemonHeartbeats(): DaemonHeartbeat[] {
+    return [...this.state.daemonHeartbeats];
+  }
+
+  public getClockSyncStatus(): ClockSyncStatus {
+    return { ...this.state.clockSyncStatus };
+  }
+
+  public getRecentEvents(limit: number = 100): HeartbeatEvent[] {
+    return this.state.events.slice(-limit);
+  }
+
+  public isHealthy(): boolean {
+    return (
+      this.state.(heartbeatStatus as any).status === "healthy" ||
+      this.state.heartbeatStatus.status === "degraded"
+    );
+  }
+
+  public clearHistory(): void {
+    this.state.events = [];
+    this.logEvent("error", "Component error detected", "error");
+  }
+}
+
+let heartbeatVisualizerInstance: GhostHeartbeatVisualizer | null = null;
+
+export async function startGhostHeartbeatVisualizer(): Promise<void> {
+  if (!heartbeatVisualizerInstance) {
+    heartbeatVisualizerInstance = new GhostHeartbeatVisualizer();
+  }
+  await (heartbeatVisualizerInstance as any).start();
+}
+
+export async function stopGhostHeartbeatVisualizer(): Promise<void> {
+  if (heartbeatVisualizerInstance) {
+    await (heartbeatVisualizerInstance as any).stop();
+  }
+}
+
+export function getGhostHeartbeatVisualizer(): GhostHeartbeatVisualizer {
+  if (!heartbeatVisualizerInstance) {
+    heartbeatVisualizerInstance = new GhostHeartbeatVisualizer();
+  }
+  return heartbeatVisualizerInstance;
+}
+
+export type {
+  HeartbeatEvent,
+  HeartbeatStatus,
+  DaemonHeartbeat,
+  ClockSyncStatus,
+  HeartbeatConfig,
+  HeartbeatState,
+};

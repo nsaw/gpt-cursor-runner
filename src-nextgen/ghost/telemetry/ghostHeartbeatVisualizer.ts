@@ -332,9 +332,9 @@ class GhostHeartbeatVisualizer {
           this.config.security.sanitizeData &&
           ["apiKey", "token", "password", "secret"].includes(key.toLowerCase())
         ) {
-          sanitized[key] = "[REDACTED]";
+          (sanitized as any)[key] = "[REDACTED]";
         } else {
-          sanitized[key] = this.sanitizeData(value);
+          (sanitized as any)[key] = this.sanitizeData(value);
         }
       }
       return sanitized;

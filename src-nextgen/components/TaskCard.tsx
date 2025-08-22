@@ -3,11 +3,11 @@ import { View, Text } from "react-native";
 import { useSlotMode } from "../state/slotMode";
 
 declare const console: {
-  log: (...args: any[]) => void;
-  error: (...args: any[]) => void;
-  warn: (...args: any[]) => void;
-  info: (...args: any[]) => void;
-  debug: (...args: any[]) => void;
+  log: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  debug: (...args: unknown[]) => void;
 };
 
 export const TaskCard = () => {

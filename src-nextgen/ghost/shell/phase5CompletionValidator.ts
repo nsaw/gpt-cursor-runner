@@ -3,7 +3,13 @@ import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 
-declare const console: unknown;
+declare const console: {
+  log: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+};
 
 const execAsync = promisify(exec);
 const validationLogPath =
@@ -164,7 +170,7 @@ async function validateTypeScriptCompilation(): Promise<ValidationResult> {
   }
 }
 
-function validateNonBlockingPatterns(): Promise<ValidationResult> {
+async function validateNonBlockingPatterns(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -212,7 +218,7 @@ function validateNonBlockingPatterns(): Promise<ValidationResult> {
   }
 }
 
-function validateAbsolutePaths(): Promise<ValidationResult> {
+async function validateAbsolutePaths(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -260,7 +266,7 @@ function validateAbsolutePaths(): Promise<ValidationResult> {
   }
 }
 
-function validateErrorHandling(): Promise<ValidationResult> {
+async function validateErrorHandling(): Promise<ValidationResult> {
   try {
     const shellDir =
       "/Users/sawyer/gitSync/gpt-cursor-runner/src-nextgen/ghost/shell";
@@ -271,10 +277,10 @@ function validateErrorHandling(): Promise<ValidationResult> {
 
     for (const file of files) {
       const content = fs.readFileSync(path.join(shellDir, file), "utf8");
-      if (content.includes("try") && content.includes("catch")) {
+      if (content.includes("try {") && content.includes("} catch")) {
         tryCatchFound = true;
       }
-      if (content.includes("error") || content.includes("Error")) {
+      if (content.includes("console.error") || content.includes("throw new Error")) {
         errorHandlingFound = true;
       }
     }
@@ -283,13 +289,13 @@ function validateErrorHandling(): Promise<ValidationResult> {
       return {
         component: "Error Handling",
         status: "PASS",
-        message: "Comprehensive error handling implemented",
+        message: "Proper error handling patterns found",
       };
     } else if (tryCatchFound) {
       return {
         component: "Error Handling",
         status: "WARNING",
-        message: "Basic error handling found",
+        message: "Try-catch found but error logging may be missing",
       };
     } else {
       return {
@@ -364,7 +370,7 @@ async function runPhase5Validation(): Promise<Phase5CompletionStatus> {
   };
 }
 
-function logValidationStatus(
+async function logValidationStatus(
   status: Phase5CompletionStatus,
 ): Promise<void> {
   const statusEmoji =
@@ -380,7 +386,7 @@ function logValidationStatus(
     fs.appendFileSync(validationLogPath, logEntry);
   } catch (err) {
     console.error(
-      "[phaserror5-validator] Failed to writerror validation log:",
+      "[phase5-validator] Failed to write validation log:",
       err,
     );
   }
@@ -388,7 +394,7 @@ function logValidationStatus(
 
 export async function validatePhase5Completion(): Promise<Phase5CompletionStatus> {
   console.log(
-    "[phaserror5-validator] Starting Phaserror 5 completion validation...",
+    "[phase5-validator] Starting Phase 5 completion validation...",
   );
 
   const status = await runPhase5Validation();
@@ -397,7 +403,7 @@ export async function validatePhase5Completion(): Promise<Phase5CompletionStatus
   return status;
 }
 
-export function createPhase5Backup(): Promise<boolean> {
+export async function createPhase5Backup(): Promise<boolean> {
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const backupDir = `/Users/sawyer/gitSync/.cursor-cache/CYOPS/backups/phase5-completion-${timestamp}`;
@@ -429,10 +435,10 @@ export function createPhase5Backup(): Promise<boolean> {
       }
     }
 
-    console.log(`[phaserror5-validator] Backup created: ${backupDir}`);
+    console.log(`[phase5-validator] Backup created: ${backupDir}`);
     return true;
   } catch (err) {
-    console.error("[phaserror5-validator] Backup creation failed:", err);
+    console.error("[phase5-validator] Backup creation failed:", err);
     return false;
   }
 }

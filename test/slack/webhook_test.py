@@ -1,46 +1,7 @@
 # Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
-# Company Confidential
 #!/usr/bin/env python3
-""""""""
-Slack webhook test module""""""""
+"""
+Slack webhook test module
 """
 
 import os
@@ -48,9 +9,8 @@ import requests
 from datetime import datetime
 
 
-def test_webhook():"""
- """""""""""
-    """Test Slack webhook functionality""""""""
+def test_webhook() -> bool:
+    """Test Slack webhook functionality"""
     print("🔗 Testing Slack webhook...")
 
     # Get webhook URL from environment

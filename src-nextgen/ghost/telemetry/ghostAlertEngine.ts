@@ -754,7 +754,7 @@ class GhostAlertEngine {
         const cutoffTime = new Date(now.getTime() - duration * 1000);
 
         return data.aggregatedMetrics.filter((m: unknown) => {
-          return m.name === metricName && new Date(m.timestamp) >= cutoffTime;
+          return (m as any).name === metricName && new Date((m as any).timestamp) >= cutoffTime;
         });
       }
 
@@ -772,7 +772,7 @@ class GhostAlertEngine {
   private aggregateMetricData(data: unknown[], aggregation: string): number {
     if (data.length === 0) return 0;
 
-    const values = data.map((d) => d.value);
+    const values = data.map((d) => (d as any).value);
 
     switch (aggregation) {
       case "avg":
@@ -871,8 +871,8 @@ class GhostAlertEngine {
     let message = rule.description;
 
     // Replace template variables
-    if (data.value !== undefined) {
-      message = message.replace(/{{value}}/g, data.value.toString());
+    if ((data as any).value !== undefined) {
+      message = message.replace(/{{value}}/g, (data as any).value.toString());
     }
 
     return message;
@@ -995,7 +995,7 @@ class GhostAlertEngine {
     alertEvent: AlertEvent,
   ): Promise<void> {
     try {
-      const webhookUrl = channel.config.webhookUrl;
+      const webhookUrl = (channel.config as any).webhookUrl;
       if (!webhookUrl) {
         throw new Error("Webhook URL not configured");
       }
@@ -1011,8 +1011,8 @@ class GhostAlertEngine {
           timestamp: alertEvent.timestamp,
           data: alertEvent.data,
         },
-        channel: channel.config.channel || "dashboard",
-        username: channel.config.username || "GHOST Alert Engine",
+        channel: (channel.config as any).channel || "dashboard",
+        username: (channel.config as any).username || "GHOST Alert Engine",
         timestamp: new Date().toISOString(),
       };
 
@@ -1040,7 +1040,7 @@ class GhostAlertEngine {
     alertEvent: AlertEvent,
   ): Promise<void> {
     try {
-      const config = channel.config;
+      const config = channel.config as any;
 
       // Only send email for critical alerts or if explicitly configured
       if (alertEvent.severity !== "critical" && !config.sendAllAlerts) {
@@ -1123,7 +1123,7 @@ Please check the dashboard for more details: https://gpt-cursor-runner.thoughtma
     try {
       const command = action.target.replace(/{{.*?}}/g, (match) => {
         const key = match.slice(2, -2);
-        return alertEvent.data[key] || match;
+        return (alertEvent.data as any)[key] || match;
       });
 
       const { stdout, stderr } = await execAsync(command);

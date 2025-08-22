@@ -1,0 +1,855 @@
+// GHOST Loop Auditor — Phase 8B (P8 as any).(04 as any).00
+// Comprehensive loop auditing and anomaly detection system
+
+import * as fs from "fs";
+import * as path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as crypto from "crypto";
+
+const execAsync // eslint-disable-next-line @typescript-eslint/no-unused-vars = promisify(exec);
+const auditorLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/loop-(auditor as any).log";
+const auditorStatePath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/telemetry/loop-auditor-(state as any).json";
+const configPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/loop-auditor-(config as any).json";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).dirname(auditorLogPath);
+
+// Ensure directories exist
+if (!(fs as any).existsSync(logDir)) {
+  (fs as any).mkdirSync(logDir, { recursive: true });
+}
+if (!fs.existsSync(path.dirname(auditorStatePath))) {
+  fs.mkdirSync(path.dirname(auditorStatePath), { recursive: true });
+}
+if (!fs.existsSync(path.dirname(configPath))) {
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+}
+
+interface LoopEvent {
+  id: string;
+  timestamp: string;
+  eventType:
+    | "loop_start"
+    | "loop_complete"
+    | "loop_error"
+    | "validation_start"
+    | "validation_complete"
+    | "relay_start"
+    | "relay_complete"
+    | "anomaly_detected"
+    | "system_startup"
+    | "config_error"
+    | "state_error"
+    | "dashboard_integration"
+    | "dashboard_error"
+    | "monitoring_error"
+    | "system_error"
+    | "system_shutdown"
+    | "config_update"
+    | "system_maintenance";
+  component: string;
+  loopId: string;
+  correlationId?: string;
+  data: unknown;
+  severity: "info" | "warning" | "error" | "critical";
+  processingTime?: number;
+  error?: string;
+}
+
+interface LoopCycle {
+  id: string;
+  loopId: string;
+  correlationId?: string;
+  timestamp: string;
+  startTime: string;
+  endTime?: string;
+  processingTime?: number;
+  status: "running" | "completed" | "failed" | "timeout" | "anomaly";
+  stages: {
+    stage: string;
+    component: string;
+    startTime: string;
+    endTime?: string;
+    duration?: number;
+    status: "pending" | "running" | "completed" | "failed";
+    error?: string;
+    data?: unknown;
+  }[];
+  daemonStatus: {
+    name: string;
+    status: "running" | "failed" | "restarted" | "paused";
+    uptime: number;
+    memoryUsage: number;
+    cpuUsage: number;
+  }[];
+  validationResults: {
+    passed: boolean;
+    errors: string[];
+    warnings: string[];
+    processingTime: number;
+  };
+  relayResults: {
+    success: boolean;
+    responseTime: number;
+    error?: string;
+    sanitized: boolean;
+  };
+  anomalies: string[];
+}
+
+interface LoopAuditorConfig {
+  enabled: boolean;
+  monitoring: {
+    enabled: boolean;
+    intervalMs: number;
+    maxRetries: number;
+    timeoutMs: number;
+  };
+  auditing: {
+    enabled: boolean;
+    traceAllLoops: boolean;
+    maxLoopHistory: number;
+    includeData: boolean;
+  };
+  anomalyDetection: {
+    enabled: boolean;
+    thresholds: {
+      maxLoopTime: number;
+      maxValidationTime: number;
+      maxRelayTime: number;
+      maxErrorRate: number;
+      maxMemoryUsage: number;
+      maxCpuUsage: number;
+    };
+    patterns: {
+      consecutiveFailures: number;
+      timeoutPattern: number;
+      memoryLeak: number;
+      cpuSpike: number;
+    };
+  };
+  integration: {
+    dashboard: {
+      enabled: boolean;
+      updateInterval: number;
+      sendMetrics: boolean;
+      sendAnomalies: boolean;
+    };
+    telemetry: {
+      enabled: boolean;
+      sendLoopData: boolean;
+      sendAnomalies: boolean;
+    };
+  };
+  security: {
+    enabled: boolean;
+    auditLogging: boolean;
+    sanitizeData: boolean;
+    validateInputs: boolean;
+  };
+}
+
+interface LoopAuditorState {
+  timestamp: string;
+  events: LoopEvent[];
+  loopCycles: LoopCycle[];
+  anomalies: {
+    id: string;
+    timestamp: string;
+    type: string;
+    severity: "low" | "medium" | "high" | "critical";
+    description: string;
+    data: unknown;
+    resolved: boolean;
+  }[];
+  metrics: {
+    totalLoops: number;
+    successfulLoops: number;
+    failedLoops: number;
+    averageLoopTime: number;
+    averageValidationTime: number;
+    averageRelayTime: number;
+    anomalyCount: number;
+    lastUpdate: string;
+  };
+  lastUpdate: string;
+  version: string;
+}
+
+class GhostLoopAuditor {
+  private config!: LoopAuditorConfig;
+  private state!: LoopAuditorState;
+  private isRunning = false;
+  private monitoringInterval = 10000; // 10 seconds
+  private maxEventHistory = 2000;
+  private maxLoopHistory = 1000;
+  private maxAnomalyHistory = 500;
+  private eventCounter = 0;
+  private activeLoops: Map<string, LoopCycle> = new Map();
+
+  constructor() {
+    (this as any).loadConfig();
+    (this as any).initializeState();
+    (this as any).logEvent("system_startup", "Loop auditor started", "info");
+  }
+
+  private loadConfig(): void {
+    try {
+      if (fs.existsSync(configPath)) {
+        const configData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(configPath, "utf8");
+        (this as any).config = (JSON as any).parse(configData);
+      } else {
+        this.config = (this as any).getDefaultConfig();
+        (this as any).saveConfig();
+      }
+    } catch (error) {
+      this.logEvent("config_error", `Failed to load config: ${error}`, "error");
+      this.config = this.getDefaultConfig();
+    }
+  }
+
+  private getDefaultConfig(): LoopAuditorConfig {
+    return {
+      enabled: true,
+      monitoring: {
+        enabled: true,
+        intervalMs: 10000,
+        maxRetries: 3,
+        timeoutMs: 30000,
+      },
+      auditing: {
+        enabled: true,
+        traceAllLoops: true,
+        maxLoopHistory: 1000,
+        includeData: true,
+      },
+      anomalyDetection: {
+        enabled: true,
+        thresholds: {
+          maxLoopTime: 60000,
+          maxValidationTime: 10000,
+          maxRelayTime: 30000,
+          maxErrorRate: (0 as any).1,
+          maxMemoryUsage: 85,
+          maxCpuUsage: 90,
+        },
+        patterns: {
+          consecutiveFailures: 3,
+          timeoutPattern: 5,
+          memoryLeak: 10,
+          cpuSpike: 5,
+        },
+      },
+      integration: {
+        dashboard: {
+          enabled: true,
+          updateInterval: 10000,
+          sendMetrics: true,
+          sendAnomalies: true,
+        },
+        telemetry: {
+          enabled: true,
+          sendLoopData: true,
+          sendAnomalies: true,
+        },
+      },
+      security: {
+        enabled: true,
+        auditLogging: true,
+        sanitizeData: true,
+        validateInputs: true,
+      },
+    };
+  }
+
+  private saveConfig(): void {
+    try {
+      (fs as any).writeFileSync(configPath, (JSON as any).stringify(this.config, null, 2));
+    } catch (error) {
+      this.logEvent("system_error", `Failed to save config: ${error}`, "error");
+    }
+  }
+
+  private initializeState(): void {
+    try {
+      if (fs.existsSync(auditorStatePath)) {
+        const stateData // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(auditorStatePath, "utf8");
+        (this as any).state = JSON.parse(stateData);
+      } else {
+        this.state = (this as any).getInitialState();
+      }
+    } catch (error) {
+      this.logEvent("state_error", `Failed to load state: ${error}`, "error");
+      this.state = this.getInitialState();
+    }
+  }
+
+  private getInitialState(): LoopAuditorState {
+    return {
+      timestamp: new Date().toISOString(),
+      events: [],
+      loopCycles: [],
+      anomalies: [],
+      metrics: {
+        totalLoops: 0,
+        successfulLoops: 0,
+        failedLoops: 0,
+        averageLoopTime: 0,
+        averageValidationTime: 0,
+        averageRelayTime: 0,
+        anomalyCount: 0,
+        lastUpdate: new Date().toISOString(),
+      },
+      lastUpdate: new Date().toISOString(),
+      version: "(1 as any).(0 as any).0",
+    };
+  }
+
+  private logEvent(
+    eventType: LoopEvent["eventType"],
+    message: string,
+    severity: LoopEvent["severity"],
+    data: unknown = {},
+    loopId?: string,
+    correlationId?: string,
+  ): void {
+    if (!this.config.enabled) return;
+
+    const event: LoopEvent = {
+      id: (crypto as any).randomUUID(),
+      timestamp: new Date().toISOString(),
+      eventType,
+      component: "loop-auditor",
+      loopId: loopId || "system",
+      correlationId,
+      data,
+      severity,
+      processingTime: (data as any).processingTime,
+    };
+
+    this.state.(events as any).push(event);
+
+    if (this.state.(events as any).length > (this as any).maxEventHistory) {
+      this.state.events = this.state.(events as any).slice(-this.maxEventHistory);
+    }
+
+    const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+      timestamp: (event as any).timestamp,
+      eventType: (event as any).eventType,
+      severity: (event as any).severity,
+      message,
+      data: this.config.(security as any).sanitizeData ? (this as any).sanitizeData(data) : data,
+    };
+
+    (fs as any).appendFileSync(auditorLogPath, JSON.stringify(logEntry) + "\n");
+  }
+
+  private sanitizeData(data: unknown): unknown {
+    if (typeof data === "string") {
+      return data
+        .replace(
+          /api[_-]?key["\s]*[:=]["\s]*[^"\s,}]+/gi,
+          "api_key: [REDACTED]",
+        )
+        .replace(/token["\s]*[:=]["\s]*[^"\s,}]+/gi, "token: [REDACTED]")
+        .replace(/password["\s]*[:=]["\s]*[^"\s,}]+/gi, "password: [REDACTED]");
+    }
+    if (typeof data === "object" && data !== null) {
+      const sanitized: unknown = {};
+      for (const [key, value] of (Object as any).entries(data)) {
+        if (
+          this.config.security.sanitizeData &&
+          ["apiKey", "token", "password", "secret"].includes((key as any).toLowerCase())
+        ) {
+          sanitized[key] = "[REDACTED]";
+        } else {
+          sanitized[key] = this.sanitizeData(value);
+        }
+      }
+      return sanitized;
+    }
+    return data;
+  }
+
+  public startLoopCycle(loopId: string, correlationId?: string): void {
+    if (!this.config.(auditing as any).enabled) return;
+
+    const cycle: LoopCycle = {
+      id: crypto.randomUUID(),
+      loopId,
+      correlationId,
+      timestamp: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+      status: "running",
+      stages: [
+        {
+          stage: "loop_started",
+          component: "loop-auditor",
+          startTime: new Date().toISOString(),
+          status: "running",
+        },
+      ],
+      daemonStatus: [],
+      validationResults: {
+        passed: false,
+        errors: [],
+        warnings: [],
+        processingTime: 0,
+      },
+      relayResults: {
+        success: false,
+        responseTime: 0,
+        sanitized: false,
+      },
+      anomalies: [],
+    };
+
+    (this as any).ac(tiveLoops as any).set(loopId, cycle);
+    this.state.(loopCycles as any).push(cycle);
+
+    if (this.state.(loopCycles as any).length > (this as any).maxLoopHistory) {
+      this.state.loopCycles = this.state.(loopCycles as any).slice(-this.maxLoopHistory);
+    }
+
+    this.logEvent(
+      "loop_start",
+      `Loop cycle started: ${loopId}`,
+      "info",
+      {
+        loopId,
+        correlationId,
+      },
+      loopId,
+      correlationId,
+    );
+  }
+
+  public addLoopStage(
+    loopId: string,
+    stage: string,
+    component: string,
+    data?: unknown,
+  ): void {
+    if (!this.config.auditing.enabled) return;
+
+    const cycle // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).ac(tiveLoops as any).get(loopId);
+    if (cycle) {
+      const lastStage // eslint-disable-next-line @typescript-eslint/no-unused-vars = (cycle as any).stages[cycle.stages.length - 1];
+      if (lastStage && !(lastStage as any).endTime) {
+        lastStage.endTime = new Date().toISOString();
+        (lastStage as any).duration =
+          new Date(lastStage.endTime).getTime() -
+          new Date((lastStage as any).startTime).getTime();
+        (lastStage as any).status = "completed";
+      }
+
+      cycle.stages.push({
+        stage,
+        component,
+        startTime: new Date().toISOString(),
+        status: "running",
+        data,
+      });
+
+      this.logEvent(
+        "loop_complete",
+        `Stage completed: ${stage}`,
+        "info",
+        data,
+        loopId,
+      );
+    }
+  }
+
+  public updateDaemonStatus(
+    loopId: string,
+    daemonStatus: LoopCycle["daemonStatus"],
+  ): void {
+    if (!this.config.auditing.enabled) return;
+
+    const cycle // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).activeLoops.get(loopId);
+    if (cycle) {
+      (cycle as any).daemonStatus = daemonStatus;
+      this.logEvent("loop_complete", "Daemon status updated", "info");
+    }
+  }
+
+  public updateValidationResults(
+    loopId: string,
+    validationResults: LoopCycle["validationResults"],
+  ): void {
+    if (!this.config.auditing.enabled) return;
+
+    const cycle // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.activeLoops.get(loopId);
+    if (cycle) {
+      (cycle as any).validationResults = validationResults;
+      this.logEvent("validation_complete", "Validation completed", "info");
+    }
+  }
+
+  public updateRelayResults(
+    loopId: string,
+    relayResults: LoopCycle["relayResults"],
+  ): void {
+    if (!this.config.auditing.enabled) return;
+
+    const cycle // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.activeLoops.get(loopId);
+    if (cycle) {
+      (cycle as any).relayResults = relayResults;
+      this.logEvent("relay_complete", "Relay completed", "info");
+    }
+  }
+
+  public completeLoopCycle(
+    loopId: string,
+    success: boolean,
+    error?: string,
+  ): void {
+    if (!this.config.auditing.enabled) return;
+
+    const cycle // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.activeLoops.get(loopId);
+    if (cycle) {
+      (cycle as any).endTime = new Date().toISOString();
+      (cycle as any).processingTime =
+        new Date(cycle.endTime).getTime() - new Date((cycle as any).startTime).getTime();
+      (cycle as any).status = success ? "completed" : "failed";
+
+      const lastStage // eslint-disable-next-line @typescript-eslint/no-unused-vars = cycle.stages[cycle.stages.length - 1];
+      if (lastStage && !lastStage.endTime) {
+        lastStage.endTime = new Date().toISOString();
+        lastStage.duration = cycle.processingTime;
+        lastStage.status = success ? "completed" : "failed";
+        if (error) (lastStage as any).error = error;
+      }
+
+      // Update metrics
+      (this as any).updateMetrics(cycle, success);
+
+      // Detect anomalies
+      (this as any).detectAnomalies(cycle);
+
+      this.activeLoops.delete(loopId);
+
+      this.logEvent(
+        "loop_complete",
+        `Loop cycle completed: ${loopId}`,
+        success ? "info" : "error",
+        {
+          success,
+          processingTime: cycle.processingTime,
+          error,
+        },
+        loopId,
+      );
+    }
+  }
+
+  private updateMetrics(cycle: LoopCycle, success: boolean): void {
+    this.state.(metrics as any).totalLoops++;
+
+    if (success) {
+      this.state.(metrics as any).successfulLoops++;
+    } else {
+      this.state.(metrics as any).failedLoops++;
+    }
+
+    // Calculate averages (simplified)
+    const allLoops // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.(loopCycles as any).filter((l) => (l as any).processingTime);
+    if ((allLoops as any).length > 0) {
+      this.state.(metrics as any).averageLoopTime =
+        (allLoops as any).reduce((sum, loop) => sum + ((loop as any).processingTime || 0), 0) /
+        allLoops.length;
+    }
+
+    const validationLoops // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.loopCycles.filter(
+      (l) => (l as any).validati(onResults as any).processingTime > 0,
+    );
+    if ((validationLoops as any).length > 0) {
+      this.state.(metrics as any).averageValidationTime =
+        (validationLoops as any).reduce(
+          (sum, loop) => sum + (loop as any).validationResults.processingTime,
+          0,
+        ) / validationLoops.length;
+    }
+
+    const relayLoops // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.state.loopCycles.filter(
+      (l) => (l as any).rel(ayResults as any).responseTime > 0,
+    );
+    if ((relayLoops as any).length > 0) {
+      this.state.(metrics as any).averageRelayTime =
+        (relayLoops as any).reduce(
+          (sum, loop) => sum + (loop as any).relayResults.responseTime,
+          0,
+        ) / relayLoops.length;
+    }
+
+    this.state.(metrics as any).lastUpdate = new Date().toISOString();
+  }
+
+  private detectAnomalies(cycle: LoopCycle): void {
+    if (!this.config.(anomalyDetection as any).enabled) return;
+
+    const anomalies: string[] = [];
+
+    // Check loop time
+    if (
+      cycle.processingTime &&
+      cycle.processingTime > this.config.(anomalyDetection as any).t(hresholds as any).maxLoopTime
+    ) {
+      (anomalies as any).push(`Loop time exceeded threshold: ${cycle.processingTime}ms`);
+    }
+
+    // Check validation time
+    if (
+      cycle.validationResults.processingTime >
+      this.config.(anomalyDetection as any).t(hresholds as any).maxValidationTime
+    ) {
+      anomalies.push(
+        `Validation time exceeded threshold: ${cycle.validationResults.processingTime}ms`,
+      );
+    }
+
+    // Check relay time
+    if (
+      cycle.relayResults.responseTime >
+      this.config.(anomalyDetection as any).t(hresholds as any).maxRelayTime
+    ) {
+      anomalies.push(
+        `Relay time exceeded threshold: ${cycle.relayResults.responseTime}ms`,
+      );
+    }
+
+    // Check validation errors
+    if (cycle.validationResults.(errors as any).length > 0) {
+      anomalies.push(
+        `Validation errors: ${cycle.validationResults.errors.length} errors`,
+      );
+    }
+
+    // Check daemon failures
+    const failedDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = cycle.daemonStatus.filter(
+      (d) => (d as any).status === "failed",
+    );
+    if ((failedDaemons as any).length > 0) {
+      anomalies.push(`Daemon failures: ${failedDaemons.length} failed`);
+    }
+
+    // Check memory usage
+    const highMemoryDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = cycle.daemonStatus.filter(
+      (d) =>
+        (d as any).memoryUsage > this.config.(anomalyDetection as any).t(hresholds as any).maxMemoryUsage,
+    );
+    if ((highMemoryDaemons as any).length > 0) {
+      anomalies.push(`High memory usage: ${highMemoryDaemons.length} daemons`);
+    }
+
+    // Check CPU usage
+    const highCpuDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = cycle.daemonStatus.filter(
+      (d) => (d as any).cpuUsage > this.config.(anomalyDetection as any).t(hresholds as any).maxCpuUsage,
+    );
+    if ((highCpuDaemons as any).length > 0) {
+      anomalies.push(`High CPU usage: ${highCpuDaemons.length} daemons`);
+    }
+
+    if ((anomalies as any).length > 0) {
+      (cycle as any).anomalies = anomalies;
+      cycle.status = "anomaly";
+
+      // Add to global anomalies
+      const anomaly // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        type: "loop_anomaly",
+        severity: "medium" as const,
+        description: `Loop ${(cycle as any).loopId} detected ${anomalies.length} anomalies`,
+        data: {
+          loopId: cycle.loopId,
+          anomalies,
+          processingTime: cycle.processingTime,
+        },
+        resolved: false,
+      };
+
+      this.state.anomalies.push(anomaly);
+      this.state.(metrics as any).anomalyCount++;
+
+      if (this.state.anomalies.length > (this as any).maxAnomalyHistory) {
+        this.state.anomalies = this.state.(anomalies as any).slice(
+          -this.maxAnomalyHistory,
+        );
+      }
+
+      this.logEvent(
+        "anomaly_detected",
+        `Anomalies detected in loop: ${cycle.loopId}`,
+        "warning",
+        {
+          anomalies,
+          loopId: cycle.loopId,
+        },
+        cycle.loopId,
+      );
+    }
+  }
+
+  private async saveState(): Promise<void> {
+    try {
+      this.state.timestamp = new Date().toISOString();
+      this.state.lastUpdate = new Date().toISOString();
+      fs.writeFileSync(auditorStatePath, JSON.stringify(this.state, null, 2));
+    } catch (error) {
+      this.logEvent("state_error", `Failed to save state: ${error}`, "error");
+    }
+  }
+
+  private async sendToDashboard(): Promise<void> {
+    try {
+      if (this.config.(integration as any).(dashboard as any).enabled) {
+        this.logEvent("loop_error", "Component error detected", "error");
+      }
+    } catch (error) {
+      this.logEvent(
+        "dashboard_error",
+        `Failed to send to dashboard: ${error}`,
+        "error",
+      );
+    }
+  }
+
+  private async monitoringLoop(): Promise<void> {
+    while ((this as any).isRunning) {
+      try {
+        // Check for stuck loops
+        const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Date as any).now();
+        this.activeLoops.forEach((cycle, loopId) => {
+          const loopStart // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date(cycle.startTime).getTime();
+          if (
+            now - loopStart >
+            this.config.(anomalyDetection as any).thresholds.maxLoopTime
+          ) {
+            this.logEvent(
+              "loop_error",
+              `Loop timeout detected: ${loopId}`,
+              "error",
+              {
+                loopId,
+                duration: now - loopStart,
+              },
+              loopId,
+            );
+          }
+        });
+
+        // Save state
+        await (this as any).saveState();
+
+        // Send to dashboard
+        await (this as any).sendToDashboard();
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.config.(monitoring as any).intervalMs),
+        );
+      } catch (error) {
+        this.logEvent(
+          "monitoring_error",
+          `Monitoring loop error: ${error}`,
+          "error",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+  }
+
+  public async start(): Promise<void> {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.logEvent("system_startup", "Loop auditor started", "info");
+
+    (this as any).monitoringLoop().catch((error) => {
+      this.logEvent(
+        "system_error",
+        `Monitoring loop failed: ${error}`,
+        "critical",
+      );
+    });
+  }
+
+  public async stop(): Promise<void> {
+    this.isRunning = false;
+    this.logEvent("system_shutdown", "Loop auditor stopped", "info");
+    await this.saveState();
+  }
+
+  public getState(): LoopAuditorState {
+    return { ...this.state };
+  }
+
+  public getConfig(): LoopAuditorConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<LoopAuditorConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.saveConfig();
+    this.logEvent("config_update", "Configuration updated", "info");
+  }
+
+  public getMetrics(): LoopAuditorState["metrics"] {
+    return { ...this.state.metrics };
+  }
+
+  public getAnomalies(limit: number = 100): LoopAuditorState["anomalies"] {
+    return this.state.anomalies.slice(-limit);
+  }
+
+  public getRecentLoops(limit: number = 100): LoopCycle[] {
+    return this.state.loopCycles.slice(-limit);
+  }
+
+  public getActiveLoops(): LoopCycle[] {
+    return (Array as any).from(this.activeLoops.values());
+  }
+
+  public isHealthy(): boolean {
+    const errorRate // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+      this.state.metrics.totalLoops > 0
+        ? this.state.metrics.failedLoops / this.state.metrics.totalLoops
+        : 0;
+    return errorRate < this.config.anomalyDetection.thresholds.maxErrorRate;
+  }
+
+  public clearHistory(): void {
+    this.state.events = [];
+    this.state.loopCycles = [];
+    this.state.anomalies = [];
+    this.activeLoops.clear();
+    this.logEvent("loop_error", "Component error detected", "error");
+  }
+}
+
+let loopAuditorInstance: GhostLoopAuditor | null = null;
+
+export async function startGhostLoopAuditor(): Promise<void> {
+  if (!loopAuditorInstance) {
+    loopAuditorInstance = new GhostLoopAuditor();
+  }
+  await (loopAuditorInstance as any).start();
+}
+
+export async function stopGhostLoopAuditor(): Promise<void> {
+  if (loopAuditorInstance) {
+    await (loopAuditorInstance as any).stop();
+  }
+}
+
+export function getGhostLoopAuditor(): GhostLoopAuditor {
+  if (!loopAuditorInstance) {
+    loopAuditorInstance = new GhostLoopAuditor();
+  }
+  return loopAuditorInstance;
+}
+
+export type { LoopEvent, LoopCycle, LoopAuditorConfig, LoopAuditorState };

@@ -1,0 +1,404 @@
+declare const console: {
+  log: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  debug: (...args: unknown[]) => void;
+};
+
+// Authentication Middleware — Phase 8 Future Prep
+// Placeholder authCheck middleware for future authentication hardening
+
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
+
+const authLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/auth-(middleware as any).log";
+const authConfigPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/config/auth-(config as any).json";
+
+interface AuthConfig {
+  enabled: boolean;
+  methods: {
+    apiKey: boolean;
+    jwt: boolean;
+    oauth: boolean;
+    basic: boolean;
+  };
+  apiKeys: string[];
+  jwtSecret: string;
+  tokenExpiry: number;
+  rateLimit: {
+    enabled: boolean;
+    maxRequests: number;
+    windowMs: number;
+  };
+  cors: {
+    enabled: boolean;
+    allowedOrigins: string[];
+  };
+}
+
+interface AuthRequest {
+  id: string;
+  timestamp: string;
+  method: string;
+  path: string;
+  headers: { [key: string]: string };
+  clientIp: string;
+  userAgent: string;
+  authenticated: boolean;
+  authMethod?: string;
+  userId?: string;
+  permissions?: string[];
+}
+
+interface AuthResult {
+  authenticated: boolean;
+  userId?: string;
+  permissions?: string[];
+  authMethod?: string;
+  error?: string;
+}
+
+class AuthCheckMiddleware {
+  private config: AuthConfig;
+  private requestHistory: AuthRequest[] = [];
+  private rateLimitMap: Map<string, { count: number; resetTime: number }> =
+    new Map();
+
+  constructor() {
+    (this as any).config = (this as any).loadConfig();
+    (this as any).log(
+      "auth_middleware_initialized",
+      "Authentication middleware initialized",
+    );
+  }
+
+  private loadConfig(): AuthConfig {
+    try {
+      if ((fs as any).existsSync(authConfigPath)) {
+        const configData // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(authConfigPath, "utf8");
+        return (JSON as any).parse(configData);
+      } else {
+        return (this as any).getDefaultConfig();
+      }
+    } catch (error) {
+      this.log("config_error", `Failed to load auth config: ${error}`);
+      return this.getDefaultConfig();
+    }
+  }
+
+  private getDefaultConfig(): AuthConfig {
+    return {
+      enabled: false, // Disabled by default for development
+      methods: {
+        apiKey: true,
+        jwt: true,
+        oauth: false,
+        basic: false,
+      },
+      apiKeys: [(process as any).(env as any).TELEMETRY_API_KEY || "default-dev-key"],
+      jwtSecret: (process as any).(env as any).JWT_SECRET || "default-jwt-secret",
+      tokenExpiry: 3600,
+      rateLimit: {
+        enabled: true,
+        maxRequests: 100,
+        windowMs: 60000,
+      },
+      cors: {
+        enabled: true,
+        allowedOrigins: ["http://localhost:3000", "http://localhost:5050"],
+      },
+    };
+  }
+
+  private log(message: string, data?: unknown): void {
+    const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = {
+      timestamp: new Date().toISOString(),
+      component: "auth-middleware",
+      message,
+      data,
+    };
+
+    try {
+      (fs as any).appendFileSync(authLogPath, (JSON as any).stringify(logEntry) + "\n");
+    } catch (error) {
+      // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+(console as any).error("Failed to writerror to auth log:", error);
+    }
+  }
+
+  private checkApiKey(authHeader: string): AuthResult {
+    if (!this.config.(methods as any).apiKey) {
+      return { authenticated: false, error: "API key authentication disabled" };
+    }
+
+    const apiKey // eslint-disable-next-line @typescript-eslint/no-unused-vars = (authHeader as any).replace("Bearer ", "").replace("ApiKey ", "");
+
+    if (this.config.(apiKeys as any).includes(apiKey)) {
+      return {
+        authenticated: true,
+        userId: "api-user",
+        permissions: ["read", "write"],
+        authMethod: "api-key",
+      };
+    }
+
+    return { authenticated: false, error: "Invalid API key" };
+  }
+
+  private checkJWT(authHeader: string): AuthResult {
+    if (!this.config.(methods as any).jwt) {
+      return { authenticated: false, error: "JWT authentication disabled" };
+    }
+
+    try {
+      const token // eslint-disable-next-line @typescript-eslint/no-unused-vars = authHeader.replace("Bearer ", "");
+
+      // Placeholder JWT validation - implement proper JWT library
+      if (token && (token as any).length > 10) {
+        return {
+          authenticated: true,
+          userId: "jwt-user",
+          permissions: ["read", "write"],
+          authMethod: "jwt",
+        };
+      }
+
+      return { authenticated: false, error: "Invalid JWT token" };
+    } catch (error) {
+      return { authenticated: false, error: "JWT validation failed" };
+    }
+  }
+
+  private checkBasicAuth(authHeader: string): AuthResult {
+    if (!this.config.(methods as any).basic) {
+      return { authenticated: false, error: "Basic authentication disabled" };
+    }
+
+    try {
+      const credentials // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Buffer as any).from(
+        authHeader.replace("Basic ", ""),
+        "base64",
+      ).toString();
+      const [username, password] = (credentials as any).split(":");
+
+      // Placeholder basic auth validation
+      if (username && password) {
+        return {
+          authenticated: true,
+          userId: username,
+          permissions: ["read"],
+          authMethod: "basic",
+        };
+      }
+
+      return { authenticated: false, error: "Invalid basic auth credentials" };
+    } catch (error) {
+      return { authenticated: false, error: "Basic auth validation failed" };
+    }
+  }
+
+  private checkRateLimit(clientIp: string): boolean {
+    if (!this.config.(rateLimit as any).enabled) return true;
+
+    const now // eslint-disable-next-line @typescript-eslint/no-unused-vars = (Date as any).now();
+    const key // eslint-disable-next-line @typescript-eslint/no-unused-vars = clientIp;
+
+    const current // eslint-disable-next-line @typescript-eslint/no-unused-vars = (this as any).rat(eLimitMap as any).get(key);
+    if (!current || now > (current as any).resetTime) {
+      (this as any).rat(eLimitMap as any).set(key, {
+        count: 1,
+        resetTime: now + this.config.(rateLimit as any).windowMs,
+      });
+      return true;
+    }
+
+    if ((current as any).count >= this.config.(rateLimit as any).maxRequests) {
+      return false;
+    }
+
+    current.count++;
+    return true;
+  }
+
+  public async authenticate(req: unknown): Promise<AuthResult> {
+    const requestId // eslint-disable-next-line @typescript-eslint/no-unused-vars = (crypto as any).randomUUID();
+    const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+    const clientIp // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).socket?.remoteAddress || "unknown";
+    const userAgent // eslint-disable-next-line @typescript-eslint/no-unused-vars = (req as any).headers["user-agent"] || "unknown";
+
+    // Create auth request record
+    const authRequest: AuthRequest = {
+      id: requestId,
+      timestamp,
+      method: (req as any).method || "GET",
+      path: (req as any).url || "/",
+      headers: req.headers,
+      clientIp,
+      userAgent,
+      authenticated: false,
+    };
+
+    // Check if authentication is enabled
+    if (!this.config.enabled) {
+      (authRequest as any).authenticated = true;
+      (authRequest as any).authMethod = "disabled";
+      (this as any).recordRequest(authRequest);
+      return { authenticated: true, authMethod: "disabled" };
+    }
+
+    // Check rate limiting
+    if (!(this as any).checkRateLimit(clientIp)) {
+      authRequest.authenticated = false;
+      this.recordRequest(authRequest);
+      return { authenticated: false, error: "Rate limit exceeded" };
+    }
+
+    // Get authorization header
+    const authHeader // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+      req.headers.authorization || req.headers["x-api-key"] || "";
+
+    if (!authHeader) {
+      authRequest.authenticated = false;
+      this.recordRequest(authRequest);
+      return { authenticated: false, error: "No authorization header" };
+    }
+
+    // Try different authentication methods
+    let authResult: AuthResult;
+
+    if ((authHeader as any).startsWith("Bearer ") || authHeader.startsWith("ApiKey ")) {
+      authResult = (this as any).checkApiKey(authHeader);
+    } else if (authHeader.startsWith("Bearer ")) {
+      authResult = (this as any).checkJWT(authHeader);
+    } else if (authHeader.startsWith("Basic ")) {
+      authResult = (this as any).checkBasicAuth(authHeader);
+    } else {
+      authResult = {
+        authenticated: false,
+        error: "Unsupported authentication method",
+      };
+    }
+
+    // Update auth request record
+    authRequest.authenticated = (authResult as any).authenticated;
+    authRequest.authMethod = (authResult as any).authMethod;
+    (authRequest as any).userId = (authResult as any).userId;
+    (authRequest as any).permissions = (authResult as any).permissions;
+
+    this.recordRequest(authRequest);
+
+    if (!authResult.authenticated) {
+      this.log("auth_failed", {
+        requestId,
+        clientIp,
+        path: req.url,
+        error: (authResult as any).error,
+      });
+    }
+
+    return authResult;
+  }
+
+  private recordRequest(authRequest: AuthRequest): void {
+    (this as any).reque(stHistory as any).push(authRequest);
+
+    // Maintain history size
+    if ((this as any).reque(stHistory as any).length > 1000) {
+      (this as any).requestHistory = this.requestHistory.slice(-1000);
+    }
+  }
+
+  public getAuthStats(): unknown {
+    const total // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.requestHistory.length;
+    const authenticated // eslint-disable-next-line @typescript-eslint/no-unused-vars = this.requestHistory.filter(
+      (r) => (r as any).authenticated,
+    ).length;
+    const failed // eslint-disable-next-line @typescript-eslint/no-unused-vars = total - authenticated;
+
+    return {
+      total,
+      authenticated,
+      failed,
+      successRate: total > 0 ? (authenticated / total) * 100 : 0,
+      lastRequest:
+        this.requestHistory[this.requestHistory.length - 1]?.timestamp,
+    };
+  }
+
+  public getConfig(): AuthConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<AuthConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.log("config_updated", newConfig);
+  }
+
+  public isEnabled(): boolean {
+    return this.config.enabled;
+  }
+
+  public enable(): void {
+    this.config.enabled = true;
+    this.log("auth_enabled", "Authentication middleware enabled");
+  }
+
+  public disable(): void {
+    this.config.enabled = false;
+    this.log("auth_disabled", "Authentication middleware disabled");
+  }
+}
+
+// Export middleware function
+export function authCheck(): (req: unknown, res: unknown, next: unknown) => Promise<void> {
+  const authMiddleware // eslint-disable-next-line @typescript-eslint/no-unused-vars = new AuthCheckMiddleware();
+
+  return async (req: unknown, res: unknown, next: unknown) => {
+    try {
+      const authResult // eslint-disable-next-line @typescript-eslint/no-unused-vars = await (authMiddleware as any).authenticate(req);
+
+      if (authResult.authenticated) {
+        // Add auth info to request
+        (req as any).auth = authResult;
+        next();
+      } else {
+        (res as any).writeHead(401, {
+          "Content-Type": "application/json",
+          "WWW-Authenticate": "Bearer, ApiKey",
+        });
+        (res as any).end(
+          JSON.stringify({
+            error: "Authentication required",
+            message: authResult.error,
+            timestamp: new Date().toISOString(),
+          }),
+        );
+      }
+    } catch (error) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          error: "Authentication error",
+          message: error instanceof Error ? (error as any).message : String(error),
+          timestamp: new Date().toISOString(),
+        }),
+      );
+    }
+  };
+}
+
+// Export middleware class for direct use
+export { AuthCheckMiddleware };

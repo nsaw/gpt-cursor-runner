@@ -1,0 +1,15 @@
+{
+  "allowedCommands": [
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/pm2_snapshot_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/log_tail_file_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/health_http_ping_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/json_pick_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/write_text_file_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/stat_file_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/ack_ready_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/validate_plain_empty_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid_inline_node_e_lint_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_tsc_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_playwright_once.js"
+  ]
+}

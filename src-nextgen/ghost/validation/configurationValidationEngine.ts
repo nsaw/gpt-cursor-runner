@@ -457,38 +457,38 @@ class ConfigurationValidationEngine {
     }
 
     // Range validation for numbers
-    if (property.type === "number" && typeof value === "number") {
-      if (property.min !== undefined && value < property.min) {
+    if ((property as any).type === "number" && typeof value === "number") {
+      if ((property as any).min !== undefined && value < (property as any).min) {
         errors.push({
           path,
-          message: `Value ${value} is below minimum ${property.min}`,
+          message: `Value ${value} is below minimum ${(property as any).min}`,
           severity: "error",
           code: "VALUE_TOO_LOW",
-          suggestion: `Use a value >= ${property.min}`,
+          suggestion: `Use a value >= ${(property as any).min}`,
         });
       }
-      if (property.max !== undefined && value > property.max) {
+      if ((property as any).max !== undefined && value > (property as any).max) {
         errors.push({
           path,
-          message: `Value ${value} is above maximum ${property.max}`,
+          message: `Value ${value} is above maximum ${(property as any).max}`,
           severity: "error",
           code: "VALUE_TOO_HIGH",
-          suggestion: `Use a value <= ${property.max}`,
+          suggestion: `Use a value <= ${(property as any).max}`,
         });
       }
     }
 
     // Pattern validation for strings
     if (
-      property.type === "string" &&
+      (property as any).type === "string" &&
       typeof value === "string" &&
-      property.pattern
+      (property as any).pattern
     ) {
-      const regex = new RegExp(property.pattern);
+      const regex = new RegExp((property as any).pattern);
       if (!regex.test(value)) {
         errors.push({
           path,
-          message: `Value does not match pattern: ${property.pattern}`,
+          message: `Value does not match pattern: ${(property as any).pattern}`,
           severity: "error",
           code: "PATTERN_MISMATCH",
           suggestion: "Ensure value matches the required pattern",
@@ -497,13 +497,13 @@ class ConfigurationValidationEngine {
     }
 
     // Enum validation
-    if (property.enum && !property.enum.includes(value)) {
+    if ((property as any).enum && !(property as any).enum.includes(value)) {
       errors.push({
         path,
-        message: `Value ${value} is not in allowed values: ${property.enum.join(", ")}`,
+        message: `Value ${value} is not in allowed values: ${(property as any).enum.join(", ")}`,
         severity: "error",
         code: "ENUM_MISMATCH",
-        suggestion: `Use one of: ${property.enum.join(", ")}`,
+        suggestion: `Use one of: ${(property as any).enum.join(", ")}`,
       });
     }
 
@@ -560,7 +560,7 @@ class ConfigurationValidationEngine {
           const nestedSchema =
             this.schemas.get(property.validation || "") || schema;
           const nestedErrors = this.validateObject(
-            propValue,
+            propValue as Record<string, unknown>,
             nestedSchema,
             propPath,
           );

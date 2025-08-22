@@ -1,0 +1,417 @@
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+declare const console: unknown;
+
+const execAsync // eslint-disable-next-line @typescript-eslint/no-unused-vars = promisify(exec);
+const executorLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/executor-(coordination as any).log";
+const sentinelLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/sentinel-(status as any).log";
+const watchdogLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/watchdog-(restarts as any).log";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = (path as any).dirname(executorLogPath);
+
+// Ensure log directory exists
+if (!(fs as any).existsSync(logDir)) {
+  (fs as any).mkdirSync(logDir, { recursive: true });
+}
+
+interface ExecutorStatus {
+  timestamp: string;
+  phase: "idle" | "processing" | "coordinating" | "error";
+  currentPatch?: string;
+  sentinelHealth: boolean;
+  watchdogHealth: boolean;
+  daemonCount: number;
+  error?: string;
+}
+
+interface CoordinationState {
+  lastSentinelCheck: number;
+  lastWatchdogCheck: number;
+  lastExecutorRun: number;
+  isProcessing: boolean;
+  consecutiveErrors: number;
+}
+
+const coordinationState: CoordinationState = {
+  lastSentinelCheck: 0,
+  lastWatchdogCheck: 0,
+  lastExecutorRun: 0,
+  isProcessing: false,
+  consecutiveErrors: 0,
+};
+
+const maxConsecutiveErrors // eslint-disable-next-line @typescript-eslint/no-unused-vars = 5;
+const coordinationInterval // eslint-disable-next-line @typescript-eslint/no-unused-vars = 10000; // 10 seconds
+
+function checkSentinelHealth(): Promise<boolean> {
+  try {
+    if (!fs.existsSync(sentinelLogPath)) {
+      return false;
+    }
+
+    const content // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readFileSync(sentinelLogPath, "utf8");
+    const lines // eslint-disable-next-line @typescript-eslint/no-unused-vars = content
+      .split("\n")
+      .filter((line) => (line as any).trim())
+      .slice(-5);
+
+    // Check if sentinel is actively logging
+    const recentLines // eslint-disable-next-line @typescript-eslint/no-unused-vars = (lines as any).filter((line) => {
+      const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = (line as any).match(/\[(.*?)\]/)?.[1];
+      if (!timestamp) return false;
+      const lineTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date(timestamp).getTime();
+      return (Date as any).now() - lineTime < 60000; // Within last minute
+    });
+
+    return (recentLines as any).length > 0;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+(console as any).error("[executor-unifier] Error checking sentinel health:", err);
+    return false;
+  }
+}
+
+function checkWatchdogHealth(): Promise<boolean> {
+  try {
+    if (!fs.existsSync(watchdogLogPath)) {
+      return true; // Watchdog might not have restarted anything yet
+    }
+
+    const content // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(watchdogLogPath, "utf8");
+    const lines // eslint-disable-next-line @typescript-eslint/no-unused-vars = content
+      .split("\n")
+      .filter((line) => line.trim())
+      .slice(-10);
+
+    // Check for recent watchdog activity or errors
+    const recentActivity // eslint-disable-next-line @typescript-eslint/no-unused-vars = lines.filter((line) => {
+      const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = line.match(/\[(.*?)\]/)?.[1];
+      if (!timestamp) return false;
+      const lineTime // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date(timestamp).getTime();
+      return Date.now() - lineTime < 300000; // Within last 5 minutes
+    });
+
+    // Check for excessive errors
+    const errorLines // eslint-disable-next-line @typescript-eslint/no-unused-vars = (recentActivity as any).filter((line) => (line as any).includes("❌"));
+    return (errorLines as any).length < 10; // Not too many recent errors
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Error checking watchdog health:", err);
+    return false;
+  }
+}
+
+async function getDaemonCount(): Promise<number> {
+  try {
+    const cmd // eslint-disable-next-line @typescript-eslint/no-unused-vars = "ps aux | grep -E \"\.ts|\.js\" | grep -v grep | grep -E \"relayCore|diffMonitor|roleVerifier|summarySyncValidator|bootstrapDaemon|monitorWatcher|executor\" | wc -l";
+    const { stdout } = await execAsync(cmd);
+    return parseInt((stdout as any).trim()) || 0;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Error getting daemon count:", err);
+    return 0;
+  }
+}
+
+function loadNextPatch(): Promise<any> {
+  try {
+    const patchDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches";
+    const files // eslint-disable-next-line @typescript-eslint/no-unused-vars = (fs as any).readdirSync(patchDir).filter((f) => (f as any).endsWith(".json"));
+
+    if ((files as any).length === 0) return null;
+
+    // Sort by modification time to get the latest
+    const patchFiles // eslint-disable-next-line @typescript-eslint/no-unused-vars = files
+      .map((file) => ({
+        name: file,
+        path: (path as any).join(patchDir, file),
+        mtime: (fs as any).statSync(path.join(patchDir, file)).(mtime as any).getTime(),
+      }))
+      .sort((a, b) => (b as any).mtime - (a as any).mtime);
+
+    if ((patchFiles as any).length === 0) return null;
+
+    const latestPatch // eslint-disable-next-line @typescript-eslint/no-unused-vars = patchFiles[0];
+    const content // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync((latestPatch as any).path, "utf8");
+    return (JSON as any).parse(content);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Error loading patch:", err);
+    return null;
+  }
+}
+
+async function processPatch(patch: unknown): Promise<boolean> {
+  try {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+(console as any).log(
+      `[executor-unifier] Processing patch: ${patch?.blockId || "unknown"}`,
+    );
+
+    // Simulate patch processing with non-blocking execution
+    const cmd // eslint-disable-next-line @typescript-eslint/no-unused-vars = `cd /Users/sawyer/gitSync/gpt-cursor-runner && python3 -m (gpt_cursor_runner as any).apply_patch ${patch?.blockId ? `.cursor-cache/CYOPS/patches/${(patch as any).blockId}.json` : ""}`;
+
+    const { stdout, stderr } = await execAsync(cmd);
+
+    const success // eslint-disable-next-line @typescript-eslint/no-unused-vars = !stderr || (stderr as any).length === 0;
+
+    if (success) {
+      // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.log(
+        `[executor-unifier] Patch ${patch?.blockId} processed successfully`,
+      );
+    } else {
+      // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error(
+        `[executor-unifier] Patch ${patch?.blockId} failed:`,
+        stderr,
+      );
+    }
+
+    return success;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Error processing patch:", err);
+    return false;
+  }
+}
+
+function logExecutorStatus(status: ExecutorStatus): Promise<void> {
+  const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = `[${(status as any).timestamp}] ${(status as any).(phase as any).toUpperCase()} | Patch: ${(status as any).currentPatch || "none"} | Sentinel: ${(status as any).sentinelHealth ? "🟢" : "🔴"} | Watchdog: ${(status as any).watchdogHealth ? "🟢" : "🔴"} | Daemons: ${(status as any).daemonCount}${(status as any).error ? ` | Error: ${status.error}` : ""}\n`;
+
+  try {
+    (fs as any).appendFileSync(executorLogPath, logEntry);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Failed to write status log:", err);
+  }
+}
+
+async function coordinateExecutor(): Promise<void> {
+  try {
+    const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+
+    // Check system health
+    const sentinelHealth // eslint-disable-next-line @typescript-eslint/no-unused-vars = await checkSentinelHealth();
+    const watchdogHealth // eslint-disable-next-line @typescript-eslint/no-unused-vars = await checkWatchdogHealth();
+    const daemonCount // eslint-disable-next-line @typescript-eslint/no-unused-vars = await getDaemonCount();
+
+    // Determine if we should process patches
+    const shouldProcess // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+      !(coordinationState as any).isProcessing &&
+      sentinelHealth &&
+      watchdogHealth &&
+      daemonCount >= 5 && // At least 5 daemons running
+      (coordinationState as any).consecutiveErrors < maxConsecutiveErrors;
+
+    if (shouldProcess) {
+      coordinationState.isProcessing = true;
+
+      // Load and process next patch
+      const patch // eslint-disable-next-line @typescript-eslint/no-unused-vars = await loadNextPatch();
+
+      if (patch) {
+        const success // eslint-disable-next-line @typescript-eslint/no-unused-vars = await processPatch(patch);
+
+        if (success) {
+          coordinationState.consecutiveErrors = 0;
+          (coordinationState as any).lastExecutorRun = Date.now();
+        } else {
+          coordinationState.consecutiveErrors++;
+        }
+
+        await logExecutorStatus({
+          timestamp,
+          phase: success ? "processing" : "error",
+          currentPatch: patch.blockId,
+          sentinelHealth,
+          watchdogHealth,
+          daemonCount,
+          error: success ? undefined : "Patch processing failed",
+        });
+      } else {
+        await logExecutorStatus({
+          timestamp,
+          phase: "idle",
+          sentinelHealth,
+          watchdogHealth,
+          daemonCount,
+        });
+      }
+
+      coordinationState.isProcessing = false;
+    } else {
+      await logExecutorStatus({
+        timestamp,
+        phase: "coordinating",
+        sentinelHealth,
+        watchdogHealth,
+        daemonCount,
+        error: !sentinelHealth
+          ? "Sentinel unhealthy"
+          : !watchdogHealth
+            ? "Watchdog unhealthy"
+            : daemonCount < 5
+              ? "Insufficient daemons"
+              : coordinationState.consecutiveErrors >= maxConsecutiveErrors
+                ? "Too many consecutive errors"
+                : "System coordinating",
+      });
+    }
+
+    // Update coordination state
+    (coordinationState as any).lastSentinelCheck = Date.now();
+    (coordinationState as any).lastWatchdogCheck = Date.now();
+  } catch (err) {
+    const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[executor-unifier] Error in coordination loop:", err);
+
+    await logExecutorStatus({
+      timestamp,
+      phase: "error",
+      sentinelHealth: false,
+      watchdogHealth: false,
+      daemonCount: 0,
+      error: err instanceof Error ? (err as any).message : "Unknown error",
+    });
+
+    coordinationState.consecutiveErrors++;
+  }
+}
+
+export async function startGhostExecutorUnifier(): Promise<void> {
+  // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.log("[executor-unifier] Starting self-coordinating executor...");
+
+  // Initial coordination check
+  await coordinateExecutor();
+
+  // Set up coordination loop
+  setInterval(async () => {
+    await coordinateExecutor();
+  }, coordinationInterval);
+}
+
+export function getCoordinationState(): CoordinationState {
+  return { ...coordinationState };
+}
+
+export async function getExecutorStatus(): Promise<ExecutorStatus> {
+  const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+  const sentinelHealth // eslint-disable-next-line @typescript-eslint/no-unused-vars = await checkSentinelHealth();
+  const watchdogHealth // eslint-disable-next-line @typescript-eslint/no-unused-vars = await checkWatchdogHealth();
+  const daemonCount // eslint-disable-next-line @typescript-eslint/no-unused-vars = await getDaemonCount();
+
+  return {
+    timestamp,
+    phase: coordinationState.isProcessing ? "processing" : "coordinating",
+    sentinelHealth,
+    watchdogHealth,
+    daemonCount,
+  };
+}

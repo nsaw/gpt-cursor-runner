@@ -1,0 +1,173 @@
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+declare const console: unknown;
+
+const execAsync // eslint-disable-next-line @typescript-eslint/no-unused-vars = promisify(exec);
+const sentinelLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/sentinel-status.log";
+const watchdogLogPath // eslint-disable-next-line @typescript-eslint/no-unused-vars =
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/logs/watchdog-restarts.log";
+const logDir // eslint-disable-next-line @typescript-eslint/no-unused-vars = path.dirname(watchdogLogPath);
+
+// Ensure log directory exists
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+interface RestartAttempt {
+  daemon: string;
+  timestamp: string;
+  attempt: number;
+  success: boolean;
+  error?: string;
+}
+
+const restartCooldowns // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Map<string, number>();
+const maxRestartAttempts // eslint-disable-next-line @typescript-eslint/no-unused-vars = 3;
+const baseCooldownMs // eslint-disable-next-line @typescript-eslint/no-unused-vars = 30000; // 30 seconds
+
+async function restartDaemon(daemonName: string): Promise<boolean> {
+  try {
+    const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+    const attempt // eslint-disable-next-line @typescript-eslint/no-unused-vars = (restartCooldowns.get(daemonName) || 0) + 1;
+
+    if (attempt > maxRestartAttempts) {
+      logRestartAttempt({
+        daemon: daemonName,
+        timestamp,
+        attempt,
+        success: false,
+        error: "Max restart attempts exceeded",
+      });
+      return false;
+    }
+
+    // Calculate exponential backoff
+    const cooldownMs // eslint-disable-next-line @typescript-eslint/no-unused-vars = baseCooldownMs * Math.pow(2, attempt - 1);
+    const lastRestart // eslint-disable-next-line @typescript-eslint/no-unused-vars = restartCooldowns.get(daemonName) || 0;
+
+    if (Date.now() - lastRestart < cooldownMs) {
+      return false; // Still in cooldown
+    }
+
+    // Attempt restart using non-blocking pattern
+    const cmd // eslint-disable-next-line @typescript-eslint/no-unused-vars = `cd /Users/sawyer/gitSync/gpt-cursor-runner && node src-nextgen/ghost/shell/${daemonName}.ts`;
+    const { stderr } = await execAsync(cmd);
+
+    restartCooldowns.set(daemonName, Date.now());
+
+    const success // eslint-disable-next-line @typescript-eslint/no-unused-vars = !stderr || stderr.length === 0;
+
+    logRestartAttempt({
+      daemon: daemonName,
+      timestamp,
+      attempt,
+      success,
+      error: success ? undefined : stderr,
+    });
+
+    return success;
+  } catch (err) {
+    const timestamp // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Date().toISOString();
+    const attempt // eslint-disable-next-line @typescript-eslint/no-unused-vars = (restartCooldowns.get(daemonName) || 0) + 1;
+
+    logRestartAttempt({
+      daemon: daemonName,
+      timestamp,
+      attempt,
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+
+    return false;
+  }
+}
+
+function logRestartAttempt(attempt: RestartAttempt): void {
+  const logEntry // eslint-disable-next-line @typescript-eslint/no-unused-vars = `[${attempt.timestamp}] ${attempt.success ? "✅" : "❌"} ${attempt.daemon} restart attempt ${attempt.attempt}${attempt.error ? ` - ${attempt.error}` : ""}\n`;
+
+  try {
+    fs.appendFileSync(watchdogLogPath, logEntry);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[watchdog] Failed to write restart log:", err);
+  }
+}
+
+async function checkForFailedDaemons(): Promise<void> {
+  try {
+    if (!fs.existsSync(sentinelLogPath)) {
+      return; // No sentinel log yet
+    }
+
+    // Read last 10 lines of sentinel log
+    const content // eslint-disable-next-line @typescript-eslint/no-unused-vars = fs.readFileSync(sentinelLogPath, "utf8");
+    const lines // eslint-disable-next-line @typescript-eslint/no-unused-vars = content
+      .split("\n")
+      .filter((line) => line.trim())
+      .slice(-10);
+
+    const failedDaemons // eslint-disable-next-line @typescript-eslint/no-unused-vars = new Set<string>();
+
+    lines.forEach((line) => {
+      if (line.includes("🔴") && line.includes("NOT running")) {
+        const match // eslint-disable-next-line @typescript-eslint/no-unused-vars = line.match(/🔴 (\w+) NOT running/);
+        if (match) {
+          failedDaemons.add(match[1]);
+        }
+      }
+    });
+
+    // Attempt restart for failed daemons
+    for (const daemon of failedDaemons) {
+      await restartDaemon(daemon);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.error("[watchdog] Error checking for failed daemons:", err);
+  }
+}
+
+export function startGhostWatchdogLoop(): Promise<void> {
+  // eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+// eslint-disable-next-line no-console
+console.log("[watchdog] Starting daemon restart monitoring...");
+
+  // Check for failed daemons every 30 seconds
+  setInterval(async () => {
+    await checkForFailedDaemons();
+  }, 30000);
+}
+
+export function getRestartStats(): Map<string, number> {
+  return new Map(restartCooldowns);
+}
