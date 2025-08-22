@@ -10,6 +10,7 @@
     "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/validate_plain_empty_once.js",
     "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/forbid_inline_node_e_lint_once.js",
     "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_tsc_once.js",
-    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_playwright_once.js"
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_playwright_once.js",
+    "node /Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/schema_loader_test_once.js"
   ]
 }

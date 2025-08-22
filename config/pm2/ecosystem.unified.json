@@ -1,0 +1,60 @@
+{
+  "apps": [
+    {
+      "name": "dashboard",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/dashboard/server.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-executor",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/executor.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-queue-counters",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/queue_counters.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-summary-gate",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/summary_gate.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-dashboard-probe",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/dashboard_probe.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-handoff-watcher",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/handoff_watcher.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "g2o-completed-validate",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/g2o/completed_validate.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "ghost-python",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ghost/python_bridge.js",
+      "exec_mode": "fork"
+    },
+    {
+      "name": "p0-queue-shape-assessor",
+      "script": "/Users/sawyer/gitSync/gpt-cursor-runner/scripts/monitor/p0_queue_shape_assessor_once.js",
+      "exec_mode": "fork"
+    }
+  ],
+  "bootOrder": [
+    "dashboard",
+    "g2o-dashboard-probe",
+    "g2o-executor",
+    "g2o-queue-counters",
+    "g2o-handoff-watcher",
+    "g2o-completed-validate",
+    "g2o-summary-gate",
+    "ghost-python",
+    "p0-queue-shape-assessor"
+  ]
+}

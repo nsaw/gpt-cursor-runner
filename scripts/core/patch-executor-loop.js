@@ -1,7 +1,7 @@
 // Looping Patch Executor - Runs continuously and processes patches
 const fs = require('fs/promises');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn } = require('child_process'); // Added for command execution
 
 // Configuration
 const _POLL_INTERVAL = 5000; // 5 seconds
@@ -9,7 +9,7 @@ const _PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches';
 const _MAIN_PATCH_DIR = '/Users/sawyer/gitSync/.cursor-cache/MAIN/patches';
 const _ROOT_LOGS_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/.logs';
 const _EXEC_STATUS_FILE = path.join(_ROOT_LOGS_DIR, 'patch-executor-status.json');
-const _STATUS_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/_g2o-status';
+const _STATUS_DIR = '/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/_g2o-status'; // New status directory
 
 // Load allowlist
 let _allowlist = null;
@@ -18,7 +18,6 @@ async function loadAllowlist() {
   try {
     const allowlistPath = '/Users/sawyer/gitSync/gpt-cursor-runner/config/g2o-allowed-commands.json';
     _allowlist = JSON.parse(await fs.readFile(allowlistPath, 'utf8'));
-    
     console.log('✅ [LOOP-EXECUTOR] Allowlist loaded');
   } catch (error) {
     console.error('❌ [LOOP-EXECUTOR] Failed to load allowlist:', error.message);
@@ -26,63 +25,60 @@ async function loadAllowlist() {
   }
 }
 
-// Validate patch against schema
+// Validate patch against schema (manual validation)
 function validatePatch(patchData) {
   try {
-    // Basic structure check
+    // Check required fields
     if (!patchData.patch || typeof patchData.patch !== 'object') {
-      throw new Error('Invalid patch structure: missing or invalid patch object');
+      throw new Error('Missing or invalid patch object');
     }
-    
+
     const patch = patchData.patch;
     
-    // Required fields
     if (!patch.id || typeof patch.id !== 'string') {
-      throw new Error('Invalid patch: missing or invalid id');
+      throw new Error('Missing or invalid patch ID');
     }
-    
+
     if (!patch.kind || typeof patch.kind !== 'string') {
-      throw new Error('Invalid patch: missing or invalid kind');
+      throw new Error('Missing or invalid patch kind');
     }
-    
+
+    // Validate ID pattern
+    const idPattern = /^patch-v[0-9]+\.[0-9]+\.[0-9]+[a-z]?\(P[0-9]+\.[0-9]+\.[0-9]+\)_[a-zA-Z0-9_-]+$/;
+    if (!idPattern.test(patch.id)) {
+      throw new Error('Invalid patch ID format');
+    }
+
     // Validate kind enum
     const validKinds = ['operational_smoke', 'feature', 'bugfix', 'refactor', 'test'];
     if (!validKinds.includes(patch.kind)) {
-      throw new Error(`Invalid patch kind: ${patch.kind}. Must be one of: ${validKinds.join(', ')}`);
+      throw new Error('Invalid patch kind');
     }
-    
-    // Validate arrays are strings
-    const arrayFields = ['preflight', 'execution', 'validation'];
-    for (const field of arrayFields) {
-      if (patch[field] && !Array.isArray(patch[field])) {
-        throw new Error(`Invalid patch: ${field} must be an array`);
-      }
-      if (patch[field]) {
-        for (const item of patch[field]) {
-          if (typeof item !== 'string') {
-            throw new Error(`Invalid patch: ${field} items must be strings`);
-          }
-        }
-      }
+
+    // Validate arrays if present
+    if (patch.preflight && !Array.isArray(patch.preflight)) {
+      throw new Error('preflight must be an array');
     }
-    
-    // Validate options
+
+    if (patch.execution && !Array.isArray(patch.execution)) {
+      throw new Error('execution must be an array');
+    }
+
+    if (patch.validation && !Array.isArray(patch.validation)) {
+      throw new Error('validation must be an array');
+    }
+
+    // Validate options if present
     if (patch.options && typeof patch.options !== 'object') {
-      throw new Error('Invalid patch: options must be an object');
+      throw new Error('options must be an object');
     }
-    
-    if (patch.options) {
-      if (patch.options.dryRun !== undefined && typeof patch.options.dryRun !== 'boolean') {
-        throw new Error('Invalid patch: options.dryRun must be boolean');
-      }
-      if (patch.options.timeoutMs !== undefined && typeof patch.options.timeoutMs !== 'number') {
-        throw new Error('Invalid patch: options.timeoutMs must be number');
-      }
-      if (patch.options.timeoutMs !== undefined && (patch.options.timeoutMs < 1000 || patch.options.timeoutMs > 60000)) {
-        throw new Error('Invalid patch: options.timeoutMs must be between 1000 and 60000');
+
+    if (patch.options && patch.options.timeoutMs !== undefined) {
+      if (typeof patch.options.timeoutMs !== 'number' || patch.options.timeoutMs < 1000 || patch.options.timeoutMs > 60000) {
+        throw new Error('timeoutMs must be a number between 1000 and 60000');
       }
     }
-    
+
     return true;
   } catch (error) {
     throw new Error(`Schema validation failed: ${error.message}`);
@@ -94,8 +90,11 @@ function isCommandAllowed(command) {
   if (!_allowlist || !_allowlist.allowedCommands) {
     return false;
   }
-  
-  return _allowlist.allowedCommands.some(allowed => command.startsWith(allowed));
+
+  return _allowlist.allowedCommands.some(allowed => {
+    // Check if command starts with allowed prefix
+    return command.startsWith(allowed);
+  });
 }
 
 // Execute command with timeout
@@ -104,31 +103,32 @@ async function executeCommand(command, timeoutMs = 10000) {
     const timeout = setTimeout(() => {
       reject(new Error(`Command timed out after ${timeoutMs}ms`));
     }, timeoutMs);
-    
-    const [cmd, ...args] = command.split(' ');
-    const child = spawn(cmd, args, { stdio: 'pipe' });
-    
+
+    const child = spawn('bash', ['-c', command], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: false
+    });
+
     let stdout = '';
     let stderr = '';
-    
+
     child.stdout.on('data', (data) => {
       stdout += data.toString();
     });
-    
+
     child.stderr.on('data', (data) => {
       stderr += data.toString();
     });
-    
+
     child.on('close', (code) => {
       clearTimeout(timeout);
       resolve({
         code,
-        stdout,
-        stderr,
-        success: code === 0
+        stdout: stdout.trim(),
+        stderr: stderr.trim()
       });
     });
-    
+
     child.on('error', (error) => {
       clearTimeout(timeout);
       reject(error);
@@ -139,80 +139,81 @@ async function executeCommand(command, timeoutMs = 10000) {
 // Write status file
 async function writeStatusFile(patchId, type, data) {
   try {
+    await fs.mkdir(_STATUS_DIR, { recursive: true });
     const statusFile = path.join(_STATUS_DIR, `${patchId}.${type}.json`);
     await fs.writeFile(statusFile, JSON.stringify(data, null, 2));
   } catch (error) {
-    console.error(`❌ [LOOP-EXECUTOR] Failed to write status file ${type}:`, error.message);
+    console.error(`❌ [LOOP-EXECUTOR] Failed to write status file: ${error.message}`);
   }
 }
 
-// Process a single patch
+// Process a single patch (new core logic)
 async function processPatch(patchFile, patchDir, agentName) {
   const patchId = path.basename(patchFile, '.json');
   const startTime = Date.now();
-  
+
   try {
     console.log(`📦 [LOOP-EXECUTOR] Processing ${agentName} patch: ${patchId}`);
-    
-    // Read and parse patch
+
+    // Read and validate patch
     const patchData = JSON.parse(await fs.readFile(patchFile, 'utf8'));
-    
-    // Handle GPT's nested patch structure
-    const actualPatch = patchData.patch && typeof patchData.patch === 'object' ? patchData.patch : patchData;
-    
-    // Validate patch
     validatePatch(patchData);
-    
-    // Check if dry run
-    const isDryRun = actualPatch.options && actualPatch.options.dryRun === true;
-    const timeoutMs = actualPatch.options && actualPatch.options.timeoutMs ? actualPatch.options.timeoutMs : 10000;
-    
+
+    const patch = patchData.patch;
+    const isDryRun = patch.options && patch.options.dryRun === true;
+    const timeoutMs = patch.options && patch.options.timeoutMs ? patch.options.timeoutMs : 10000;
+
+    // Create status tracking
+    let status = {
+      patchId,
+      agentName,
+      timestamp: new Date().toISOString(),
+      isDryRun,
+      startTime,
+      steps: []
+    };
+
+    // Handle dry-run mode
     if (isDryRun) {
       console.log(`📋 [LOOP-EXECUTOR] DRY RUN for ${patchId}`);
       
-      // Create plan
-      const plan = {
-        patchId,
-        agentName,
-        timestamp: new Date().toISOString(),
-        isDryRun: true,
-        steps: []
-      };
+      // Create execution plan
+      const plan = { ...status, plan: [] };
       
-      // Add preflight steps
-      if (actualPatch.preflight) {
-        for (const command of actualPatch.preflight) {
-          if (!isCommandAllowed(command)) {
-            throw new Error(`Command not allowed in preflight: ${command}`);
-          }
-          plan.steps.push({ phase: 'preflight', command, allowed: true });
+      if (patch.preflight) {
+        for (const command of patch.preflight) {
+          plan.plan.push({
+            phase: 'preflight',
+            command,
+            allowed: isCommandAllowed(command)
+          });
         }
       }
-      
-      // Add execution steps
-      if (actualPatch.execution) {
-        for (const command of actualPatch.execution) {
-          if (!isCommandAllowed(command)) {
-            throw new Error(`Command not allowed in execution: ${command}`);
-          }
-          plan.steps.push({ phase: 'execution', command, allowed: true });
+
+      if (patch.execution) {
+        for (const command of patch.execution) {
+          plan.plan.push({
+            phase: 'execution',
+            command,
+            allowed: isCommandAllowed(command)
+          });
         }
       }
-      
-      // Add validation steps
-      if (actualPatch.validation) {
-        for (const command of actualPatch.validation) {
-          if (!isCommandAllowed(command)) {
-            throw new Error(`Command not allowed in validation: ${command}`);
-          }
-          plan.steps.push({ phase: 'validation', command, allowed: true });
+
+      if (patch.validation) {
+        for (const command of patch.validation) {
+          plan.plan.push({
+            phase: 'validation',
+            command,
+            allowed: isCommandAllowed(command)
+          });
         }
       }
-      
-      // Write plan
+
+      // Write plan file
       await writeStatusFile(patchId, 'plan', plan);
       
-      // Move to completed (dry run)
+      // Move to completed for dry-run
       const completedDir = path.join(patchDir, '.completed');
       await fs.mkdir(completedDir, { recursive: true });
       await fs.rename(patchFile, path.join(completedDir, path.basename(patchFile)));
@@ -220,167 +221,157 @@ async function processPatch(patchFile, patchDir, agentName) {
       console.log(`✅ [LOOP-EXECUTOR] DRY RUN completed for ${patchId}`);
       return;
     }
-    
-    // Execute patch
-    const trace = {
-      patchId,
-      agentName,
-      timestamp: new Date().toISOString(),
-      isDryRun: false,
-      steps: []
-    };
-    
-    // Execute preflight
-    if (actualPatch.preflight) {
-      for (const command of actualPatch.preflight) {
-        if (!isCommandAllowed(command)) {
-          throw new Error(`Command not allowed in preflight: ${command}`);
-        }
-        
+
+    // Execute preflight commands
+    if (patch.preflight) {
+      for (const command of patch.preflight) {
         const stepStart = Date.now();
+        const step = {
+          phase: 'preflight',
+          command,
+          allowed: isCommandAllowed(command),
+          startTime: new Date().toISOString()
+        };
+
+        if (!isCommandAllowed(command)) {
+          step.error = 'Command not in allowlist';
+          step.duration = Date.now() - stepStart;
+          status.steps.push(step);
+          throw new Error(`Preflight command not allowed: ${command}`);
+        }
+
         try {
           const result = await executeCommand(command, timeoutMs);
-          const stepEnd = Date.now();
-          
-          trace.steps.push({
-            phase: 'preflight',
-            command,
-            success: result.success,
-            code: result.code,
-            durationMs: stepEnd - stepStart,
-            stdout: result.stdout,
-            stderr: result.stderr
-          });
-          
-          if (!result.success) {
-            throw new Error(`Preflight command failed: ${command} (exit code: ${result.code})`);
-          }
+          step.duration = Date.now() - stepStart;
+          step.exitCode = result.code;
+          step.stdout = result.stdout;
+          step.stderr = result.stderr;
+          step.success = result.code === 0;
         } catch (error) {
-          const stepEnd = Date.now();
-          trace.steps.push({
-            phase: 'preflight',
-            command,
-            success: false,
-            error: error.message,
-            durationMs: stepEnd - stepStart
-          });
-          throw error;
+          step.duration = Date.now() - stepStart;
+          step.error = error.message;
+          step.success = false;
+        }
+
+        status.steps.push(step);
+
+        if (!step.success) {
+          throw new Error(`Preflight command failed: ${command}`);
         }
       }
     }
-    
-    // Execute execution
-    if (actualPatch.execution) {
-      for (const command of actualPatch.execution) {
-        if (!isCommandAllowed(command)) {
-          throw new Error(`Command not allowed in execution: ${command}`);
-        }
-        
+
+    // Execute main commands
+    if (patch.execution) {
+      for (const command of patch.execution) {
         const stepStart = Date.now();
+        const step = {
+          phase: 'execution',
+          command,
+          allowed: isCommandAllowed(command),
+          startTime: new Date().toISOString()
+        };
+
+        if (!isCommandAllowed(command)) {
+          step.error = 'Command not in allowlist';
+          step.duration = Date.now() - stepStart;
+          status.steps.push(step);
+          throw new Error(`Execution command not allowed: ${command}`);
+        }
+
         try {
           const result = await executeCommand(command, timeoutMs);
-          const stepEnd = Date.now();
-          
-          trace.steps.push({
-            phase: 'execution',
-            command,
-            success: result.success,
-            code: result.code,
-            durationMs: stepEnd - stepStart,
-            stdout: result.stdout,
-            stderr: result.stderr
-          });
-          
-          if (!result.success) {
-            throw new Error(`Execution command failed: ${command} (exit code: ${result.code})`);
-          }
+          step.duration = Date.now() - stepStart;
+          step.exitCode = result.code;
+          step.stdout = result.stdout;
+          step.stderr = result.stderr;
+          step.success = result.code === 0;
         } catch (error) {
-          const stepEnd = Date.now();
-          trace.steps.push({
-            phase: 'execution',
-            command,
-            success: false,
-            error: error.message,
-            durationMs: stepEnd - stepStart
-          });
-          throw error;
+          step.duration = Date.now() - stepStart;
+          step.error = error.message;
+          step.success = false;
+        }
+
+        status.steps.push(step);
+
+        if (!step.success) {
+          throw new Error(`Execution command failed: ${command}`);
         }
       }
     }
-    
-    // Execute validation
-    if (actualPatch.validation) {
-      for (const command of actualPatch.validation) {
-        if (!isCommandAllowed(command)) {
-          throw new Error(`Command not allowed in validation: ${command}`);
-        }
-        
+
+    // Execute validation commands
+    if (patch.validation) {
+      for (const command of patch.validation) {
         const stepStart = Date.now();
+        const step = {
+          phase: 'validation',
+          command,
+          allowed: isCommandAllowed(command),
+          startTime: new Date().toISOString()
+        };
+
+        if (!isCommandAllowed(command)) {
+          step.error = 'Command not in allowlist';
+          step.duration = Date.now() - stepStart;
+          status.steps.push(step);
+          throw new Error(`Validation command not allowed: ${command}`);
+        }
+
         try {
           const result = await executeCommand(command, timeoutMs);
-          const stepEnd = Date.now();
-          
-          trace.steps.push({
-            phase: 'validation',
-            command,
-            success: result.success,
-            code: result.code,
-            durationMs: stepEnd - stepStart,
-            stdout: result.stdout,
-            stderr: result.stderr
-          });
-          
-          if (!result.success) {
-            throw new Error(`Validation command failed: ${command} (exit code: ${result.code})`);
-          }
+          step.duration = Date.now() - stepStart;
+          step.exitCode = result.code;
+          step.stdout = result.stdout;
+          step.stderr = result.stderr;
+          step.success = result.code === 0;
         } catch (error) {
-          const stepEnd = Date.now();
-          trace.steps.push({
-            phase: 'validation',
-            command,
-            success: false,
-            error: error.message,
-            durationMs: stepEnd - stepStart
-          });
-          throw error;
+          step.duration = Date.now() - stepStart;
+          step.error = error.message;
+          step.success = false;
+        }
+
+        status.steps.push(step);
+
+        if (!step.success) {
+          throw new Error(`Validation command failed: ${command}`);
         }
       }
     }
-    
-    // Write trace
-    await writeStatusFile(patchId, 'trace', trace);
-    
-    // Write done status
-    const doneData = {
-      patchId,
-      agentName,
-      timestamp: new Date().toISOString(),
-      success: true,
-      totalDurationMs: Date.now() - startTime
-    };
-    await writeStatusFile(patchId, 'done', doneData);
-    
+
+    // Mark as successful
+    status.endTime = Date.now();
+    status.duration = status.endTime - startTime;
+    status.success = true;
+
+    // Write status file
+    await writeStatusFile(patchId, 'status', status);
+
     // Move to completed
     const completedDir = path.join(patchDir, '.completed');
     await fs.mkdir(completedDir, { recursive: true });
     await fs.rename(patchFile, path.join(completedDir, path.basename(patchFile)));
-    
+
     console.log(`✅ [LOOP-EXECUTOR] Completed ${agentName} patch: ${patchId}`);
-    
+
   } catch (error) {
     console.error(`❌ [LOOP-EXECUTOR] Failed to process ${agentName} patch ${patchId}:`, error.message);
-    
+
     // Write error status
-    const errorData = {
+    const errorStatus = {
       patchId,
       agentName,
       timestamp: new Date().toISOString(),
+      startTime,
+      endTime: Date.now(),
+      duration: Date.now() - startTime,
       success: false,
       error: error.message,
-      totalDurationMs: Date.now() - startTime
+      steps: []
     };
-    await writeStatusFile(patchId, 'error', errorData);
-    
+
+    await writeStatusFile(patchId, 'error', errorStatus);
+
     // Move to failed
     const failedDir = path.join(patchDir, '.failed');
     await fs.mkdir(failedDir, { recursive: true });
@@ -388,7 +379,7 @@ async function processPatch(patchFile, patchDir, agentName) {
   }
 }
 
-// Process patches in a directory
+// Process patches in a directory (now calls processPatch for each file)
 async function processPatches(patchDir, agentName) {
   try {
     // Get all patch files from patch directory
@@ -418,7 +409,7 @@ async function processPatches(patchDir, agentName) {
   }
 }
 
-// Ensure patch directories exist
+// Ensure patch directories exist (updated to create _STATUS_DIR)
 async function ensureDirectories() {
   try {
     await fs.mkdir(_PATCH_DIR, { recursive: true });
@@ -449,14 +440,14 @@ async function writeHeartbeat() {
   }
 }
 
-// Main loop
+// Main loop (updated to call loadAllowlist and use new processPatches)
 async function mainLoop() {
   console.log('🔄 [LOOP-EXECUTOR] Starting continuous patch processor...');
   console.log(`📁 [LOOP-EXECUTOR] Monitoring CYOPS: ${_PATCH_DIR}`);
   console.log(`📁 [LOOP-EXECUTOR] Monitoring MAIN: ${_MAIN_PATCH_DIR}`);
   console.log(`⏱️  [LOOP-EXECUTOR] Poll interval: ${_POLL_INTERVAL}ms`);
 
-  // Load schema and allowlist
+  // Load allowlist first
   await loadAllowlist();
 
   // Ensure directories exist

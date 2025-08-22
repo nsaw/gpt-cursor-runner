@@ -1,0 +1,183 @@
+# =========================================
+# UNIVERSAL PATCH TEMPLATE — CYOPS → DEV
+# Authoring format: YAML (compile to JSON at runtime)
+# =========================================
+
+schemaVersion: 1
+
+meta:
+  project: CYOPS
+  agent: DEV
+  blockId: "<patch-vX.Y.ZZZ(PN.MM.SS)_slug>"
+  version: "<patch-vX.Y.ZZZ(PN.MM.SS)_slug>"
+  phase: "<PN.MM.SS>"
+  description: "<short, human-readable summary>"
+  showInUI: true
+  schemaRef: "<absolute-path-or-package-schema>"
+
+dispatch:
+  # DEV receives patches via webhook (no local file drop).
+  type: "webhook"
+  endpoint: "https://webhook-thoughtmarks.thoughtmarks.app/webhook"
+  payloadEnvelope: "command_patch"     # includes full 'patch' JSON + target_file
+  retry:
+    maxAttempts: 3
+    backoff: "exponential"
+
+routing:
+  # Absolute paths only.
+  repoRoot: "/Users/sawyer/gitSync/gpt-cursor-runner"
+  summariesRoot: "/Users/sawyer/gitSync/gpt-cursor-runner/summaries"
+  validationRoot: "/Users/sawyer/gitSync/gpt-cursor-runner/validation"
+  logsRoot: "/Users/sawyer/gitSync/gpt-cursor-runner/.logs"
+
+enforcementFlags:
+  enforceValidationGate: true
+  strictRuntimeAudit: true
+  runDryCheck: true
+  forceRuntimeTrace: true
+  requireMutationProof: true
+  requireServiceUptime: true
+  blockCommitOnError: true
+  watchConsole: true
+
+execution:
+  autoReleaseTimeoutMs: 30000
+  onReloadHang: "Move to background and resume automatically"
+
+safety:
+  no_forbidden_shell: true
+  forbidden_shell_patterns:
+    - "grep"
+    - "sleep"
+    - "ps"
+    - "pgrep"
+    - "pkill"
+    - "lsof"
+    - "$!"
+    - "disown"
+    - "tail -f"
+    - "watch"
+    - "fg"
+    - "cat >"
+    - "PM2"
+    - "pm2"
+  notes:
+    - "All potentially blocking commands must be wrapped via nb.cjs or nb_run/nb_bg."
+    - "Never run long-lived services directly; use Node helpers + nb controller for detaching."  # nb.cjs pattern
+
+guards:
+  absolutePathsOnly: true
+  forbiddenLocations:
+    # (Keep generic; CYOPS repo has its own structure.)
+    - "node_modules/"
+    - ".git/"
+  requiredMarkers:
+    - summary_required_for_completed: true
+
+gates:
+  # Toggle only what’s needed per patch; code/runtime default on.
+  code: true            # tsc/eslint/tests
+  runtime: true         # service health checks, runners alive, no blocking I/O
+  integration: false    # webhook/daemon/tunnel checks, if relevant to the patch
+  e2e: false            # long E2E suites (disabled by default)
+  visual: false         # not typical for CYOPS; enable only if explicitly needed
+
+nonblocking:
+  controller:
+    file: "scripts/nb.cjs"
+    logs_dir: "validations/logs"
+    status_dir: "validations/status"
+    ttl_default: "30s"
+  required_wrapper: >
+    node scripts/nb.cjs --ttl {ttl} --label {label}
+    --log validations/logs/{label}.log --status validations/status -- {command}
+  shell_helpers:
+    nb_bg: "source scripts/lib-nonblocking.sh && nb_bg <ttl> <label> '<command>'"
+    nb_run: "source scripts/lib-nonblocking.sh && nb_run <ttl> <label> '<command>'"
+  ci_guard:
+    # Ensure nb usage; fail if direct long-running commands appear.
+    denylist_substrings:
+      - "maestro test "
+      - "npm install"
+      - "node server.js"
+    allowlist_substrings:
+      - "nb_bg "
+      - "nb_run "
+      - "node scripts/nb.cjs --ttl"
+
+targets:
+  intent: "<wrap|refactor|replace|defer>"
+  riskLevel: "<low|med|high>"
+  roles: []        # infra roles/scopes, e.g., ["runner.webhook", "daemon.watchdog"]
+
+mutations:
+  # Concrete file edits (absolute or repo-relative with validation).
+  - file: "<ABSOLUTE_OR_REPO_RELATIVE_PATH>"
+    action: "<create|modify|delete>"
+    contentsFrom: "<template-or-source-file-optional>"
+    contents: |-
+      # Optional inline body
+    notes: "<what/why>"
+
+preMutationBuild:
+  shell:
+    - 'node scripts/nb.cjs --ttl 60s --label "pre-commit" --log validations/logs/pre-commit.log --status validations/status -- pre-commit run --all-files'
+
+postMutationBuild:
+  shell:
+    # --- CODE GATES (when gates.code=true) ---
+    - 'node scripts/nb.cjs --ttl 120s --label "tsc" --log validations/logs/tsc.log --status validations/status -- npx tsc --noEmit --skipLibCheck'
+    - 'node scripts/nb.cjs --ttl 120s --label "eslint" --log validations/logs/eslint.log --status validations/status -- npx eslint . --ext .ts,.tsx --max-warnings=0'
+    - 'node scripts/nb.cjs --ttl 300s --label "unit" --log validations/logs/unit.log --status validations/status -- npm run test:unit -- --watchAll=false'
+
+    # --- RUNTIME GATES (when gates.runtime=true) ---
+    - 'node scripts/nb.cjs --ttl 30s --label "services-up" --log validations/logs/services-up.log --status validations/status -- node scripts/admin/ensure-services.cjs'
+    - 'node scripts/nb.cjs --ttl 20s --label "health-webhook" --log validations/logs/health-webhook.log --status validations/status -- bash -lc "curl -sSf http://127.0.0.1:PORT/health >/dev/null"'
+
+    # --- INTEGRATION (optional) ---
+    - 'node scripts/nb.cjs --ttl 45s --label "integration" --log validations/logs/integration.log --status validations/status -- npm run test:integration'   # gates.integration=true
+
+    # (VISUAL/E2E typically off for CYOPS; enable only when needed.)
+
+successCriteria:
+  - "TypeScript: 0 blocking errors (warnings allowed only per legacy/test policy)"
+  - "ESLint: 0 blocking errors"
+  - "Unit tests: PASS"
+  - "Required services healthy (webhook/daemon/tunnel as applicable)"
+  - "No forbidden shell patterns in execution logs"
+  - "Summary written with non-empty content"
+  - "All required artifacts present in validation/logs directories"
+
+failureMode:
+  onFail:
+    - "Enter bounded repair loop (do not advance to next patch)"
+    - "Write escalation summary if still failing after max cycles"
+    - "Never tag/commit as verified while any gate is failing"
+  repairLoop:
+    maxCycles: 5
+    diagnostics:
+      - 'npx tsc --noEmit --skipLibCheck'
+      - 'npx eslint . --ext .ts,tsx --max-warnings=0'
+      - 'node scripts/admin/ensure-services.cjs'
+    afterEachFix:
+      - "re-run validations"
+      - "append repair note to summary"
+
+artifacts:
+  validation:
+    - "/Users/sawyer/gitSync/gpt-cursor-runner/validation"
+  logs:
+    - "/Users/sawyer/gitSync/gpt-cursor-runner/.logs"
+  summaries:
+    - "/Users/sawyer/gitSync/gpt-cursor-runner/summaries"
+
+summary:
+  summaryFile: "/Users/sawyer/gitSync/gpt-cursor-runner/summaries/<blockId>.summary.md"
+
+preCommit:
+  # Troubleshooting patches must leave this disabled.
+  backup:
+    enabled: false
+    cmdRef: "node scripts/admin/create-freezer-backup.cjs"
+    output: "/Users/sawyer/gitSync/gpt-cursor-runner/_backups/<timestamp>_<blockId>.tar.gz"
