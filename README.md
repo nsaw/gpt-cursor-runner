@@ -118,3 +118,34 @@ The test will fail if any `.status-indicator` is not green (status-ok).
 
 All daemons, launchers, and test scripts must use these patterns—never launch a process blocking the shell or main job runner.
 **CI/CD pipeline will fail if any command blocks, hangs, or exceeds timeout.**
+
+## NB 2.0 Non-Blocking Pattern Enforcement
+
+### **CRITICAL: Never Block Cursor Terminal**
+
+All terminal commands in agent chat MUST use non-blocking patterns to prevent:
+- Cursor UI freezing
+- GPT flow interruption
+- Agent chat hanging
+- User experience degradation
+
+### **MANDATORY NON-BLOCKING PATTERN**
+
+**Standard Non-Blocking Command Structure**
+```bash
+./scripts/nb-safe-detach.sh <label> 18s bash -lc '<ABSOLUTE_COMMAND>'
+```
+
+### **Writer vs Mirrors Policy**
+
+- **WRITER (Authoritative):** `/Users/sawyer/gitSync/.cursor-cache/{CYOPS|MAIN}/artifacts/`
+- **DOCS MIRROR (Publish):** `/Users/sawyer/gitSync/_GPTsync/__{CYOPS|MAIN}-SYNC__/`
+- **STATUS MIRROR (Publish):** `/Users/sawyer/gitSync/gpt-cursor-runner/public/status/`
+  - Mirrors are publish-only; all authoring happens in WRITER
+  - Public status is small JSON "lights" only
+
+### **Enforcement**
+
+- **Zero Tolerance**: No exceptions for non-blocking pattern
+- **CI Hard-Block**: Build fails if any command blocks or hangs
+- **Agent Responsibility**: All agents MUST follow nb-safe-detach pattern
