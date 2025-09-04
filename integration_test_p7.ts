@@ -5,21 +5,21 @@
  * Tests all deployed P7 components for functionality and integration
  */
 
-import { _{ _* as fs } } from 'fs';
-import { _{ _* as path } } from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Import P7 components
-import { _{ _{ ConfigurationValidationEngine, _startConfigurationValidationEngine } } } from './src-nextgen/ghost/validation/configurationValidationEngine';
-import { _{ _{ MessageQueueSystem, _startMessageQueueSystem } } } from './src-nextgen/ghost/queue/messageQueueSystem';
-import { _{ _{ HealthCheckAggregator, _startHealthCheckAggregator } } } from './src-nextgen/ghost/monitoring/healthCheckAggregator';
-import { _{ _{ AutonomousDecisionEngine, _startAutonomousDecisionEngine } } } from './src-nextgen/ghost/autonomy/autonomousDecisionEngine';
-import { _{ _{ GhostGptRelayCore, _startGhostGptRelayCore } } } from './src-nextgen/ghost/relay/ghostGptRelayCore';
-import { _{ _{ GhostAutopilotHealer, _startGhostAutopilotHealer } } } from './src-nextgen/ghost/healer/ghostAutopilotHealer';
+import { ConfigurationValidationEngine, startConfigurationValidationEngine } from './src-nextgen/ghost/validation/configurationValidationEngine';
+import { MessageQueueSystem, startMessageQueueSystem } from './src-nextgen/ghost/queue/messageQueueSystem';
+import { HealthCheckAggregator, startHealthCheckAggregator } from './src-nextgen/ghost/monitoring/healthCheckAggregator';
+import { AutonomousDecisionEngine, startAutonomousDecisionEngine } from './src-nextgen/ghost/autonomy/autonomousDecisionEngine';
+import { GhostGptRelayCore, startGhostGptRelayCore } from './src-nextgen/ghost/relay/ghostGptRelayCore';
+import { GhostAutopilotHealer, startGhostAutopilotHealer } from './src-nextgen/ghost/healer/ghostAutopilotHealer';
 
 // Import schema validation
-import { _{ _{ 
-  validateGptRelayInput, _validateCliCommand, _validatePatchGeneratorPayload, _validateFeedbackIngestion, _validateMessageQueue, _validateHealthCheck
-} } } from './src-nextgen/ghost/validation/schemas';
+import { 
+  validateGptRelayInput, validateCliCommand, validatePatchGeneratorPayload, validateFeedbackIngestion, validateMessageQueue, validateHealthCheck
+} from './src-nextgen/ghost/validation/schemas';
 
 interface TestResult {
   testName: string;
@@ -127,27 +127,27 @@ class P7IntegrationTestSuite {
   }
 
   async testConfigurationValidationEngine(): Promise<TestResult> {
-    return this.runTest(_'Configuration Validation Engine', _async () => {
-      const _engine = new ConfigurationValidationEngine();
+    return this.runTest('Configuration Validation Engine', async () => {
+      const engine = new ConfigurationValidationEngine();
       
       // Test configuration loading
-      const _config = engine.getConfig();
+      const config = engine.getConfig();
       if (!config.validation.enabled) return false;
 
       // Test schema validation
-      const _testData = { testProperty: 'test-value', testNumber: 50 };
-      const _validation = await engine.validateConfiguration(this.testConfigPath, 'test-schema');
+      const testData = { testProperty: 'test-value', testNumber: 50 };
+      const validation = await engine.validateConfiguration(this.testConfigPath, 'test-schema');
       
       return validation.success;
     });
   }
 
   async testMessageQueueSystem(): Promise<TestResult> {
-    return this.runTest(_'Message Queue System', _async () => {
-      const _queue = new MessageQueueSystem();
+    return this.runTest('Message Queue System', async () => {
+      const queue = new MessageQueueSystem();
       
       // Test message enqueueing
-      const _testMessage = {
+      const testMessage = {
         id: 'test-msg-1',
         timestamp: new Date().toISOString(),
         priority: 'medium' as const,
@@ -162,23 +162,23 @@ class P7IntegrationTestSuite {
         ordered: false
       };
 
-      const _messageId = await queue.enqueueMessage(testMessage);
+      const messageId = await queue.enqueueMessage(testMessage);
       return messageId.length > 0;
     });
   }
 
   async testHealthCheckAggregator(): Promise<TestResult> {
-    return this.runTest(_'Health Check Aggregator', _async () => {
-      const _aggregator = new HealthCheckAggregator();
+    return this.runTest('Health Check Aggregator', async () => {
+      const aggregator = new HealthCheckAggregator();
       
       // Test system health retrieval
-      const _health = aggregator.getSystemHealth();
+      const health = aggregator.getSystemHealth();
       return health.overallScore >= 0 && health.overallScore <= 100;
     });
   }
 
   async testAutonomousDecisionEngine(): Promise<TestResult> {
-    return this.runTest(_'Autonomous Decision Engine', _async () => {
+    return this.runTest('Autonomous Decision Engine', async () => {
       const _engine = new AutonomousDecisionEngine();
       
       // Test system state retrieval
@@ -188,7 +188,7 @@ class P7IntegrationTestSuite {
   }
 
   async testGhostGptRelayCore(): Promise<TestResult> {
-    return this.runTest(_'Ghost GPT Relay Core', _async () => {
+    return this.runTest('Ghost GPT Relay Core', async () => {
       const _relay = new GhostGptRelayCore();
       
       // Test configuration loading
@@ -198,7 +198,7 @@ class P7IntegrationTestSuite {
   }
 
   async testGhostAutopilotHealer(): Promise<TestResult> {
-    return this.runTest(_'Ghost Autopilot Healer', _async () => {
+    return this.runTest('Ghost Autopilot Healer', async () => {
       const _healer = new GhostAutopilotHealer();
       
       // Test configuration loading
@@ -208,7 +208,7 @@ class P7IntegrationTestSuite {
   }
 
   async testSchemaValidation(): Promise<TestResult> {
-    return this.runTest(_'Schema Validation', _async () => {
+    return this.runTest('Schema Validation', async () => {
       // Test GPT Relay Input validation
       const _validGptInput = {
         command: 'test-command',
@@ -246,7 +246,7 @@ class P7IntegrationTestSuite {
   }
 
   async testComponentIntegration(): Promise<TestResult> {
-    return this.runTest(_'Component Integration', _async () => {
+    return this.runTest('Component Integration', async () => {
       // Test that all components can be instantiated together
       const _validationEngine = new ConfigurationValidationEngine();
       const _messageQueue = new MessageQueueSystem();
@@ -294,9 +294,9 @@ class P7IntegrationTestSuite {
     console.log('\n📊 Test Results Summary:');
     console.log('=' .repeat(60));
 
-    let _passCount = 0;
-    let _failCount = 0;
-    let _totalDuration = 0;
+    const _passCount = 0;
+    const _failCount = 0;
+    const _totalDuration = 0;
 
     for (const result of this.results) {
       const _statusIcon = result.status === 'PASS' ? '✅' : '❌';

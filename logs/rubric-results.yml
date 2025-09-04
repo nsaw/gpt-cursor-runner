@@ -1,0 +1,58 @@
+timestamp: '2025-09-04T04:03:10.201Z'
+version: v2.3.61
+score: 65
+grade: F
+passed: false
+categories:
+  nb20_compliance:
+    score: 15
+    maxScore: 25
+    percentage: 60
+    details:
+      nb20_patterns: Found 6 NB 2.0 pattern usages
+      forbidden_patterns: Found 700 forbidden pattern violations
+      absolute_paths: Found 1836 absolute path usages
+  validation_gates:
+    score: 25
+    maxScore: 25
+    percentage: 100
+    details:
+      typescript: TypeScript compilation passed
+      eslint: ESLint validation passed
+      contract: Contract compliance passed
+  service_health:
+    score: 6
+    maxScore: 20
+    percentage: 30
+    details:
+      health_endpoints: Health endpoints not responding
+      process_management: |
+        PM2 check failed: Command failed: pm2 list | grep -c "online"
+      error_handling: Error handling implemented
+  security_compliance:
+    score: 7
+    maxScore: 15
+    percentage: 46.666666666666664
+    details:
+      secret_management: Found 15707 potential hardcoded secrets
+      access_control: Found 116 access control implementations
+  documentation:
+    score: 10
+    maxScore: 10
+    percentage: 100
+    details:
+      source_of_truth: All SoT files present
+      update_process: 5 recent documentation updates
+  operational_excellence:
+    score: 2
+    maxScore: 5
+    percentage: 40
+    details:
+      monitoring: No monitoring services found
+      backup_recovery: 19 recent backups found
+details: {}
+recommendations:
+  - Remove forbidden patterns (disown, inline groups, tail -f)
+  - Ensure health endpoints are responding
+  - Remove hardcoded secrets, use environment variables
+  - Implement monitoring services

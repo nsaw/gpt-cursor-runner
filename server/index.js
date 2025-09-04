@@ -4,8 +4,8 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const patchRouter = require("./patchRouter");
 const webhookThoughtmarksCommands = require("../slack/webhook-thoughtmarks-commands");
-const healthRouter = require("./routes/health");
-const slackRouter = require("./routes/slack");
+// const healthRouter = require("./routes/health");
+// const slackRouter = require("./routes/slack");
 
 const app = express();
 app.use(express.json());
@@ -13,10 +13,10 @@ const PORT = process.env.NODE_PORT || 5052;
 const GPT_KEY = process.env.GPT_EMERGENCY_KEY || "supersecret";
 
 // Use health router first (specific routes before general ones)
-app.use("/health", healthRouter(express));
+// app.use("/health", healthRouter(express));
 
 // Use Slack router
-app.use("/slack", slackRouter(express));
+// app.use("/slack", slackRouter(express));
 
 // Use patch router
 app.use("/", patchRouter);
