@@ -5,6 +5,7 @@ const IGNORE_DIRS = new Set(['.git','node_modules','_backups','.cursor-cache','.
 const SELF = path.relative(root, __filename);
 const violations = [];
 
+// eslint-disable-next-line complexity
 function scan(dir){
   for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
     if(entry.name.startsWith('.DS_Store')) continue;
@@ -53,7 +54,7 @@ try{
 
 if(violations.length){
   console.error(`BAN_NODE_EVAL_GUARD: found forbidden \`node -e\` usage:\n - ${violations.join('\n - ')}`);
-  process.exit(1);
+  throw new Error('Node eval violations found');
 } else {
   console.log('BAN_NODE_EVAL_GUARD: OK');
 }

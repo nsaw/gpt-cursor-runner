@@ -16,11 +16,11 @@ try {
   
   if (errorCount > 0 || warningCount > 20) {
     console.error('GREEN-GUARD FAIL', { errors: errorCount, warnings: warningCount });
-    process.exit(1);
+    throw new Error('ESLint validation failed');
   }
   
   console.log('GREEN-GUARD PASS', { errors: errorCount, warnings: warningCount });
 } catch (err) {
   console.error('GREEN-GUARD ERROR', err.message);
-  process.exit(1);
+  throw new Error('ESLint validation failed');
 }

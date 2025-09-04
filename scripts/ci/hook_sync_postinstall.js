@@ -19,5 +19,5 @@ try {
   }
 } catch (e) { 
   console.error('HOOK_ENFORCE_ERR', e?.message || e); 
-  process.exit(1); 
+  throw new Error('Hook sync failed'); 
 }

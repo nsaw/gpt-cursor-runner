@@ -27,7 +27,7 @@ module.exports = {
       watch: false,
       env: {
         NODE_ENV: "production",
-        ***REMOVED***_RELAY_PORT: 3001,
+        GHOST_RELAY_PORT: 3001,
       },
       instances: 1,
       autorestart: true,

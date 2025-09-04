@@ -16,7 +16,7 @@ const MAIN_ARTIFACTS = '/Users/sawyer/gitSync/.cursor-cache/MAIN/artifacts/repor
 function runWrapperAudit() {
   console.log('Running wrapper audit...');
   try {
-    const result = execSync('node scripts/ci/wrapper-audit.js', { encoding: 'utf8', stdio: 'pipe' });
+    execSync('node scripts/ci/wrapper-audit.js', { encoding: 'utf8', stdio: 'pipe' });
     console.log('Wrapper audit completed successfully');
     return true;
   } catch (error) {
@@ -28,7 +28,7 @@ function runWrapperAudit() {
 function runFilenameGuard() {
   console.log('Running filename guard...');
   try {
-    const result = execSync('node scripts/ci/filename-guard.js', { encoding: 'utf8', stdio: 'pipe' });
+    execSync('node scripts/ci/filename-guard.js', { encoding: 'utf8', stdio: 'pipe' });
     console.log('Filename guard completed successfully');
     return true;
   } catch (error) {
@@ -112,14 +112,14 @@ function main() {
   
   if (allPassed) {
     console.log('🎉 All CI checks passed! Build can proceed.');
-    process.exit(0);
+    console.log('CI checks completed successfully');
   } else {
     console.log('🚨 CI checks failed! Build blocked.');
     console.log('\nTo fix:');
     console.log('1. Fix wrapper audit violations (use nb.cjs)');
     console.log('2. Fix filename guard violations (max 200 chars)');
     console.log('3. Re-run CI checks');
-    process.exit(1);
+    throw new Error('CI hard block failed');
   }
 }
 

@@ -1,25 +1,25 @@
 // ✅ RecentLogs.js - Real-time log tailing component
-import { _{ _React, _{ useState, _useEffect } } } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function RecentLogs() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(_() => {
+  useEffect(() => {
     fetchLogs();
-    const _interval = setInterval(fetchLogs, 5000); // Refresh every 5 seconds
+    const interval = setInterval(fetchLogs, 5000); // Refresh every 5 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const _fetchLogs = async () => {
+  const fetchLogs = async () => {
     try {
-      const _response = await fetch('/api/recent-logs');
+      const response = await fetch('/api/recent-logs');
       if (!response.ok) throw new Error('Failed to fetch logs');
-      const _data = await response.json();
+      const data = await response.json();
       setLogs(data.logs || []);
       setIsLoading(false);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }

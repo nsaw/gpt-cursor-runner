@@ -32,8 +32,8 @@ function verifyGitHubWebhook(_req, _res, _next) {
 }
 
 // GitHub webhook endpoint
-app.post(_'/github/webhook', _verifyGitHubWebhook, _(req, _res) => {
-  const { action, repository, _sender } = req.body;
+app.post('/github/webhook', verifyGitHubWebhook, (req, res) => {
+  const { action, repository, sender } = req.body;
   
   console.log(`GitHub webhook received: ${action} on ${repository?.full_name}`);
   
@@ -56,7 +56,7 @@ app.post(_'/github/webhook', _verifyGitHubWebhook, _(req, _res) => {
 });
 
 // Slack webhook endpoint
-app.post(_'/slack/webhook', _(req, _res) => {
+app.post('/slack/webhook', (req, res) => {
   const { type, event } = req.body;
   
   console.log(`Slack webhook received: ${type}`);
@@ -76,8 +76,8 @@ app.post(_'/slack/webhook', _(req, _res) => {
 });
 
 // Slack slash command endpoint
-app.post(_'/slack/commands', _(req, _res) => {
-  const { command, text, user_id, _channel_id } = req.body;
+app.post('/slack/commands', (req, res) => {
+  const { command, text, user_id, channel_id } = req.body;
   
   console.log(`Slack command received: ${command} from ${user_id}`);
   
@@ -138,7 +138,7 @@ function handleSlackEvent(event) {
 }
 
 // Health check endpoint
-app.get(_'/health', _(req, _res) => {
+app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -152,7 +152,7 @@ app.get(_'/health', _(req, _res) => {
 });
 
 // Start server
-app.listen(_PORT, _() => {
+app.listen(PORT, () => {
   console.log(`🚀 GitHub Webhook Handler running on port ${PORT}`);
   console.log(`📡 GitHub webhook: http://localhost:${PORT}/github/webhook`);
   console.log(`📡 Slack webhook: http://localhost:${PORT}/slack/webhook`);

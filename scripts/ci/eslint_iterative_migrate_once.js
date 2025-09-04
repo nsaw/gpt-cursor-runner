@@ -35,7 +35,7 @@ const path = require('path');
     fs.writeFileSync(OUT_PASS2, JSON.stringify(stub, null, 2));
     fs.writeFileSync(OUT_TOP, JSON.stringify({ files: [] }, null, 2));
     console.log(JSON.stringify(stub, null, 2));
-    process.exit(0);
+    console.log('ESLint migration completed successfully');
   }
 
   function readJson(p) {
@@ -122,7 +122,7 @@ const path = require('path');
     fs.writeFileSync(OUT_PASS2, JSON.stringify({ pass: 2, skipped: true, reason: 'threshold met' }, null, 2));
     fs.writeFileSync(OUT_TOP, JSON.stringify({ files: [] }, null, 2));
     console.log(JSON.stringify({ ok: true, pass: 1, errors: e1, warnings: w1 }, null, 2));
-    process.exit(0);
+    console.log('ESLint migration completed successfully');
   }
 
   // PASS 2: targeted disable for hot spots under allowlist
@@ -145,5 +145,5 @@ const path = require('path');
   const s2 = { pass: 2, errors: e2, warnings: w2, top: summarize(res2).slice(0, 50), disabled };
   fs.writeFileSync(OUT_PASS2, JSON.stringify(s2, null, 2));
   console.log(JSON.stringify({ ok: (e2 === 0 && w2 <= 20), pass: 2, errors: e2, warnings: w2 }, null, 2));
-  process.exit(0);
+  console.log('ESLint migration completed successfully');
 })();

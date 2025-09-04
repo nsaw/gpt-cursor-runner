@@ -35,7 +35,7 @@ function runNode(args) {
   });
 }
 
-async function runScoped() {
+function runScoped() {
   return runNode(['/Users/sawyer/gitSync/gpt-cursor-runner/scripts/ci/run_eslint_scoped_report_once.js']);
 }
 
@@ -53,7 +53,7 @@ function counts() {
   }
 }
 
-async function codemod(rules) {
+function codemod(rules) {
   const logOut = '/Users/sawyer/gitSync/.cursor-cache/ROOT/.logs/codemod-disable-log.json';
   return runNode([DISABLE_CM, ESLINT_JSON, rules.join(','), '40', logOut]);
 }

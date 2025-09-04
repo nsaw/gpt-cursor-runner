@@ -1,6 +1,6 @@
-timestamp: '2025-09-04T04:03:10.201Z'
+timestamp: '2025-09-04T17:23:11.389Z'
 version: v2.3.61
-score: 65
+score: 64
 grade: F
 passed: false
 categories:
@@ -9,23 +9,26 @@ categories:
     maxScore: 25
     percentage: 60
     details:
-      nb20_patterns: Found 6 NB 2.0 pattern usages
-      forbidden_patterns: Found 700 forbidden pattern violations
-      absolute_paths: Found 1836 absolute path usages
+      nb20_patterns: Found 49 NB 2.0 pattern usages
+      forbidden_patterns: Found 629 forbidden pattern violations
+      absolute_paths: Found 1694 absolute path usages
   validation_gates:
-    score: 25
+    score: 17
     maxScore: 25
-    percentage: 100
+    percentage: 68
     details:
       typescript: TypeScript compilation passed
-      eslint: ESLint validation passed
+      eslint: >
+        ESLint validation failed: Command failed: cd
+        /Users/sawyer/gitSync/gpt-cursor-runner && npx eslint . --ext .ts,.tsx
+        --max-warnings=0
       contract: Contract compliance passed
   service_health:
-    score: 6
+    score: 13
     maxScore: 20
-    percentage: 30
+    percentage: 65
     details:
-      health_endpoints: Health endpoints not responding
+      health_endpoints: Health endpoints responding
       process_management: |
         PM2 check failed: Command failed: pm2 list | grep -c "online"
       error_handling: Error handling implemented
@@ -34,8 +37,8 @@ categories:
     maxScore: 15
     percentage: 46.666666666666664
     details:
-      secret_management: Found 15707 potential hardcoded secrets
-      access_control: Found 116 access control implementations
+      secret_management: Found 15655 potential hardcoded secrets
+      access_control: Found 118 access control implementations
   documentation:
     score: 10
     maxScore: 10
@@ -53,6 +56,6 @@ categories:
 details: {}
 recommendations:
   - Remove forbidden patterns (disown, inline groups, tail -f)
-  - Ensure health endpoints are responding
+  - Fix ESLint validation errors
   - Remove hardcoded secrets, use environment variables
   - Implement monitoring services

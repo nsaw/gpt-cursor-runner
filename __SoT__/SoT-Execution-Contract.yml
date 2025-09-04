@@ -1,0 +1,66 @@
+---
+contract:
+  name: "SoT Execution Contract"
+  version: "v2.3.61"
+  timestamp: "2025-09-04T18:00:00Z"
+  status: "ACTIVE"
+  domain: "CYOPS"
+
+execution_requirements:
+  nb20_compliance:
+    pattern: "./scripts/nb-safe-detach.sh <label> 18s bash -lc '<ABSOLUTE_COMMAND>'"
+    forbidden_patterns:
+      - "{ … & }"
+      - "( … ) &"
+      - "disown"
+      - "tail -f"
+      - "raw timeout"
+      - "unbounded grep"
+    enforcement: "CI_HARD_BLOCK"
+
+  path_enforcement:
+    absolute_paths_only: true
+    no_tilde: true
+    base_path: "/Users/sawyer/gitSync/"
+    enforcement: "CONTRACT_VALIDATION"
+
+  acceptance_gates:
+    required_gates:
+      - "tsc - TypeScript compilation check"
+      - "eslint - ESLint validation"
+      - "contract - Execution contract compliance"
+      - "freeze - P5 freeze baseline exists and accessible"
+      - "drift - System drift within acceptable limits"
+    enforcement: "MANDATORY"
+
+  summary_requirements:
+    mandatory_summary: true
+    summary_location: "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/"
+    summary_format: "markdown"
+    enforcement: "SINGLE_WRITER"
+
+validation:
+  pre_commit:
+    required_checks:
+      - "TypeScript compilation"
+      - "ESLint validation"
+      - "Contract compliance"
+    enforcement: "HARD_BLOCK"
+
+  post_commit:
+    required_actions:
+      - "Summary creation"
+      - "Documentation update"
+      - "GPT sync file update"
+    enforcement: "MANDATORY"
+
+compliance:
+  zero_tolerance:
+    - "File corruption"
+    - "Hardcoded secrets"
+    - "Blocking operations"
+    - "Missing summaries"
+    - "Documentation drift"
+
+  enforcement_level: "CRITICAL"
+  violation_response: "IMMEDIATE_ROLLBACK"

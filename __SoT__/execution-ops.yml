@@ -1,0 +1,99 @@
+---
+execution_ops:
+  name: "Execution Operations Contract"
+  version: "v2.3.61"
+  timestamp: "2025-09-04T18:00:00Z"
+  status: "ACTIVE"
+  domain: "CYOPS"
+
+operations:
+  pre_execution:
+    validation_checks:
+      - "TypeScript compilation"
+      - "ESLint validation"
+      - "Contract compliance"
+      - "Path validation"
+      - "Security scan"
+    enforcement: "MANDATORY"
+
+  execution:
+    process_management:
+      - "PM2 process orchestration"
+      - "Service health monitoring"
+      - "Resource usage tracking"
+      - "Error handling and recovery"
+    enforcement: "REQUIRED"
+
+    nb20_compliance:
+      - "All commands use nb-safe-detach pattern"
+      - "Timeout enforcement (15s-30s)"
+      - "Process disowning"
+      - "No blocking operations"
+    enforcement: "CRITICAL"
+
+  post_execution:
+    validation:
+      - "Acceptance gates validation"
+      - "Service health verification"
+      - "System drift check"
+      - "Performance metrics"
+    enforcement: "MANDATORY"
+
+    documentation:
+      - "Summary file creation"
+      - "GPT sync file updates"
+      - "Bridge memory updates"
+      - "Change documentation"
+    enforcement: "REQUIRED"
+
+    commit_process:
+      - "Git staging"
+      - "Commit message generation"
+      - "Push to repository"
+      - "Validation confirmation"
+    enforcement: "MANDATORY"
+
+monitoring:
+  real_time:
+    - "Service health checks"
+    - "Resource monitoring"
+    - "Error tracking"
+    - "Performance metrics"
+  
+  periodic:
+    - "System drift analysis"
+    - "Security compliance check"
+    - "Documentation validation"
+    - "Contract compliance audit"
+
+  alerts:
+    - "Service failures"
+    - "Resource exhaustion"
+    - "Security violations"
+    - "Compliance failures"
+
+recovery:
+  automatic:
+    - "Service restart on failure"
+    - "Resource cleanup"
+    - "Error log rotation"
+    - "Health check recovery"
+
+  manual:
+    - "Rollback procedures"
+    - "Data recovery"
+    - "System restoration"
+    - "Emergency procedures"
+
+compliance:
+  zero_tolerance:
+    - "File corruption"
+    - "Hardcoded secrets"
+    - "Blocking operations"
+    - "Missing documentation"
+    - "Security violations"
+
+  enforcement:
+    level: "CRITICAL"
+    response: "IMMEDIATE_ROLLBACK"
+    validation: "CONTINUOUS"

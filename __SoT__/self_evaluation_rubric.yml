@@ -1,0 +1,108 @@
+---
+rubric:
+  name: "Self Evaluation Rubric"
+  version: "v2.3.61"
+  timestamp: "2025-09-04T18:00:00Z"
+  status: "ACTIVE"
+  domain: "CYOPS"
+
+evaluation_criteria:
+  technical_execution:
+    weight: 40
+    criteria:
+      - name: "Code Quality"
+        weight: 25
+        requirements:
+          - "TypeScript compilation passes"
+          - "ESLint validation passes"
+          - "No syntax errors"
+          - "Proper error handling"
+        scoring: "PASS/FAIL"
+      
+      - name: "System Integration"
+        weight: 15
+        requirements:
+          - "All services operational"
+          - "PM2 process management working"
+          - "Health endpoints responding"
+          - "Monitoring active"
+        scoring: "PASS/FAIL"
+
+  compliance_validation:
+    weight: 30
+    criteria:
+      - name: "NB 2.0 Compliance"
+        weight: 15
+        requirements:
+          - "All commands use nb-safe-detach pattern"
+          - "No blocking operations"
+          - "Proper timeout enforcement"
+          - "Process disowning implemented"
+        scoring: "PASS/FAIL"
+      
+      - name: "Security Compliance"
+        weight: 15
+        requirements:
+          - "No hardcoded secrets"
+          - "Environment variable usage"
+          - "Input validation"
+          - "CORS headers configured"
+        scoring: "PASS/FAIL"
+
+  documentation_compliance:
+    weight: 20
+    criteria:
+      - name: "Summary Creation"
+        weight: 10
+        requirements:
+          - "Comprehensive summary written"
+          - "Proper file location"
+          - "Markdown format"
+          - "All changes documented"
+        scoring: "PASS/FAIL"
+      
+      - name: "Documentation Updates"
+        weight: 10
+        requirements:
+          - "GPT sync files updated"
+          - "Bridge memory updated"
+          - "README updated if needed"
+          - "All changes committed"
+        scoring: "PASS/FAIL"
+
+  acceptance_gates:
+    weight: 10
+    criteria:
+      - name: "Gate Validation"
+        weight: 10
+        requirements:
+          - "All acceptance gates pass"
+          - "TypeScript compilation"
+          - "ESLint validation"
+          - "Contract compliance"
+          - "System drift within limits"
+        scoring: "PASS/FAIL"
+
+scoring:
+  pass_threshold: 100
+  fail_threshold: 0
+  evaluation_method: "BINARY_PASS_FAIL"
+
+validation:
+  mandatory_checks:
+    - "Acceptance gates pass (5/5)"
+    - "Summary file created and validated"
+    - "All services operational"
+    - "No blocking operations"
+    - "Documentation updated"
+
+  completion_criteria:
+    - "All criteria must PASS"
+    - "No partial completion allowed"
+    - "Zero tolerance for failures"
+    - "Immediate rollback on failure"
+
+enforcement:
+  level: "CRITICAL"
+  violation_response: "IMMEDIATE_ROLLBACK"
+  compliance_required: "100%"

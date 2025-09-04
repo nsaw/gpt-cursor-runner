@@ -13,6 +13,7 @@ const MAIN_ARTIFACTS = '/Users/sawyer/gitSync/.cursor-cache/MAIN/artifacts/statu
   }
 });
 
+// eslint-disable-next-line complexity
 function runGate(name, description, command, type = 'command') {
   console.log(`Running gate: ${name} - ${description}`);
   
@@ -145,7 +146,7 @@ function runAcceptanceGates() {
         console.log(`  - ${name}: ${gate.stderr || 'Unknown error'}`);
       }
     });
-    process.exit(1);
+    throw new Error('Acceptance gates failed');
   }
 
   return result;

@@ -1,25 +1,25 @@
 // ✅ TunnelStatusGrid.js - Tunnel status component
-import { _{ _React, _{ useState, _useEffect } } } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function TunnelStatusGrid() {
   const [tunnelStatus, setTunnelStatus] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(_() => {
+  useEffect(() => {
     fetchTunnelStatus();
-    const _interval = setInterval(fetchTunnelStatus, 30000); // Refresh every 30 seconds
+    const interval = setInterval(fetchTunnelStatus, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const _fetchTunnelStatus = async () => {
+  const fetchTunnelStatus = async () => {
     try {
-      const _response = await fetch('/api/tunnel-status');
+      const response = await fetch('/api/tunnel-status');
       if (!response.ok) throw new Error('Failed to fetch tunnel status');
-      const _data = await response.json();
+      const data = await response.json();
       setTunnelStatus(data.tunnelStatus || []);
       setIsLoading(false);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }

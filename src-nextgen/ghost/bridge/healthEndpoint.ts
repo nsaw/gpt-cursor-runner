@@ -123,6 +123,9 @@ export class HealthEndpointService extends EventEmitter {
         case '/live':
           this.handleLiveness(req, res);
           break;
+        case '/gpt/commands':
+          this.handleGPTCommands(req, res);
+          break;
         default:
           this.handleNotFound(req, res);
       }
@@ -158,7 +161,8 @@ export class HealthEndpointService extends EventEmitter {
         '/status - Service status',
         '/metrics - Service metrics',
         '/ready - Readiness probe',
-        '/live - Liveness probe'
+        '/live - Liveness probe',
+        '/gpt/commands - GPT command processing (POST)'
       ]
     };
 
@@ -234,6 +238,82 @@ export class HealthEndpointService extends EventEmitter {
   }
 
   /**
+   * Handle GPT Commands endpoint
+   */
+  private handleGPTCommands(req: http.IncomingMessage, res: http.ServerResponse): void {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        error: 'Method Not Allowed',
+        message: 'Only POST method is allowed for /gpt/commands'
+      }));
+      return;
+    }
+
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk.toString();
+    });
+
+    req.on('end', async () => {
+      try {
+        const requestData = JSON.parse(body);
+        
+        // Process the GPT command request
+        const result = await this.processGPTCommand(requestData);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result, null, 2));
+      } catch (error) {
+        console.error('GPT Commands error:', error);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          error: 'Bad Request',
+          message: error instanceof Error ? error.message : 'Invalid request format'
+        }));
+      }
+    });
+  }
+
+  /**
+   * Process GPT command request
+   */
+  private async processGPTCommand(requestData: any): Promise<any> {
+    try {
+      // Extract command information
+      const { text, domain = 'CYOPS', source = 'gpt', user = 'unknown' } = requestData;
+      
+      if (!text) {
+        throw new Error('Missing required field: text');
+      }
+
+      // Create patch request
+      const patchRequest = {
+        id: `gpt-${Date.now()}`,
+        plainText: text,
+        domain: domain as 'CYOPS' | 'MAIN',
+        timestamp: new Date().toISOString(),
+        source: source as 'slack' | 'gpt' | 'manual',
+        priority: 'medium' as const
+      };
+
+      // Queue the patch request
+      await gptBridge.queuePatchRequest(patchRequest);
+
+      return {
+        success: true,
+        message: 'Command queued successfully',
+        requestId: patchRequest.id,
+        timestamp: new Date().toISOString(),
+        status: 'queued'
+      };
+    } catch (error) {
+      console.error('Failed to process GPT command:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Handle 404 Not Found
    */
   private handleNotFound(req: http.IncomingMessage, res: http.ServerResponse): void {
@@ -241,7 +321,7 @@ export class HealthEndpointService extends EventEmitter {
     res.end(JSON.stringify({
       error: 'Not Found',
       message: `Endpoint ${req.url} not found`,
-      availableEndpoints: ['/health', '/status', '/metrics', '/ready', '/live']
+      availableEndpoints: ['/health', '/status', '/metrics', '/ready', '/live', '/gpt/commands']
     }));
   }
 

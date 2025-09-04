@@ -1,5 +1,5 @@
 // ✅ GhostHealthStatus.js - Ghost health status component
-import { _{ _React, _{ useState, _useEffect } } } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function GhostHealthStatus() {
   const [daemonStatus, setDaemonStatus] = useState({
@@ -10,24 +10,24 @@ export default function GhostHealthStatus() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(_() => {
+  useEffect(() => {
     fetchDaemonStatus();
-    const _interval = setInterval(fetchDaemonStatus, 15000); // Refresh every 15 seconds
+    const interval = setInterval(fetchDaemonStatus, 15000); // Refresh every 15 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const _fetchDaemonStatus = async () => {
+  const fetchDaemonStatus = async () => {
     try {
-      const _response = await fetch('/api/daemon-status');
+      const response = await fetch('/api/daemon-status');
       if (!response.ok) throw new Error('Failed to fetch daemon status');
-      const _data = await response.json();
+      const data = await response.json();
       
       // Enhanced validation - check for actual process existence
-      const _validatedData = {};
+      const validatedData = {};
       for (const [key, value] of Object.entries(data)) {
         if (value === 'running') {
           // Double-check with process validation
-          const _isValid = await validateProcessRunning(key);
+          const isValid = await validateProcessRunning(key);
           validatedData[key] = isValid ? 'running' : 'stopped';
         } else {
           validatedData[key] = value;
@@ -36,24 +36,24 @@ export default function GhostHealthStatus() {
       
       setDaemonStatus(validatedData);
       setIsLoading(false);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }
   };
 
-  const _validateProcessRunning = async (_processName) => {
+  const validateProcessRunning = async (processName) => {
     try {
-      const _response = await fetch(`/api/validate-process?name=${processName}`);
-      const _result = await response.json();
+      const response = await fetch(`/api/validate-process?name=${processName}`);
+      const result = await response.json();
       return result.running;
-    } catch (_error) {
+    } catch (error) {
       console.warn(`Process validation failed for ${processName}:`, error);
       return false;
     }
   };
 
-  const _getStatusIcon = (_status) => {
+  const getStatusIcon = (status) => {
     switch (status) {
     case 'running':
       return '✅';
@@ -64,7 +64,7 @@ export default function GhostHealthStatus() {
     }
   };
 
-  const _getStatusClass = (_status) => {
+  const getStatusClass = (status) => {
     switch (status) {
     case 'running':
       return 'status-ok';
