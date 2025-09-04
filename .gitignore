@@ -294,3 +294,7 @@ _gpt5intake/
 # PM2 snapshots (may contain sensitive data)
 snapshots/
 *.pm2-status.json
+
+# Validation files
+validations/
+*.pid
