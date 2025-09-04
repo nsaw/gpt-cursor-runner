@@ -290,3 +290,7 @@ __pycache__/
 .ghost-relay.log
 .patch-runner.log
 _gpt5intake/
+
+# PM2 snapshots (may contain sensitive data)
+snapshots/
+*.pm2-status.json
