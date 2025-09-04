@@ -1,0 +1,132 @@
+---
+rubric:
+  version: "v2.3.61"
+  timestamp: "2025-09-03T20:55:00.000Z"
+  status: "ACTIVE"
+  passing_grade: 95
+
+categories:
+  nb20_compliance:
+    name: "NB 2.0 Pattern Compliance"
+    weight: 25
+    criteria:
+      non_blocking_patterns:
+        description: "All commands use NB 2.0 non-blocking patterns"
+        points: 10
+        validation: "Check for ./scripts/nb-safe-detach.sh usage"
+      no_forbidden_patterns:
+        description: "No forbidden patterns (disown, inline groups, tail -f)"
+        points: 10
+        validation: "Scan for forbidden patterns"
+      absolute_paths:
+        description: "All paths are absolute starting with /Users/sawyer/gitSync/"
+        points: 5
+        validation: "Check for absolute path usage"
+
+  validation_gates:
+    name: "Validation Gates"
+    weight: 25
+    criteria:
+      typescript_compilation:
+        description: "TypeScript compilation passes without errors"
+        points: 8
+        validation: "npx tsc --noEmit --skipLibCheck"
+      eslint_validation:
+        description: "ESLint validation passes with zero warnings"
+        points: 8
+        validation: "npx eslint . --ext .ts,.tsx --max-warnings=0"
+      contract_compliance:
+        description: "Contract compliance validation passes"
+        points: 9
+        validation: "node scripts/tools/check-absolute-paths.js"
+
+  service_health:
+    name: "Service Health"
+    weight: 20
+    criteria:
+      health_endpoints:
+        description: "All services provide health endpoints"
+        points: 7
+        validation: "Check /health endpoint availability"
+      process_management:
+        description: "Proper process management and monitoring"
+        points: 7
+        validation: "Check PM2 integration and monitoring"
+      error_handling:
+        description: "Proper error handling and logging"
+        points: 6
+        validation: "Check error handling implementation"
+
+  security_compliance:
+    name: "Security Compliance"
+    weight: 15
+    criteria:
+      secret_management:
+        description: "No hardcoded secrets, proper vault integration"
+        points: 8
+        validation: "Scan for hardcoded secrets"
+      access_control:
+        description: "Proper access control and permissions"
+        points: 7
+        validation: "Check access control implementation"
+
+  documentation:
+    name: "Documentation"
+    weight: 10
+    criteria:
+      source_of_truth:
+        description: "Maintains single source of truth"
+        points: 5
+        validation: "Check SoT file maintenance"
+      update_process:
+        description: "Regular documentation updates"
+        points: 5
+        validation: "Check documentation freshness"
+
+  operational_excellence:
+    name: "Operational Excellence"
+    weight: 5
+    criteria:
+      monitoring:
+        description: "Comprehensive monitoring and alerting"
+        points: 3
+        validation: "Check monitoring implementation"
+      backup_recovery:
+        description: "Proper backup and recovery procedures"
+        points: 2
+        validation: "Check backup procedures"
+
+validation:
+  automated_checks: true
+  manual_review: false
+  threshold: 95
+  fail_on_threshold: true
+
+reporting:
+  format: "yaml"
+  output_file: "/Users/sawyer/gitSync/gpt-cursor-runner/logs/rubric-results.yml"
+  include_details: true
+  include_recommendations: true
+
+scoring:
+  total_points: 100
+  passing_threshold: 95
+  grade_scale:
+    A+: 98-100
+    A: 95-97
+    B: 90-94
+    C: 85-89
+    D: 80-84
+    F: 0-79
+
+enforcement:
+  pre_commit: true
+  ci_pipeline: true
+  deployment: true
+  monitoring: true
+
+audit:
+  frequency: "daily"
+  retention: "30_days"
+  alerts: true
+  reporting: "weekly"
