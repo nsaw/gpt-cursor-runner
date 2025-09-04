@@ -1,0 +1,257 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Patch Schema v2.3.61",
+  "description": "Schema for hardened patches in the GPT Cursor Runner system",
+  "type": "object",
+  "required": [
+    "showInUI",
+    "blockId",
+    "description",
+    "target",
+    "version",
+    "mutations",
+    "validate",
+    "postMutationBuild"
+  ],
+  "properties": {
+    "showInUI": {
+      "type": "boolean",
+      "description": "Whether to show this patch in the UI"
+    },
+    "blockId": {
+      "type": "string",
+      "pattern": "^patch-v[0-9]+\\.[0-9]+\\.[0-9]+\\(P[0-9]+\\.[0-9]+\\.[0-9]+\\)_[a-z0-9-]+$",
+      "description": "Unique patch identifier following naming convention"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Short description of the patch"
+    },
+    "target": {
+      "type": "string",
+      "enum": ["DEV", "BRAUN", "BOTH"],
+      "description": "Target agent for patch execution"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Version string for the patch"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of dependencies for this patch"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of prerequisites for this patch"
+    },
+    "preMutationValidation": {
+      "type": "object",
+      "properties": {
+        "shell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Pre-mutation validation commands"
+    },
+    "mutations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "contents"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^/Users/sawyer/gitSync/",
+            "description": "Absolute path to the file to modify"
+          },
+          "contents": {
+            "type": "string",
+            "description": "Content to insert or replace"
+          },
+          "insertAfter": {
+            "type": "string",
+            "description": "Text to insert after"
+          },
+          "insertBefore": {
+            "type": "string",
+            "description": "Text to insert before"
+          },
+          "insertAt": {
+            "type": "string",
+            "description": "Specific location to insert"
+          },
+          "fallback": {
+            "type": "string",
+            "description": "Fallback insertion strategy"
+          }
+        }
+      },
+      "description": "List of mutations to apply"
+    },
+    "testing": {
+      "type": "object",
+      "properties": {
+        "shell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Testing commands to run"
+    },
+    "nextSteps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of next steps after patch execution"
+    },
+    "postMutationBuild": {
+      "type": "object",
+      "required": ["shell"],
+      "properties": {
+        "shell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Post-mutation build commands"
+    },
+    "documentation": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Summary of changes made"
+        },
+        "filesModified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of files modified"
+        },
+        "breakingChanges": {
+          "type": "boolean",
+          "description": "Whether this patch contains breaking changes"
+        }
+      },
+      "description": "Documentation for the patch"
+    },
+    "successCriteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of success criteria"
+    },
+    "rollbackPlan": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of rollback steps"
+    },
+    "validate": {
+      "type": "object",
+      "required": ["shell"],
+      "properties": {
+        "shell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Validation commands"
+    },
+    "final": {
+      "type": "object",
+      "properties": {
+        "git": {
+          "type": "object",
+          "properties": {
+            "commit": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": {
+          "type": "string"
+        },
+        "summaryFile": {
+          "type": "string",
+          "pattern": "^/Users/sawyer/gitSync/\\.cursor-cache/(CYOPS|MAIN)/summaries/",
+          "description": "Absolute path to summary file"
+        }
+      },
+      "description": "Finalization steps"
+    },
+    "blockCommitOnError": {
+      "type": "boolean",
+      "description": "Whether to block commit on error"
+    },
+    "watchConsole": {
+      "type": "boolean",
+      "description": "Whether to watch console output"
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "autoReleaseTimeoutMs": {
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 300000
+        },
+        "onReloadHang": {
+          "type": "string"
+        }
+      },
+      "description": "Execution configuration"
+    },
+    "enforceValidationGate": {
+      "type": "boolean",
+      "description": "Whether to enforce validation gate"
+    },
+    "strictRuntimeAudit": {
+      "type": "boolean",
+      "description": "Whether to perform strict runtime audit"
+    },
+    "runDryCheck": {
+      "type": "boolean",
+      "description": "Whether to run dry check"
+    },
+    "forceRuntimeTrace": {
+      "type": "boolean",
+      "description": "Whether to force runtime trace"
+    },
+    "requireMutationProof": {
+      "type": "boolean",
+      "description": "Whether to require mutation proof"
+    },
+    "requireServiceUptime": {
+      "type": "boolean",
+      "description": "Whether to require service uptime"
+    }
+  },
+  "additionalProperties": false
+}

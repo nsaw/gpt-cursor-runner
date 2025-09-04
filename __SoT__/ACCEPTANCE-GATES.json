@@ -1,0 +1,61 @@
+{
+  "acceptanceGates": {
+    "version": "v2.3.61",
+    "timestamp": "2025-09-03T20:55:00.000Z",
+    "status": "ACTIVE",
+    "gates": {
+      "typescript": {
+        "name": "TypeScript Compilation",
+        "command": "npx tsc --noEmit --skipLibCheck",
+        "required": true,
+        "timeout": 30,
+        "description": "TypeScript compilation must pass without errors",
+        "enforcement": "CRITICAL"
+      },
+      "eslint": {
+        "name": "ESLint Validation",
+        "command": "npx eslint . --ext .ts,.tsx --max-warnings=0",
+        "required": true,
+        "timeout": 30,
+        "description": "ESLint validation must pass with zero warnings",
+        "enforcement": "CRITICAL"
+      },
+      "contract": {
+        "name": "Contract Compliance",
+        "command": "node scripts/tools/check-absolute-paths.js",
+        "required": true,
+        "timeout": 15,
+        "description": "Contract compliance validation must pass",
+        "enforcement": "CRITICAL"
+      },
+      "freeze": {
+        "name": "Freeze Verification",
+        "command": "system state consistency check",
+        "required": true,
+        "timeout": 10,
+        "description": "System state consistency must be maintained",
+        "enforcement": "HIGH"
+      },
+      "drift": {
+        "name": "Drift Detection",
+        "command": "anti-drift policy enforcement",
+        "required": true,
+        "timeout": 10,
+        "description": "Anti-drift policy must be enforced",
+        "enforcement": "HIGH"
+      }
+    },
+    "validation": {
+      "allGatesRequired": true,
+      "failFast": true,
+      "retryCount": 0,
+      "parallelExecution": false
+    },
+    "reporting": {
+      "statusFile": "/Users/sawyer/gitSync/gpt-cursor-runner/public/status/acceptance-gates.json",
+      "logFile": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/acceptance-gates.log",
+      "alertOnFailure": true,
+      "slackNotification": true
+    }
+  }
+}

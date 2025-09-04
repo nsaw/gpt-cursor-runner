@@ -1,0 +1,133 @@
+{
+  "rubric": {
+    "version": "v2.3.61",
+    "timestamp": "2025-09-03T20:55:00.000Z",
+    "status": "ACTIVE",
+    "passingGrade": 95,
+    "categories": {
+      "nb20Compliance": {
+        "name": "NB 2.0 Pattern Compliance",
+        "weight": 25,
+        "criteria": {
+          "nonBlockingPatterns": {
+            "description": "All commands use NB 2.0 non-blocking patterns",
+            "points": 10,
+            "validation": "Check for ./scripts/nb-safe-detach.sh usage"
+          },
+          "noForbiddenPatterns": {
+            "description": "No forbidden patterns (disown, inline groups, tail -f)",
+            "points": 10,
+            "validation": "Scan for forbidden patterns"
+          },
+          "absolutePaths": {
+            "description": "All paths are absolute starting with /Users/sawyer/gitSync/",
+            "points": 5,
+            "validation": "Check for absolute path usage"
+          }
+        }
+      },
+      "validationGates": {
+        "name": "Validation Gates",
+        "weight": 25,
+        "criteria": {
+          "typescriptCompilation": {
+            "description": "TypeScript compilation passes without errors",
+            "points": 8,
+            "validation": "npx tsc --noEmit --skipLibCheck"
+          },
+          "eslintValidation": {
+            "description": "ESLint validation passes with zero warnings",
+            "points": 8,
+            "validation": "npx eslint . --ext .ts,.tsx --max-warnings=0"
+          },
+          "contractCompliance": {
+            "description": "Contract compliance validation passes",
+            "points": 9,
+            "validation": "node scripts/tools/check-absolute-paths.js"
+          }
+        }
+      },
+      "serviceHealth": {
+        "name": "Service Health",
+        "weight": 20,
+        "criteria": {
+          "healthEndpoints": {
+            "description": "All services provide health endpoints",
+            "points": 7,
+            "validation": "Check /health endpoint availability"
+          },
+          "processManagement": {
+            "description": "Proper process management and monitoring",
+            "points": 7,
+            "validation": "Check PM2 integration and monitoring"
+          },
+          "errorHandling": {
+            "description": "Proper error handling and logging",
+            "points": 6,
+            "validation": "Check error handling implementation"
+          }
+        }
+      },
+      "securityCompliance": {
+        "name": "Security Compliance",
+        "weight": 15,
+        "criteria": {
+          "secretManagement": {
+            "description": "No hardcoded secrets, proper vault integration",
+            "points": 8,
+            "validation": "Scan for hardcoded secrets"
+          },
+          "accessControl": {
+            "description": "Proper access control and permissions",
+            "points": 7,
+            "validation": "Check access control implementation"
+          }
+        }
+      },
+      "documentation": {
+        "name": "Documentation",
+        "weight": 10,
+        "criteria": {
+          "sourceOfTruth": {
+            "description": "Maintains single source of truth",
+            "points": 5,
+            "validation": "Check SoT file maintenance"
+          },
+          "updateProcess": {
+            "description": "Regular documentation updates",
+            "points": 5,
+            "validation": "Check documentation freshness"
+          }
+        }
+      },
+      "operationalExcellence": {
+        "name": "Operational Excellence",
+        "weight": 5,
+        "criteria": {
+          "monitoring": {
+            "description": "Comprehensive monitoring and alerting",
+            "points": 3,
+            "validation": "Check monitoring implementation"
+          },
+          "backupRecovery": {
+            "description": "Proper backup and recovery procedures",
+            "points": 2,
+            "validation": "Check backup procedures"
+          }
+        }
+      }
+    },
+    "validation": {
+      "automatedChecks": true,
+      "manualReview": false,
+      "threshold": 95,
+      "failOnThreshold": true
+    },
+    "reporting": {
+      "format": "json",
+      "outputFile": "/Users/sawyer/gitSync/gpt-cursor-runner/logs/rubric-results.json",
+      "includeDetails": true,
+      "includeRecommendations": true
+    }
+  }
+}
