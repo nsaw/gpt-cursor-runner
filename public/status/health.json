@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-09-03T03:58:00.000Z",
+  "status": "unhealthy",
+  "services": {
+    "liveExecutor": false,
+    "spoolWatcher": false,
+    "slackIntegration": true
+  },
+  "queues": {
+    "cyops": {
+      "depth": 4,
+      "lastProcessed": "2025-09-03T03:37:18.523Z"
+    },
+    "main": {
+      "depth": 1,
+      "lastProcessed": "2025-09-03T03:37:18.523Z"
+    }
+  },
+  "drift": {
+    "status": "ok",
+    "lastCheck": "2025-09-02T22:50:00.000Z",
+    "violations": 0
+  },
+  "slo": {
+    "queueDelay": 968,
+    "processingTime": 30,
+    "successRate": 95
+  },
+  "version": "v2.3.58"
+}

@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-09-03T04:05:00.000Z",
+  "overallStatus": "FAIL",
+  "gates": {
+    "tsc": {
+      "name": "tsc",
+      "description": "TypeScript compilation check",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "success": false,
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "TypeScript compilation has errors but exits with code 0",
+      "timestamp": "2025-09-03T04:05:00.000Z"
+    },
+    "eslint": {
+      "name": "eslint",
+      "description": "ESLint validation",
+      "command": "npx eslint . --ext .ts,.tsx --max-warnings=0",
+      "success": false,
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "ESLint validation failed",
+      "timestamp": "2025-09-03T04:05:00.000Z"
+    },
+    "contract": {
+      "name": "contract",
+      "description": "Execution contract compliance",
+      "command": "node scripts/tools/check-absolute-paths.js",
+      "success": true,
+      "exitCode": 0,
+      "stdout": "Absolute paths check passed",
+      "stderr": "",
+      "timestamp": "2025-09-03T04:05:00.000Z"
+    },
+    "freeze": {
+      "name": "freeze",
+      "description": "P5 freeze baseline exists and is accessible",
+      "success": true,
+      "exitCode": 0,
+      "stdout": "Freeze baseline found",
+      "stderr": "",
+      "timestamp": "2025-09-03T04:05:00.000Z"
+    },
+    "drift": {
+      "name": "drift",
+      "description": "System drift within acceptable limits",
+      "success": true,
+      "exitCode": 0,
+      "stdout": "Drift status: baseline_ok",
+      "stderr": "",
+      "timestamp": "2025-09-03T04:05:00.000Z"
+    }
+  },
+  "links": {
+    "tsc": {
+      "log": "validations/logs/tsc.log",
+      "status": "validations/status/tsc.done"
+    },
+    "eslint": {
+      "log": "validations/logs/eslint.log",
+      "status": "validations/status/eslint.done"
+    },
+    "contract": {
+      "log": "validations/logs/contract.log",
+      "status": "validations/status/contract.done"
+    },
+    "freeze": {
+      "baseline": "/Users/sawyer/gitSync/gpt-cursor-runner/fences/P6-freeze-2025-09-01T17-26-37",
+      "status": "active"
+    },
+    "drift": {
+      "status": "/Users/sawyer/gitSync/gpt-cursor-runner/public/status/drift.json",
+      "baseline": "/Users/sawyer/gitSync/gpt-cursor-runner/fences/P6-freeze-2025-09-01T17-26-37"
+    }
+  },
+  "summary": "Overall: FAIL (3/5 gates passed) - TypeScript and ESLint need attention"
+}

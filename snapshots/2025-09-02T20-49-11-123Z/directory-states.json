@@ -1,0 +1,66 @@
+{
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/patches/": {
+    "exists": true,
+    "fileCount": 13,
+    "files": [
+      ".DS_Store",
+      ".archive",
+      ".completed",
+      ".corrupt",
+      ".failed",
+      ".heartbeat",
+      ".hold",
+      ".logs",
+      ".rejected",
+      ".stuck"
+    ]
+  },
+  "/Users/sawyer/gitSync/.cursor-cache/MAIN/patches/": {
+    "exists": true,
+    "fileCount": 13,
+    "files": [
+      ".DS_Store",
+      ".archive",
+      ".completed",
+      ".done",
+      ".fail",
+      ".failed",
+      ".logs",
+      ".queue",
+      ".skip",
+      ".stuck"
+    ]
+  },
+  "/Users/sawyer/gitSync/.cursor-cache/CYOPS/summaries/": {
+    "exists": true,
+    "fileCount": 641,
+    "files": [
+      ".DS_Store",
+      ".archive",
+      ".completed",
+      ".failed",
+      ".heartbeat",
+      ".keep",
+      ".last-md-write.log",
+      ".logs",
+      "_freeze",
+      "_g2o-status"
+    ]
+  },
+  "/Users/sawyer/gitSync/.cursor-cache/MAIN/summaries/": {
+    "exists": true,
+    "fileCount": 705,
+    "files": [
+      ".DS_Store",
+      ".archive",
+      ".completed",
+      ".failed",
+      ".heartbeat",
+      ".keep",
+      "ESCALATE_patch-v1.6.542(P6.5.43)_ai-tools-system-migration.md",
+      "INDEX.md",
+      "P6.6_completion_probe.json",
+      "P6.6_execution-plan.json"
+    ]
+  }
+}

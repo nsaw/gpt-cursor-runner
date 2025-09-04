@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-09-03T03:46:45.260Z",
+  "lastIngest": {
+    "patchId": "patch-1756871205260-z2fmta",
+    "domain": "CYOPS",
+    "source": "slack",
+    "channel": "cyops-dev",
+    "user": "dev-user",
+    "success": true,
+    "timestamp": "2025-09-03T03:46:45.260Z"
+  },
+  "stats": {
+    "totalIngested": 1,
+    "successful": 1,
+    "failed": 0
+  },
+  "status": "ACTIVE",
+  "version": "v2.3.58"
+}
